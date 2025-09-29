@@ -7,6 +7,7 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:chattrix_ui/core/toast/toast_controller.dart';
 
 class LoginScreen extends HookConsumerWidget {
   const LoginScreen({super.key});
@@ -93,6 +94,18 @@ class LoginScreen extends HookConsumerWidget {
                 onPressed: () {},
               ),
               const SizedBox(height: 40),
+
+              OutlinedButton(
+                onPressed: () {
+                  Toasts.success(
+                    context,
+                    title: 'Thành công',
+                    description: 'Đây là ví dụ toast toàn cục.',
+                  );
+                },
+                child: const Text('Hiện Toast'),
+              ),
+              const SizedBox(height: 12),
 
               _buildSignUpLink(context),
               const SizedBox(height: 20),
