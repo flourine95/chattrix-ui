@@ -15,7 +15,7 @@ abstract class UserModel with _$UserModel {
     required String email,
     required String fullName,
     String? avatarUrl,
-    required bool isOnline,
+    @JsonKey(name: 'online') required bool isOnline,
     required String lastSeen,
   }) = _UserModel;
 

@@ -1,19 +1,6 @@
+import 'package:chattrix_ui/core/constants/api_constants.dart';
+import 'package:chattrix_ui/features/auth/domain/datasources/auth_local_datasource.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-
-import '../../../../core/constants/api_constants.dart';
-
-abstract class AuthLocalDataSource {
-  Future<void> saveTokens({
-    required String accessToken,
-    required String refreshToken,
-  });
-
-  Future<String?> getAccessToken();
-
-  Future<String?> getRefreshToken();
-
-  Future<void> deleteTokens();
-}
 
 class AuthLocalDataSourceImpl implements AuthLocalDataSource {
   final FlutterSecureStorage secureStorage;

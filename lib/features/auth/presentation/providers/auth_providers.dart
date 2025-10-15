@@ -1,18 +1,35 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:chattrix_ui/core/errors/failures.dart';
+import 'package:chattrix_ui/core/network/auth_http_client.dart';
+import 'package:chattrix_ui/features/auth/data/datasources/auth_local_datasource_impl.dart';
+import 'package:chattrix_ui/features/auth/data/datasources/auth_remote_datasource_impl.dart';
+import 'package:chattrix_ui/features/auth/data/repositories/auth_repository_impl.dart';
+import 'package:chattrix_ui/features/auth/domain/datasources/auth_local_datasource.dart';
+import 'package:chattrix_ui/features/auth/domain/datasources/auth_remote_datasource.dart';
+import 'package:chattrix_ui/features/auth/domain/entities/user.dart';
+import 'package:chattrix_ui/features/auth/domain/repositories/auth_repository.dart';
+import 'package:chattrix_ui/features/auth/domain/usecases/change_password_usecase.dart';
+import 'package:chattrix_ui/features/auth/domain/usecases/forgot_password_usecase.dart';
+import 'package:chattrix_ui/features/auth/domain/usecases/get_current_user_usecase.dart';
+import 'package:chattrix_ui/features/auth/domain/usecases/is_logged_in_usecase.dart';
+import 'package:chattrix_ui/features/auth/domain/usecases/login_usecase.dart';
+import 'package:chattrix_ui/features/auth/domain/usecases/logout_all_usecase.dart';
+import 'package:chattrix_ui/features/auth/domain/usecases/logout_usecase.dart';
+import 'package:chattrix_ui/features/auth/domain/usecases/refresh_token_usecase.dart';
+import 'package:chattrix_ui/features/auth/domain/usecases/register_usecase.dart';
+import 'package:chattrix_ui/features/auth/domain/usecases/resend_verification_usecase.dart';
+import 'package:chattrix_ui/features/auth/domain/usecases/reset_password_usecase.dart';
+import 'package:chattrix_ui/features/auth/domain/usecases/verify_email_usecase.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:http/http.dart' as http;
-
-import '../../../../core/errors/failures.dart';
-import '../../data/datasources/auth_local_datasource.dart';
-import '../../data/datasources/auth_remote_datasource.dart';
-import '../../data/repositories/auth_repository_impl.dart';
-import '../../domain/entities/user.dart';
-import '../../domain/repositories/auth_repository.dart';
-import '../../domain/usecases/auth_usecases.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:http/http.dart' as http show Client;
 
 // Providers for dependencies
 final httpClientProvider = Provider<http.Client>((ref) {
-  return http.Client();
+  // Sử dụng AuthHttpClient với tự động refresh token
+  return AuthHttpClient(
+    client: http.Client(),
+    secureStorage: ref.watch(secureStorageProvider),
+  );
 });
 
 final secureStorageProvider = Provider<FlutterSecureStorage>((ref) {
@@ -21,13 +38,15 @@ final secureStorageProvider = Provider<FlutterSecureStorage>((ref) {
 
 // Data source providers
 final authRemoteDataSourceProvider = Provider<AuthRemoteDataSource>((ref) {
-  return AuthRemoteDataSourceImpl(client: ref.watch(httpClientProvider));
+  return AuthRemoteDataSourceImpl(client: ref.watch(httpClientProvider))
+      as AuthRemoteDataSource;
 });
 
 final authLocalDataSourceProvider = Provider<AuthLocalDataSource>((ref) {
   return AuthLocalDataSourceImpl(
-    secureStorage: ref.watch(secureStorageProvider),
-  );
+        secureStorage: ref.watch(secureStorageProvider),
+      )
+      as AuthLocalDataSource;
 });
 
 // Repository provider

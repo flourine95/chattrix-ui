@@ -43,25 +43,16 @@ class AppRouter {
             state.matchedLocation == forgotPasswordPath ||
             state.matchedLocation == otpVerificationPath;
 
-        // Debug log
-        debugPrint('🔐 Auth Redirect Check:');
-        debugPrint('   isLoggedIn: $isLoggedIn');
-        debugPrint('   current location: ${state.matchedLocation}');
-        debugPrint('   isGoingToAuth: $isGoingToAuth');
-
         // Nếu chưa login và không đang đi đến auth screen -> redirect đến login
         if (!isLoggedIn && !isGoingToAuth) {
-          debugPrint('   ➡️ Redirecting to login');
           return loginPath;
         }
 
         // Nếu đã login và đang ở auth screen -> redirect về home
         if (isLoggedIn && isGoingToAuth) {
-          debugPrint('   ➡️ Redirecting to home');
           return '/';
         }
 
-        debugPrint('   ✅ No redirect needed');
         return null; // Không redirect
       },
       routes: <RouteBase>[

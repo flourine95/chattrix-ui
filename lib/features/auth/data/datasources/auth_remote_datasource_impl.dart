@@ -1,51 +1,11 @@
 import 'dart:convert';
 
+import 'package:chattrix_ui/core/constants/api_constants.dart';
+import 'package:chattrix_ui/core/errors/exceptions.dart';
+import 'package:chattrix_ui/features/auth/data/models/auth_tokens_model.dart';
+import 'package:chattrix_ui/features/auth/data/models/user_model.dart';
+import 'package:chattrix_ui/features/auth/domain/datasources/auth_remote_datasource.dart';
 import 'package:http/http.dart' as http;
-
-import '../../../../core/constants/api_constants.dart';
-import '../../../../core/errors/exceptions.dart';
-import '../models/auth_tokens_model.dart';
-import '../models/user_model.dart';
-
-abstract class AuthRemoteDataSource {
-  Future<void> register({
-    required String username,
-    required String email,
-    required String password,
-    required String fullName,
-  });
-
-  Future<void> verifyEmail({required String email, required String otp});
-
-  Future<void> resendVerification({required String email});
-
-  Future<AuthTokensModel> login({
-    required String usernameOrEmail,
-    required String password,
-  });
-
-  Future<UserModel> getCurrentUser(String accessToken);
-
-  Future<AuthTokensModel> refreshToken(String refreshToken);
-
-  Future<void> changePassword({
-    required String accessToken,
-    required String currentPassword,
-    required String newPassword,
-  });
-
-  Future<void> forgotPassword({required String email});
-
-  Future<void> resetPassword({
-    required String email,
-    required String otp,
-    required String newPassword,
-  });
-
-  Future<void> logout(String accessToken);
-
-  Future<void> logoutAll(String accessToken);
-}
 
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   final http.Client client;
@@ -132,9 +92,11 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   @override
   Future<UserModel> getCurrentUser(String accessToken) async {
     try {
+      // Không cần truyền accessToken vào header thủ công
+      // AuthHttpClient sẽ tự động thêm từ secure storage
       final response = await client.get(
         Uri.parse('${ApiConstants.baseUrl}/${ApiConstants.me}'),
-        headers: {'Authorization': '${ApiConstants.bearer} $accessToken'},
+        // Bỏ header Authorization - để AuthHttpClient tự động thêm
       );
 
       final data = await _handleResponse(response);
@@ -167,12 +129,10 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     required String newPassword,
   }) async {
     try {
+      // Bỏ Authorization header - để AuthHttpClient tự động thêm
       final response = await client.put(
         Uri.parse('${ApiConstants.baseUrl}/${ApiConstants.changePassword}'),
-        headers: {
-          'Authorization': '${ApiConstants.bearer} $accessToken',
-          'Content-Type': ApiConstants.contentTypeJson,
-        },
+        headers: {'Content-Type': ApiConstants.contentTypeJson},
         body: jsonEncode({
           'currentPassword': currentPassword,
           'newPassword': newPassword,
@@ -226,9 +186,9 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   @override
   Future<void> logout(String accessToken) async {
     try {
+      // Bỏ Authorization header - để AuthHttpClient tự động thêm
       final response = await client.post(
         Uri.parse('${ApiConstants.baseUrl}/${ApiConstants.logout}'),
-        headers: {'Authorization': '${ApiConstants.bearer} $accessToken'},
       );
 
       await _handleResponse(response);
@@ -240,9 +200,9 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   @override
   Future<void> logoutAll(String accessToken) async {
     try {
+      // Bỏ Authorization header - để AuthHttpClient tự động thêm
       final response = await client.post(
         Uri.parse('${ApiConstants.baseUrl}/${ApiConstants.logoutAll}'),
-        headers: {'Authorization': '${ApiConstants.bearer} $accessToken'},
       );
 
       await _handleResponse(response);

@@ -2,11 +2,11 @@ import 'package:dartz/dartz.dart';
 
 import '../../../../core/errors/exceptions.dart';
 import '../../../../core/errors/failures.dart';
+import '../../domain/datasources/auth_local_datasource.dart';
+import '../../domain/datasources/auth_remote_datasource.dart';
 import '../../domain/entities/auth_tokens.dart';
 import '../../domain/entities/user.dart';
 import '../../domain/repositories/auth_repository.dart';
-import '../datasources/auth_local_datasource.dart';
-import '../datasources/auth_remote_datasource.dart';
 
 class AuthRepositoryImpl implements AuthRepository {
   final AuthRemoteDataSource remoteDataSource;
@@ -104,12 +104,11 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   Future<Either<Failure, User>> getCurrentUser() async {
     try {
-      final accessToken = await localDataSource.getAccessToken();
-      if (accessToken == null) {
-        return const Left(Failure.unauthorized(message: 'Not authenticated'));
-      }
-
-      final userModel = await remoteDataSource.getCurrentUser(accessToken);
+      // Bỏ việc check accessToken ở đây
+      // Để AuthHttpClient tự động lấy từ storage và auto-refresh nếu cần
+      final userModel = await remoteDataSource.getCurrentUser(
+        '',
+      ); // Pass empty string
       return Right(userModel.toEntity());
     } on ServerException catch (e) {
       return Left(_mapServerExceptionToFailure(e));
@@ -154,13 +153,9 @@ class AuthRepositoryImpl implements AuthRepository {
     required String newPassword,
   }) async {
     try {
-      final accessToken = await localDataSource.getAccessToken();
-      if (accessToken == null) {
-        return const Left(Failure.unauthorized(message: 'Not authenticated'));
-      }
-
+      // Bỏ check accessToken - để AuthHttpClient tự xử lý
       await remoteDataSource.changePassword(
-        accessToken: accessToken,
+        accessToken: '', // Pass empty string
         currentPassword: currentPassword,
         newPassword: newPassword,
       );
@@ -214,10 +209,8 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   Future<Either<Failure, void>> logout() async {
     try {
-      final accessToken = await localDataSource.getAccessToken();
-      if (accessToken != null) {
-        await remoteDataSource.logout(accessToken);
-      }
+      // Bỏ check accessToken - để AuthHttpClient tự xử lý
+      await remoteDataSource.logout(''); // Pass empty string
 
       await localDataSource.deleteTokens();
       return const Right(null);
@@ -238,12 +231,8 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   Future<Either<Failure, void>> logoutAll() async {
     try {
-      final accessToken = await localDataSource.getAccessToken();
-      if (accessToken == null) {
-        return const Left(Failure.unauthorized(message: 'Not authenticated'));
-      }
-
-      await remoteDataSource.logoutAll(accessToken);
+      // Bỏ check accessToken - để AuthHttpClient tự xử lý
+      await remoteDataSource.logoutAll(''); // Pass empty string
       await localDataSource.deleteTokens();
 
       return const Right(null);
