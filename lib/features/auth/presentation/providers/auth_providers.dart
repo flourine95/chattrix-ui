@@ -19,17 +19,27 @@ import 'package:chattrix_ui/features/auth/domain/usecases/register_usecase.dart'
 import 'package:chattrix_ui/features/auth/domain/usecases/resend_verification_usecase.dart';
 import 'package:chattrix_ui/features/auth/domain/usecases/reset_password_usecase.dart';
 import 'package:chattrix_ui/features/auth/domain/usecases/verify_email_usecase.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:http/http.dart' as http show Client;
 
 // Providers for dependencies
-final httpClientProvider = Provider<http.Client>((ref) {
-  // Sử dụng AuthHttpClient với tự động refresh token
-  return AuthHttpClient(
-    client: http.Client(),
+final dioProvider = Provider<Dio>((ref) {
+  final dio = Dio(
+    BaseOptions(
+      connectTimeout: const Duration(seconds: 30),
+      receiveTimeout: const Duration(seconds: 30),
+      contentType: 'application/json',
+    ),
+  );
+
+  // Setup interceptors với AuthDioClient
+  AuthDioClient(
+    dio: dio,
     secureStorage: ref.watch(secureStorageProvider),
   );
+
+  return dio;
 });
 
 final secureStorageProvider = Provider<FlutterSecureStorage>((ref) {
@@ -38,7 +48,7 @@ final secureStorageProvider = Provider<FlutterSecureStorage>((ref) {
 
 // Data source providers
 final authRemoteDataSourceProvider = Provider<AuthRemoteDataSource>((ref) {
-  return AuthRemoteDataSourceImpl(client: ref.watch(httpClientProvider))
+  return AuthRemoteDataSourceImpl(dio: ref.watch(dioProvider))
       as AuthRemoteDataSource;
 });
 
@@ -254,9 +264,7 @@ class AuthNotifier extends Notifier<AuthState> {
   Future<bool> resendVerification({required String email}) async {
     state = state.copyWith(isLoading: true, clearError: true);
 
-    final result = await ref.read(resendVerificationUseCaseProvider)(
-      email: email,
-    );
+    final result = await ref.read(resendVerificationUseCaseProvider)(email: email);
 
     return result.fold(
       (failure) {
@@ -280,7 +288,10 @@ class AuthNotifier extends Notifier<AuthState> {
 
     result.fold(
       (failure) {
-        state = state.copyWith(isLoading: false, clearUser: true);
+        state = state.copyWith(
+          isLoading: false,
+          errorMessage: _getFailureMessage(failure),
+        );
       },
       (user) {
         state = state.copyWith(isLoading: false, user: user);

@@ -1,4 +1,3 @@
-import 'package:chattrix_ui/features/auth/presentation/pages/debug_token_screen.dart';
 import 'package:chattrix_ui/features/auth/presentation/providers/auth_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -248,22 +247,15 @@ class ProfilePage extends ConsumerWidget {
                       color: colors.secondary,
                     ),
                     title: Text(
-                      'Debug Token (Test Auto-Refresh)',
-                      style: textTheme.bodyLarge?.copyWith(
-                        color: colors.secondary,
-                      ),
+                      'Debug Token',
+                      style: textTheme.bodyLarge,
                     ),
                     trailing: Icon(
                       Icons.chevron_right,
                       color: colors.secondary,
                     ),
                     onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const DebugTokenScreen(),
-                        ),
-                      );
+                      context.push('/debug-token');
                     },
                   ),
                   const Divider(),

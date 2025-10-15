@@ -1,16 +1,14 @@
-import 'dart:convert';
-
 import 'package:chattrix_ui/core/constants/api_constants.dart';
 import 'package:chattrix_ui/core/errors/exceptions.dart';
 import 'package:chattrix_ui/features/auth/data/models/auth_tokens_model.dart';
 import 'package:chattrix_ui/features/auth/data/models/user_model.dart';
 import 'package:chattrix_ui/features/auth/domain/datasources/auth_remote_datasource.dart';
-import 'package:http/http.dart' as http;
+import 'package:dio/dio.dart';
 
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
-  final http.Client client;
+  final Dio dio;
 
-  AuthRemoteDataSourceImpl({required this.client});
+  AuthRemoteDataSourceImpl({required this.dio});
 
   @override
   Future<void> register({
@@ -20,18 +18,17 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     required String fullName,
   }) async {
     try {
-      final response = await client.post(
-        Uri.parse('${ApiConstants.baseUrl}/${ApiConstants.register}'),
-        headers: {'Content-Type': ApiConstants.contentTypeJson},
-        body: jsonEncode({
+      final response = await dio.post(
+        '${ApiConstants.baseUrl}/${ApiConstants.register}',
+        data: {
           'username': username,
           'email': email,
           'password': password,
           'fullName': fullName,
-        }),
+        },
       );
 
-      await _handleResponse(response);
+      _handleResponse(response);
     } catch (e) {
       throw _handleError(e);
     }
@@ -40,13 +37,12 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   @override
   Future<void> verifyEmail({required String email, required String otp}) async {
     try {
-      final response = await client.post(
-        Uri.parse('${ApiConstants.baseUrl}/${ApiConstants.verifyEmail}'),
-        headers: {'Content-Type': ApiConstants.contentTypeJson},
-        body: jsonEncode({'email': email, 'otp': otp}),
+      final response = await dio.post(
+        '${ApiConstants.baseUrl}/${ApiConstants.verifyEmail}',
+        data: {'email': email, 'otp': otp},
       );
 
-      await _handleResponse(response);
+      _handleResponse(response);
     } catch (e) {
       throw _handleError(e);
     }
@@ -55,13 +51,12 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   @override
   Future<void> resendVerification({required String email}) async {
     try {
-      final response = await client.post(
-        Uri.parse('${ApiConstants.baseUrl}/${ApiConstants.resendVerification}'),
-        headers: {'Content-Type': ApiConstants.contentTypeJson},
-        body: jsonEncode({'email': email}),
+      final response = await dio.post(
+        '${ApiConstants.baseUrl}/${ApiConstants.resendVerification}',
+        data: {'email': email},
       );
 
-      await _handleResponse(response);
+      _handleResponse(response);
     } catch (e) {
       throw _handleError(e);
     }
@@ -73,16 +68,15 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     required String password,
   }) async {
     try {
-      final response = await client.post(
-        Uri.parse('${ApiConstants.baseUrl}/${ApiConstants.login}'),
-        headers: {'Content-Type': ApiConstants.contentTypeJson},
-        body: jsonEncode({
+      final response = await dio.post(
+        '${ApiConstants.baseUrl}/${ApiConstants.login}',
+        data: {
           'usernameOrEmail': usernameOrEmail,
           'password': password,
-        }),
+        },
       );
 
-      final data = await _handleResponse(response);
+      final data = _handleResponse(response);
       return AuthTokensModel.fromJson(data);
     } catch (e) {
       throw _handleError(e);
@@ -93,13 +87,12 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   Future<UserModel> getCurrentUser(String accessToken) async {
     try {
       // Không cần truyền accessToken vào header thủ công
-      // AuthHttpClient sẽ tự động thêm từ secure storage
-      final response = await client.get(
-        Uri.parse('${ApiConstants.baseUrl}/${ApiConstants.me}'),
-        // Bỏ header Authorization - để AuthHttpClient tự động thêm
+      // AuthDioClient sẽ tự động thêm từ secure storage
+      final response = await dio.get(
+        '${ApiConstants.baseUrl}/${ApiConstants.me}',
       );
 
-      final data = await _handleResponse(response);
+      final data = _handleResponse(response);
       return UserModel.fromJson(data);
     } catch (e) {
       throw _handleError(e);
@@ -109,13 +102,12 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   @override
   Future<AuthTokensModel> refreshToken(String refreshToken) async {
     try {
-      final response = await client.post(
-        Uri.parse('${ApiConstants.baseUrl}/${ApiConstants.refresh}'),
-        headers: {'Content-Type': ApiConstants.contentTypeJson},
-        body: jsonEncode({'refreshToken': refreshToken}),
+      final response = await dio.post(
+        '${ApiConstants.baseUrl}/${ApiConstants.refresh}',
+        data: {'refreshToken': refreshToken},
       );
 
-      final data = await _handleResponse(response);
+      final data = _handleResponse(response);
       return AuthTokensModel.fromJson(data);
     } catch (e) {
       throw _handleError(e);
@@ -129,17 +121,16 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     required String newPassword,
   }) async {
     try {
-      // Bỏ Authorization header - để AuthHttpClient tự động thêm
-      final response = await client.put(
-        Uri.parse('${ApiConstants.baseUrl}/${ApiConstants.changePassword}'),
-        headers: {'Content-Type': ApiConstants.contentTypeJson},
-        body: jsonEncode({
+      // Bỏ Authorization header - để AuthDioClient tự động thêm
+      final response = await dio.put(
+        '${ApiConstants.baseUrl}/${ApiConstants.changePassword}',
+        data: {
           'currentPassword': currentPassword,
           'newPassword': newPassword,
-        }),
+        },
       );
 
-      await _handleResponse(response);
+      _handleResponse(response);
     } catch (e) {
       throw _handleError(e);
     }
@@ -148,13 +139,12 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   @override
   Future<void> forgotPassword({required String email}) async {
     try {
-      final response = await client.post(
-        Uri.parse('${ApiConstants.baseUrl}/${ApiConstants.forgotPassword}'),
-        headers: {'Content-Type': ApiConstants.contentTypeJson},
-        body: jsonEncode({'email': email}),
+      final response = await dio.post(
+        '${ApiConstants.baseUrl}/${ApiConstants.forgotPassword}',
+        data: {'email': email},
       );
 
-      await _handleResponse(response);
+      _handleResponse(response);
     } catch (e) {
       throw _handleError(e);
     }
@@ -167,17 +157,16 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     required String newPassword,
   }) async {
     try {
-      final response = await client.post(
-        Uri.parse('${ApiConstants.baseUrl}/${ApiConstants.resetPassword}'),
-        headers: {'Content-Type': ApiConstants.contentTypeJson},
-        body: jsonEncode({
+      final response = await dio.post(
+        '${ApiConstants.baseUrl}/${ApiConstants.resetPassword}',
+        data: {
           'email': email,
           'otp': otp,
           'newPassword': newPassword,
-        }),
+        },
       );
 
-      await _handleResponse(response);
+      _handleResponse(response);
     } catch (e) {
       throw _handleError(e);
     }
@@ -186,12 +175,12 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   @override
   Future<void> logout(String accessToken) async {
     try {
-      // Bỏ Authorization header - để AuthHttpClient tự động thêm
-      final response = await client.post(
-        Uri.parse('${ApiConstants.baseUrl}/${ApiConstants.logout}'),
+      // Bỏ Authorization header - để AuthDioClient tự động thêm
+      final response = await dio.post(
+        '${ApiConstants.baseUrl}/${ApiConstants.logout}',
       );
 
-      await _handleResponse(response);
+      _handleResponse(response);
     } catch (e) {
       throw _handleError(e);
     }
@@ -200,25 +189,23 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   @override
   Future<void> logoutAll(String accessToken) async {
     try {
-      // Bỏ Authorization header - để AuthHttpClient tự động thêm
-      final response = await client.post(
-        Uri.parse('${ApiConstants.baseUrl}/${ApiConstants.logoutAll}'),
+      // Bỏ Authorization header - để AuthDioClient tự động thêm
+      final response = await dio.post(
+        '${ApiConstants.baseUrl}/${ApiConstants.logoutAll}',
       );
 
-      await _handleResponse(response);
+      _handleResponse(response);
     } catch (e) {
       throw _handleError(e);
     }
   }
 
-  Future<dynamic> _handleResponse(http.Response response) async {
-    final jsonResponse = jsonDecode(response.body);
-
-    if (response.statusCode >= 200 && response.statusCode < 300) {
-      return jsonResponse['data'];
+  dynamic _handleResponse(Response response) {
+    if (response.statusCode! >= 200 && response.statusCode! < 300) {
+      return response.data['data'];
     } else {
-      final message = jsonResponse['message'] ?? 'An error occurred';
-      final errors = jsonResponse['errors'] as List?;
+      final message = response.data['message'] ?? 'An error occurred';
+      final errors = response.data['errors'] as List?;
       final errorCode = errors?.isNotEmpty == true
           ? errors!.first['errorCode'] as String?
           : null;
@@ -234,7 +221,29 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   Exception _handleError(dynamic error) {
     if (error is ServerException) {
       return error;
-    } else if (error is http.ClientException) {
+    } else if (error is DioException) {
+      if (error.type == DioExceptionType.connectionTimeout ||
+          error.type == DioExceptionType.sendTimeout ||
+          error.type == DioExceptionType.receiveTimeout ||
+          error.type == DioExceptionType.connectionError) {
+        return NetworkException();
+      }
+
+      // Handle response errors
+      if (error.response != null) {
+        final message = error.response?.data['message'] ?? 'An error occurred';
+        final errors = error.response?.data['errors'] as List?;
+        final errorCode = errors?.isNotEmpty == true
+            ? errors!.first['errorCode'] as String?
+            : null;
+
+        return ServerException(
+          message: message,
+          errorCode: errorCode,
+          statusCode: error.response?.statusCode,
+        );
+      }
+
       return NetworkException();
     } else {
       return ServerException(message: error.toString());

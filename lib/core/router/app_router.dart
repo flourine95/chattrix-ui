@@ -1,3 +1,4 @@
+import 'package:chattrix_ui/features/auth/presentation/pages/debug_token_screen.dart';
 import 'package:chattrix_ui/features/auth/presentation/pages/forgot_password_screen.dart';
 import 'package:chattrix_ui/features/auth/presentation/pages/login_screen.dart';
 import 'package:chattrix_ui/features/auth/presentation/pages/otp_verification_screen.dart';
@@ -93,6 +94,13 @@ class AppRouter {
                 : null;
             return ChatViewPage(chatId: id, name: name);
           },
+        ),
+
+        // Debug Token route
+        GoRoute(
+          path: '/debug-token',
+          name: 'debug-token',
+          builder: (context, state) => const DebugTokenScreen(),
         ),
 
         // Auth routes
