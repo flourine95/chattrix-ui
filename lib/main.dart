@@ -9,19 +9,20 @@ void main() {
   runApp(ProviderScope(child: const MyApp()));
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends ConsumerWidget {
   const MyApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return MaterialApp.router(
       title: 'Chat App Auth UI',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
       themeMode: ThemeMode.light,
-      builder: (context, child) => ToastOverlay(child: child ?? const SizedBox.shrink()),
-      routerConfig: AppRouter.router,
+      builder: (context, child) =>
+          ToastOverlay(child: child ?? const SizedBox.shrink()),
+      routerConfig: AppRouter.router(ref),
     );
   }
 }

@@ -1,13 +1,14 @@
 import 'package:chattrix_ui/core/router/app_router.dart';
+import 'package:chattrix_ui/core/toast/toast_controller.dart';
 import 'package:chattrix_ui/core/widgets/app_input_field.dart';
 import 'package:chattrix_ui/core/widgets/primary_button.dart';
+import 'package:chattrix_ui/features/auth/presentation/providers/auth_providers.dart';
 import 'package:chattrix_ui/features/auth/presentation/widgets/social_login_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:chattrix_ui/core/toast/toast_controller.dart';
 
 class LoginScreen extends HookConsumerWidget {
   const LoginScreen({super.key});
@@ -16,6 +17,7 @@ class LoginScreen extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final emailController = useTextEditingController();
     final passwordController = useTextEditingController();
+    final isLoading = ref.watch(isLoadingProvider);
 
     return Scaffold(
       body: SafeArea(
@@ -37,7 +39,7 @@ class LoginScreen extends HookConsumerWidget {
                 style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                   color: Theme.of(
                     context,
-                  ).colorScheme.onSurface.withOpacity(0.6),
+                  ).colorScheme.onSurface.withValues(alpha: 0.6),
                 ),
               ),
               const SizedBox(height: 40),
@@ -65,10 +67,42 @@ class LoginScreen extends HookConsumerWidget {
 
               PrimaryButton(
                 text: 'Login',
-                onPressed: () {
-                  final email = emailController.text;
+                isLoading: isLoading,
+                onPressed: () async {
+                  final email = emailController.text.trim();
                   final password = passwordController.text;
-                  debugPrint('Email: $email, Password: $password');
+
+                  if (email.isEmpty || password.isEmpty) {
+                    Toasts.error(
+                      context,
+                      title: 'Lỗi',
+                      description: 'Vui lòng nhập đầy đủ thông tin',
+                    );
+                    return;
+                  }
+
+                  final success = await ref
+                      .read(authNotifierProvider.notifier)
+                      .login(usernameOrEmail: email, password: password);
+
+                  if (!context.mounted) return;
+
+                  if (success) {
+                    Toasts.success(
+                      context,
+                      title: 'Thành công',
+                      description: 'Đăng nhập thành công!',
+                    );
+                    // Router sẽ tự động redirect về home do auth guard
+                    context.go('/');
+                  } else {
+                    final error = ref.read(authErrorProvider);
+                    Toasts.error(
+                      context,
+                      title: 'Đăng nhập thất bại',
+                      description: error ?? 'Có lỗi xảy ra',
+                    );
+                  }
                 },
               ),
               const SizedBox(height: 40),
@@ -95,18 +129,6 @@ class LoginScreen extends HookConsumerWidget {
               ),
               const SizedBox(height: 40),
 
-              OutlinedButton(
-                onPressed: () {
-                  Toasts.success(
-                    context,
-                    title: 'Thành công',
-                    description: 'Đây là ví dụ toast toàn cục.',
-                  );
-                },
-                child: const Text('Hiện Toast'),
-              ),
-              const SizedBox(height: 12),
-
               _buildSignUpLink(context),
               const SizedBox(height: 20),
             ],
@@ -123,7 +145,9 @@ class LoginScreen extends HookConsumerWidget {
         Text(
           "Don't have an account? ",
           style: TextStyle(
-            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+            color: Theme.of(
+              context,
+            ).colorScheme.onSurface.withValues(alpha: 0.6),
           ),
         ),
         TextButton(
@@ -143,7 +167,7 @@ class _OrDivider extends StatelessWidget {
   Widget build(BuildContext context) {
     final dividerColor = Theme.of(
       context,
-    ).colorScheme.onSurface.withOpacity(0.2);
+    ).colorScheme.onSurface.withValues(alpha: 0.2);
     return Row(
       children: [
         Expanded(child: Divider(color: dividerColor)),
@@ -152,7 +176,9 @@ class _OrDivider extends StatelessWidget {
           child: Text(
             'OR',
             style: TextStyle(
-              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+              color: Theme.of(
+                context,
+              ).colorScheme.onSurface.withValues(alpha: 0.6),
             ),
           ),
         ),

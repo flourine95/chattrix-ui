@@ -13,7 +13,7 @@ IconData toastIcon(ToastType type) {
     case ToastType.loading:
       return Icons.hourglass_bottom_rounded;
     case ToastType.info:
-    return Icons.info_rounded;
+      return Icons.info_rounded;
   }
 }
 
@@ -29,6 +29,6 @@ Color toastAccentColor(ToastType type, Brightness brightness) {
     case ToastType.loading:
       return dark ? const Color(0xFF60A5FA) : const Color(0xFF2563EB);
     case ToastType.info:
-    return dark ? const Color(0xFF38BDF8) : const Color(0xFF0284C7);
+      return dark ? const Color(0xFF38BDF8) : const Color(0xFF0284C7);
   }
 }

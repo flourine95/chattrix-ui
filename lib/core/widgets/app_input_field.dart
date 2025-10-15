@@ -30,18 +30,23 @@ class AppInputField extends HookWidget {
       decoration: InputDecoration(
         labelText: labelText,
         hintText: hintText,
-        suffixIcon: isPassword // Chỉ hiện icon nếu là trường mật khẩu
+        suffixIcon:
+            isPassword // Chỉ hiện icon nếu là trường mật khẩu
             ? IconButton(
-          icon: Icon(
-            // Thay đổi icon dựa trên state
-            obscureText.value ? Icons.visibility_off_outlined : Icons.visibility_outlined,
-            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
-          ),
-          onPressed: () {
-            // Đảo ngược state. Hook sẽ tự động gọi rebuild
-            obscureText.value = !obscureText.value;
-          },
-        )
+                icon: Icon(
+                  // Thay đổi icon dựa trên state
+                  obscureText.value
+                      ? Icons.visibility_off_outlined
+                      : Icons.visibility_outlined,
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.onSurface.withValues(alpha: 0.5),
+                ),
+                onPressed: () {
+                  // Đảo ngược state. Hook sẽ tự động gọi rebuild
+                  obscureText.value = !obscureText.value;
+                },
+              )
             : null,
       ),
     );

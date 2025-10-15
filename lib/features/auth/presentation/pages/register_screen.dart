@@ -1,28 +1,36 @@
 import 'package:chattrix_ui/core/router/app_router.dart';
+import 'package:chattrix_ui/core/toast/toast_controller.dart';
 import 'package:chattrix_ui/core/widgets/app_input_field.dart';
 import 'package:chattrix_ui/core/widgets/primary_button.dart';
+import 'package:chattrix_ui/features/auth/presentation/providers/auth_providers.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-class RegisterScreen extends StatefulWidget {
+class RegisterScreen extends HookConsumerWidget {
   const RegisterScreen({super.key});
 
   @override
-  State<RegisterScreen> createState() => _RegisterScreenState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    final fullNameController = useTextEditingController();
+    final usernameController = useTextEditingController();
+    final emailController = useTextEditingController();
+    final passwordController = useTextEditingController();
+    final confirmPasswordController = useTextEditingController();
+    final agreedToTerms = useState(false);
+    final isLoading = ref.watch(isLoadingProvider);
 
-class _RegisterScreenState extends State<RegisterScreen> {
-  bool _agreedToTerms = false;
-
-  @override
-  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Theme.of(context).colorScheme.onSurface),
-          onPressed: () => context.pop(),
+          icon: Icon(
+            Icons.arrow_back,
+            color: Theme.of(context).colorScheme.onSurface,
+          ),
+          onPressed: () => context.go(AppRouter.loginPath),
         ),
       ),
       body: SafeArea(
@@ -43,29 +51,130 @@ class _RegisterScreenState extends State<RegisterScreen> {
               Text(
                 'Start your journey with us today',
                 style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.onSurface.withValues(alpha: 0.6),
                 ),
               ),
               const SizedBox(height: 40),
 
               // Form đăng ký
-              const AppInputField(labelText: 'Full Name'),
+              AppInputField(
+                labelText: 'Full Name',
+                controller: fullNameController,
+              ),
               const SizedBox(height: 20),
-              const AppInputField(labelText: 'Email'),
+              AppInputField(
+                labelText: 'Username',
+                controller: usernameController,
+              ),
               const SizedBox(height: 20),
-              const AppInputField(labelText: 'Password', isPassword: true),
+              AppInputField(labelText: 'Email', controller: emailController),
               const SizedBox(height: 20),
-              const AppInputField(labelText: 'Confirm Password', isPassword: true),
+              AppInputField(
+                labelText: 'Password',
+                isPassword: true,
+                controller: passwordController,
+              ),
+              const SizedBox(height: 20),
+              AppInputField(
+                labelText: 'Confirm Password',
+                isPassword: true,
+                controller: confirmPasswordController,
+              ),
               const SizedBox(height: 20),
 
               // Checkbox điều khoản
-              _buildTermsCheckbox(),
+              _buildTermsCheckbox(context, agreedToTerms),
               const SizedBox(height: 30),
 
               // Nút đăng ký
               PrimaryButton(
                 text: 'Register',
-                onPressed: _agreedToTerms ? () {} : null, // Disable if not agreed
+                isLoading: isLoading,
+                onPressed: agreedToTerms.value
+                    ? () async {
+                        final fullName = fullNameController.text.trim();
+                        final username = usernameController.text.trim();
+                        final email = emailController.text.trim();
+                        final password = passwordController.text;
+                        final confirmPassword = confirmPasswordController.text;
+
+                        // Validate
+                        if (fullName.isEmpty ||
+                            username.isEmpty ||
+                            email.isEmpty ||
+                            password.isEmpty ||
+                            confirmPassword.isEmpty) {
+                          Toasts.error(
+                            context,
+                            title: 'Lỗi',
+                            description: 'Vui lòng nhập đầy đủ thông tin',
+                          );
+                          return;
+                        }
+
+                        if (!email.contains('@')) {
+                          Toasts.error(
+                            context,
+                            title: 'Lỗi',
+                            description: 'Email không hợp lệ',
+                          );
+                          return;
+                        }
+
+                        if (password.length < 6) {
+                          Toasts.error(
+                            context,
+                            title: 'Lỗi',
+                            description: 'Mật khẩu phải có ít nhất 6 ký tự',
+                          );
+                          return;
+                        }
+
+                        if (password != confirmPassword) {
+                          Toasts.error(
+                            context,
+                            title: 'Lỗi',
+                            description: 'Mật khẩu xác nhận không khớp',
+                          );
+                          return;
+                        }
+
+                        // Call API
+                        final success = await ref
+                            .read(authNotifierProvider.notifier)
+                            .register(
+                              username: username,
+                              email: email,
+                              password: password,
+                              fullName: fullName,
+                            );
+
+                        if (!context.mounted) return;
+
+                        if (success) {
+                          Toasts.success(
+                            context,
+                            title: 'Thành công',
+                            description:
+                                'Đăng ký thành công! Vui lòng kiểm tra email để xác thực tài khoản.',
+                          );
+                          // Navigate to OTP verification screen
+                          context.push(
+                            AppRouter.otpVerificationPath,
+                            extra: {'email': email},
+                          );
+                        } else {
+                          final error = ref.read(authErrorProvider);
+                          Toasts.error(
+                            context,
+                            title: 'Đăng ký thất bại',
+                            description: error ?? 'Có lỗi xảy ra',
+                          );
+                        }
+                      }
+                    : null,
               ),
               const SizedBox(height: 40),
 
@@ -79,18 +188,19 @@ class _RegisterScreenState extends State<RegisterScreen> {
     );
   }
 
-  Widget _buildTermsCheckbox() {
+  Widget _buildTermsCheckbox(
+    BuildContext context,
+    ValueNotifier<bool> agreedToTerms,
+  ) {
     return Row(
       children: [
         SizedBox(
           width: 24,
           height: 24,
           child: Checkbox(
-            value: _agreedToTerms,
+            value: agreedToTerms.value,
             onChanged: (bool? value) {
-              setState(() {
-                _agreedToTerms = value ?? false;
-              });
+              agreedToTerms.value = value ?? false;
             },
             activeColor: Theme.of(context).primaryColor,
           ),
@@ -101,7 +211,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
             TextSpan(
               text: 'I agree to the ',
               style: TextStyle(
-                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+                color: Theme.of(
+                  context,
+                ).colorScheme.onSurface.withValues(alpha: 0.6),
               ),
               children: [
                 TextSpan(
@@ -127,7 +239,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
       children: [
         Text(
           "Already have an account? ",
-          style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6)),
+          style: TextStyle(
+            color: Theme.of(
+              context,
+            ).colorScheme.onSurface.withValues(alpha: 0.6),
+          ),
         ),
         TextButton(
           onPressed: () => context.go(AppRouter.loginPath),

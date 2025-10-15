@@ -120,14 +120,68 @@ class Toasts {
     );
   }
 
-  static String success(BuildContext context, {required String title, String? description, Duration? duration}) =>
-      show(context, title: title, description: description, type: ToastType.success, duration: duration);
-  static String error(BuildContext context, {required String title, String? description, Duration? duration}) =>
-      show(context, title: title, description: description, type: ToastType.error, duration: duration);
-  static String warning(BuildContext context, {required String title, String? description, Duration? duration}) =>
-      show(context, title: title, description: description, type: ToastType.warning, duration: duration);
-  static String info(BuildContext context, {required String title, String? description, Duration? duration}) =>
-      show(context, title: title, description: description, type: ToastType.info, duration: duration);
-  static String loading(BuildContext context, {required String title, String? description, Duration? duration}) =>
-      show(context, title: title, description: description, type: ToastType.loading, duration: duration ?? const Duration(milliseconds: 1600));
+  static String success(
+    BuildContext context, {
+    required String title,
+    String? description,
+    Duration? duration,
+  }) => show(
+    context,
+    title: title,
+    description: description,
+    type: ToastType.success,
+    duration: duration,
+  );
+
+  static String error(
+    BuildContext context, {
+    required String title,
+    String? description,
+    Duration? duration,
+  }) => show(
+    context,
+    title: title,
+    description: description,
+    type: ToastType.error,
+    duration: duration,
+  );
+
+  static String warning(
+    BuildContext context, {
+    required String title,
+    String? description,
+    Duration? duration,
+  }) => show(
+    context,
+    title: title,
+    description: description,
+    type: ToastType.warning,
+    duration: duration,
+  );
+
+  static String info(
+    BuildContext context, {
+    required String title,
+    String? description,
+    Duration? duration,
+  }) => show(
+    context,
+    title: title,
+    description: description,
+    type: ToastType.info,
+    duration: duration,
+  );
+
+  static String loading(
+    BuildContext context, {
+    required String title,
+    String? description,
+    Duration? duration,
+  }) => show(
+    context,
+    title: title,
+    description: description,
+    type: ToastType.loading,
+    duration: duration ?? const Duration(milliseconds: 1600),
+  );
 }

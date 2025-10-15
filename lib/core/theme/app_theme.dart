@@ -20,7 +20,9 @@ class AppTheme {
     brightness: Brightness.light,
     primaryColor: _lightPrimaryColor,
     scaffoldBackgroundColor: _lightBackgroundColor,
-    textTheme: GoogleFonts.interTextTheme().apply(bodyColor: _lightOnSurfaceColor),
+    textTheme: GoogleFonts.interTextTheme().apply(
+      bodyColor: _lightOnSurfaceColor,
+    ),
     colorScheme: const ColorScheme.light(
       primary: _lightPrimaryColor,
       onPrimary: _lightOnPrimaryColor,
@@ -43,7 +45,9 @@ class AppTheme {
     brightness: Brightness.dark,
     primaryColor: _darkPrimaryColor,
     scaffoldBackgroundColor: _darkBackgroundColor,
-    textTheme: GoogleFonts.interTextTheme().apply(bodyColor: _darkOnSurfaceColor),
+    textTheme: GoogleFonts.interTextTheme().apply(
+      bodyColor: _darkOnSurfaceColor,
+    ),
     colorScheme: const ColorScheme.dark(
       primary: _darkPrimaryColor,
       onPrimary: _darkOnPrimaryColor,
@@ -62,7 +66,9 @@ class AppTheme {
     textButtonTheme: _textButtonTheme(primaryColor: _darkPrimaryColor),
   );
 
-  static InputDecorationTheme _inputDecorationTheme({required Color borderColor}) {
+  static InputDecorationTheme _inputDecorationTheme({
+    required Color borderColor,
+  }) {
     return InputDecorationTheme(
       labelStyle: TextStyle(color: borderColor),
       floatingLabelStyle: TextStyle(color: borderColor.withValues(alpha: 0.8)),
@@ -91,9 +97,7 @@ class AppTheme {
         backgroundColor: backgroundColor,
         foregroundColor: foregroundColor,
         minimumSize: const Size(double.infinity, 50),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8.0),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)),
         elevation: 0,
         textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
       ),
@@ -108,9 +112,7 @@ class AppTheme {
       style: OutlinedButton.styleFrom(
         foregroundColor: foregroundColor,
         minimumSize: const Size(double.infinity, 50),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8.0),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)),
         side: BorderSide(color: borderColor.withValues(alpha: 0.5)),
         textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
       ),

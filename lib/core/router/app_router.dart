@@ -2,8 +2,27 @@ import 'package:chattrix_ui/features/auth/presentation/pages/forgot_password_scr
 import 'package:chattrix_ui/features/auth/presentation/pages/login_screen.dart';
 import 'package:chattrix_ui/features/auth/presentation/pages/otp_verification_screen.dart';
 import 'package:chattrix_ui/features/auth/presentation/pages/register_screen.dart';
-import 'package:go_router/go_router.dart';
+import 'package:chattrix_ui/features/auth/presentation/providers/auth_providers.dart';
+import 'package:chattrix_ui/features/chat/presentation/pages/chat_list_page.dart';
+import 'package:chattrix_ui/features/chat/presentation/pages/chat_view_page.dart';
+import 'package:chattrix_ui/features/contacts/presentation/pages/contacts_page.dart';
+import 'package:chattrix_ui/features/profile/presentation/pages/profile_page.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:go_router/go_router.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
+
+class AuthNotifierWrapper extends ChangeNotifier {
+  AuthNotifierWrapper(this._ref) {
+    _ref.listen<AuthState>(authNotifierProvider, (_, __) => notifyListeners());
+  }
+
+  final Ref _ref;
+}
+
+final authNotifierWrapperProvider = Provider<AuthNotifierWrapper>((ref) {
+  return AuthNotifierWrapper(ref);
+});
 
 class AppRouter {
   static const String loginPath = '/login';
@@ -11,29 +30,165 @@ class AppRouter {
   static const String forgotPasswordPath = '/forgot-password';
   static const String otpVerificationPath = '/otp';
 
-  static final GoRouter router = GoRouter(
-    initialLocation: loginPath,
-    routes: <GoRoute>[
-      GoRoute(
-        path: loginPath,
-        name: 'login',
-        builder: (BuildContext context, GoRouterState state) => const LoginScreen(),
+  static GoRouter router(WidgetRef ref) {
+    return GoRouter(
+      initialLocation: '/',
+      refreshListenable: ref.watch(authNotifierWrapperProvider),
+      redirect: (context, state) async {
+        // Check if user is logged in
+        final isLoggedIn = await ref.read(isLoggedInUseCaseProvider)();
+        final isGoingToAuth =
+            state.matchedLocation == loginPath ||
+            state.matchedLocation == registerPath ||
+            state.matchedLocation == forgotPasswordPath ||
+            state.matchedLocation == otpVerificationPath;
+
+        // Debug log
+        debugPrint('🔐 Auth Redirect Check:');
+        debugPrint('   isLoggedIn: $isLoggedIn');
+        debugPrint('   current location: ${state.matchedLocation}');
+        debugPrint('   isGoingToAuth: $isGoingToAuth');
+
+        // Nếu chưa login và không đang đi đến auth screen -> redirect đến login
+        if (!isLoggedIn && !isGoingToAuth) {
+          debugPrint('   ➡️ Redirecting to login');
+          return loginPath;
+        }
+
+        // Nếu đã login và đang ở auth screen -> redirect về home
+        if (isLoggedIn && isGoingToAuth) {
+          debugPrint('   ➡️ Redirecting to home');
+          return '/';
+        }
+
+        debugPrint('   ✅ No redirect needed');
+        return null; // Không redirect
+      },
+      routes: <RouteBase>[
+        // Shell with bottom navigation
+        ShellRoute(
+          builder: (context, state, child) => _NavShell(child: child),
+          routes: [
+            GoRoute(
+              path: '/',
+              name: 'chats',
+              pageBuilder: (context, state) =>
+                  const NoTransitionPage(child: ChatListPage()),
+            ),
+            GoRoute(
+              path: '/contacts',
+              name: 'contacts',
+              pageBuilder: (context, state) =>
+                  const NoTransitionPage(child: ContactsPage()),
+            ),
+            GoRoute(
+              path: '/profile',
+              name: 'profile',
+              pageBuilder: (context, state) =>
+                  const NoTransitionPage(child: ProfilePage()),
+            ),
+          ],
+        ),
+
+        // Chat view route
+        GoRoute(
+          path: '/chat/:id',
+          name: 'chat-view',
+          builder: (context, state) {
+            final id = state.pathParameters['id']!;
+            final name =
+                (state.extra is Map && (state.extra as Map).containsKey('name'))
+                ? (state.extra as Map)['name'] as String?
+                : null;
+            return ChatViewPage(chatId: id, name: name);
+          },
+        ),
+
+        // Auth routes
+        GoRoute(
+          path: loginPath,
+          name: 'login',
+          builder: (BuildContext context, GoRouterState state) =>
+              const LoginScreen(),
+        ),
+        GoRoute(
+          path: registerPath,
+          name: 'register',
+          builder: (BuildContext context, GoRouterState state) =>
+              const RegisterScreen(),
+        ),
+        GoRoute(
+          path: forgotPasswordPath,
+          name: 'forgot-password',
+          builder: (BuildContext context, GoRouterState state) =>
+              const ForgotPasswordScreen(),
+        ),
+        GoRoute(
+          path: otpVerificationPath,
+          name: 'otp',
+          builder: (BuildContext context, GoRouterState state) {
+            String? email;
+            bool isPasswordReset = false;
+
+            if (state.extra is Map) {
+              final extraMap = state.extra as Map;
+              email = extraMap['email'] as String?;
+              isPasswordReset = extraMap['isPasswordReset'] as bool? ?? false;
+            }
+
+            return OtpVerificationScreen(
+              email: email,
+              isPasswordReset: isPasswordReset,
+            );
+          },
+        ),
+      ],
+    );
+  }
+}
+
+class _NavShell extends StatelessWidget {
+  const _NavShell({required this.child});
+
+  final Widget child;
+
+  static const _routes = ['/', '/contacts', '/profile'];
+
+  int _indexOfLocation(String location) {
+    for (int i = 0; i < _routes.length; i++) {
+      if (location == _routes[i]) return i;
+    }
+    // default to Chats for any nested routes
+    return 0;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final location = GoRouterState.of(context).uri.toString();
+    final currentIndex = _indexOfLocation(location);
+
+    return Scaffold(
+      body: child,
+      bottomNavigationBar: NavigationBar(
+        selectedIndex: currentIndex,
+        onDestinationSelected: (index) {
+          context.go(_routes[index]);
+        },
+        destinations: const [
+          NavigationDestination(
+            icon: FaIcon(FontAwesomeIcons.solidComments),
+            label: 'Chats',
+          ),
+          NavigationDestination(
+            icon: FaIcon(FontAwesomeIcons.addressBook),
+            label: 'Contacts',
+          ),
+          NavigationDestination(
+            icon: FaIcon(FontAwesomeIcons.user),
+            label: 'Profile',
+          ),
+        ],
       ),
-      GoRoute(
-        path: registerPath,
-        name: 'register',
-        builder: (BuildContext context, GoRouterState state) => const RegisterScreen(),
-      ),
-      GoRoute(
-        path: forgotPasswordPath,
-        name: 'forgot-password',
-        builder: (BuildContext context, GoRouterState state) => const ForgotPasswordScreen(),
-      ),
-      GoRoute(
-        path: otpVerificationPath,
-        name: 'otp',
-        builder: (BuildContext context, GoRouterState state) => const OtpVerificationScreen(),
-      ),
-    ],
-  );
+    );
+  }
 }
