@@ -1,3 +1,4 @@
+import 'package:chattrix_ui/core/constants/api_constants.dart';
 import 'package:chattrix_ui/core/errors/failures.dart';
 import 'package:chattrix_ui/core/network/auth_http_client.dart';
 import 'package:chattrix_ui/features/auth/data/datasources/auth_local_datasource_impl.dart';
@@ -27,17 +28,15 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 final dioProvider = Provider<Dio>((ref) {
   final dio = Dio(
     BaseOptions(
+      baseUrl: ApiConstants.baseUrl,
       connectTimeout: const Duration(seconds: 30),
       receiveTimeout: const Duration(seconds: 30),
-      contentType: 'application/json',
+      contentType: ApiConstants.contentTypeJson,
     ),
   );
 
   // Setup interceptors với AuthDioClient
-  AuthDioClient(
-    dio: dio,
-    secureStorage: ref.watch(secureStorageProvider),
-  );
+  AuthDioClient(dio: dio, secureStorage: ref.watch(secureStorageProvider));
 
   return dio;
 });
@@ -264,7 +263,9 @@ class AuthNotifier extends Notifier<AuthState> {
   Future<bool> resendVerification({required String email}) async {
     state = state.copyWith(isLoading: true, clearError: true);
 
-    final result = await ref.read(resendVerificationUseCaseProvider)(email: email);
+    final result = await ref.read(resendVerificationUseCaseProvider)(
+      email: email,
+    );
 
     return result.fold(
       (failure) {

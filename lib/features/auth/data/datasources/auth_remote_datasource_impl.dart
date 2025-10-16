@@ -70,10 +70,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     try {
       final response = await dio.post(
         '${ApiConstants.baseUrl}/${ApiConstants.login}',
-        data: {
-          'usernameOrEmail': usernameOrEmail,
-          'password': password,
-        },
+        data: {'usernameOrEmail': usernameOrEmail, 'password': password},
       );
 
       final data = _handleResponse(response);
@@ -124,10 +121,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       // Bỏ Authorization header - để AuthDioClient tự động thêm
       final response = await dio.put(
         '${ApiConstants.baseUrl}/${ApiConstants.changePassword}',
-        data: {
-          'currentPassword': currentPassword,
-          'newPassword': newPassword,
-        },
+        data: {'currentPassword': currentPassword, 'newPassword': newPassword},
       );
 
       _handleResponse(response);
@@ -159,11 +153,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     try {
       final response = await dio.post(
         '${ApiConstants.baseUrl}/${ApiConstants.resetPassword}',
-        data: {
-          'email': email,
-          'otp': otp,
-          'newPassword': newPassword,
-        },
+        data: {'email': email, 'otp': otp, 'newPassword': newPassword},
       );
 
       _handleResponse(response);

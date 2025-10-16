@@ -1,12 +1,11 @@
+import 'package:chattrix_ui/core/errors/exceptions.dart';
+import 'package:chattrix_ui/core/errors/failures.dart';
+import 'package:chattrix_ui/features/auth/domain/datasources/auth_local_datasource.dart';
+import 'package:chattrix_ui/features/auth/domain/datasources/auth_remote_datasource.dart';
+import 'package:chattrix_ui/features/auth/domain/entities/auth_tokens.dart';
+import 'package:chattrix_ui/features/auth/domain/entities/user.dart';
+import 'package:chattrix_ui/features/auth/domain/repositories/auth_repository.dart';
 import 'package:dartz/dartz.dart';
-
-import '../../../../core/errors/exceptions.dart';
-import '../../../../core/errors/failures.dart';
-import '../../domain/datasources/auth_local_datasource.dart';
-import '../../domain/datasources/auth_remote_datasource.dart';
-import '../../domain/entities/auth_tokens.dart';
-import '../../domain/entities/user.dart';
-import '../../domain/repositories/auth_repository.dart';
 
 class AuthRepositoryImpl implements AuthRepository {
   final AuthRemoteDataSource remoteDataSource;

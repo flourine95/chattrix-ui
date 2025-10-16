@@ -1,0 +1,13 @@
+import 'package:freezed_annotation/freezed_annotation.dart';
+
+part 'participant.freezed.dart';
+
+@freezed
+abstract class Participant with _$Participant {
+  const factory Participant({
+    required String userId,
+    required String username,
+    required String fullName,
+    required String role, // 'ADMIN' or 'MEMBER'
+  }) = _Participant;
+}

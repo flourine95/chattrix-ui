@@ -1,6 +1,5 @@
+import 'package:chattrix_ui/features/auth/domain/entities/auth_tokens.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-
-import '../../domain/entities/auth_tokens.dart';
 
 part 'auth_tokens_model.freezed.dart';
 part 'auth_tokens_model.g.dart';

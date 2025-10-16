@@ -1,8 +1,7 @@
+import 'package:chattrix_ui/core/errors/failures.dart';
+import 'package:chattrix_ui/features/auth/domain/entities/auth_tokens.dart';
+import 'package:chattrix_ui/features/auth/domain/entities/user.dart';
 import 'package:dartz/dartz.dart';
-
-import '../../../../core/errors/failures.dart';
-import '../entities/auth_tokens.dart';
-import '../entities/user.dart';
 
 abstract class AuthRepository {
   Future<Either<Failure, void>> register({

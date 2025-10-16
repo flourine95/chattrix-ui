@@ -1,10 +1,9 @@
 import 'dart:async';
 
+import 'package:chattrix_ui/core/constants/api_constants.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-
-import '../constants/api_constants.dart';
 
 /// Dio Client với tự động refresh token khi access token hết hạn
 class AuthDioClient {
@@ -14,10 +13,7 @@ class AuthDioClient {
   // Lock để tránh nhiều request cùng refresh token
   Completer<void>? _refreshLock;
 
-  AuthDioClient({
-    required this.dio,
-    required this.secureStorage,
-  }) {
+  AuthDioClient({required this.dio, required this.secureStorage}) {
     _setupInterceptors();
   }
 
@@ -124,7 +120,9 @@ class AuthDioClient {
         return null;
       }
 
-      debugPrint('🔑 Refreshing with token: ${refreshToken.substring(0, 20)}...');
+      debugPrint(
+        '🔑 Refreshing with token: ${refreshToken.substring(0, 20)}...',
+      );
 
       // Tạo Dio instance mới để tránh interceptor loop
       final refreshDio = Dio(

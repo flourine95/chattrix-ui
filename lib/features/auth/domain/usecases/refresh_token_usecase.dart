@@ -1,10 +1,8 @@
+import 'package:chattrix_ui/core/errors/failures.dart';
+import 'package:chattrix_ui/features/auth/domain/entities/auth_tokens.dart';
+import 'package:chattrix_ui/features/auth/domain/repositories/auth_repository.dart';
 import 'package:dartz/dartz.dart';
 
-import '../../../../core/errors/failures.dart';
-import '../entities/auth_tokens.dart';
-import '../repositories/auth_repository.dart';
-
-/// UseCase để làm mới access token
 class RefreshTokenUseCase {
   final AuthRepository repository;
 

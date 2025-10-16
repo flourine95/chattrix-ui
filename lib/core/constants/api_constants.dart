@@ -2,7 +2,7 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 
 class ApiConstants {
   static const String localhostHost = 'localhost';
-  static const String lanIpAddress = '10.238.54.212';
+  static const String lanIpAddress = '10.238.54.163';
 
   static const String port = '8080';
   static const String apiPrefix = '/chattrix-api/api';
@@ -33,6 +33,40 @@ class ApiConstants {
   static const String resetPassword = '$authBase/reset-password';
   static const String logout = '$authBase/logout';
   static const String logoutAll = '$authBase/logout-all';
+
+  // Chat API endpoints
+  static const String conversationsBase = '$apiVersion/conversations';
+
+  static String conversationById(String id) => '$conversationsBase/$id';
+
+  static String messagesInConversation(String conversationId) =>
+      '$conversationsBase/$conversationId/messages';
+
+  // User Status API endpoints
+  static const String userStatusBase = '$apiVersion/users/status';
+  static const String onlineUsers = '$userStatusBase/online';
+
+  static String onlineUsersInConversation(String conversationId) =>
+      '$userStatusBase/online/conversation/$conversationId';
+
+  static String userStatus(String userId) => '$userStatusBase/$userId';
+
+  // Typing API endpoints (HTTP test endpoints)
+  static const String typingBase = '$apiVersion/typing';
+  static const String typingStart = '$typingBase/start';
+  static const String typingStop = '$typingBase/stop';
+
+  static String typingStatus(String conversationId) =>
+      '$typingBase/status/$conversationId';
+
+  // WebSocket endpoint
+  static String get wsBaseUrl {
+    final httpUrl = baseUrl;
+    final wsUrl = httpUrl.replaceFirst('http://', 'ws://');
+    return wsUrl;
+  }
+
+  static const String chatWebSocket = '$apiVersion/chat';
 
   static const String contentTypeJson = 'application/json';
   static const String authorization = 'Authorization';

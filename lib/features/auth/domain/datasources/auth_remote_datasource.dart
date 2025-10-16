@@ -1,5 +1,5 @@
-import '../../data/models/auth_tokens_model.dart';
-import '../../data/models/user_model.dart';
+import 'package:chattrix_ui/features/auth/data/models/auth_tokens_model.dart';
+import 'package:chattrix_ui/features/auth/data/models/user_model.dart';
 
 abstract class AuthRemoteDataSource {
   Future<void> register({

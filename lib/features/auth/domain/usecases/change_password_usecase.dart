@@ -1,9 +1,7 @@
+import 'package:chattrix_ui/core/errors/failures.dart';
+import 'package:chattrix_ui/features/auth/domain/repositories/auth_repository.dart';
 import 'package:dartz/dartz.dart';
 
-import '../../../../core/errors/failures.dart';
-import '../repositories/auth_repository.dart';
-
-/// UseCase để đổi mật khẩu
 class ChangePasswordUseCase {
   final AuthRepository repository;
 

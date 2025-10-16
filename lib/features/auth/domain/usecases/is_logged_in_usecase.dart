@@ -1,6 +1,5 @@
-import '../repositories/auth_repository.dart';
+import 'package:chattrix_ui/features/auth/domain/repositories/auth_repository.dart';
 
-/// UseCase để kiểm tra trạng thái đăng nhập
 class IsLoggedInUseCase {
   final AuthRepository repository;
 

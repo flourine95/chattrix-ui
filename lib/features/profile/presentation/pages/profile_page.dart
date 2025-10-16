@@ -176,7 +176,9 @@ class ProfilePage extends ConsumerWidget {
                       child: Container(
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
-                          color: colors.surfaceContainerHighest.withValues(alpha: 0.3),
+                          color: colors.surfaceContainerHighest.withValues(
+                            alpha: 0.3,
+                          ),
                           borderRadius: BorderRadius.circular(8),
                           border: Border.all(
                             color: colors.outline.withValues(alpha: 0.2),
@@ -197,7 +199,9 @@ class ProfilePage extends ConsumerWidget {
                                   Text(
                                     'User ID',
                                     style: textTheme.labelSmall?.copyWith(
-                                      color: colors.onSurface.withValues(alpha: 0.6),
+                                      color: colors.onSurface.withValues(
+                                        alpha: 0.6,
+                                      ),
                                     ),
                                   ),
                                   const SizedBox(height: 2),
@@ -246,10 +250,7 @@ class ProfilePage extends ConsumerWidget {
                       FontAwesomeIcons.bug,
                       color: colors.secondary,
                     ),
-                    title: Text(
-                      'Debug Token',
-                      style: textTheme.bodyLarge,
-                    ),
+                    title: Text('Debug Token', style: textTheme.bodyLarge),
                     trailing: Icon(
                       Icons.chevron_right,
                       color: colors.secondary,

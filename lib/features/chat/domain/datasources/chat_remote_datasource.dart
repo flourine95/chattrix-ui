@@ -1,0 +1,42 @@
+import 'package:chattrix_ui/features/auth/data/models/user_model.dart';
+import 'package:chattrix_ui/features/chat/data/models/conversation_model.dart';
+import 'package:chattrix_ui/features/chat/data/models/message_model.dart';
+import 'package:chattrix_ui/features/chat/data/models/user_status_model.dart';
+
+/// Remote datasource for chat API endpoints
+abstract class ChatRemoteDatasource {
+  /// Create a new conversation
+  Future<ConversationModel> createConversation({
+    String? name,
+    required String type,
+    required List<String> participantIds,
+  });
+
+  /// Get all conversations
+  Future<List<ConversationModel>> getConversations();
+
+  /// Get conversation by ID
+  Future<ConversationModel> getConversation(String conversationId);
+
+  /// Get messages in a conversation
+  Future<List<MessageModel>> getMessages({
+    required String conversationId,
+    int page = 0,
+    int size = 50,
+  });
+
+  /// Send a message to a conversation
+  Future<MessageModel> sendMessage({
+    required String conversationId,
+    required String content,
+  });
+
+  /// Get all online users
+  Future<List<UserModel>> getOnlineUsers();
+
+  /// Get online users in a conversation
+  Future<List<UserModel>> getOnlineUsersInConversation(String conversationId);
+
+  /// Get user status
+  Future<UserStatusModel> getUserStatus(String userId);
+}
