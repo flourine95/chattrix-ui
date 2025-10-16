@@ -18,6 +18,15 @@ abstract class ParticipantModel with _$ParticipantModel {
   factory ParticipantModel.fromJson(Map<String, dynamic> json) =>
       _$ParticipantModelFromJson(json);
 
+  factory ParticipantModel.fromApi(Map<String, dynamic> json) {
+    return ParticipantModel(
+      userId: (json['userId'] ?? json['user_id'] ?? '').toString(),
+      username: (json['username'] ?? '').toString(),
+      fullName: (json['fullName'] ?? json['full_name'] ?? '').toString(),
+      role: (json['role'] ?? '').toString(),
+    );
+  }
+
   Participant toEntity() {
     return Participant(
       userId: userId,

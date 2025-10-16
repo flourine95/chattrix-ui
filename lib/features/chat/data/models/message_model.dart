@@ -22,6 +22,31 @@ abstract class MessageModel with _$MessageModel {
   factory MessageModel.fromJson(Map<String, dynamic> json) =>
       _$MessageModelFromJson(json);
 
+  // Maps backend API response variations into our model
+  factory MessageModel.fromApi(Map<String, dynamic> json) {
+    // Build sender from nested object or flat senderId/senderUsername fields
+    final senderJson = (json['sender'] is Map<String, dynamic>)
+        ? json['sender'] as Map<String, dynamic>
+        : <String, dynamic>{
+            'id': json['senderId'],
+            'userId': json['senderId'],
+            'senderId': json['senderId'],
+            'username': json['senderUsername'],
+            'senderUsername': json['senderUsername'],
+            'fullName': json['senderFullName'] ?? json['full_name'] ?? '',
+          };
+
+    return MessageModel(
+      id: (json['id'] ?? json['messageId'] ?? '').toString(),
+      content: (json['content'] ?? '').toString(),
+      type: (json['type'] ?? '').toString(),
+      createdAt: (json['createdAt'] ?? json['sentAt'] ?? DateTime.now().toIso8601String()).toString(),
+      conversationId:
+          (json['conversationId'] ?? json['conversation_id'] ?? '').toString(),
+      sender: MessageSenderModel.fromApi(senderJson),
+    );
+  }
+
   Message toEntity() {
     return Message(
       id: id,

@@ -22,6 +22,23 @@ abstract class ConversationModel with _$ConversationModel {
   factory ConversationModel.fromJson(Map<String, dynamic> json) =>
       _$ConversationModelFromJson(json);
 
+  factory ConversationModel.fromApi(Map<String, dynamic> json) {
+    final participantsJson = (json['participants'] as List? ?? [])
+        .whereType<Map<String, dynamic>>()
+        .toList();
+
+    return ConversationModel(
+      id: (json['id'] ?? json['conversationId'] ?? '').toString(),
+      name: (json['name'] ?? json['title'])?.toString(),
+      type: (json['type'] ?? '').toString(),
+      createdAt: (json['createdAt'] ?? json['created_at'] ?? '').toString(),
+      updatedAt: (json['updatedAt'] ?? json['updated_at'] ?? '').toString(),
+      participants: participantsJson
+          .map((p) => ParticipantModel.fromApi(p))
+          .toList(),
+    );
+  }
+
   Conversation toEntity() {
     return Conversation(
       id: id,

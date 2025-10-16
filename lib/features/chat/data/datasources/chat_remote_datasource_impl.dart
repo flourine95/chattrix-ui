@@ -29,8 +29,8 @@ class ChatRemoteDatasourceImpl implements ChatRemoteDatasource {
       );
 
       if (response.statusCode == 201) {
-        final data = response.data['data'];
-        return ConversationModel.fromJson(data);
+        final data = response.data['data'] as Map<String, dynamic>;
+        return ConversationModel.fromApi(data);
       }
 
       throw ServerException(message: 'Failed to create conversation');
@@ -48,7 +48,10 @@ class ChatRemoteDatasourceImpl implements ChatRemoteDatasource {
 
       if (response.statusCode == 200) {
         final data = response.data['data'] as List;
-        return data.map((json) => ConversationModel.fromJson(json)).toList();
+        return data
+            .whereType<Map<String, dynamic>>()
+            .map((json) => ConversationModel.fromApi(json))
+            .toList();
       }
 
       throw ServerException(message: 'Failed to fetch conversations');
@@ -67,8 +70,8 @@ class ChatRemoteDatasourceImpl implements ChatRemoteDatasource {
       );
 
       if (response.statusCode == 200) {
-        final data = response.data['data'];
-        return ConversationModel.fromJson(data);
+        final data = response.data['data'] as Map<String, dynamic>;
+        return ConversationModel.fromApi(data);
       }
 
       throw ServerException(message: 'Failed to fetch conversation');
@@ -93,7 +96,10 @@ class ChatRemoteDatasourceImpl implements ChatRemoteDatasource {
 
       if (response.statusCode == 200) {
         final data = response.data['data'] as List;
-        return data.map((json) => MessageModel.fromJson(json)).toList();
+        return data
+            .whereType<Map<String, dynamic>>()
+            .map((json) => MessageModel.fromApi(json))
+            .toList();
       }
 
       throw ServerException(message: 'Failed to fetch messages');
@@ -178,8 +184,8 @@ class ChatRemoteDatasourceImpl implements ChatRemoteDatasource {
       );
 
       if (response.statusCode == 201) {
-        final data = response.data['data'];
-        return MessageModel.fromJson(data);
+        final data = response.data['data'] as Map<String, dynamic>;
+        return MessageModel.fromApi(data);
       }
 
       throw ServerException(message: 'Failed to send message');
