@@ -20,7 +20,7 @@ class ChatRemoteDatasourceImpl implements ChatRemoteDatasource {
   }) async {
     try {
       final response = await dio.post(
-        ApiConstants.conversationsBase,
+        '${ApiConstants.baseUrl}/${ApiConstants.conversationsBase}',
         data: {
           if (name != null) 'name': name,
           'type': type,
@@ -44,7 +44,7 @@ class ChatRemoteDatasourceImpl implements ChatRemoteDatasource {
   @override
   Future<List<ConversationModel>> getConversations() async {
     try {
-      final response = await dio.get(ApiConstants.conversationsBase);
+      final response = await dio.get('${ApiConstants.baseUrl}/${ApiConstants.conversationsBase}');
 
       if (response.statusCode == 200) {
         final data = response.data['data'] as List;
@@ -63,7 +63,7 @@ class ChatRemoteDatasourceImpl implements ChatRemoteDatasource {
   Future<ConversationModel> getConversation(String conversationId) async {
     try {
       final response = await dio.get(
-        ApiConstants.conversationById(conversationId),
+        '${ApiConstants.baseUrl}/${ApiConstants.conversationById(conversationId)}',
       );
 
       if (response.statusCode == 200) {
@@ -87,7 +87,7 @@ class ChatRemoteDatasourceImpl implements ChatRemoteDatasource {
   }) async {
     try {
       final response = await dio.get(
-        ApiConstants.messagesInConversation(conversationId),
+        '${ApiConstants.baseUrl}/${ApiConstants.messagesInConversation(conversationId)}',
         queryParameters: {'page': page, 'size': size},
       );
 
@@ -107,7 +107,7 @@ class ChatRemoteDatasourceImpl implements ChatRemoteDatasource {
   @override
   Future<List<UserModel>> getOnlineUsers() async {
     try {
-      final response = await dio.get(ApiConstants.onlineUsers);
+      final response = await dio.get('${ApiConstants.baseUrl}/${ApiConstants.onlineUsers}');
 
       if (response.statusCode == 200) {
         final data = response.data['data'] as List;
@@ -128,7 +128,7 @@ class ChatRemoteDatasourceImpl implements ChatRemoteDatasource {
   ) async {
     try {
       final response = await dio.get(
-        ApiConstants.onlineUsersInConversation(conversationId),
+        '${ApiConstants.baseUrl}/${ApiConstants.onlineUsersInConversation(conversationId)}',
       );
 
       if (response.statusCode == 200) {
@@ -151,7 +151,7 @@ class ChatRemoteDatasourceImpl implements ChatRemoteDatasource {
   @override
   Future<UserStatusModel> getUserStatus(String userId) async {
     try {
-      final response = await dio.get(ApiConstants.userStatus(userId));
+      final response = await dio.get('${ApiConstants.baseUrl}/${ApiConstants.userStatus(userId)}');
 
       if (response.statusCode == 200) {
         final data = response.data['data'];
@@ -173,7 +173,7 @@ class ChatRemoteDatasourceImpl implements ChatRemoteDatasource {
   }) async {
     try {
       final response = await dio.post(
-        ApiConstants.messagesInConversation(conversationId),
+        '${ApiConstants.baseUrl}/${ApiConstants.messagesInConversation(conversationId)}',
         data: {'content': content},
       );
 

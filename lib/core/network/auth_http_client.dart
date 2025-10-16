@@ -134,7 +134,7 @@ class AuthDioClient {
       );
 
       final response = await refreshDio.post(
-        '/${ApiConstants.refresh}',
+        '${ApiConstants.baseUrl}/${ApiConstants.refresh}',
         data: {'refreshToken': refreshToken},
       );
 
