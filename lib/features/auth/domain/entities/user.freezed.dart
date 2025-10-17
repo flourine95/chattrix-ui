@@ -11,84 +11,47 @@ part of 'user.dart';
 
 // dart format off
 T _$identity<T>(T value) => value;
-
 /// @nodoc
 mixin _$User {
 
-  String get id;
-
-  String get username;
-
-  String get email;
-
-  String get fullName;
-
-  String? get avatarUrl;
-
-  bool get isOnline;
-
-  DateTime get lastSeen;
-
-  /// Create a copy of User
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @pragma('vm:prefer-inline')
-  $UserCopyWith<User> get copyWith =>
-      _$UserCopyWithImpl<User>(this as User, _$identity);
+ int get id; String get username; String get email; String get fullName; String? get avatarUrl; bool get isOnline; DateTime get lastSeen;
+/// Create a copy of User
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$UserCopyWith<User> get copyWith => _$UserCopyWithImpl<User>(this as User, _$identity);
 
 
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType && other is User &&
-            (identical(other.id, id) || other.id == id) &&
-            (identical(other.username, username) ||
-                other.username == username) &&
-            (identical(other.email, email) || other.email == email) &&
-            (identical(other.fullName, fullName) ||
-                other.fullName == fullName) &&
-            (identical(other.avatarUrl, avatarUrl) ||
-                other.avatarUrl == avatarUrl) &&
-            (identical(other.isOnline, isOnline) ||
-                other.isOnline == isOnline) &&
-            (identical(other.lastSeen, lastSeen) ||
-                other.lastSeen == lastSeen));
-  }
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is User&&(identical(other.id, id) || other.id == id)&&(identical(other.username, username) || other.username == username)&&(identical(other.email, email) || other.email == email)&&(identical(other.fullName, fullName) || other.fullName == fullName)&&(identical(other.avatarUrl, avatarUrl) || other.avatarUrl == avatarUrl)&&(identical(other.isOnline, isOnline) || other.isOnline == isOnline)&&(identical(other.lastSeen, lastSeen) || other.lastSeen == lastSeen));
+}
 
 
-  @override
-  int get hashCode =>
-      Object.hash(
-          runtimeType,
-          id,
-          username,
-          email,
-          fullName,
-          avatarUrl,
-          isOnline,
-          lastSeen);
+@override
+int get hashCode => Object.hash(runtimeType,id,username,email,fullName,avatarUrl,isOnline,lastSeen);
 
-  @override
-  String toString() {
-    return 'User(id: $id, username: $username, email: $email, fullName: $fullName, avatarUrl: $avatarUrl, isOnline: $isOnline, lastSeen: $lastSeen)';
-  }
+@override
+String toString() {
+  return 'User(id: $id, username: $username, email: $email, fullName: $fullName, avatarUrl: $avatarUrl, isOnline: $isOnline, lastSeen: $lastSeen)';
+}
 
 
 }
 
 /// @nodoc
-abstract mixin class $UserCopyWith<$Res> {
-  factory $UserCopyWith(User value,
-      $Res Function(User) _then) = _$UserCopyWithImpl;
+abstract mixin class $UserCopyWith<$Res>  {
+  factory $UserCopyWith(User value, $Res Function(User) _then) = _$UserCopyWithImpl;
+@useResult
+$Res call({
+ int id, String username, String email, String fullName, String? avatarUrl, bool isOnline, DateTime lastSeen
+});
 
-  @useResult
-  $Res call({
-    String id, String username, String email, String fullName, String? avatarUrl, bool isOnline, DateTime lastSeen
-  });
+
 
 
 }
-
 /// @nodoc
 class _$UserCopyWithImpl<$Res>
     implements $UserCopyWith<$Res> {
@@ -97,186 +60,151 @@ class _$UserCopyWithImpl<$Res>
   final User _self;
   final $Res Function(User) _then;
 
-  /// Create a copy of User
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call(
-      {Object? id = null, Object? username = null, Object? email = null, Object? fullName = null, Object? avatarUrl = freezed, Object? isOnline = null, Object? lastSeen = null,}) {
-    return _then(_self.copyWith(
-      id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
-      as String,
-      username: null == username
-          ? _self.username
-          : username // ignore: cast_nullable_to_non_nullable
-      as String,
-      email: null == email
-          ? _self.email
-          : email // ignore: cast_nullable_to_non_nullable
-      as String,
-      fullName: null == fullName
-          ? _self.fullName
-          : fullName // ignore: cast_nullable_to_non_nullable
-      as String,
-      avatarUrl: freezed == avatarUrl
-          ? _self.avatarUrl
-          : avatarUrl // ignore: cast_nullable_to_non_nullable
-      as String?,
-      isOnline: null == isOnline
-          ? _self.isOnline
-          : isOnline // ignore: cast_nullable_to_non_nullable
-      as bool,
-      lastSeen: null == lastSeen
-          ? _self.lastSeen
-          : lastSeen // ignore: cast_nullable_to_non_nullable
-      as DateTime,
-    ));
-  }
+/// Create a copy of User
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? username = null,Object? email = null,Object? fullName = null,Object? avatarUrl = freezed,Object? isOnline = null,Object? lastSeen = null,}) {
+  return _then(_self.copyWith(
+id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
+as int,username: null == username ? _self.username : username // ignore: cast_nullable_to_non_nullable
+as String,email: null == email ? _self.email : email // ignore: cast_nullable_to_non_nullable
+as String,fullName: null == fullName ? _self.fullName : fullName // ignore: cast_nullable_to_non_nullable
+as String,avatarUrl: freezed == avatarUrl ? _self.avatarUrl : avatarUrl // ignore: cast_nullable_to_non_nullable
+as String?,isOnline: null == isOnline ? _self.isOnline : isOnline // ignore: cast_nullable_to_non_nullable
+as bool,lastSeen: null == lastSeen ? _self.lastSeen : lastSeen // ignore: cast_nullable_to_non_nullable
+as DateTime,
+  ));
+}
 
 }
 
 
 /// Adds pattern-matching-related methods to [User].
 extension UserPatterns on User {
-  /// A variant of `map` that fallback to returning `orElse`.
-  ///
-  /// It is equivalent to doing:
-  /// ```dart
-  /// switch (sealedClass) {
-  ///   case final Subclass value:
-  ///     return ...;
-  ///   case _:
-  ///     return orElse();
-  /// }
-  /// ```
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
 
-  @optionalTypeArgs TResult maybeMap
-
-  <
-
-  TResult
-
-  extends
-
-  Object?
-
-  >
-
-  (
-
-  TResult Function( _User value)? $default,{required TResult orElse(),}){
-  final _that = this;
-  switch (_that) {
-  case _User() when $default != null:
-  return $default(_that);case _:
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _User value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _User() when $default != null:
+return $default(_that);case _:
   return orElse();
 
-  }
-  }
-  /// A `switch`-like method, using callbacks.
-  ///
-  /// Callbacks receives the raw object, upcasted.
-  /// It is equivalent to doing:
-  /// ```dart
-  /// switch (sealedClass) {
-  ///   case final Subclass value:
-  ///     return ...;
-  ///   case final Subclass2 value:
-  ///     return ...;
-  /// }
-  /// ```
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
 
-  @optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _User value) $default,){
-  final _that = this;
-  switch (_that) {
-  case _User():
-  return $default(_that);case _:
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _User value)  $default,){
+final _that = this;
+switch (_that) {
+case _User():
+return $default(_that);case _:
   throw StateError('Unexpected subclass');
 
-  }
-  }
-  /// A variant of `map` that fallback to returning `null`.
-  ///
-  /// It is equivalent to doing:
-  /// ```dart
-  /// switch (sealedClass) {
-  ///   case final Subclass value:
-  ///     return ...;
-  ///   case _:
-  ///     return null;
-  /// }
-  /// ```
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
 
-  @optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _User value)? $default,){
-  final _that = this;
-  switch (_that) {
-  case _User() when $default != null:
-  return $default(_that);case _:
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _User value)?  $default,){
+final _that = this;
+switch (_that) {
+case _User() when $default != null:
+return $default(_that);case _:
   return null;
 
-  }
-  }
-  /// A variant of `when` that fallback to an `orElse` callback.
-  ///
-  /// It is equivalent to doing:
-  /// ```dart
-  /// switch (sealedClass) {
-  ///   case Subclass(:final field):
-  ///     return ...;
-  ///   case _:
-  ///     return orElse();
-  /// }
-  /// ```
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
 
-  @optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id, String username, String email, String fullName, String? avatarUrl, bool isOnline, DateTime lastSeen)? $default,{required TResult orElse(),}) {final _that = this;
-  switch (_that) {
-  case _User() when $default != null:
-  return $default(_that.id,_that.username,_that.email,_that.fullName,_that.avatarUrl,_that.isOnline,_that.lastSeen);case _:
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int id,  String username,  String email,  String fullName,  String? avatarUrl,  bool isOnline,  DateTime lastSeen)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _User() when $default != null:
+return $default(_that.id,_that.username,_that.email,_that.fullName,_that.avatarUrl,_that.isOnline,_that.lastSeen);case _:
   return orElse();
 
-  }
-  }
-  /// A `switch`-like method, using callbacks.
-  ///
-  /// As opposed to `map`, this offers destructuring.
-  /// It is equivalent to doing:
-  /// ```dart
-  /// switch (sealedClass) {
-  ///   case Subclass(:final field):
-  ///     return ...;
-  ///   case Subclass2(:final field2):
-  ///     return ...;
-  /// }
-  /// ```
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
 
-  @optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id, String username, String email, String fullName, String? avatarUrl, bool isOnline, DateTime lastSeen) $default,) {final _that = this;
-  switch (_that) {
-  case _User():
-  return $default(_that.id,_that.username,_that.email,_that.fullName,_that.avatarUrl,_that.isOnline,_that.lastSeen);case _:
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int id,  String username,  String email,  String fullName,  String? avatarUrl,  bool isOnline,  DateTime lastSeen)  $default,) {final _that = this;
+switch (_that) {
+case _User():
+return $default(_that.id,_that.username,_that.email,_that.fullName,_that.avatarUrl,_that.isOnline,_that.lastSeen);case _:
   throw StateError('Unexpected subclass');
 
-  }
-  }
-  /// A variant of `when` that fallback to returning `null`
-  ///
-  /// It is equivalent to doing:
-  /// ```dart
-  /// switch (sealedClass) {
-  ///   case Subclass(:final field):
-  ///     return ...;
-  ///   case _:
-  ///     return null;
-  /// }
-  /// ```
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
 
-  @optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id, String username, String email, String fullName, String? avatarUrl, bool isOnline, DateTime lastSeen)? $default,) {final _that = this;
-  switch (_that) {
-  case _User() when $default != null:
-  return $default(_that.id,_that.username,_that.email,_that.fullName,_that.avatarUrl,_that.isOnline,_that.lastSeen);case _:
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int id,  String username,  String email,  String fullName,  String? avatarUrl,  bool isOnline,  DateTime lastSeen)?  $default,) {final _that = this;
+switch (_that) {
+case _User() when $default != null:
+return $default(_that.id,_that.username,_that.email,_that.fullName,_that.avatarUrl,_that.isOnline,_that.lastSeen);case _:
   return null;
 
-  }
-  }
+}
+}
 
 }
 
@@ -284,80 +212,54 @@ extension UserPatterns on User {
 
 
 class _User implements User {
-  const _User(
-      {required this.id, required this.username, required this.email, required this.fullName, this.avatarUrl, required this.isOnline, required this.lastSeen});
+  const _User({required this.id, required this.username, required this.email, required this.fullName, this.avatarUrl, required this.isOnline, required this.lastSeen});
+  
+
+@override final  int id;
+@override final  String username;
+@override final  String email;
+@override final  String fullName;
+@override final  String? avatarUrl;
+@override final  bool isOnline;
+@override final  DateTime lastSeen;
+
+/// Create a copy of User
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$UserCopyWith<_User> get copyWith => __$UserCopyWithImpl<_User>(this, _$identity);
 
 
-  @override final String id;
-  @override final String username;
-  @override final String email;
-  @override final String fullName;
-  @override final String? avatarUrl;
-  @override final bool isOnline;
-  @override final DateTime lastSeen;
 
-  /// Create a copy of User
-  /// with the given fields replaced by the non-null parameter values.
-  @override
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @pragma('vm:prefer-inline')
-  _$UserCopyWith<_User> get copyWith =>
-      __$UserCopyWithImpl<_User>(this, _$identity);
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _User&&(identical(other.id, id) || other.id == id)&&(identical(other.username, username) || other.username == username)&&(identical(other.email, email) || other.email == email)&&(identical(other.fullName, fullName) || other.fullName == fullName)&&(identical(other.avatarUrl, avatarUrl) || other.avatarUrl == avatarUrl)&&(identical(other.isOnline, isOnline) || other.isOnline == isOnline)&&(identical(other.lastSeen, lastSeen) || other.lastSeen == lastSeen));
+}
 
 
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType && other is _User &&
-            (identical(other.id, id) || other.id == id) &&
-            (identical(other.username, username) ||
-                other.username == username) &&
-            (identical(other.email, email) || other.email == email) &&
-            (identical(other.fullName, fullName) ||
-                other.fullName == fullName) &&
-            (identical(other.avatarUrl, avatarUrl) ||
-                other.avatarUrl == avatarUrl) &&
-            (identical(other.isOnline, isOnline) ||
-                other.isOnline == isOnline) &&
-            (identical(other.lastSeen, lastSeen) ||
-                other.lastSeen == lastSeen));
-  }
+@override
+int get hashCode => Object.hash(runtimeType,id,username,email,fullName,avatarUrl,isOnline,lastSeen);
 
-
-  @override
-  int get hashCode =>
-      Object.hash(
-          runtimeType,
-          id,
-          username,
-          email,
-          fullName,
-          avatarUrl,
-          isOnline,
-          lastSeen);
-
-  @override
-  String toString() {
-    return 'User(id: $id, username: $username, email: $email, fullName: $fullName, avatarUrl: $avatarUrl, isOnline: $isOnline, lastSeen: $lastSeen)';
-  }
+@override
+String toString() {
+  return 'User(id: $id, username: $username, email: $email, fullName: $fullName, avatarUrl: $avatarUrl, isOnline: $isOnline, lastSeen: $lastSeen)';
+}
 
 
 }
 
 /// @nodoc
 abstract mixin class _$UserCopyWith<$Res> implements $UserCopyWith<$Res> {
-  factory _$UserCopyWith(_User value,
-      $Res Function(_User) _then) = __$UserCopyWithImpl;
+  factory _$UserCopyWith(_User value, $Res Function(_User) _then) = __$UserCopyWithImpl;
+@override @useResult
+$Res call({
+ int id, String username, String email, String fullName, String? avatarUrl, bool isOnline, DateTime lastSeen
+});
 
-  @override
-  @useResult
-  $Res call({
-    String id, String username, String email, String fullName, String? avatarUrl, bool isOnline, DateTime lastSeen
-  });
+
 
 
 }
-
 /// @nodoc
 class __$UserCopyWithImpl<$Res>
     implements _$UserCopyWith<$Res> {
@@ -366,41 +268,20 @@ class __$UserCopyWithImpl<$Res>
   final _User _self;
   final $Res Function(_User) _then;
 
-  /// Create a copy of User
-  /// with the given fields replaced by the non-null parameter values.
-  @override
-  @pragma('vm:prefer-inline')
-  $Res call(
-      {Object? id = null, Object? username = null, Object? email = null, Object? fullName = null, Object? avatarUrl = freezed, Object? isOnline = null, Object? lastSeen = null,}) {
-    return _then(_User(
-      id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
-      as String,
-      username: null == username
-          ? _self.username
-          : username // ignore: cast_nullable_to_non_nullable
-      as String,
-      email: null == email
-          ? _self.email
-          : email // ignore: cast_nullable_to_non_nullable
-      as String,
-      fullName: null == fullName
-          ? _self.fullName
-          : fullName // ignore: cast_nullable_to_non_nullable
-      as String,
-      avatarUrl: freezed == avatarUrl
-          ? _self.avatarUrl
-          : avatarUrl // ignore: cast_nullable_to_non_nullable
-      as String?,
-      isOnline: null == isOnline
-          ? _self.isOnline
-          : isOnline // ignore: cast_nullable_to_non_nullable
-      as bool,
-      lastSeen: null == lastSeen
-          ? _self.lastSeen
-          : lastSeen // ignore: cast_nullable_to_non_nullable
-      as DateTime,
-    ));
-  }
+/// Create a copy of User
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? username = null,Object? email = null,Object? fullName = null,Object? avatarUrl = freezed,Object? isOnline = null,Object? lastSeen = null,}) {
+  return _then(_User(
+id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
+as int,username: null == username ? _self.username : username // ignore: cast_nullable_to_non_nullable
+as String,email: null == email ? _self.email : email // ignore: cast_nullable_to_non_nullable
+as String,fullName: null == fullName ? _self.fullName : fullName // ignore: cast_nullable_to_non_nullable
+as String,avatarUrl: freezed == avatarUrl ? _self.avatarUrl : avatarUrl // ignore: cast_nullable_to_non_nullable
+as String?,isOnline: null == isOnline ? _self.isOnline : isOnline // ignore: cast_nullable_to_non_nullable
+as bool,lastSeen: null == lastSeen ? _self.lastSeen : lastSeen // ignore: cast_nullable_to_non_nullable
+as DateTime,
+  ));
+}
 
 
 }

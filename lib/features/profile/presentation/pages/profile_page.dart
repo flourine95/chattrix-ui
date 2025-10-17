@@ -206,7 +206,7 @@ class ProfilePage extends ConsumerWidget {
                                   ),
                                   const SizedBox(height: 2),
                                   Text(
-                                    user.id,
+                                    user.id.toString(),
                                     style: textTheme.bodySmall?.copyWith(
                                       fontFamily: 'monospace',
                                     ),

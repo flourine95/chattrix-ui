@@ -68,7 +68,9 @@ class ChatViewPage extends HookConsumerWidget {
                   ),
                   itemCount: messages.length,
                   itemBuilder: (context, index) {
-                    final m = messages[index] as Message;
+                    final m = messages[index];
+                    debugPrint("Message from ${m.sender.id}: ${m.content}");
+                    debugPrint("Message from ${me?.id}: ${m.content}");
                     final isMe = m.sender.id == me?.id;
                     return Align(
                       alignment: isMe

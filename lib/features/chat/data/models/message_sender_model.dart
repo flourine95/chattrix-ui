@@ -9,7 +9,7 @@ abstract class MessageSenderModel with _$MessageSenderModel {
   const MessageSenderModel._();
 
   const factory MessageSenderModel({
-    required String id,
+    required int id,
     required String username,
     required String fullName,
   }) = _MessageSenderModel;
@@ -17,16 +17,22 @@ abstract class MessageSenderModel with _$MessageSenderModel {
   factory MessageSenderModel.fromJson(Map<String, dynamic> json) =>
       _$MessageSenderModelFromJson(json);
 
-  // Maps backend variations into our model
   factory MessageSenderModel.fromApi(Map<String, dynamic> json) {
+    final rawId = json['id'] ?? json['userId'] ?? json['senderId'];
+    final id = rawId is int ? rawId : int.tryParse(rawId.toString()) ?? 0;
+
     return MessageSenderModel(
-      id: (json['id'] ?? json['userId'] ?? json['senderId'] ?? '').toString(),
+      id: id,
       username: (json['username'] ?? json['senderUsername'] ?? '').toString(),
       fullName: (json['fullName'] ?? json['full_name'] ?? '').toString(),
     );
   }
 
   MessageSender toEntity() {
-    return MessageSender(id: id, username: username, fullName: fullName);
+    return MessageSender(
+      id: id,
+      username: username,
+      fullName: fullName,
+    );
   }
 }

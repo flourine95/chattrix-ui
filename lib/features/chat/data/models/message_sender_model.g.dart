@@ -8,7 +8,7 @@ part of 'message_sender_model.dart';
 
 _MessageSenderModel _$MessageSenderModelFromJson(Map<String, dynamic> json) =>
     _MessageSenderModel(
-      id: json['id'] as String,
+      id: (json['id'] as num).toInt(),
       username: json['username'] as String,
       fullName: json['fullName'] as String,
     );

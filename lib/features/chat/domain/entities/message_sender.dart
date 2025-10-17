@@ -5,7 +5,7 @@ part 'message_sender.freezed.dart';
 @freezed
 abstract class MessageSender with _$MessageSender {
   const factory MessageSender({
-    required String id,
+    required int id,
     required String username,
     required String fullName,
   }) = _MessageSender;
