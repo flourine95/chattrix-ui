@@ -7,7 +7,7 @@ part 'message.freezed.dart';
 @freezed
 abstract class Message with _$Message {
   const factory Message({
-    required String id,
+    required int id,
     required String content,
     required String type, // 'TEXT', etc.
     required DateTime createdAt,

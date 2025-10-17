@@ -8,7 +8,7 @@ part of 'conversation_model.dart';
 
 _ConversationModel _$ConversationModelFromJson(Map<String, dynamic> json) =>
     _ConversationModel(
-      id: json['id'] as String,
+      id: (json['id'] as num).toInt(),
       name: json['name'] as String?,
       type: json['type'] as String,
       createdAt: json['createdAt'] as String,

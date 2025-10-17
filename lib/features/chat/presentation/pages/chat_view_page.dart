@@ -1,22 +1,35 @@
 import 'package:chattrix_ui/features/auth/presentation/providers/auth_providers.dart';
-import 'package:chattrix_ui/features/chat/domain/entities/message.dart';
 import 'package:chattrix_ui/features/chat/providers/chat_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 class ChatViewPage extends HookConsumerWidget {
-  const ChatViewPage({super.key, required this.chatId, this.name});
+  const ChatViewPage({super.key, required this.chatId, this.name, this.color});
 
   final String chatId;
   final String? name;
+  final Color? color;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final controller = useTextEditingController();
     final textTheme = Theme.of(context).textTheme;
     final colors = Theme.of(context).colorScheme;
+    final avatarColor = color ?? colors.primary;
+
+// Tính độ sáng (0 = đen, 255 = trắng)
+    final brightness = (avatarColor.red * 0.299 +
+        avatarColor.green * 0.587 +
+        avatarColor.blue * 0.114) /
+        255;
+
+    final onAvatarColor = brightness < 0.5 ? Colors.white : Colors.black;
+
+
+    debugPrint("Avatar color: $avatarColor, onAvatarColor: $onAvatarColor");
 
     final me = ref.watch(currentUserProvider);
     final messagesAsync = ref.watch(messagesProvider(chatId));
@@ -35,20 +48,24 @@ class ChatViewPage extends HookConsumerWidget {
         (_) async {
           controller.clear();
           // Refresh messages after sending
-          await ref.refresh(messagesProvider(chatId).future);
+          ref.invalidate(messagesProvider(chatId));
         },
       );
     }
 
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => context.pop(),
+        ),
         title: Row(
           children: [
             CircleAvatar(
-              backgroundColor: colors.primary,
+              backgroundColor: avatarColor,
               child: Text(
-                (name ?? 'User $chatId').substring(0, 1),
-                style: textTheme.titleMedium?.copyWith(color: colors.onPrimary),
+                (name ?? 'User $chatId').substring(0, 1).toUpperCase(),
+                style: textTheme.titleMedium?.copyWith(color: onAvatarColor),
               ),
             ),
             const SizedBox(width: 12),
@@ -69,8 +86,6 @@ class ChatViewPage extends HookConsumerWidget {
                   itemCount: messages.length,
                   itemBuilder: (context, index) {
                     final m = messages[index];
-                    debugPrint("Message from ${m.sender.id}: ${m.content}");
-                    debugPrint("Message from ${me?.id}: ${m.content}");
                     final isMe = m.sender.id == me?.id;
                     return Align(
                       alignment: isMe
@@ -169,11 +184,25 @@ class ChatBubble extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
-    final textTheme = Theme.of(context).textTheme;
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+    final textTheme = theme.textTheme;
+    final isDark = theme.brightness == Brightness.dark;
 
-    final bg = isMe ? colors.primary : colors.surface;
-    final fg = isMe ? colors.onPrimary : colors.onSurface;
+    final bg = isMe
+        ? (isDark
+              ? colors.primary
+              : Colors.grey.shade200) // mình: xám nhạt ở light mode
+        : (isDark
+              ? colors.surface
+              : Colors.black); // người khác: đen ở light mode
+    final fg = isMe
+        ? (isDark
+              ? colors.onPrimary
+              : Colors.black) // mình: chữ đen ở light mode
+        : (isDark
+              ? colors.onSurface
+              : Colors.white); // người khác: chữ trắng ở light mode
 
     return Container(
       margin: EdgeInsets.only(
@@ -191,15 +220,13 @@ class ChatBubble extends StatelessWidget {
           bottomLeft: Radius.circular(isMe ? 16 : 4),
           bottomRight: Radius.circular(isMe ? 4 : 16),
         ),
+        border: isMe
+            ? Border.all(
+                color: Colors.grey.shade300,
+              ) // giúp bubble sáng vẫn tách nền
+            : null,
       ),
       child: Text(text, style: textTheme.bodyMedium?.copyWith(color: fg)),
     );
   }
-}
-
-class _Message {
-  final String text;
-  final bool isMe;
-
-  _Message({required this.text, required this.isMe});
 }

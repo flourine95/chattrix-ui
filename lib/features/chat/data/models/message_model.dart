@@ -11,7 +11,7 @@ abstract class MessageModel with _$MessageModel {
   const MessageModel._();
 
   const factory MessageModel({
-    required String id,
+    required int id,
     required String content,
     required String type,
     required String createdAt,
@@ -37,7 +37,7 @@ abstract class MessageModel with _$MessageModel {
           };
 
     return MessageModel(
-      id: (json['id'] ?? json['messageId'] ?? '').toString(),
+      id: (json['id'] ?? json['messageId'] ?? ''),
       content: (json['content'] ?? '').toString(),
       type: (json['type'] ?? '').toString(),
       createdAt: (json['createdAt'] ?? json['sentAt'] ?? DateTime.now().toIso8601String()).toString(),

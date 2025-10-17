@@ -7,7 +7,7 @@ part 'conversation.freezed.dart';
 @freezed
 abstract class Conversation with _$Conversation {
   const factory Conversation({
-    required String id,
+    required int id,
     String? name,
     required String type, // 'DIRECT' or 'GROUP'
     required DateTime createdAt,

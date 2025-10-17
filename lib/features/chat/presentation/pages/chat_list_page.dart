@@ -11,13 +11,23 @@ class ChatListPage extends ConsumerWidget {
   const ChatListPage({super.key});
 
   Color _avatarColor(BuildContext context, int seed) {
-    final colors = <Color>[
-      Theme.of(context).colorScheme.primary,
-      Theme.of(context).colorScheme.surface,
-      Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.2),
+    final palette = <Color>[
+      const Color(0xFFEF5350), // red
+      const Color(0xFFAB47BC), // purple
+      const Color(0xFF5C6BC0), // indigo
+      const Color(0xFF29B6F6), // blue
+      const Color(0xFF26A69A), // teal
+      const Color(0xFF66BB6A), // green
+      const Color(0xFFFFCA28), // amber
+      const Color(0xFFFF7043), // deep orange
+      const Color(0xFF8D6E63), // brown
+      const Color(0xFF78909C), // blue grey
     ];
-    return colors[seed % colors.length];
+
+    final index = seed % palette.length;
+    return palette[index];
   }
+
 
   String _conversationTitle(Conversation c, User? me) {
     if (c.type.toUpperCase() == 'DIRECT') {
@@ -55,8 +65,13 @@ class ChatListPage extends ConsumerWidget {
               final avatarColor = _avatarColor(context, index + 21);
               final initial = title.isNotEmpty ? title.substring(0, 1) : '?';
               return ListTile(
-                onTap: () =>
-                    context.go('/chat/${c.id}', extra: {'name': title}),
+                onTap: () => context.push(
+                  '/chat/${c.id}',
+                  extra: {
+                    'name': title,
+                    'color': _avatarColor(context, index + 21),
+                  },
+                ),
                 leading: CircleAvatar(
                   backgroundColor: avatarColor,
                   child: Text(

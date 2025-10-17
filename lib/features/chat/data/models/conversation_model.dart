@@ -11,7 +11,7 @@ abstract class ConversationModel with _$ConversationModel {
   const ConversationModel._();
 
   const factory ConversationModel({
-    required String id,
+    required int id,
     String? name,
     required String type,
     required String createdAt,
@@ -28,7 +28,7 @@ abstract class ConversationModel with _$ConversationModel {
         .toList();
 
     return ConversationModel(
-      id: (json['id'] ?? json['conversationId'] ?? '').toString(),
+      id: (json['id'] ?? json['conversationId'] ?? ''),
       name: (json['name'] ?? json['title'])?.toString(),
       type: (json['type'] ?? '').toString(),
       createdAt: (json['createdAt'] ?? json['created_at'] ?? '').toString(),

@@ -8,7 +8,7 @@ part of 'participant_model.dart';
 
 _ParticipantModel _$ParticipantModelFromJson(Map<String, dynamic> json) =>
     _ParticipantModel(
-      userId: json['userId'] as String,
+      userId: (json['userId'] as num).toInt(),
       username: json['username'] as String,
       fullName: json['fullName'] as String,
       role: json['role'] as String,

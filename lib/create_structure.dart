@@ -1,5 +1,7 @@
 import 'dart:io';
 
+import 'package:flutter/cupertino.dart';
+
 void main() {
   final dirs = [
     'lib/core/constants',
@@ -20,6 +22,6 @@ void main() {
 
   for (final dir in dirs) {
     Directory(dir).createSync(recursive: true);
-    print('Created: $dir');
+    debugPrint('Created: $dir');
   }
 }

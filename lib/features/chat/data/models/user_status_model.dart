@@ -9,7 +9,7 @@ abstract class UserStatusModel with _$UserStatusModel {
   const UserStatusModel._();
 
   const factory UserStatusModel({
-    required String userId,
+    required int userId,
     required bool isOnline,
     required int activeSessionCount,
   }) = _UserStatusModel;

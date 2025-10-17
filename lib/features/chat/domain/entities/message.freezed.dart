@@ -14,7 +14,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$Message {
 
- String get id; String get content; String get type;// 'TEXT', etc.
+ int get id; String get content; String get type;// 'TEXT', etc.
  DateTime get createdAt; String get conversationId; MessageSender get sender;
 /// Create a copy of Message
 /// with the given fields replaced by the non-null parameter values.
@@ -46,7 +46,7 @@ abstract mixin class $MessageCopyWith<$Res>  {
   factory $MessageCopyWith(Message value, $Res Function(Message) _then) = _$MessageCopyWithImpl;
 @useResult
 $Res call({
- String id, String content, String type, DateTime createdAt, String conversationId, MessageSender sender
+ int id, String content, String type, DateTime createdAt, String conversationId, MessageSender sender
 });
 
 
@@ -66,7 +66,7 @@ class _$MessageCopyWithImpl<$Res>
 @pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? content = null,Object? type = null,Object? createdAt = null,Object? conversationId = null,Object? sender = null,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
-as String,content: null == content ? _self.content : content // ignore: cast_nullable_to_non_nullable
+as int,content: null == content ? _self.content : content // ignore: cast_nullable_to_non_nullable
 as String,type: null == type ? _self.type : type // ignore: cast_nullable_to_non_nullable
 as String,createdAt: null == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
 as DateTime,conversationId: null == conversationId ? _self.conversationId : conversationId // ignore: cast_nullable_to_non_nullable
@@ -165,7 +165,7 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String content,  String type,  DateTime createdAt,  String conversationId,  MessageSender sender)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int id,  String content,  String type,  DateTime createdAt,  String conversationId,  MessageSender sender)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Message() when $default != null:
 return $default(_that.id,_that.content,_that.type,_that.createdAt,_that.conversationId,_that.sender);case _:
@@ -186,7 +186,7 @@ return $default(_that.id,_that.content,_that.type,_that.createdAt,_that.conversa
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String content,  String type,  DateTime createdAt,  String conversationId,  MessageSender sender)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int id,  String content,  String type,  DateTime createdAt,  String conversationId,  MessageSender sender)  $default,) {final _that = this;
 switch (_that) {
 case _Message():
 return $default(_that.id,_that.content,_that.type,_that.createdAt,_that.conversationId,_that.sender);case _:
@@ -206,7 +206,7 @@ return $default(_that.id,_that.content,_that.type,_that.createdAt,_that.conversa
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String content,  String type,  DateTime createdAt,  String conversationId,  MessageSender sender)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int id,  String content,  String type,  DateTime createdAt,  String conversationId,  MessageSender sender)?  $default,) {final _that = this;
 switch (_that) {
 case _Message() when $default != null:
 return $default(_that.id,_that.content,_that.type,_that.createdAt,_that.conversationId,_that.sender);case _:
@@ -224,7 +224,7 @@ class _Message implements Message {
   const _Message({required this.id, required this.content, required this.type, required this.createdAt, required this.conversationId, required this.sender});
   
 
-@override final  String id;
+@override final  int id;
 @override final  String content;
 @override final  String type;
 // 'TEXT', etc.
@@ -262,7 +262,7 @@ abstract mixin class _$MessageCopyWith<$Res> implements $MessageCopyWith<$Res> {
   factory _$MessageCopyWith(_Message value, $Res Function(_Message) _then) = __$MessageCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String content, String type, DateTime createdAt, String conversationId, MessageSender sender
+ int id, String content, String type, DateTime createdAt, String conversationId, MessageSender sender
 });
 
 
@@ -282,7 +282,7 @@ class __$MessageCopyWithImpl<$Res>
 @override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? content = null,Object? type = null,Object? createdAt = null,Object? conversationId = null,Object? sender = null,}) {
   return _then(_Message(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
-as String,content: null == content ? _self.content : content // ignore: cast_nullable_to_non_nullable
+as int,content: null == content ? _self.content : content // ignore: cast_nullable_to_non_nullable
 as String,type: null == type ? _self.type : type // ignore: cast_nullable_to_non_nullable
 as String,createdAt: null == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
 as DateTime,conversationId: null == conversationId ? _self.conversationId : conversationId // ignore: cast_nullable_to_non_nullable

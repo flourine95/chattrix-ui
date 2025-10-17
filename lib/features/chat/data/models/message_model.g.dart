@@ -8,7 +8,7 @@ part of 'message_model.dart';
 
 _MessageModel _$MessageModelFromJson(Map<String, dynamic> json) =>
     _MessageModel(
-      id: json['id'] as String,
+      id: (json['id'] as num).toInt(),
       content: json['content'] as String,
       type: json['type'] as String,
       createdAt: json['createdAt'] as String,

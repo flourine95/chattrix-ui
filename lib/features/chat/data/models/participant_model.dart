@@ -9,7 +9,7 @@ abstract class ParticipantModel with _$ParticipantModel {
   const ParticipantModel._();
 
   const factory ParticipantModel({
-    required String userId,
+    required int userId,
     required String username,
     required String fullName,
     required String role,
@@ -20,7 +20,7 @@ abstract class ParticipantModel with _$ParticipantModel {
 
   factory ParticipantModel.fromApi(Map<String, dynamic> json) {
     return ParticipantModel(
-      userId: (json['userId'] ?? json['user_id'] ?? '').toString(),
+      userId: (json['userId'] ?? json['user_id'] ?? ''),
       username: (json['username'] ?? '').toString(),
       fullName: (json['fullName'] ?? json['full_name'] ?? '').toString(),
       role: (json['role'] ?? '').toString(),

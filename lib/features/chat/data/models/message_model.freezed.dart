@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$MessageModel {
 
- String get id; String get content; String get type; String get createdAt; String get conversationId; MessageSenderModel get sender;
+ int get id; String get content; String get type; String get createdAt; String get conversationId; MessageSenderModel get sender;
 /// Create a copy of MessageModel
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -48,7 +48,7 @@ abstract mixin class $MessageModelCopyWith<$Res>  {
   factory $MessageModelCopyWith(MessageModel value, $Res Function(MessageModel) _then) = _$MessageModelCopyWithImpl;
 @useResult
 $Res call({
- String id, String content, String type, String createdAt, String conversationId, MessageSenderModel sender
+ int id, String content, String type, String createdAt, String conversationId, MessageSenderModel sender
 });
 
 
@@ -68,7 +68,7 @@ class _$MessageModelCopyWithImpl<$Res>
 @pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? content = null,Object? type = null,Object? createdAt = null,Object? conversationId = null,Object? sender = null,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
-as String,content: null == content ? _self.content : content // ignore: cast_nullable_to_non_nullable
+as int,content: null == content ? _self.content : content // ignore: cast_nullable_to_non_nullable
 as String,type: null == type ? _self.type : type // ignore: cast_nullable_to_non_nullable
 as String,createdAt: null == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
 as String,conversationId: null == conversationId ? _self.conversationId : conversationId // ignore: cast_nullable_to_non_nullable
@@ -167,7 +167,7 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String content,  String type,  String createdAt,  String conversationId,  MessageSenderModel sender)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int id,  String content,  String type,  String createdAt,  String conversationId,  MessageSenderModel sender)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _MessageModel() when $default != null:
 return $default(_that.id,_that.content,_that.type,_that.createdAt,_that.conversationId,_that.sender);case _:
@@ -188,7 +188,7 @@ return $default(_that.id,_that.content,_that.type,_that.createdAt,_that.conversa
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String content,  String type,  String createdAt,  String conversationId,  MessageSenderModel sender)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int id,  String content,  String type,  String createdAt,  String conversationId,  MessageSenderModel sender)  $default,) {final _that = this;
 switch (_that) {
 case _MessageModel():
 return $default(_that.id,_that.content,_that.type,_that.createdAt,_that.conversationId,_that.sender);case _:
@@ -208,7 +208,7 @@ return $default(_that.id,_that.content,_that.type,_that.createdAt,_that.conversa
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String content,  String type,  String createdAt,  String conversationId,  MessageSenderModel sender)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int id,  String content,  String type,  String createdAt,  String conversationId,  MessageSenderModel sender)?  $default,) {final _that = this;
 switch (_that) {
 case _MessageModel() when $default != null:
 return $default(_that.id,_that.content,_that.type,_that.createdAt,_that.conversationId,_that.sender);case _:
@@ -226,7 +226,7 @@ class _MessageModel extends MessageModel {
   const _MessageModel({required this.id, required this.content, required this.type, required this.createdAt, required this.conversationId, required this.sender}): super._();
   factory _MessageModel.fromJson(Map<String, dynamic> json) => _$MessageModelFromJson(json);
 
-@override final  String id;
+@override final  int id;
 @override final  String content;
 @override final  String type;
 @override final  String createdAt;
@@ -266,7 +266,7 @@ abstract mixin class _$MessageModelCopyWith<$Res> implements $MessageModelCopyWi
   factory _$MessageModelCopyWith(_MessageModel value, $Res Function(_MessageModel) _then) = __$MessageModelCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String content, String type, String createdAt, String conversationId, MessageSenderModel sender
+ int id, String content, String type, String createdAt, String conversationId, MessageSenderModel sender
 });
 
 
@@ -286,7 +286,7 @@ class __$MessageModelCopyWithImpl<$Res>
 @override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? content = null,Object? type = null,Object? createdAt = null,Object? conversationId = null,Object? sender = null,}) {
   return _then(_MessageModel(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
-as String,content: null == content ? _self.content : content // ignore: cast_nullable_to_non_nullable
+as int,content: null == content ? _self.content : content // ignore: cast_nullable_to_non_nullable
 as String,type: null == type ? _self.type : type // ignore: cast_nullable_to_non_nullable
 as String,createdAt: null == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
 as String,conversationId: null == conversationId ? _self.conversationId : conversationId // ignore: cast_nullable_to_non_nullable
