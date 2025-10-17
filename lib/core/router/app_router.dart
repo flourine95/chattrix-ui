@@ -88,13 +88,21 @@ class AppRouter {
           name: 'chat-view',
           builder: (context, state) {
             final id = state.pathParameters['id']!;
-            final name =
-                (state.extra is Map && (state.extra as Map).containsKey('name'))
-                ? (state.extra as Map)['name'] as String?
-                : null;
-            return ChatViewPage(chatId: id, name: name);
+
+            // Lấy extra nếu có
+            final extra = state.extra as Map<String, dynamic>?;
+
+            final name = extra?['name'] as String?;
+            final color = extra?['color'] as Color?;
+
+            return ChatViewPage(
+              chatId: id,
+              name: name,
+              color: color,
+            );
           },
         ),
+
 
         // Debug Token route
         GoRoute(
