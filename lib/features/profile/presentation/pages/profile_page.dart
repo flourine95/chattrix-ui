@@ -25,7 +25,7 @@ class ProfilePage extends ConsumerWidget {
                 ? null
                 : () =>
                       ref.read(authNotifierProvider.notifier).loadCurrentUser(),
-            tooltip: 'Làm mới thông tin',
+            tooltip: 'Refresh information',
           ),
         ],
       ),
@@ -226,19 +226,19 @@ class ProfilePage extends ConsumerWidget {
                   // Menu Items
                   ListTile(
                     leading: const FaIcon(FontAwesomeIcons.userPen),
-                    title: const Text('Chỉnh sửa Hồ sơ'),
+                    title: const Text('Edit Profile'),
                     trailing: const Icon(Icons.chevron_right),
                     onTap: () {},
                   ),
                   ListTile(
                     leading: const FaIcon(FontAwesomeIcons.bell),
-                    title: const Text('Cài đặt Thông báo'),
+                    title: const Text('Notification Settings'),
                     trailing: const Icon(Icons.chevron_right),
                     onTap: () {},
                   ),
                   ListTile(
                     leading: const FaIcon(FontAwesomeIcons.lock),
-                    title: const Text('Riêng tư & Bảo mật'),
+                    title: const Text('Privacy & Security'),
                     trailing: const Icon(Icons.chevron_right),
                     onTap: () {},
                   ),
@@ -268,7 +268,7 @@ class ProfilePage extends ConsumerWidget {
                       color: colors.error,
                     ),
                     title: Text(
-                      'Đăng xuất',
+                      'Logout',
                       style: textTheme.bodyLarge?.copyWith(color: colors.error),
                     ),
                     onTap: () async {
@@ -276,19 +276,19 @@ class ProfilePage extends ConsumerWidget {
                       final shouldLogout = await showDialog<bool>(
                         context: context,
                         builder: (context) => AlertDialog(
-                          title: const Text('Đăng xuất'),
+                          title: const Text('Logout'),
                           content: const Text(
-                            'Bạn có chắc chắn muốn đăng xuất?',
+                            'Are you sure you want to log out?',
                           ),
                           actions: [
                             TextButton(
                               onPressed: () => Navigator.pop(context, false),
-                              child: const Text('Hủy'),
+                              child: const Text('Cancel'),
                             ),
                             TextButton(
                               onPressed: () => Navigator.pop(context, true),
                               child: Text(
-                                'Đăng xuất',
+                                'Logout',
                                 style: TextStyle(color: colors.error),
                               ),
                             ),

@@ -60,26 +60,26 @@ class _OtpVerificationScreenState extends ConsumerState<OtpVerificationScreen> {
     if (otp.length != 6) {
       Toasts.error(
         context,
-        title: 'Lỗi',
-        description: 'Vui lòng nhập đầy đủ 6 số OTP',
+        title: 'Error',
+        description: 'Please enter the full 6-digit OTP',
       );
       return;
     }
 
     if (_email.isEmpty) {
-      Toasts.error(context, title: 'Lỗi', description: 'Email không hợp lệ');
+      Toasts.error(context, title: 'Error', description: 'Invalid email');
       return;
     }
 
-    // Nếu là reset password, cần nhập mật khẩu mới
+    // If it's a password reset, a new password is required
     if (widget.isPasswordReset) {
       final newPassword = _newPasswordController.text;
 
       if (newPassword.isEmpty) {
         Toasts.error(
           context,
-          title: 'Lỗi',
-          description: 'Vui lòng nhập mật khẩu mới',
+          title: 'Error',
+          description: 'Please enter a new password',
         );
         return;
       }
@@ -87,8 +87,8 @@ class _OtpVerificationScreenState extends ConsumerState<OtpVerificationScreen> {
       if (newPassword.length < 6) {
         Toasts.error(
           context,
-          title: 'Lỗi',
-          description: 'Mật khẩu phải có ít nhất 6 ký tự',
+          title: 'Error',
+          description: 'Password must be at least 6 characters long',
         );
         return;
       }
@@ -103,20 +103,20 @@ class _OtpVerificationScreenState extends ConsumerState<OtpVerificationScreen> {
       if (success) {
         Toasts.success(
           context,
-          title: 'Thành công',
-          description: 'Đặt lại mật khẩu thành công! Vui lòng đăng nhập.',
+          title: 'Success',
+          description: 'Password reset successful! Please log in.',
         );
         context.go(AppRouter.loginPath);
       } else {
         final error = ref.read(authErrorProvider);
         Toasts.error(
           context,
-          title: 'Đặt lại mật khẩu thất bại',
-          description: error ?? 'Mã OTP không đúng hoặc đã hết hạn',
+          title: 'Password Reset Failed',
+          description: error ?? 'Invalid or expired OTP code',
         );
       }
     } else {
-      // Flow verify email bình thường
+      // Normal email verification flow
       final success = await ref
           .read(authNotifierProvider.notifier)
           .verifyEmail(email: _email, otp: otp);
@@ -126,16 +126,16 @@ class _OtpVerificationScreenState extends ConsumerState<OtpVerificationScreen> {
       if (success) {
         Toasts.success(
           context,
-          title: 'Thành công',
-          description: 'Xác thực email thành công! Vui lòng đăng nhập.',
+          title: 'Success',
+          description: 'Email verified successfully! Please log in.',
         );
         context.go(AppRouter.loginPath);
       } else {
         final error = ref.read(authErrorProvider);
         Toasts.error(
           context,
-          title: 'Xác thực thất bại',
-          description: error ?? 'Mã OTP không đúng',
+          title: 'Verification Failed',
+          description: error ?? 'Invalid OTP code',
         );
       }
     }
@@ -143,12 +143,12 @@ class _OtpVerificationScreenState extends ConsumerState<OtpVerificationScreen> {
 
   Future<void> _resendOtp() async {
     if (_email.isEmpty) {
-      Toasts.error(context, title: 'Lỗi', description: 'Email không hợp lệ');
+      Toasts.error(context, title: 'Error', description: 'Invalid email');
       return;
     }
 
-    // Nếu là reset password thì gọi forgot password lại
-    // Nếu là verify email thì gọi resend verification
+    // If it's a password reset, call forgot password again
+    // If it's email verification, call resend verification
     final success = widget.isPasswordReset
         ? await ref
               .read(authNotifierProvider.notifier)
@@ -162,15 +162,15 @@ class _OtpVerificationScreenState extends ConsumerState<OtpVerificationScreen> {
     if (success) {
       Toasts.success(
         context,
-        title: 'Thành công',
-        description: 'Đã gửi lại mã OTP. Vui lòng kiểm tra email.',
+        title: 'Success',
+        description: 'A new OTP has been sent. Please check your email.',
       );
     } else {
       final error = ref.read(authErrorProvider);
       Toasts.error(
         context,
-        title: 'Gửi lại thất bại',
-        description: error ?? 'Có lỗi xảy ra',
+        title: 'Resend Failed',
+        description: error ?? 'An error occurred',
       );
     }
   }
@@ -198,7 +198,7 @@ class _OtpVerificationScreenState extends ConsumerState<OtpVerificationScreen> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               const SizedBox(height: 60),
-              // Tiêu đề
+              // Title
               Text(
                 widget.isPasswordReset ? 'Reset Password' : 'OTP Verification',
                 style: Theme.of(context).textTheme.headlineMedium?.copyWith(
@@ -220,11 +220,11 @@ class _OtpVerificationScreenState extends ConsumerState<OtpVerificationScreen> {
               ),
               const SizedBox(height: 40),
 
-              // Các ô nhập OTP
+              // OTP Input Fields
               _buildOtpInputFields(),
               const SizedBox(height: 30),
 
-              // Nếu là reset password, hiển thị field nhập mật khẩu mới
+              // If it's a password reset, show the new password field
               if (widget.isPasswordReset) ...[
                 AppInputField(
                   labelText: 'New Password',
@@ -234,7 +234,7 @@ class _OtpVerificationScreenState extends ConsumerState<OtpVerificationScreen> {
                 const SizedBox(height: 30),
               ],
 
-              // Nút xác thực
+              // Verify Button
               PrimaryButton(
                 text: widget.isPasswordReset ? 'Reset Password' : 'Verify',
                 isLoading: isLoading,
@@ -242,7 +242,7 @@ class _OtpVerificationScreenState extends ConsumerState<OtpVerificationScreen> {
               ),
               const SizedBox(height: 20),
 
-              // Link gửi lại code
+              // Resend Code Link
               TextButton(
                 onPressed: isLoading ? null : _resendOtp,
                 child: const Text('Resend Code'),

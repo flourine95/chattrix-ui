@@ -108,8 +108,8 @@ class RegisterScreen extends HookConsumerWidget {
                             confirmPassword.isEmpty) {
                           Toasts.error(
                             context,
-                            title: 'Lỗi',
-                            description: 'Vui lòng nhập đầy đủ thông tin',
+                            title: 'Error',
+                            description: 'Please fill in all fields',
                           );
                           return;
                         }
@@ -117,8 +117,8 @@ class RegisterScreen extends HookConsumerWidget {
                         if (!email.contains('@')) {
                           Toasts.error(
                             context,
-                            title: 'Lỗi',
-                            description: 'Email không hợp lệ',
+                            title: 'Error',
+                            description: 'Invalid email address',
                           );
                           return;
                         }
@@ -126,8 +126,8 @@ class RegisterScreen extends HookConsumerWidget {
                         if (password.length < 6) {
                           Toasts.error(
                             context,
-                            title: 'Lỗi',
-                            description: 'Mật khẩu phải có ít nhất 6 ký tự',
+                            title: 'Error',
+                            description: 'Password must be at least 6 characters long',
                           );
                           return;
                         }
@@ -135,8 +135,8 @@ class RegisterScreen extends HookConsumerWidget {
                         if (password != confirmPassword) {
                           Toasts.error(
                             context,
-                            title: 'Lỗi',
-                            description: 'Mật khẩu xác nhận không khớp',
+                            title: 'Error',
+                            description: 'Passwords do not match',
                           );
                           return;
                         }
@@ -156,9 +156,9 @@ class RegisterScreen extends HookConsumerWidget {
                         if (success) {
                           Toasts.success(
                             context,
-                            title: 'Thành công',
+                            title: 'Success',
                             description:
-                                'Đăng ký thành công! Vui lòng kiểm tra email để xác thực tài khoản.',
+                                'Registration successful! Please check your email to verify your account.',
                           );
                           // Navigate to OTP verification screen
                           context.push(
@@ -169,8 +169,8 @@ class RegisterScreen extends HookConsumerWidget {
                           final error = ref.read(authErrorProvider);
                           Toasts.error(
                             context,
-                            title: 'Đăng ký thất bại',
-                            description: error ?? 'Có lỗi xảy ra',
+                            title: 'Registration Failed',
+                            description: error ?? 'An error occurred',
                           );
                         }
                       }

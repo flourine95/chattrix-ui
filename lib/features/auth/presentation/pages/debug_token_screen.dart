@@ -7,7 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-/// Screen để debug và test auto-refresh token
+/// Screen to debug and test auto-refresh token
 class DebugTokenScreen extends ConsumerStatefulWidget {
   const DebugTokenScreen({super.key});
 
@@ -268,7 +268,7 @@ class _DebugTokenScreenState extends ConsumerState<DebugTokenScreen> {
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      'Tokens tự động cập nhật mỗi 2 giây',
+                      'Tokens automatically update every 2 seconds',
                       style: TextStyle(
                         fontSize: 12,
                         color: Colors.blue.shade900,

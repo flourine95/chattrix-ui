@@ -75,8 +75,8 @@ class LoginScreen extends HookConsumerWidget {
                   if (email.isEmpty || password.isEmpty) {
                     Toasts.error(
                       context,
-                      title: 'Lỗi',
-                      description: 'Vui lòng nhập đầy đủ thông tin',
+                      title: 'Error',
+                      description: 'Please fill in all fields',
                     );
                     return;
                   }
@@ -90,17 +90,17 @@ class LoginScreen extends HookConsumerWidget {
                   if (success) {
                     Toasts.success(
                       context,
-                      title: 'Thành công',
-                      description: 'Đăng nhập thành công!',
+                      title: 'Success',
+                      description: 'Login successful!',
                     );
-                    // Router sẽ tự động redirect về home do auth guard
+                    // The router will automatically redirect to home due to the auth guard
                     context.go('/');
                   } else {
                     final error = ref.read(authErrorProvider);
                     Toasts.error(
                       context,
-                      title: 'Đăng nhập thất bại',
-                      description: error ?? 'Có lỗi xảy ra',
+                      title: 'Login Failed',
+                      description: error ?? 'An error occurred',
                     );
                   }
                 },

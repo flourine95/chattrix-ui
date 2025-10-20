@@ -6,6 +6,7 @@ import 'package:chattrix_ui/features/chat/data/models/message_model.dart';
 import 'package:chattrix_ui/features/chat/data/models/user_status_model.dart';
 import 'package:chattrix_ui/features/chat/domain/datasources/chat_remote_datasource.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter/cupertino.dart';
 
 class ChatRemoteDatasourceImpl implements ChatRemoteDatasource {
   final Dio dio;
@@ -47,6 +48,7 @@ class ChatRemoteDatasourceImpl implements ChatRemoteDatasource {
       final response = await dio.get('${ApiConstants.baseUrl}/${ApiConstants.conversationsBase}');
 
       if (response.statusCode == 200) {
+        debugPrint('Conversations Response: ${response.data}');
         final data = response.data['data'] as List;
         return data
             .whereType<Map<String, dynamic>>()

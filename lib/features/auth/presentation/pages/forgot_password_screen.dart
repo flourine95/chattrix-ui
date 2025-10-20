@@ -68,8 +68,8 @@ class ForgotPasswordScreen extends HookConsumerWidget {
                   if (email.isEmpty) {
                     Toasts.error(
                       context,
-                      title: 'Lỗi',
-                      description: 'Vui lòng nhập email',
+                      title: 'Error',
+                      description: 'Please enter your email',
                     );
                     return;
                   }
@@ -77,8 +77,8 @@ class ForgotPasswordScreen extends HookConsumerWidget {
                   if (!email.contains('@')) {
                     Toasts.error(
                       context,
-                      title: 'Lỗi',
-                      description: 'Email không hợp lệ',
+                      title: 'Error',
+                      description: 'Invalid email address',
                     );
                     return;
                   }
@@ -93,9 +93,9 @@ class ForgotPasswordScreen extends HookConsumerWidget {
                   if (success) {
                     Toasts.success(
                       context,
-                      title: 'Thành công',
+                      title: 'Success',
                       description:
-                          'Email đặt lại mật khẩu đã được gửi. Vui lòng kiểm tra hộp thư của bạn.',
+                          'A password reset email has been sent. Please check your inbox.',
                     );
                     // Navigate to OTP screen for password reset
                     context.push(
@@ -106,8 +106,8 @@ class ForgotPasswordScreen extends HookConsumerWidget {
                     final error = ref.read(authErrorProvider);
                     Toasts.error(
                       context,
-                      title: 'Gửi email thất bại',
-                      description: error ?? 'Có lỗi xảy ra',
+                      title: 'Failed to Send Email',
+                      description: error ?? 'An error occurred',
                     );
                   }
                 },
