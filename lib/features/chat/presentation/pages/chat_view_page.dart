@@ -35,24 +35,39 @@ class ChatViewPage extends HookConsumerWidget {
 
     final me = ref.watch(currentUserProvider);
     final messagesAsync = ref.watch(messagesProvider(chatId));
+    final wsConnection = ref.watch(webSocketConnectionProvider);
+    final wsService = ref.watch(chatWebSocketServiceProvider);
+
+    // Initialize WebSocket connection on first build
+    useEffect(() {
+      ref.read(webSocketConnectionProvider.notifier);
+      return null;
+    }, []);
 
     Future<void> sendMessage() async {
       final text = controller.text.trim();
       if (text.isEmpty) return;
-      final usecase = ref.read(sendMessageUsecaseProvider);
-      final result = await usecase(conversationId: chatId, content: text);
-      result.fold(
-        (failure) {
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(SnackBar(content: Text(failure.message)));
-        },
-        (_) async {
-          controller.clear();
-          // Refresh messages after sending
-          ref.invalidate(messagesProvider(chatId));
-        },
-      );
+
+      // Send via WebSocket if connected, otherwise use HTTP
+      if (wsConnection.isConnected) {
+        wsService.sendMessage(chatId, text);
+        controller.clear();
+      } else {
+        final usecase = ref.read(sendMessageUsecaseProvider);
+        final result = await usecase(conversationId: chatId, content: text);
+        result.fold(
+          (failure) {
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(SnackBar(content: Text(failure.message)));
+          },
+          (_) async {
+            controller.clear();
+            // Refresh messages after sending
+            ref.invalidate(messagesProvider(chatId));
+          },
+        );
+      }
     }
 
     return Scaffold(
@@ -71,7 +86,20 @@ class ChatViewPage extends HookConsumerWidget {
               ),
             ),
             const SizedBox(width: 12),
-            Text(name ?? 'User $chatId', style: textTheme.titleMedium),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(name ?? 'User $chatId', style: textTheme.titleMedium),
+                  Text(
+                    wsConnection.isConnected ? 'Online' : 'Connecting...',
+                    style: textTheme.bodySmall?.copyWith(
+                      color: wsConnection.isConnected ? Colors.green : Colors.grey,
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ],
         ),
       ),

@@ -98,7 +98,7 @@ class ChatListPage extends ConsumerWidget {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {},
+        onPressed: () => context.push('/new-chat'),
         backgroundColor: primary,
         foregroundColor: Theme.of(context).colorScheme.onPrimary,
         child: const FaIcon(FontAwesomeIcons.solidPenToSquare),
