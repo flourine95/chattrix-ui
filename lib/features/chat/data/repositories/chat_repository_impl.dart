@@ -3,6 +3,7 @@ import 'package:chattrix_ui/core/errors/failures.dart';
 import 'package:chattrix_ui/features/chat/domain/datasources/chat_remote_datasource.dart';
 import 'package:chattrix_ui/features/chat/domain/entities/conversation.dart';
 import 'package:chattrix_ui/features/chat/domain/entities/message.dart';
+import 'package:chattrix_ui/features/chat/domain/entities/search_user.dart';
 import 'package:chattrix_ui/features/chat/domain/repositories/chat_repository.dart';
 import 'package:dartz/dartz.dart';
 
@@ -94,6 +95,25 @@ class ChatRepositoryImpl implements ChatRepository {
       return Left(ServerFailure(message: e.message));
     } catch (e) {
       return Left(ServerFailure(message: 'Failed to send message'));
+    }
+  }
+
+  @override
+  Future<Either<Failure, List<SearchUser>>> searchUsers({
+    required String query,
+    int limit = 20,
+  }) async {
+    try {
+      final models = await remoteDatasource.searchUsers(
+        query: query,
+        limit: limit,
+      );
+      final entities = models.map((model) => model.toEntity()).toList();
+      return Right(entities);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(message: e.message));
+    } catch (e) {
+      return Left(ServerFailure(message: 'Failed to search users'));
     }
   }
 }

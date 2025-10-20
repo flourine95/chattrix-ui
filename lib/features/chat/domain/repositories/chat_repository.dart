@@ -1,6 +1,7 @@
 import 'package:chattrix_ui/core/errors/failures.dart';
 import 'package:chattrix_ui/features/chat/domain/entities/conversation.dart';
 import 'package:chattrix_ui/features/chat/domain/entities/message.dart';
+import 'package:chattrix_ui/features/chat/domain/entities/search_user.dart';
 import 'package:dartz/dartz.dart';
 
 abstract class ChatRepository {
@@ -28,5 +29,11 @@ abstract class ChatRepository {
   Future<Either<Failure, Message>> sendMessage({
     required String conversationId,
     required String content,
+  });
+
+  /// Search users by query
+  Future<Either<Failure, List<SearchUser>>> searchUsers({
+    required String query,
+    int limit = 20,
   });
 }

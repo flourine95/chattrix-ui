@@ -130,13 +130,30 @@ class ChatWebSocketService {
   /// Handle incoming WebSocket messages
   void _handleMessage(dynamic message) {
     try {
+      debugPrint('📥 Raw WebSocket message: $message');
+
       final data = jsonDecode(message as String) as Map<String, dynamic>;
-      final type = data['type'] as String;
-      final payload = data['payload'] as Map<String, dynamic>;
+      debugPrint('📦 Parsed data: $data');
+
+      final type = data['type'] as String?;
+      if (type == null) {
+        debugPrint('⚠️ Message has no type field, treating as direct message');
+        // Server might be sending message directly without wrapper
+        final messageModel = MessageModel.fromApi(data);
+        _messageController.add(messageModel);
+        debugPrint('📨 Received direct message: ${messageModel.id}');
+        return;
+      }
+
+      final payload = data['payload'] as Map<String, dynamic>?;
+      if (payload == null) {
+        debugPrint('⚠️ Message has no payload field');
+        return;
+      }
 
       switch (type) {
         case ChatWebSocketResponse.chatMessage:
-          final messageModel = MessageModel.fromJson(payload);
+          final messageModel = MessageModel.fromApi(payload);
           _messageController.add(messageModel);
           debugPrint('📨 Received message: ${messageModel.id}');
           break;
@@ -156,8 +173,9 @@ class ChatWebSocketService {
         default:
           debugPrint('⚠️ Unknown WebSocket event type: $type');
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
       debugPrint('❌ Error handling WebSocket message: $e');
+      debugPrint('Stack trace: $stackTrace');
     }
   }
 

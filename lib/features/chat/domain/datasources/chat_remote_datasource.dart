@@ -1,6 +1,7 @@
 import 'package:chattrix_ui/features/auth/data/models/user_model.dart';
 import 'package:chattrix_ui/features/chat/data/models/conversation_model.dart';
 import 'package:chattrix_ui/features/chat/data/models/message_model.dart';
+import 'package:chattrix_ui/features/chat/data/models/search_user_model.dart';
 import 'package:chattrix_ui/features/chat/data/models/user_status_model.dart';
 
 /// Remote datasource for chat API endpoints
@@ -39,4 +40,10 @@ abstract class ChatRemoteDatasource {
 
   /// Get user status
   Future<UserStatusModel> getUserStatus(String userId);
+
+  /// Search users by query
+  Future<List<SearchUserModel>> searchUsers({
+    required String query,
+    int limit = 20,
+  });
 }

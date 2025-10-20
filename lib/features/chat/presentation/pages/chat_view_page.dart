@@ -20,8 +20,6 @@ class ChatViewPage extends HookConsumerWidget {
     final colors = Theme.of(context).colorScheme;
     final avatarColor = color ?? colors.primary;
 
-    debugPrint("Color passed: $color");
-
 // Tính độ sáng (0 = đen, 255 = trắng)
     final brightness = (avatarColor.red * 0.299 +
         avatarColor.green * 0.587 +
@@ -31,7 +29,6 @@ class ChatViewPage extends HookConsumerWidget {
     final onAvatarColor = brightness < 0.5 ? Colors.white : Colors.black;
 
 
-    debugPrint("Avatar color: $avatarColor, onAvatarColor: $onAvatarColor");
 
     final me = ref.watch(currentUserProvider);
     final messagesAsync = ref.watch(messagesProvider(chatId));

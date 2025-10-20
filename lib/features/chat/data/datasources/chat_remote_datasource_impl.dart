@@ -3,6 +3,7 @@ import 'package:chattrix_ui/core/errors/exceptions.dart';
 import 'package:chattrix_ui/features/auth/data/models/user_model.dart';
 import 'package:chattrix_ui/features/chat/data/models/conversation_model.dart';
 import 'package:chattrix_ui/features/chat/data/models/message_model.dart';
+import 'package:chattrix_ui/features/chat/data/models/search_user_model.dart';
 import 'package:chattrix_ui/features/chat/data/models/user_status_model.dart';
 import 'package:chattrix_ui/features/chat/domain/datasources/chat_remote_datasource.dart';
 import 'package:dio/dio.dart';
@@ -194,6 +195,36 @@ class ChatRemoteDatasourceImpl implements ChatRemoteDatasource {
     } on DioException catch (e) {
       throw ServerException(
         message: e.response?.data['message'] ?? 'Failed to send message',
+      );
+    }
+  }
+
+  @override
+  Future<List<SearchUserModel>> searchUsers({
+    required String query,
+    int limit = 20,
+  }) async {
+    try {
+      final response = await dio.get(
+        '${ApiConstants.baseUrl}/${ApiConstants.searchUsers}',
+        queryParameters: {
+          'query': query,
+          'limit': limit,
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final data = response.data['data'] as List;
+        return data
+            .whereType<Map<String, dynamic>>()
+            .map((json) => SearchUserModel.fromJson(json))
+            .toList();
+      }
+
+      throw ServerException(message: 'Failed to search users');
+    } on DioException catch (e) {
+      throw ServerException(
+        message: e.response?.data['message'] ?? 'Failed to search users',
       );
     }
   }

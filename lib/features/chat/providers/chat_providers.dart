@@ -14,6 +14,7 @@ import 'package:chattrix_ui/features/chat/domain/usecases/get_conversations_usec
 import 'package:chattrix_ui/features/chat/domain/usecases/get_messages_usecase.dart';
 import 'package:chattrix_ui/features/chat/domain/usecases/get_online_users_usecase.dart';
 import 'package:chattrix_ui/features/chat/domain/usecases/get_user_status_usecase.dart';
+import 'package:chattrix_ui/features/chat/domain/usecases/search_users_usecase.dart';
 import 'package:chattrix_ui/features/chat/domain/usecases/send_message_usecase.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -76,6 +77,11 @@ final getOnlineUsersUsecaseProvider = Provider<GetOnlineUsersUsecase>((ref) {
 final getUserStatusUsecaseProvider = Provider<GetUserStatusUsecase>((ref) {
   final repository = ref.watch(userStatusRepositoryProvider);
   return GetUserStatusUsecase(repository);
+});
+
+final searchUsersUsecaseProvider = Provider<SearchUsersUsecase>((ref) {
+  final repository = ref.watch(chatRepositoryProvider);
+  return SearchUsersUsecase(repository);
 });
 
 // ========== WebSocket Service ==========
