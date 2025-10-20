@@ -18,13 +18,21 @@ class ChatWebSocketResponse {
   static const String chatMessage = 'chat.message';
   static const String typingIndicator = 'typing.indicator';
   static const String userStatus = 'user.status';
+  static const String conversationUpdate = 'conversation.update';
+  static const String heartbeatAck = 'heartbeat.ack';
 }
 
 class ChatWebSocketService {
   WebSocketChannel? _channel;
+  Timer? _heartbeatTimer;
+  Timer? _reconnectTimer;
+  String? _lastAccessToken;
+  bool _isManualDisconnect = false;
+
   final _messageController = StreamController<MessageModel>.broadcast();
   final _typingController = StreamController<TypingIndicator>.broadcast();
   final _userStatusController = StreamController<UserStatusUpdate>.broadcast();
+  final _conversationUpdateController = StreamController<ConversationUpdate>.broadcast();
   final _connectionController = StreamController<bool>.broadcast();
 
   Stream<MessageModel> get messageStream => _messageController.stream;
@@ -32,6 +40,8 @@ class ChatWebSocketService {
   Stream<TypingIndicator> get typingStream => _typingController.stream;
 
   Stream<UserStatusUpdate> get userStatusStream => _userStatusController.stream;
+
+  Stream<ConversationUpdate> get conversationUpdateStream => _conversationUpdateController.stream;
 
   Stream<bool> get connectionStream => _connectionController.stream;
 
@@ -45,6 +55,9 @@ class ChatWebSocketService {
     }
 
     try {
+      _lastAccessToken = accessToken;
+      _isManualDisconnect = false;
+
       final wsUrl =
           '${ApiConstants.wsBaseUrl}/${ApiConstants.chatWebSocket}?token=$accessToken';
       debugPrint('🔌 Connecting to WebSocket: $wsUrl');
@@ -54,6 +67,9 @@ class ChatWebSocketService {
       _connectionController.add(true);
       debugPrint('✅ WebSocket connected');
 
+      // Start heartbeat timer
+      _startHeartbeat();
+
       // Listen to messages from server
       _channel!.stream.listen(
         (message) {
@@ -61,24 +77,70 @@ class ChatWebSocketService {
         },
         onError: (error) {
           debugPrint('❌ WebSocket error: $error');
-          _connectionController.add(false);
+          _handleDisconnect();
         },
         onDone: () {
           debugPrint('🔌 WebSocket connection closed');
-          _connectionController.add(false);
-          _channel = null;
+          _handleDisconnect();
         },
       );
     } catch (e) {
       debugPrint('❌ Failed to connect WebSocket: $e');
       _connectionController.add(false);
       _channel = null;
-      rethrow;
+      _scheduleReconnect();
     }
+  }
+
+  /// Handle disconnect and attempt reconnect
+  void _handleDisconnect() {
+    _connectionController.add(false);
+    _stopHeartbeat();
+    _channel = null;
+
+    // Auto-reconnect if not manually disconnected
+    if (!_isManualDisconnect && _lastAccessToken != null) {
+      _scheduleReconnect();
+    }
+  }
+
+  /// Schedule reconnect attempt
+  void _scheduleReconnect() {
+    _reconnectTimer?.cancel();
+
+    debugPrint('🔄 Scheduling reconnect in 5 seconds...');
+    _reconnectTimer = Timer(const Duration(seconds: 5), () {
+      if (_lastAccessToken != null && !_isManualDisconnect) {
+        debugPrint('🔄 Attempting to reconnect...');
+        connect(_lastAccessToken!);
+      }
+    });
+  }
+
+  /// Start heartbeat timer
+  void _startHeartbeat() {
+    _stopHeartbeat();
+
+    _heartbeatTimer = Timer.periodic(const Duration(seconds: 30), (timer) {
+      sendHeartbeat();
+    });
+
+    debugPrint('💓 Heartbeat timer started (30s interval)');
+  }
+
+  /// Stop heartbeat timer
+  void _stopHeartbeat() {
+    _heartbeatTimer?.cancel();
+    _heartbeatTimer = null;
   }
 
   /// Disconnect from WebSocket
   Future<void> disconnect() async {
+    _isManualDisconnect = true;
+    _stopHeartbeat();
+    _reconnectTimer?.cancel();
+    _lastAccessToken = null;
+
     if (_channel != null) {
       await _channel!.sink.close();
       _channel = null;
@@ -170,6 +232,16 @@ class ChatWebSocketService {
           debugPrint('👤 User status: ${status.userId} - ${status.isOnline}');
           break;
 
+        case ChatWebSocketResponse.conversationUpdate:
+          final update = ConversationUpdate.fromJson(payload);
+          _conversationUpdateController.add(update);
+          debugPrint('💬 Conversation update: ${update.conversationId}');
+          break;
+
+        case ChatWebSocketResponse.heartbeatAck:
+          debugPrint('💓 Heartbeat acknowledged');
+          break;
+
         default:
           debugPrint('⚠️ Unknown WebSocket event type: $type');
       }
@@ -179,12 +251,28 @@ class ChatWebSocketService {
     }
   }
 
+  /// Send heartbeat to keep connection alive
+  void sendHeartbeat() {
+    if (_channel == null) return;
+
+    final payload = {
+      'type': 'heartbeat',
+      'payload': {},
+    };
+
+    _channel!.sink.add(jsonEncode(payload));
+    debugPrint('💓 Sent heartbeat');
+  }
+
   /// Dispose resources
   void dispose() {
+    _stopHeartbeat();
+    _reconnectTimer?.cancel();
     disconnect();
     _messageController.close();
     _typingController.close();
     _userStatusController.close();
+    _conversationUpdateController.close();
     _connectionController.close();
   }
 }
@@ -249,6 +337,59 @@ class UserStatusUpdate {
       displayName: json['displayName'] as String,
       isOnline: json['isOnline'] as bool,
       lastSeen: json['lastSeen'] as String?,
+    );
+  }
+}
+
+/// Conversation update model (for lastMessage updates)
+class ConversationUpdate {
+  final int conversationId;
+  final String updatedAt;
+  final LastMessageInfo? lastMessage;
+
+  ConversationUpdate({
+    required this.conversationId,
+    required this.updatedAt,
+    this.lastMessage,
+  });
+
+  factory ConversationUpdate.fromJson(Map<String, dynamic> json) {
+    return ConversationUpdate(
+      conversationId: json['conversationId'] as int,
+      updatedAt: json['updatedAt'] as String,
+      lastMessage: json['lastMessage'] != null
+          ? LastMessageInfo.fromJson(json['lastMessage'] as Map<String, dynamic>)
+          : null,
+    );
+  }
+}
+
+/// Last message info model
+class LastMessageInfo {
+  final int id;
+  final String content;
+  final int senderId;
+  final String senderUsername;
+  final String sentAt;
+  final String type;
+
+  LastMessageInfo({
+    required this.id,
+    required this.content,
+    required this.senderId,
+    required this.senderUsername,
+    required this.sentAt,
+    required this.type,
+  });
+
+  factory LastMessageInfo.fromJson(Map<String, dynamic> json) {
+    return LastMessageInfo(
+      id: json['id'] as int,
+      content: json['content'] as String,
+      senderId: json['senderId'] as int,
+      senderUsername: json['senderUsername'] as String,
+      sentAt: json['sentAt'] as String,
+      type: json['type'] as String,
     );
   }
 }

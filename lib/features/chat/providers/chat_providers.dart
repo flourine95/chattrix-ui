@@ -173,10 +173,18 @@ final webSocketConnectionProvider = NotifierProvider<WebSocketConnectionNotifier
 
 // ========== State Providers ==========
 
-/// Provider for conversations list state
+/// Provider for conversations list state with real-time updates
 final conversationsProvider = FutureProvider((ref) async {
   final usecase = ref.watch(getConversationsUsecaseProvider);
   final result = await usecase();
+
+  // Listen to WebSocket for conversation updates (lastMessage changes)
+  final wsService = ref.watch(chatWebSocketServiceProvider);
+  wsService.conversationUpdateStream.listen((update) {
+    debugPrint('🔄 Conversation ${update.conversationId} updated, refreshing list');
+    // Invalidate provider to trigger refresh
+    ref.invalidateSelf();
+  });
 
   return result.fold(
     (failure) => throw Exception(failure.message),

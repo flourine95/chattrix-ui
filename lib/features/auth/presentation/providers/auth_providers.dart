@@ -20,7 +20,9 @@ import 'package:chattrix_ui/features/auth/domain/usecases/register_usecase.dart'
 import 'package:chattrix_ui/features/auth/domain/usecases/resend_verification_usecase.dart';
 import 'package:chattrix_ui/features/auth/domain/usecases/reset_password_usecase.dart';
 import 'package:chattrix_ui/features/auth/domain/usecases/verify_email_usecase.dart';
+import 'package:chattrix_ui/features/chat/providers/chat_providers.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
@@ -377,13 +379,41 @@ class AuthNotifier extends Notifier<AuthState> {
   Future<void> logout() async {
     state = state.copyWith(isLoading: true);
     await ref.read(logoutUseCaseProvider)();
+
+    // Clear all app state
+    await _clearAllState();
+
     state = AuthState();
   }
 
   Future<void> logoutAll() async {
     state = state.copyWith(isLoading: true);
     await ref.read(logoutAllUseCaseProvider)();
+
+    // Clear all app state
+    await _clearAllState();
+
     state = AuthState();
+  }
+
+  /// Clear all app state when logging out
+  Future<void> _clearAllState() async {
+    try {
+      // Disconnect WebSocket
+      final wsNotifier = ref.read(webSocketConnectionProvider.notifier);
+      await wsNotifier.disconnect();
+
+      // Invalidate all providers to clear cache
+      ref.invalidate(conversationsProvider);
+      ref.invalidate(messagesProvider);
+      ref.invalidate(onlineUsersProvider);
+      ref.invalidate(userStatusProvider);
+      ref.invalidate(webSocketConnectionProvider);
+
+      debugPrint('✅ All app state cleared');
+    } catch (e) {
+      debugPrint('⚠️ Error clearing app state: $e');
+    }
   }
 }
 
