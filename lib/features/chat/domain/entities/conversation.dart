@@ -1,5 +1,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
+import 'message.dart';
 import 'participant.dart';
 
 part 'conversation.freezed.dart';
@@ -13,5 +14,6 @@ abstract class Conversation with _$Conversation {
     required DateTime createdAt,
     required DateTime updatedAt,
     required List<Participant> participants,
+    Message? lastMessage,
   }) = _Conversation;
 }

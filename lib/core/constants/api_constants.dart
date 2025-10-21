@@ -2,7 +2,7 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 
 class ApiConstants {
   static const String localhostHost = 'localhost';
-  static const String lanIpAddress = '10.238.54.163';
+  static const String lanIpAddress = '172.19.240.1';
 
   static const String port = '8080';
   static const String apiPrefix = '/chattrix-api/api';
@@ -51,6 +51,10 @@ class ApiConstants {
 
   static String userStatus(String userId) => '$userStatusBase/$userId';
 
+  // User Search API endpoints
+  static const String usersBase = '$apiVersion/users';
+  static const String searchUsers = '$usersBase/search';
+
   // Typing API endpoints (HTTP test endpoints)
   static const String typingBase = '$apiVersion/typing';
   static const String typingStart = '$typingBase/start';
@@ -61,12 +65,15 @@ class ApiConstants {
 
   // WebSocket endpoint
   static String get wsBaseUrl {
-    final httpUrl = baseUrl;
-    final wsUrl = httpUrl.replaceFirst('http://', 'ws://');
-    return wsUrl;
+    // WebSocket base URL: ws://host:port/chattrix-api
+    if (kIsWeb) {
+      return 'ws://$localhostHost:$port/chattrix-api';
+    } else {
+      return 'ws://$lanIpAddress:$port/chattrix-api';
+    }
   }
 
-  static const String chatWebSocket = '$apiVersion/chat';
+  static const String chatWebSocket = 'ws/chat';
 
   static const String contentTypeJson = 'application/json';
   static const String authorization = 'Authorization';

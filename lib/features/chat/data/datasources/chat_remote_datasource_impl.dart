@@ -49,8 +49,28 @@ class ChatRemoteDatasourceImpl implements ChatRemoteDatasource {
       final response = await dio.get('${ApiConstants.baseUrl}/${ApiConstants.conversationsBase}');
 
       if (response.statusCode == 200) {
-        debugPrint('Conversations Response: ${response.data}');
+        debugPrint('📋 Conversations API Response:');
+        debugPrint('   Status: ${response.statusCode}');
+        debugPrint('   Data type: ${response.data.runtimeType}');
+
         final data = response.data['data'] as List;
+        debugPrint('   Conversations count: ${data.length}');
+
+        // Debug first conversation to see structure
+        if (data.isNotEmpty) {
+          final firstConv = data.first as Map<String, dynamic>;
+          debugPrint('   First conversation keys: ${firstConv.keys.toList()}');
+          if (firstConv.containsKey('participants')) {
+            final participants = firstConv['participants'] as List;
+            debugPrint('   First conversation participants: ${participants.length}');
+            if (participants.isNotEmpty) {
+              final firstParticipant = participants.first as Map<String, dynamic>;
+              debugPrint('   First participant keys: ${firstParticipant.keys.toList()}');
+              debugPrint('   First participant data: $firstParticipant');
+            }
+          }
+        }
+
         return data
             .whereType<Map<String, dynamic>>()
             .map((json) => ConversationModel.fromApi(json))

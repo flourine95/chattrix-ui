@@ -9,5 +9,9 @@ abstract class Participant with _$Participant {
     required String username,
     required String fullName,
     required String role, // 'ADMIN' or 'MEMBER'
+    String? email,
+    String? nickname,
+    bool? isOnline,
+    DateTime? lastSeen,
   }) = _Participant;
 }

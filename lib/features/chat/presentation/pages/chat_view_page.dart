@@ -1,4 +1,5 @@
 import 'package:chattrix_ui/features/auth/presentation/providers/auth_providers.dart';
+import 'package:chattrix_ui/features/chat/presentation/utils/conversation_utils.dart';
 import 'package:chattrix_ui/features/chat/providers/chat_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -16,6 +17,10 @@ class ChatViewPage extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final controller = useTextEditingController();
+    final scrollController = useScrollController();
+    final showScrollButton = useState(false);
+    final previousMessageCount = useRef(0);
+
     final textTheme = Theme.of(context).textTheme;
     final colors = Theme.of(context).colorScheme;
     final avatarColor = color ?? colors.primary;
@@ -35,11 +40,57 @@ class ChatViewPage extends HookConsumerWidget {
     final wsConnection = ref.watch(webSocketConnectionProvider);
     final wsService = ref.watch(chatWebSocketServiceProvider);
 
+    // Get conversation to show user status
+    final conversationsAsync = ref.watch(conversationsProvider);
+    final conversation = conversationsAsync.value?.firstWhere(
+      (c) => c.id.toString() == chatId,
+      orElse: () => conversationsAsync.value!.first,
+    );
+
     // Initialize WebSocket connection on first build
     useEffect(() {
       ref.read(webSocketConnectionProvider.notifier);
       return null;
     }, []);
+
+    // Listen to scroll position to show/hide scroll button
+    useEffect(() {
+      void onScroll() {
+        if (scrollController.hasClients) {
+          final isAtBottom = scrollController.position.pixels >=
+              scrollController.position.maxScrollExtent - 100;
+          showScrollButton.value = !isAtBottom;
+        }
+      }
+
+      scrollController.addListener(onScroll);
+      return () => scrollController.removeListener(onScroll);
+    }, [scrollController]);
+
+    // Scroll to bottom only when new message arrives
+    useEffect(() {
+      messagesAsync.whenData((messages) {
+        if (messages.length > previousMessageCount.value && scrollController.hasClients) {
+          // Only scroll if we're already near the bottom
+          final isNearBottom = scrollController.position.pixels >=
+              scrollController.position.maxScrollExtent - 200;
+
+          if (isNearBottom) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              if (scrollController.hasClients) {
+                scrollController.animateTo(
+                  scrollController.position.maxScrollExtent,
+                  duration: const Duration(milliseconds: 300),
+                  curve: Curves.easeOut,
+                );
+              }
+            });
+          }
+        }
+        previousMessageCount.value = messages.length;
+      });
+      return null;
+    }, [messagesAsync]);
 
     Future<void> sendMessage() async {
       final text = controller.text.trim();
@@ -49,6 +100,17 @@ class ChatViewPage extends HookConsumerWidget {
       if (wsConnection.isConnected) {
         wsService.sendMessage(chatId, text);
         controller.clear();
+
+        // Scroll to bottom after sending
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (scrollController.hasClients) {
+            scrollController.animateTo(
+              scrollController.position.maxScrollExtent,
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.easeOut,
+            );
+          }
+        });
       } else {
         final usecase = ref.read(sendMessageUsecaseProvider);
         final result = await usecase(conversationId: chatId, content: text);
@@ -63,6 +125,16 @@ class ChatViewPage extends HookConsumerWidget {
             // Refresh messages after sending
             ref.invalidate(messagesProvider(chatId));
           },
+        );
+      }
+    }
+
+    void scrollToBottom() {
+      if (scrollController.hasClients) {
+        scrollController.animateTo(
+          scrollController.position.maxScrollExtent,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeOut,
         );
       }
     }
@@ -88,51 +160,86 @@ class ChatViewPage extends HookConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(name ?? 'User $chatId', style: textTheme.titleMedium),
-                  Text(
-                    wsConnection.isConnected ? 'Online' : 'Connecting...',
-                    style: textTheme.bodySmall?.copyWith(
-                      color: wsConnection.isConnected ? Colors.green : Colors.grey,
+                  // Show user status for DIRECT conversations
+                  if (conversation != null && conversation.type.toUpperCase() == 'DIRECT')
+                    Builder(
+                      builder: (context) {
+                        final isOnline = ConversationUtils.isUserOnline(conversation, me);
+                        final lastSeen = ConversationUtils.getLastSeen(conversation, me);
+                        final statusText = ConversationUtils.formatLastSeen(isOnline, lastSeen);
+
+                        return Text(
+                          statusText,
+                          style: textTheme.bodySmall?.copyWith(
+                            color: isOnline ? Colors.green : Colors.grey,
+                          ),
+                        );
+                      },
+                    )
+                  else
+                    // Fallback to WebSocket connection status for GROUP or when conversation not loaded
+                    Text(
+                      wsConnection.isConnected ? 'Connected' : 'Connecting...',
+                      style: textTheme.bodySmall?.copyWith(
+                        color: wsConnection.isConnected ? Colors.green : Colors.grey,
+                      ),
                     ),
-                  ),
                 ],
               ),
             ),
           ],
         ),
       ),
-      body: Column(
+      body: Stack(
         children: [
-          Expanded(
-            child: messagesAsync.when(
-              data: (messages) {
-                return ListView.builder(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 8,
-                  ),
-                  itemCount: messages.length,
-                  itemBuilder: (context, index) {
-                    final m = messages[index];
-                    final isMe = m.sender.id == me?.id;
-                    return Align(
-                      alignment: isMe
-                          ? Alignment.centerRight
-                          : Alignment.centerLeft,
-                      child: ChatBubble(text: m.content, isMe: isMe),
+          Column(
+            children: [
+              Expanded(
+                child: messagesAsync.when(
+                  data: (messages) {
+                    return ListView.builder(
+                      controller: scrollController,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 8,
+                      ),
+                      itemCount: messages.length,
+                      itemBuilder: (context, index) {
+                        final m = messages[index];
+                        final isMe = m.sender.id == me?.id;
+                        return Align(
+                          alignment: isMe
+                              ? Alignment.centerRight
+                              : Alignment.centerLeft,
+                          child: ChatBubble(text: m.content, isMe: isMe),
+                        );
+                      },
                     );
                   },
-                );
-              },
-              loading: () => const Center(child: CircularProgressIndicator()),
-              error: (e, st) => Center(
-                child: Text(
-                  'Failed to load messages',
-                  style: textTheme.bodyMedium,
+                  loading: () => const Center(child: CircularProgressIndicator()),
+                  error: (e, st) => Center(
+                    child: Text(
+                      'Failed to load messages',
+                      style: textTheme.bodyMedium,
+                    ),
+                  ),
                 ),
               ),
-            ),
+              _InputBar(controller: controller, onSend: sendMessage),
+            ],
           ),
-          _InputBar(controller: controller, onSend: sendMessage),
+          // Floating scroll to bottom button
+          if (showScrollButton.value)
+            Positioned(
+              right: 16,
+              bottom: 80,
+              child: FloatingActionButton.small(
+                onPressed: scrollToBottom,
+                backgroundColor: colors.primary,
+                foregroundColor: colors.onPrimary,
+                child: const Icon(Icons.keyboard_arrow_down),
+              ),
+            ),
         ],
       ),
     );

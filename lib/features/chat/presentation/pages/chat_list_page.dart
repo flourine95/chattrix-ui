@@ -1,6 +1,5 @@
-import 'package:chattrix_ui/features/auth/domain/entities/user.dart';
 import 'package:chattrix_ui/features/auth/presentation/providers/auth_providers.dart';
-import 'package:chattrix_ui/features/chat/domain/entities/conversation.dart';
+import 'package:chattrix_ui/features/chat/presentation/utils/conversation_utils.dart';
 import 'package:chattrix_ui/features/chat/providers/chat_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -28,18 +27,6 @@ class ChatListPage extends ConsumerWidget {
     return palette[index];
   }
 
-
-  String _conversationTitle(Conversation c, User? me) {
-    if (c.type.toUpperCase() == 'DIRECT') {
-      final other = c.participants.firstWhere(
-        (p) => p.userId != me?.id,
-        orElse: () => c.participants.first,
-      );
-      return other.fullName.isNotEmpty ? other.fullName : other.username;
-    }
-    return c.name ?? 'Group';
-  }
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final textTheme = Theme.of(context).textTheme;
@@ -61,9 +48,45 @@ class ChatListPage extends ConsumerWidget {
             itemCount: conversations.length,
             itemBuilder: (context, index) {
               final c = conversations[index];
-              final title = _conversationTitle(c, me);
+              final title = ConversationUtils.getConversationTitle(c, me);
               final avatarColor = _avatarColor(context, index + 21);
               final initial = title.isNotEmpty ? title.substring(0, 1) : '?';
+
+              // Get last message and format it
+              final lastMessageText = ConversationUtils.formatLastMessage(c.lastMessage, me);
+
+              // Check if user is online (for DIRECT conversations)
+              final isOnline = ConversationUtils.isUserOnline(c, me);
+              final lastSeen = ConversationUtils.getLastSeen(c, me);
+
+              // Debug: Print conversation data
+              debugPrint('🔍 Conversation ${c.id} ($title):');
+              debugPrint('   Type: ${c.type}');
+              debugPrint('   Participants: ${c.participants.length}');
+              for (var p in c.participants) {
+                debugPrint('   - User ${p.userId}: ${p.username} (${p.fullName})');
+                debugPrint('     nickname: ${p.nickname}');
+                debugPrint('     isOnline: ${p.isOnline}');
+                debugPrint('     lastSeen: ${p.lastSeen}');
+              }
+              debugPrint('   isOnline (computed): $isOnline');
+              debugPrint('   lastSeen (computed): $lastSeen');
+              debugPrint('   lastMessage: ${c.lastMessage?.content}');
+
+              // Format subtitle based on conversation type
+              String subtitle;
+              if (c.type.toUpperCase() == 'DIRECT') {
+                // For DIRECT: show last message or last seen status
+                if (c.lastMessage != null) {
+                  subtitle = lastMessageText;
+                } else {
+                  subtitle = ConversationUtils.formatLastSeen(isOnline, lastSeen);
+                }
+              } else {
+                // For GROUP: show last message
+                subtitle = lastMessageText;
+              }
+
               return ListTile(
                 onTap: () => context.push(
                   '/chat/${c.id}',
@@ -72,19 +95,54 @@ class ChatListPage extends ConsumerWidget {
                     'color': _avatarColor(context, index + 21),
                   },
                 ),
-                leading: CircleAvatar(
-                  backgroundColor: avatarColor,
-                  child: Text(
-                    initial,
-                    style: textTheme.titleMedium?.copyWith(
-                      color: avatarColor == primary
-                          ? Theme.of(context).colorScheme.onPrimary
-                          : Theme.of(context).colorScheme.onSurface,
+                leading: Stack(
+                  children: [
+                    CircleAvatar(
+                      backgroundColor: avatarColor,
+                      child: Text(
+                        initial,
+                        style: textTheme.titleMedium?.copyWith(
+                          color: avatarColor == primary
+                              ? Theme.of(context).colorScheme.onPrimary
+                              : Theme.of(context).colorScheme.onSurface,
+                        ),
+                      ),
                     ),
-                  ),
+                    // Online indicator for DIRECT conversations
+                    if (c.type.toUpperCase() == 'DIRECT' && isOnline)
+                      Positioned(
+                        right: 0,
+                        bottom: 0,
+                        child: Container(
+                          width: 14,
+                          height: 14,
+                          decoration: BoxDecoration(
+                            color: Colors.green,
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: Theme.of(context).scaffoldBackgroundColor,
+                              width: 2,
+                            ),
+                          ),
+                        ),
+                      ),
+                  ],
                 ),
                 title: Text(title, style: textTheme.titleMedium),
-                subtitle: Text(c.name ?? c.type, style: textTheme.bodySmall),
+                subtitle: Text(
+                  subtitle,
+                  style: textTheme.bodySmall,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                trailing: c.lastMessage != null
+                    ? Text(
+                        ConversationUtils.formatTimeAgo(c.lastMessage!.createdAt),
+                        style: textTheme.bodySmall?.copyWith(
+                          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+                        ),
+                      )
+                    : null,
               );
             },
           );

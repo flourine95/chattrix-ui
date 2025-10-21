@@ -16,6 +16,9 @@ _ConversationModel _$ConversationModelFromJson(Map<String, dynamic> json) =>
       participants: (json['participants'] as List<dynamic>)
           .map((e) => ParticipantModel.fromJson(e as Map<String, dynamic>))
           .toList(),
+      lastMessage: json['lastMessage'] == null
+          ? null
+          : MessageModel.fromJson(json['lastMessage'] as Map<String, dynamic>),
     );
 
 Map<String, dynamic> _$ConversationModelToJson(_ConversationModel instance) =>
@@ -26,4 +29,5 @@ Map<String, dynamic> _$ConversationModelToJson(_ConversationModel instance) =>
       'createdAt': instance.createdAt,
       'updatedAt': instance.updatedAt,
       'participants': instance.participants,
+      'lastMessage': instance.lastMessage,
     };

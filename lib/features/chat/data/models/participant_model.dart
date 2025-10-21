@@ -13,17 +13,39 @@ abstract class ParticipantModel with _$ParticipantModel {
     required String username,
     required String fullName,
     required String role,
+    String? email,
+    String? nickname,
+    bool? isOnline,
+    String? lastSeen,
   }) = _ParticipantModel;
 
   factory ParticipantModel.fromJson(Map<String, dynamic> json) =>
       _$ParticipantModelFromJson(json);
 
   factory ParticipantModel.fromApi(Map<String, dynamic> json) {
+    // Debug: Print raw JSON to see what backend sends
+    print('🔍 ParticipantModel.fromApi JSON: $json');
+
+    // Backend uses 'online' (lowercase) instead of 'isOnline'
+    final isOnline = json['isOnline'] as bool? ??
+                     json['is_online'] as bool? ??
+                     json['online'] as bool?;  // ← NEW: Support 'online'
+
+    final lastSeen = json['lastSeen']?.toString() ??
+                     json['last_seen']?.toString() ??
+                     json['lastSeen']?.toString();  // ← Support both formats
+
+    print('🔍   → isOnline: $isOnline, lastSeen: $lastSeen');
+
     return ParticipantModel(
       userId: (json['userId'] ?? json['user_id'] ?? ''),
       username: (json['username'] ?? '').toString(),
       fullName: (json['fullName'] ?? json['full_name'] ?? '').toString(),
       role: (json['role'] ?? '').toString(),
+      email: json['email']?.toString(),
+      nickname: json['nickname']?.toString(),
+      isOnline: isOnline,
+      lastSeen: lastSeen,
     );
   }
 
@@ -33,6 +55,10 @@ abstract class ParticipantModel with _$ParticipantModel {
       username: username,
       fullName: fullName,
       role: role,
+      email: email,
+      nickname: nickname,
+      isOnline: isOnline,
+      lastSeen: lastSeen != null ? DateTime.parse(lastSeen!) : null,
     );
   }
 }
