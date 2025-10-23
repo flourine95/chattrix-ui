@@ -4,6 +4,7 @@ class ServerException implements Exception {
   final int? statusCode;
 
   ServerException({required this.message, this.errorCode, this.statusCode});
+
 }
 
 class NetworkException implements Exception {

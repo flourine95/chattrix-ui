@@ -5,12 +5,10 @@ import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
-/// Dio Client với tự động refresh token khi access token hết hạn
 class AuthDioClient {
   final Dio dio;
   final FlutterSecureStorage secureStorage;
 
-  // Lock để tránh nhiều request cùng refresh token
   Completer<void>? _refreshLock;
 
   AuthDioClient({required this.dio, required this.secureStorage}) {
