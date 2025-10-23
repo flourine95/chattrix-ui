@@ -52,11 +52,11 @@ class ChatViewPage extends HookConsumerWidget {
     }, []);
 
     // Listen to scroll position to show/hide scroll button
+    // Show button when scrolled away from bottom (newest messages)
     useEffect(() {
       void onScroll() {
         if (scrollController.hasClients) {
-          final isAtBottom =
-              scrollController.position.pixels >=
+          final isAtBottom = scrollController.position.pixels >=
               scrollController.position.maxScrollExtent - 100;
           showScrollButton.value = !isAtBottom;
         }
@@ -66,14 +66,30 @@ class ChatViewPage extends HookConsumerWidget {
       return () => scrollController.removeListener(onScroll);
     }, [scrollController]);
 
-    // Scroll to bottom only when new message arrives
+    // Auto-scroll to bottom when messages first load
+    // Messages are in DESC order (newest first) from API, but we reverse them for display
+    useEffect(() {
+      messagesAsync.whenData((messages) {
+        if (messages.isNotEmpty && previousMessageCount.value == 0) {
+          // First time loading messages - scroll to bottom to see newest message
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (scrollController.hasClients) {
+              scrollController.jumpTo(scrollController.position.maxScrollExtent);
+            }
+          });
+        }
+      });
+      return null;
+    }, [messagesAsync]);
+
+    // Scroll to bottom when new message arrives
     useEffect(() {
       messagesAsync.whenData((messages) {
         if (messages.length > previousMessageCount.value &&
+            previousMessageCount.value > 0 &&
             scrollController.hasClients) {
           // Only scroll if we're already near the bottom
-          final isNearBottom =
-              scrollController.position.pixels >=
+          final isNearBottom = scrollController.position.pixels >=
               scrollController.position.maxScrollExtent - 200;
 
           if (isNearBottom) {
@@ -102,7 +118,7 @@ class ChatViewPage extends HookConsumerWidget {
         wsService.sendMessage(chatId, text);
         controller.clear();
 
-        // Scroll to bottom after sending
+        // Scroll to bottom after sending (newest message will be at bottom)
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (scrollController.hasClients) {
             scrollController.animateTo(
@@ -210,15 +226,19 @@ class ChatViewPage extends HookConsumerWidget {
               Expanded(
                 child: messagesAsync.when(
                   data: (messages) {
+                    // Reverse messages to show oldest first (top) and newest last (bottom)
+                    // API returns DESC order (newest first), we need ASC for chat display
+                    final reversedMessages = messages.reversed.toList();
+
                     return ListView.builder(
                       controller: scrollController,
                       padding: const EdgeInsets.symmetric(
                         horizontal: 12,
                         vertical: 8,
                       ),
-                      itemCount: messages.length,
+                      itemCount: reversedMessages.length,
                       itemBuilder: (context, index) {
-                        final m = messages[index];
+                        final m = reversedMessages[index];
                         final isMe = m.sender.id == me?.id;
                         return Align(
                           alignment: isMe
@@ -242,7 +262,7 @@ class ChatViewPage extends HookConsumerWidget {
               _InputBar(controller: controller, onSend: sendMessage),
             ],
           ),
-          // Floating scroll to bottom button
+          // Floating scroll to bottom button (to see newest messages)
           if (showScrollButton.value)
             Positioned(
               right: 16,

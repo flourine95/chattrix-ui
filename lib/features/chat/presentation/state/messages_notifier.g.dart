@@ -56,7 +56,7 @@ final class MessagesNotifierProvider
   }
 }
 
-String _$messagesNotifierHash() => r'ae559479aa3e14485c1ec4832b63d97e1b9de799';
+String _$messagesNotifierHash() => r'74b9de9ebd89e99daf7fd286536d86ca2eabe620';
 
 /// Notifier for managing messages in a conversation
 /// Handles fetching and caching messages with real-time updates
@@ -94,11 +94,9 @@ final class MessagesNotifierFamily extends $Family
 
 abstract class _$MessagesNotifier extends $AsyncNotifier<List<Message>> {
   late final _$args = ref.$arg as String;
-
   String get conversationId => _$args;
 
   FutureOr<List<Message>> build(String conversationId);
-
   @$mustCallSuper
   @override
   void runBuild() {

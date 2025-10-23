@@ -21,10 +21,12 @@ abstract class ChatRemoteDatasource {
   Future<ConversationModel> getConversation(String conversationId);
 
   /// Get messages in a conversation with pagination
+  /// [sort] can be 'ASC' (oldest first) or 'DESC' (newest first, default)
   Future<List<MessageModel>> getMessages({
     required String conversationId,
     int page = 0,
     int size = 50,
+    String sort = 'DESC',
   });
 
   /// Send a message to a conversation

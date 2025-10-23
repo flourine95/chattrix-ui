@@ -29,8 +29,12 @@ class MessagesNotifier extends _$MessagesNotifier {
   }
 
   /// Fetch messages from repository
+  /// Messages are fetched in DESC order (newest first) by default
   Future<List<Message>> _fetchMessages(String conversationId) async {
-    final result = await _getMessagesUsecase(conversationId: conversationId);
+    final result = await _getMessagesUsecase(
+      conversationId: conversationId,
+      sort: 'DESC', // Newest messages first
+    );
 
     return result.fold(
       (failure) {
@@ -41,6 +45,12 @@ class MessagesNotifier extends _$MessagesNotifier {
         debugPrint(
           '✅ Fetched ${messages.length} messages for conversation $conversationId',
         );
+
+        if (messages.isNotEmpty) {
+          debugPrint('📊 First message ID: ${messages.first.id}, content: ${messages.first.content}');
+          debugPrint('📊 Last message ID: ${messages.last.id}, content: ${messages.last.content}');
+        }
+
         return messages;
       },
     );

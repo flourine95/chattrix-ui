@@ -48,7 +48,6 @@ String _$conversationsNotifierHash() =>
 abstract class _$ConversationsNotifier
     extends $AsyncNotifier<List<Conversation>> {
   FutureOr<List<Conversation>> build();
-
   @$mustCallSuper
   @override
   void runBuild() {

@@ -64,12 +64,14 @@ class ChatRepositoryImpl implements ChatRepository {
     required String conversationId,
     int page = 0,
     int size = 50,
+    String sort = 'DESC',
   }) async {
     try {
       final models = await remoteDatasource.getMessages(
         conversationId: conversationId,
         page: page,
         size: size,
+        sort: sort,
       );
       final entities = models.map((model) => model.toEntity()).toList();
       return Right(entities);

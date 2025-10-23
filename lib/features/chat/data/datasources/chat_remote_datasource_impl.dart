@@ -117,11 +117,12 @@ class ChatRemoteDatasourceImpl implements ChatRemoteDatasource {
     required String conversationId,
     int page = 0,
     int size = 50,
+    String sort = 'DESC',
   }) async {
     try {
       final response = await dio.get(
         '${ApiConstants.baseUrl}/${ApiConstants.messagesInConversation(conversationId)}',
-        queryParameters: {'page': page, 'size': size},
+        queryParameters: {'page': page, 'size': size, 'sort': sort},
       );
 
       if (response.statusCode == 200) {
