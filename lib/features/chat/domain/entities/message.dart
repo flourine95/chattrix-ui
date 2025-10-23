@@ -1,6 +1,5 @@
+import 'package:chattrix_ui/features/chat/domain/entities/message_sender.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-
-import 'message_sender.dart';
 
 part 'message.freezed.dart';
 

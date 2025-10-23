@@ -15,46 +15,66 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$AuthTokensModel {
 
- String get accessToken; String get refreshToken; String get tokenType; int get expiresIn;
-/// Create a copy of AuthTokensModel
-/// with the given fields replaced by the non-null parameter values.
-@JsonKey(includeFromJson: false, includeToJson: false)
-@pragma('vm:prefer-inline')
-$AuthTokensModelCopyWith<AuthTokensModel> get copyWith => _$AuthTokensModelCopyWithImpl<AuthTokensModel>(this as AuthTokensModel, _$identity);
+  String get accessToken;
+
+  String get refreshToken;
+
+  String get tokenType;
+
+  int get expiresIn;
+
+  /// Create a copy of AuthTokensModel
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @pragma('vm:prefer-inline')
+  $AuthTokensModelCopyWith<AuthTokensModel> get copyWith =>
+      _$AuthTokensModelCopyWithImpl<AuthTokensModel>(
+          this as AuthTokensModel, _$identity);
 
   /// Serializes this AuthTokensModel to a JSON map.
   Map<String, dynamic> toJson();
 
 
-@override
-bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is AuthTokensModel&&(identical(other.accessToken, accessToken) || other.accessToken == accessToken)&&(identical(other.refreshToken, refreshToken) || other.refreshToken == refreshToken)&&(identical(other.tokenType, tokenType) || other.tokenType == tokenType)&&(identical(other.expiresIn, expiresIn) || other.expiresIn == expiresIn));
-}
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType && other is AuthTokensModel &&
+            (identical(other.accessToken, accessToken) ||
+                other.accessToken == accessToken) &&
+            (identical(other.refreshToken, refreshToken) ||
+                other.refreshToken == refreshToken) &&
+            (identical(other.tokenType, tokenType) ||
+                other.tokenType == tokenType) &&
+            (identical(other.expiresIn, expiresIn) ||
+                other.expiresIn == expiresIn));
+  }
 
-@JsonKey(includeFromJson: false, includeToJson: false)
-@override
-int get hashCode => Object.hash(runtimeType,accessToken,refreshToken,tokenType,expiresIn);
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  int get hashCode =>
+      Object.hash(runtimeType, accessToken, refreshToken, tokenType, expiresIn);
 
-@override
-String toString() {
-  return 'AuthTokensModel(accessToken: $accessToken, refreshToken: $refreshToken, tokenType: $tokenType, expiresIn: $expiresIn)';
-}
+  @override
+  String toString() {
+    return 'AuthTokensModel(accessToken: $accessToken, refreshToken: $refreshToken, tokenType: $tokenType, expiresIn: $expiresIn)';
+  }
 
 
 }
 
 /// @nodoc
-abstract mixin class $AuthTokensModelCopyWith<$Res>  {
-  factory $AuthTokensModelCopyWith(AuthTokensModel value, $Res Function(AuthTokensModel) _then) = _$AuthTokensModelCopyWithImpl;
-@useResult
-$Res call({
- String accessToken, String refreshToken, String tokenType, int expiresIn
-});
+abstract mixin class $AuthTokensModelCopyWith<$Res> {
+  factory $AuthTokensModelCopyWith(AuthTokensModel value,
+      $Res Function(AuthTokensModel) _then) = _$AuthTokensModelCopyWithImpl;
 
-
+  @useResult
+  $Res call({
+    String accessToken, String refreshToken, String tokenType, int expiresIn
+  });
 
 
 }
+
 /// @nodoc
 class _$AuthTokensModelCopyWithImpl<$Res>
     implements $AuthTokensModelCopyWith<$Res> {
@@ -63,203 +83,249 @@ class _$AuthTokensModelCopyWithImpl<$Res>
   final AuthTokensModel _self;
   final $Res Function(AuthTokensModel) _then;
 
-/// Create a copy of AuthTokensModel
-/// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? accessToken = null,Object? refreshToken = null,Object? tokenType = null,Object? expiresIn = null,}) {
-  return _then(_self.copyWith(
-accessToken: null == accessToken ? _self.accessToken : accessToken // ignore: cast_nullable_to_non_nullable
-as String,refreshToken: null == refreshToken ? _self.refreshToken : refreshToken // ignore: cast_nullable_to_non_nullable
-as String,tokenType: null == tokenType ? _self.tokenType : tokenType // ignore: cast_nullable_to_non_nullable
-as String,expiresIn: null == expiresIn ? _self.expiresIn : expiresIn // ignore: cast_nullable_to_non_nullable
-as int,
-  ));
-}
+  /// Create a copy of AuthTokensModel
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call(
+      {Object? accessToken = null, Object? refreshToken = null, Object? tokenType = null, Object? expiresIn = null,}) {
+    return _then(_self.copyWith(
+      accessToken: null == accessToken
+          ? _self.accessToken
+          : accessToken // ignore: cast_nullable_to_non_nullable
+      as String,
+      refreshToken: null == refreshToken
+          ? _self.refreshToken
+          : refreshToken // ignore: cast_nullable_to_non_nullable
+      as String,
+      tokenType: null == tokenType
+          ? _self.tokenType
+          : tokenType // ignore: cast_nullable_to_non_nullable
+      as String,
+      expiresIn: null == expiresIn
+          ? _self.expiresIn
+          : expiresIn // ignore: cast_nullable_to_non_nullable
+      as int,
+    ));
+  }
 
 }
 
 
 /// Adds pattern-matching-related methods to [AuthTokensModel].
 extension AuthTokensModelPatterns on AuthTokensModel {
-/// A variant of `map` that fallback to returning `orElse`.
-///
-/// It is equivalent to doing:
-/// ```dart
-/// switch (sealedClass) {
-///   case final Subclass value:
-///     return ...;
-///   case _:
-///     return orElse();
-/// }
-/// ```
+  /// A variant of `map` that fallback to returning `orElse`.
+  ///
+  /// It is equivalent to doing:
+  /// ```dart
+  /// switch (sealedClass) {
+  ///   case final Subclass value:
+  ///     return ...;
+  ///   case _:
+  ///     return orElse();
+  /// }
+  /// ```
 
-@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _AuthTokensModel value)?  $default,{required TResult orElse(),}){
-final _that = this;
-switch (_that) {
-case _AuthTokensModel() when $default != null:
-return $default(_that);case _:
+  @optionalTypeArgs TResult maybeMap
+
+  <
+
+  TResult
+
+  extends
+
+  Object?
+
+  >
+
+  (
+
+  TResult Function( _AuthTokensModel value)? $default,{required TResult orElse(),}){
+  final _that = this;
+  switch (_that) {
+  case _AuthTokensModel() when $default != null:
+  return $default(_that);case _:
   return orElse();
 
-}
-}
-/// A `switch`-like method, using callbacks.
-///
-/// Callbacks receives the raw object, upcasted.
-/// It is equivalent to doing:
-/// ```dart
-/// switch (sealedClass) {
-///   case final Subclass value:
-///     return ...;
-///   case final Subclass2 value:
-///     return ...;
-/// }
-/// ```
+  }
+  }
+  /// A `switch`-like method, using callbacks.
+  ///
+  /// Callbacks receives the raw object, upcasted.
+  /// It is equivalent to doing:
+  /// ```dart
+  /// switch (sealedClass) {
+  ///   case final Subclass value:
+  ///     return ...;
+  ///   case final Subclass2 value:
+  ///     return ...;
+  /// }
+  /// ```
 
-@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _AuthTokensModel value)  $default,){
-final _that = this;
-switch (_that) {
-case _AuthTokensModel():
-return $default(_that);case _:
+  @optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _AuthTokensModel value) $default,){
+  final _that = this;
+  switch (_that) {
+  case _AuthTokensModel():
+  return $default(_that);case _:
   throw StateError('Unexpected subclass');
 
-}
-}
-/// A variant of `map` that fallback to returning `null`.
-///
-/// It is equivalent to doing:
-/// ```dart
-/// switch (sealedClass) {
-///   case final Subclass value:
-///     return ...;
-///   case _:
-///     return null;
-/// }
-/// ```
+  }
+  }
+  /// A variant of `map` that fallback to returning `null`.
+  ///
+  /// It is equivalent to doing:
+  /// ```dart
+  /// switch (sealedClass) {
+  ///   case final Subclass value:
+  ///     return ...;
+  ///   case _:
+  ///     return null;
+  /// }
+  /// ```
 
-@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _AuthTokensModel value)?  $default,){
-final _that = this;
-switch (_that) {
-case _AuthTokensModel() when $default != null:
-return $default(_that);case _:
+  @optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _AuthTokensModel value)? $default,){
+  final _that = this;
+  switch (_that) {
+  case _AuthTokensModel() when $default != null:
+  return $default(_that);case _:
   return null;
 
-}
-}
-/// A variant of `when` that fallback to an `orElse` callback.
-///
-/// It is equivalent to doing:
-/// ```dart
-/// switch (sealedClass) {
-///   case Subclass(:final field):
-///     return ...;
-///   case _:
-///     return orElse();
-/// }
-/// ```
+  }
+  }
+  /// A variant of `when` that fallback to an `orElse` callback.
+  ///
+  /// It is equivalent to doing:
+  /// ```dart
+  /// switch (sealedClass) {
+  ///   case Subclass(:final field):
+  ///     return ...;
+  ///   case _:
+  ///     return orElse();
+  /// }
+  /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String accessToken,  String refreshToken,  String tokenType,  int expiresIn)?  $default,{required TResult orElse(),}) {final _that = this;
-switch (_that) {
-case _AuthTokensModel() when $default != null:
-return $default(_that.accessToken,_that.refreshToken,_that.tokenType,_that.expiresIn);case _:
+  @optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String accessToken, String refreshToken, String tokenType, int expiresIn)? $default,{required TResult orElse(),}) {final _that = this;
+  switch (_that) {
+  case _AuthTokensModel() when $default != null:
+  return $default(_that.accessToken,_that.refreshToken,_that.tokenType,_that.expiresIn);case _:
   return orElse();
 
-}
-}
-/// A `switch`-like method, using callbacks.
-///
-/// As opposed to `map`, this offers destructuring.
-/// It is equivalent to doing:
-/// ```dart
-/// switch (sealedClass) {
-///   case Subclass(:final field):
-///     return ...;
-///   case Subclass2(:final field2):
-///     return ...;
-/// }
-/// ```
+  }
+  }
+  /// A `switch`-like method, using callbacks.
+  ///
+  /// As opposed to `map`, this offers destructuring.
+  /// It is equivalent to doing:
+  /// ```dart
+  /// switch (sealedClass) {
+  ///   case Subclass(:final field):
+  ///     return ...;
+  ///   case Subclass2(:final field2):
+  ///     return ...;
+  /// }
+  /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String accessToken,  String refreshToken,  String tokenType,  int expiresIn)  $default,) {final _that = this;
-switch (_that) {
-case _AuthTokensModel():
-return $default(_that.accessToken,_that.refreshToken,_that.tokenType,_that.expiresIn);case _:
+  @optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String accessToken, String refreshToken, String tokenType, int expiresIn) $default,) {final _that = this;
+  switch (_that) {
+  case _AuthTokensModel():
+  return $default(_that.accessToken,_that.refreshToken,_that.tokenType,_that.expiresIn);case _:
   throw StateError('Unexpected subclass');
 
-}
-}
-/// A variant of `when` that fallback to returning `null`
-///
-/// It is equivalent to doing:
-/// ```dart
-/// switch (sealedClass) {
-///   case Subclass(:final field):
-///     return ...;
-///   case _:
-///     return null;
-/// }
-/// ```
+  }
+  }
+  /// A variant of `when` that fallback to returning `null`
+  ///
+  /// It is equivalent to doing:
+  /// ```dart
+  /// switch (sealedClass) {
+  ///   case Subclass(:final field):
+  ///     return ...;
+  ///   case _:
+  ///     return null;
+  /// }
+  /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String accessToken,  String refreshToken,  String tokenType,  int expiresIn)?  $default,) {final _that = this;
-switch (_that) {
-case _AuthTokensModel() when $default != null:
-return $default(_that.accessToken,_that.refreshToken,_that.tokenType,_that.expiresIn);case _:
+  @optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String accessToken, String refreshToken, String tokenType, int expiresIn)? $default,) {final _that = this;
+  switch (_that) {
+  case _AuthTokensModel() when $default != null:
+  return $default(_that.accessToken,_that.refreshToken,_that.tokenType,_that.expiresIn);case _:
   return null;
 
-}
-}
+  }
+  }
 
 }
 
 /// @nodoc
 @JsonSerializable()
-
 class _AuthTokensModel extends AuthTokensModel {
-  const _AuthTokensModel({required this.accessToken, required this.refreshToken, required this.tokenType, required this.expiresIn}): super._();
-  factory _AuthTokensModel.fromJson(Map<String, dynamic> json) => _$AuthTokensModelFromJson(json);
+  const _AuthTokensModel(
+      {required this.accessToken, required this.refreshToken, required this.tokenType, required this.expiresIn})
+      : super._();
 
-@override final  String accessToken;
-@override final  String refreshToken;
-@override final  String tokenType;
-@override final  int expiresIn;
+  factory _AuthTokensModel.fromJson(Map<String, dynamic> json) =>
+      _$AuthTokensModelFromJson(json);
 
-/// Create a copy of AuthTokensModel
-/// with the given fields replaced by the non-null parameter values.
-@override @JsonKey(includeFromJson: false, includeToJson: false)
-@pragma('vm:prefer-inline')
-_$AuthTokensModelCopyWith<_AuthTokensModel> get copyWith => __$AuthTokensModelCopyWithImpl<_AuthTokensModel>(this, _$identity);
+  @override final String accessToken;
+  @override final String refreshToken;
+  @override final String tokenType;
+  @override final int expiresIn;
 
-@override
-Map<String, dynamic> toJson() {
-  return _$AuthTokensModelToJson(this, );
-}
+  /// Create a copy of AuthTokensModel
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @pragma('vm:prefer-inline')
+  _$AuthTokensModelCopyWith<_AuthTokensModel> get copyWith =>
+      __$AuthTokensModelCopyWithImpl<_AuthTokensModel>(this, _$identity);
 
-@override
-bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _AuthTokensModel&&(identical(other.accessToken, accessToken) || other.accessToken == accessToken)&&(identical(other.refreshToken, refreshToken) || other.refreshToken == refreshToken)&&(identical(other.tokenType, tokenType) || other.tokenType == tokenType)&&(identical(other.expiresIn, expiresIn) || other.expiresIn == expiresIn));
-}
+  @override
+  Map<String, dynamic> toJson() {
+    return _$AuthTokensModelToJson(this,);
+  }
 
-@JsonKey(includeFromJson: false, includeToJson: false)
-@override
-int get hashCode => Object.hash(runtimeType,accessToken,refreshToken,tokenType,expiresIn);
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType && other is _AuthTokensModel &&
+            (identical(other.accessToken, accessToken) ||
+                other.accessToken == accessToken) &&
+            (identical(other.refreshToken, refreshToken) ||
+                other.refreshToken == refreshToken) &&
+            (identical(other.tokenType, tokenType) ||
+                other.tokenType == tokenType) &&
+            (identical(other.expiresIn, expiresIn) ||
+                other.expiresIn == expiresIn));
+  }
 
-@override
-String toString() {
-  return 'AuthTokensModel(accessToken: $accessToken, refreshToken: $refreshToken, tokenType: $tokenType, expiresIn: $expiresIn)';
-}
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  int get hashCode =>
+      Object.hash(runtimeType, accessToken, refreshToken, tokenType, expiresIn);
+
+  @override
+  String toString() {
+    return 'AuthTokensModel(accessToken: $accessToken, refreshToken: $refreshToken, tokenType: $tokenType, expiresIn: $expiresIn)';
+  }
 
 
 }
 
 /// @nodoc
-abstract mixin class _$AuthTokensModelCopyWith<$Res> implements $AuthTokensModelCopyWith<$Res> {
-  factory _$AuthTokensModelCopyWith(_AuthTokensModel value, $Res Function(_AuthTokensModel) _then) = __$AuthTokensModelCopyWithImpl;
-@override @useResult
-$Res call({
- String accessToken, String refreshToken, String tokenType, int expiresIn
-});
+abstract mixin class _$AuthTokensModelCopyWith<$Res>
+    implements $AuthTokensModelCopyWith<$Res> {
+  factory _$AuthTokensModelCopyWith(_AuthTokensModel value,
+      $Res Function(_AuthTokensModel) _then) = __$AuthTokensModelCopyWithImpl;
 
-
+  @override
+  @useResult
+  $Res call({
+    String accessToken, String refreshToken, String tokenType, int expiresIn
+  });
 
 
 }
+
 /// @nodoc
 class __$AuthTokensModelCopyWithImpl<$Res>
     implements _$AuthTokensModelCopyWith<$Res> {
@@ -268,17 +334,31 @@ class __$AuthTokensModelCopyWithImpl<$Res>
   final _AuthTokensModel _self;
   final $Res Function(_AuthTokensModel) _then;
 
-/// Create a copy of AuthTokensModel
-/// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? accessToken = null,Object? refreshToken = null,Object? tokenType = null,Object? expiresIn = null,}) {
-  return _then(_AuthTokensModel(
-accessToken: null == accessToken ? _self.accessToken : accessToken // ignore: cast_nullable_to_non_nullable
-as String,refreshToken: null == refreshToken ? _self.refreshToken : refreshToken // ignore: cast_nullable_to_non_nullable
-as String,tokenType: null == tokenType ? _self.tokenType : tokenType // ignore: cast_nullable_to_non_nullable
-as String,expiresIn: null == expiresIn ? _self.expiresIn : expiresIn // ignore: cast_nullable_to_non_nullable
-as int,
-  ));
-}
+  /// Create a copy of AuthTokensModel
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @pragma('vm:prefer-inline')
+  $Res call(
+      {Object? accessToken = null, Object? refreshToken = null, Object? tokenType = null, Object? expiresIn = null,}) {
+    return _then(_AuthTokensModel(
+      accessToken: null == accessToken
+          ? _self.accessToken
+          : accessToken // ignore: cast_nullable_to_non_nullable
+      as String,
+      refreshToken: null == refreshToken
+          ? _self.refreshToken
+          : refreshToken // ignore: cast_nullable_to_non_nullable
+      as String,
+      tokenType: null == tokenType
+          ? _self.tokenType
+          : tokenType // ignore: cast_nullable_to_non_nullable
+      as String,
+      expiresIn: null == expiresIn
+          ? _self.expiresIn
+          : expiresIn // ignore: cast_nullable_to_non_nullable
+      as int,
+    ));
+  }
 
 
 }

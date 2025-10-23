@@ -20,7 +20,7 @@ import 'package:chattrix_ui/features/auth/domain/usecases/register_usecase.dart'
 import 'package:chattrix_ui/features/auth/domain/usecases/resend_verification_usecase.dart';
 import 'package:chattrix_ui/features/auth/domain/usecases/reset_password_usecase.dart';
 import 'package:chattrix_ui/features/auth/domain/usecases/verify_email_usecase.dart';
-import 'package:chattrix_ui/features/chat/providers/chat_providers.dart';
+import 'package:chattrix_ui/features/chat/presentation/providers/chat_providers.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';

@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:chattrix_ui/features/auth/presentation/providers/auth_providers.dart';
 import 'package:chattrix_ui/features/chat/domain/entities/search_user.dart';
-import 'package:chattrix_ui/features/chat/providers/chat_providers.dart';
+import 'package:chattrix_ui/features/chat/presentation/providers/chat_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
@@ -40,10 +40,7 @@ class NewChatPage extends HookConsumerWidget {
       context.pop();
       context.push(
         '/chat/${user.conversationId}',
-        extra: {
-          'name': userName,
-          'color': _avatarColor(context, user.id),
-        },
+        extra: {'name': userName, 'color': _avatarColor(context, user.id)},
       );
       return;
     }
@@ -56,9 +53,7 @@ class NewChatPage extends HookConsumerWidget {
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (context) => const Center(
-        child: CircularProgressIndicator(),
-      ),
+      builder: (context) => const Center(child: CircularProgressIndicator()),
     );
 
     final createUsecase = ref.read(createConversationUsecaseProvider);
@@ -75,9 +70,9 @@ class NewChatPage extends HookConsumerWidget {
     result.fold(
       (failure) {
         if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(failure.message)),
-          );
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(failure.message)));
         }
       },
       (conversation) {
@@ -86,17 +81,15 @@ class NewChatPage extends HookConsumerWidget {
 
         // Navigate to chat view
         if (context.mounted) {
-          final userName =
-              user.fullName.isNotEmpty ? user.fullName : user.username;
+          final userName = user.fullName.isNotEmpty
+              ? user.fullName
+              : user.username;
 
           // Pop current page and navigate to chat
           context.pop();
           context.push(
             '/chat/${conversation.id}',
-            extra: {
-              'name': userName,
-              'color': _avatarColor(context, user.id),
-            },
+            extra: {'name': userName, 'color': _avatarColor(context, user.id)},
           );
         }
       },
@@ -189,7 +182,9 @@ class NewChatPage extends HookConsumerWidget {
                   borderRadius: BorderRadius.circular(12),
                 ),
                 filled: true,
-                fillColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+                fillColor: Theme.of(
+                  context,
+                ).colorScheme.surfaceContainerHighest,
               ),
               autofocus: true,
             ),
@@ -232,24 +227,16 @@ class NewChatPage extends HookConsumerWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              Icons.error_outline,
-              size: 64,
-              color: Colors.red[300],
-            ),
+            Icon(Icons.error_outline, size: 64, color: Colors.red[300]),
             const SizedBox(height: 16),
             Text(
               'Search failed',
-              style: textTheme.titleMedium?.copyWith(
-                color: Colors.red[700],
-              ),
+              style: textTheme.titleMedium?.copyWith(color: Colors.red[700]),
             ),
             const SizedBox(height: 8),
             Text(
               error,
-              style: textTheme.bodySmall?.copyWith(
-                color: Colors.grey[600],
-              ),
+              style: textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
               textAlign: TextAlign.center,
             ),
           ],
@@ -263,24 +250,16 @@ class NewChatPage extends HookConsumerWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              Icons.search,
-              size: 64,
-              color: Colors.grey[400],
-            ),
+            Icon(Icons.search, size: 64, color: Colors.grey[400]),
             const SizedBox(height: 16),
             Text(
               'Search for users',
-              style: textTheme.titleMedium?.copyWith(
-                color: Colors.grey[600],
-              ),
+              style: textTheme.titleMedium?.copyWith(color: Colors.grey[600]),
             ),
             const SizedBox(height: 8),
             Text(
               'Enter a name, username, or email',
-              style: textTheme.bodySmall?.copyWith(
-                color: Colors.grey[500],
-              ),
+              style: textTheme.bodySmall?.copyWith(color: Colors.grey[500]),
             ),
           ],
         ),
@@ -293,24 +272,16 @@ class NewChatPage extends HookConsumerWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              Icons.person_search,
-              size: 64,
-              color: Colors.grey[400],
-            ),
+            Icon(Icons.person_search, size: 64, color: Colors.grey[400]),
             const SizedBox(height: 16),
             Text(
               'No users found',
-              style: textTheme.titleMedium?.copyWith(
-                color: Colors.grey[600],
-              ),
+              style: textTheme.titleMedium?.copyWith(color: Colors.grey[600]),
             ),
             const SizedBox(height: 8),
             Text(
               'Try a different search term',
-              style: textTheme.bodySmall?.copyWith(
-                color: Colors.grey[500],
-              ),
+              style: textTheme.bodySmall?.copyWith(color: Colors.grey[500]),
             ),
           ],
         ),
@@ -320,7 +291,7 @@ class NewChatPage extends HookConsumerWidget {
     // Results list
     return ListView.separated(
       itemCount: results.length,
-      separatorBuilder: (_, __) => const Divider(height: 1),
+      separatorBuilder: (_, _) => const Divider(height: 1),
       itemBuilder: (context, index) {
         final user = results[index];
         return _buildUserTile(context, ref, textTheme, user);
@@ -344,16 +315,12 @@ class NewChatPage extends HookConsumerWidget {
         backgroundColor: avatarColor,
         child: Text(
           initial,
-          style: textTheme.titleMedium?.copyWith(
-            color: Colors.white,
-          ),
+          style: textTheme.titleMedium?.copyWith(color: Colors.white),
         ),
       ),
       title: Row(
         children: [
-          Expanded(
-            child: Text(userName, style: textTheme.titleMedium),
-          ),
+          Expanded(child: Text(userName, style: textTheme.titleMedium)),
           if (user.contact)
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
@@ -375,9 +342,7 @@ class NewChatPage extends HookConsumerWidget {
         children: [
           Text(
             '@${user.username}',
-            style: textTheme.bodySmall?.copyWith(
-              color: Colors.grey[600],
-            ),
+            style: textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
           ),
           if (user.hasConversation)
             Text(

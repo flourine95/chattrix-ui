@@ -127,7 +127,8 @@ class RegisterScreen extends HookConsumerWidget {
                           Toasts.error(
                             context,
                             title: 'Error',
-                            description: 'Password must be at least 6 characters long',
+                            description:
+                                'Password must be at least 6 characters long',
                           );
                           return;
                         }

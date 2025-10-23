@@ -17,4 +17,3 @@ abstract class SearchUser with _$SearchUser {
     int? conversationId,
   }) = _SearchUser;
 }
-

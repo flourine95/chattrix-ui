@@ -1,6 +1,6 @@
 import 'package:chattrix_ui/features/auth/presentation/providers/auth_providers.dart';
+import 'package:chattrix_ui/features/chat/presentation/providers/chat_providers.dart';
 import 'package:chattrix_ui/features/chat/presentation/utils/conversation_utils.dart';
-import 'package:chattrix_ui/features/chat/providers/chat_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -25,15 +25,13 @@ class ChatViewPage extends HookConsumerWidget {
     final colors = Theme.of(context).colorScheme;
     final avatarColor = color ?? colors.primary;
 
-// Tính độ sáng (0 = đen, 255 = trắng)
-    final brightness = (avatarColor.red * 0.299 +
-        avatarColor.green * 0.587 +
-        avatarColor.blue * 0.114) /
-        255;
+    final r = (avatarColor.r * 255).round();
+    final g = (avatarColor.g * 255).round();
+    final b = (avatarColor.b * 255).round();
+
+    final brightness = (r * 0.299 + g * 0.587 + b * 0.114) / 255;
 
     final onAvatarColor = brightness < 0.5 ? Colors.white : Colors.black;
-
-
 
     final me = ref.watch(currentUserProvider);
     final messagesAsync = ref.watch(messagesProvider(chatId));
@@ -57,7 +55,8 @@ class ChatViewPage extends HookConsumerWidget {
     useEffect(() {
       void onScroll() {
         if (scrollController.hasClients) {
-          final isAtBottom = scrollController.position.pixels >=
+          final isAtBottom =
+              scrollController.position.pixels >=
               scrollController.position.maxScrollExtent - 100;
           showScrollButton.value = !isAtBottom;
         }
@@ -70,9 +69,11 @@ class ChatViewPage extends HookConsumerWidget {
     // Scroll to bottom only when new message arrives
     useEffect(() {
       messagesAsync.whenData((messages) {
-        if (messages.length > previousMessageCount.value && scrollController.hasClients) {
+        if (messages.length > previousMessageCount.value &&
+            scrollController.hasClients) {
           // Only scroll if we're already near the bottom
-          final isNearBottom = scrollController.position.pixels >=
+          final isNearBottom =
+              scrollController.position.pixels >=
               scrollController.position.maxScrollExtent - 200;
 
           if (isNearBottom) {
@@ -161,12 +162,22 @@ class ChatViewPage extends HookConsumerWidget {
                 children: [
                   Text(name ?? 'User $chatId', style: textTheme.titleMedium),
                   // Show user status for DIRECT conversations
-                  if (conversation != null && conversation.type.toUpperCase() == 'DIRECT')
+                  if (conversation != null &&
+                      conversation.type.toUpperCase() == 'DIRECT')
                     Builder(
                       builder: (context) {
-                        final isOnline = ConversationUtils.isUserOnline(conversation, me);
-                        final lastSeen = ConversationUtils.getLastSeen(conversation, me);
-                        final statusText = ConversationUtils.formatLastSeen(isOnline, lastSeen);
+                        final isOnline = ConversationUtils.isUserOnline(
+                          conversation,
+                          me,
+                        );
+                        final lastSeen = ConversationUtils.getLastSeen(
+                          conversation,
+                          me,
+                        );
+                        final statusText = ConversationUtils.formatLastSeen(
+                          isOnline,
+                          lastSeen,
+                        );
 
                         return Text(
                           statusText,
@@ -181,7 +192,9 @@ class ChatViewPage extends HookConsumerWidget {
                     Text(
                       wsConnection.isConnected ? 'Connected' : 'Connecting...',
                       style: textTheme.bodySmall?.copyWith(
-                        color: wsConnection.isConnected ? Colors.green : Colors.grey,
+                        color: wsConnection.isConnected
+                            ? Colors.green
+                            : Colors.grey,
                       ),
                     ),
                 ],
@@ -216,7 +229,8 @@ class ChatViewPage extends HookConsumerWidget {
                       },
                     );
                   },
-                  loading: () => const Center(child: CircularProgressIndicator()),
+                  loading: () =>
+                      const Center(child: CircularProgressIndicator()),
                   error: (e, st) => Center(
                     child: Text(
                       'Failed to load messages',

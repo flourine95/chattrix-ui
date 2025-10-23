@@ -15,4 +15,3 @@ class SearchUsersUsecase {
     return repository.searchUsers(query: query, limit: limit);
   }
 }
-

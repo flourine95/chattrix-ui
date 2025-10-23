@@ -11,47 +11,61 @@ part of 'message_sender.dart';
 
 // dart format off
 T _$identity<T>(T value) => value;
+
 /// @nodoc
 mixin _$MessageSender {
 
- int get id; String get username; String get fullName;
-/// Create a copy of MessageSender
-/// with the given fields replaced by the non-null parameter values.
-@JsonKey(includeFromJson: false, includeToJson: false)
-@pragma('vm:prefer-inline')
-$MessageSenderCopyWith<MessageSender> get copyWith => _$MessageSenderCopyWithImpl<MessageSender>(this as MessageSender, _$identity);
+  int get id;
+
+  String get username;
+
+  String get fullName;
+
+  /// Create a copy of MessageSender
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @pragma('vm:prefer-inline')
+  $MessageSenderCopyWith<MessageSender> get copyWith =>
+      _$MessageSenderCopyWithImpl<MessageSender>(
+          this as MessageSender, _$identity);
 
 
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType && other is MessageSender &&
+            (identical(other.id, id) || other.id == id) &&
+            (identical(other.username, username) ||
+                other.username == username) &&
+            (identical(other.fullName, fullName) ||
+                other.fullName == fullName));
+  }
 
-@override
-bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is MessageSender&&(identical(other.id, id) || other.id == id)&&(identical(other.username, username) || other.username == username)&&(identical(other.fullName, fullName) || other.fullName == fullName));
-}
 
+  @override
+  int get hashCode => Object.hash(runtimeType, id, username, fullName);
 
-@override
-int get hashCode => Object.hash(runtimeType,id,username,fullName);
-
-@override
-String toString() {
-  return 'MessageSender(id: $id, username: $username, fullName: $fullName)';
-}
+  @override
+  String toString() {
+    return 'MessageSender(id: $id, username: $username, fullName: $fullName)';
+  }
 
 
 }
 
 /// @nodoc
-abstract mixin class $MessageSenderCopyWith<$Res>  {
-  factory $MessageSenderCopyWith(MessageSender value, $Res Function(MessageSender) _then) = _$MessageSenderCopyWithImpl;
-@useResult
-$Res call({
- int id, String username, String fullName
-});
+abstract mixin class $MessageSenderCopyWith<$Res> {
+  factory $MessageSenderCopyWith(MessageSender value,
+      $Res Function(MessageSender) _then) = _$MessageSenderCopyWithImpl;
 
-
+  @useResult
+  $Res call({
+    int id, String username, String fullName
+  });
 
 
 }
+
 /// @nodoc
 class _$MessageSenderCopyWithImpl<$Res>
     implements $MessageSenderCopyWith<$Res> {
@@ -60,147 +74,170 @@ class _$MessageSenderCopyWithImpl<$Res>
   final MessageSender _self;
   final $Res Function(MessageSender) _then;
 
-/// Create a copy of MessageSender
-/// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? username = null,Object? fullName = null,}) {
-  return _then(_self.copyWith(
-id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
-as int,username: null == username ? _self.username : username // ignore: cast_nullable_to_non_nullable
-as String,fullName: null == fullName ? _self.fullName : fullName // ignore: cast_nullable_to_non_nullable
-as String,
-  ));
-}
+  /// Create a copy of MessageSender
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call(
+      {Object? id = null, Object? username = null, Object? fullName = null,}) {
+    return _then(_self.copyWith(
+      id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
+      as int,
+      username: null == username
+          ? _self.username
+          : username // ignore: cast_nullable_to_non_nullable
+      as String,
+      fullName: null == fullName
+          ? _self.fullName
+          : fullName // ignore: cast_nullable_to_non_nullable
+      as String,
+    ));
+  }
 
 }
 
 
 /// Adds pattern-matching-related methods to [MessageSender].
 extension MessageSenderPatterns on MessageSender {
-/// A variant of `map` that fallback to returning `orElse`.
-///
-/// It is equivalent to doing:
-/// ```dart
-/// switch (sealedClass) {
-///   case final Subclass value:
-///     return ...;
-///   case _:
-///     return orElse();
-/// }
-/// ```
+  /// A variant of `map` that fallback to returning `orElse`.
+  ///
+  /// It is equivalent to doing:
+  /// ```dart
+  /// switch (sealedClass) {
+  ///   case final Subclass value:
+  ///     return ...;
+  ///   case _:
+  ///     return orElse();
+  /// }
+  /// ```
 
-@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _MessageSender value)?  $default,{required TResult orElse(),}){
-final _that = this;
-switch (_that) {
-case _MessageSender() when $default != null:
-return $default(_that);case _:
+  @optionalTypeArgs TResult maybeMap
+
+  <
+
+  TResult
+
+  extends
+
+  Object?
+
+  >
+
+  (
+
+  TResult Function( _MessageSender value)? $default,{required TResult orElse(),}){
+  final _that = this;
+  switch (_that) {
+  case _MessageSender() when $default != null:
+  return $default(_that);case _:
   return orElse();
 
-}
-}
-/// A `switch`-like method, using callbacks.
-///
-/// Callbacks receives the raw object, upcasted.
-/// It is equivalent to doing:
-/// ```dart
-/// switch (sealedClass) {
-///   case final Subclass value:
-///     return ...;
-///   case final Subclass2 value:
-///     return ...;
-/// }
-/// ```
+  }
+  }
+  /// A `switch`-like method, using callbacks.
+  ///
+  /// Callbacks receives the raw object, upcasted.
+  /// It is equivalent to doing:
+  /// ```dart
+  /// switch (sealedClass) {
+  ///   case final Subclass value:
+  ///     return ...;
+  ///   case final Subclass2 value:
+  ///     return ...;
+  /// }
+  /// ```
 
-@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _MessageSender value)  $default,){
-final _that = this;
-switch (_that) {
-case _MessageSender():
-return $default(_that);case _:
+  @optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _MessageSender value) $default,){
+  final _that = this;
+  switch (_that) {
+  case _MessageSender():
+  return $default(_that);case _:
   throw StateError('Unexpected subclass');
 
-}
-}
-/// A variant of `map` that fallback to returning `null`.
-///
-/// It is equivalent to doing:
-/// ```dart
-/// switch (sealedClass) {
-///   case final Subclass value:
-///     return ...;
-///   case _:
-///     return null;
-/// }
-/// ```
+  }
+  }
+  /// A variant of `map` that fallback to returning `null`.
+  ///
+  /// It is equivalent to doing:
+  /// ```dart
+  /// switch (sealedClass) {
+  ///   case final Subclass value:
+  ///     return ...;
+  ///   case _:
+  ///     return null;
+  /// }
+  /// ```
 
-@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _MessageSender value)?  $default,){
-final _that = this;
-switch (_that) {
-case _MessageSender() when $default != null:
-return $default(_that);case _:
+  @optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _MessageSender value)? $default,){
+  final _that = this;
+  switch (_that) {
+  case _MessageSender() when $default != null:
+  return $default(_that);case _:
   return null;
 
-}
-}
-/// A variant of `when` that fallback to an `orElse` callback.
-///
-/// It is equivalent to doing:
-/// ```dart
-/// switch (sealedClass) {
-///   case Subclass(:final field):
-///     return ...;
-///   case _:
-///     return orElse();
-/// }
-/// ```
+  }
+  }
+  /// A variant of `when` that fallback to an `orElse` callback.
+  ///
+  /// It is equivalent to doing:
+  /// ```dart
+  /// switch (sealedClass) {
+  ///   case Subclass(:final field):
+  ///     return ...;
+  ///   case _:
+  ///     return orElse();
+  /// }
+  /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int id,  String username,  String fullName)?  $default,{required TResult orElse(),}) {final _that = this;
-switch (_that) {
-case _MessageSender() when $default != null:
-return $default(_that.id,_that.username,_that.fullName);case _:
+  @optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int id, String username, String fullName)? $default,{required TResult orElse(),}) {final _that = this;
+  switch (_that) {
+  case _MessageSender() when $default != null:
+  return $default(_that.id,_that.username,_that.fullName);case _:
   return orElse();
 
-}
-}
-/// A `switch`-like method, using callbacks.
-///
-/// As opposed to `map`, this offers destructuring.
-/// It is equivalent to doing:
-/// ```dart
-/// switch (sealedClass) {
-///   case Subclass(:final field):
-///     return ...;
-///   case Subclass2(:final field2):
-///     return ...;
-/// }
-/// ```
+  }
+  }
+  /// A `switch`-like method, using callbacks.
+  ///
+  /// As opposed to `map`, this offers destructuring.
+  /// It is equivalent to doing:
+  /// ```dart
+  /// switch (sealedClass) {
+  ///   case Subclass(:final field):
+  ///     return ...;
+  ///   case Subclass2(:final field2):
+  ///     return ...;
+  /// }
+  /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int id,  String username,  String fullName)  $default,) {final _that = this;
-switch (_that) {
-case _MessageSender():
-return $default(_that.id,_that.username,_that.fullName);case _:
+  @optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int id, String username, String fullName) $default,) {final _that = this;
+  switch (_that) {
+  case _MessageSender():
+  return $default(_that.id,_that.username,_that.fullName);case _:
   throw StateError('Unexpected subclass');
 
-}
-}
-/// A variant of `when` that fallback to returning `null`
-///
-/// It is equivalent to doing:
-/// ```dart
-/// switch (sealedClass) {
-///   case Subclass(:final field):
-///     return ...;
-///   case _:
-///     return null;
-/// }
-/// ```
+  }
+  }
+  /// A variant of `when` that fallback to returning `null`
+  ///
+  /// It is equivalent to doing:
+  /// ```dart
+  /// switch (sealedClass) {
+  ///   case Subclass(:final field):
+  ///     return ...;
+  ///   case _:
+  ///     return null;
+  /// }
+  /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int id,  String username,  String fullName)?  $default,) {final _that = this;
-switch (_that) {
-case _MessageSender() when $default != null:
-return $default(_that.id,_that.username,_that.fullName);case _:
+  @optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int id, String username, String fullName)? $default,) {final _that = this;
+  switch (_that) {
+  case _MessageSender() when $default != null:
+  return $default(_that.id,_that.username,_that.fullName);case _:
   return null;
 
-}
-}
+  }
+  }
 
 }
 
@@ -208,50 +245,61 @@ return $default(_that.id,_that.username,_that.fullName);case _:
 
 
 class _MessageSender implements MessageSender {
-  const _MessageSender({required this.id, required this.username, required this.fullName});
-  
-
-@override final  int id;
-@override final  String username;
-@override final  String fullName;
-
-/// Create a copy of MessageSender
-/// with the given fields replaced by the non-null parameter values.
-@override @JsonKey(includeFromJson: false, includeToJson: false)
-@pragma('vm:prefer-inline')
-_$MessageSenderCopyWith<_MessageSender> get copyWith => __$MessageSenderCopyWithImpl<_MessageSender>(this, _$identity);
+  const _MessageSender(
+      {required this.id, required this.username, required this.fullName});
 
 
+  @override final int id;
+  @override final String username;
+  @override final String fullName;
 
-@override
-bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _MessageSender&&(identical(other.id, id) || other.id == id)&&(identical(other.username, username) || other.username == username)&&(identical(other.fullName, fullName) || other.fullName == fullName));
-}
+  /// Create a copy of MessageSender
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @pragma('vm:prefer-inline')
+  _$MessageSenderCopyWith<_MessageSender> get copyWith =>
+      __$MessageSenderCopyWithImpl<_MessageSender>(this, _$identity);
 
 
-@override
-int get hashCode => Object.hash(runtimeType,id,username,fullName);
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType && other is _MessageSender &&
+            (identical(other.id, id) || other.id == id) &&
+            (identical(other.username, username) ||
+                other.username == username) &&
+            (identical(other.fullName, fullName) ||
+                other.fullName == fullName));
+  }
 
-@override
-String toString() {
-  return 'MessageSender(id: $id, username: $username, fullName: $fullName)';
-}
+
+  @override
+  int get hashCode => Object.hash(runtimeType, id, username, fullName);
+
+  @override
+  String toString() {
+    return 'MessageSender(id: $id, username: $username, fullName: $fullName)';
+  }
 
 
 }
 
 /// @nodoc
-abstract mixin class _$MessageSenderCopyWith<$Res> implements $MessageSenderCopyWith<$Res> {
-  factory _$MessageSenderCopyWith(_MessageSender value, $Res Function(_MessageSender) _then) = __$MessageSenderCopyWithImpl;
-@override @useResult
-$Res call({
- int id, String username, String fullName
-});
+abstract mixin class _$MessageSenderCopyWith<$Res>
+    implements $MessageSenderCopyWith<$Res> {
+  factory _$MessageSenderCopyWith(_MessageSender value,
+      $Res Function(_MessageSender) _then) = __$MessageSenderCopyWithImpl;
 
-
+  @override
+  @useResult
+  $Res call({
+    int id, String username, String fullName
+  });
 
 
 }
+
 /// @nodoc
 class __$MessageSenderCopyWithImpl<$Res>
     implements _$MessageSenderCopyWith<$Res> {
@@ -260,16 +308,25 @@ class __$MessageSenderCopyWithImpl<$Res>
   final _MessageSender _self;
   final $Res Function(_MessageSender) _then;
 
-/// Create a copy of MessageSender
-/// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? username = null,Object? fullName = null,}) {
-  return _then(_MessageSender(
-id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
-as int,username: null == username ? _self.username : username // ignore: cast_nullable_to_non_nullable
-as String,fullName: null == fullName ? _self.fullName : fullName // ignore: cast_nullable_to_non_nullable
-as String,
-  ));
-}
+  /// Create a copy of MessageSender
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @pragma('vm:prefer-inline')
+  $Res call(
+      {Object? id = null, Object? username = null, Object? fullName = null,}) {
+    return _then(_MessageSender(
+      id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
+      as int,
+      username: null == username
+          ? _self.username
+          : username // ignore: cast_nullable_to_non_nullable
+      as String,
+      fullName: null == fullName
+          ? _self.fullName
+          : fullName // ignore: cast_nullable_to_non_nullable
+      as String,
+    ));
+  }
 
 
 }

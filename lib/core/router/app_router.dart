@@ -1,4 +1,3 @@
-import 'package:chattrix_ui/features/auth/presentation/pages/debug_token_screen.dart';
 import 'package:chattrix_ui/features/auth/presentation/pages/forgot_password_screen.dart';
 import 'package:chattrix_ui/features/auth/presentation/pages/login_screen.dart';
 import 'package:chattrix_ui/features/auth/presentation/pages/otp_verification_screen.dart';
@@ -16,7 +15,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 class AuthNotifierWrapper extends ChangeNotifier {
   AuthNotifierWrapper(this._ref) {
-    _ref.listen<AuthState>(authNotifierProvider, (_, __) => notifyListeners());
+    _ref.listen<AuthState>(authNotifierProvider, (_, _) => notifyListeners());
   }
 
   final Ref _ref;
@@ -96,11 +95,7 @@ class AppRouter {
             final name = extra?['name'] as String?;
             final color = extra?['color'] as Color?;
 
-            return ChatViewPage(
-              chatId: id,
-              name: name,
-              color: color,
-            );
+            return ChatViewPage(chatId: id, name: name, color: color);
           },
         ),
 
@@ -109,13 +104,6 @@ class AppRouter {
           path: '/new-chat',
           name: 'new-chat',
           builder: (context, state) => const NewChatPage(),
-        ),
-
-        // Debug Token route
-        GoRoute(
-          path: '/debug-token',
-          name: 'debug-token',
-          builder: (context, state) => const DebugTokenScreen(),
         ),
 
         // Auth routes

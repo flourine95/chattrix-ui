@@ -1,7 +1,6 @@
+import 'package:chattrix_ui/features/chat/data/models/message_sender_model.dart';
 import 'package:chattrix_ui/features/chat/domain/entities/message.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-
-import 'message_sender_model.dart';
 
 part 'message_model.freezed.dart';
 part 'message_model.g.dart';
@@ -40,9 +39,13 @@ abstract class MessageModel with _$MessageModel {
       id: (json['id'] ?? json['messageId'] ?? ''),
       content: (json['content'] ?? '').toString(),
       type: (json['type'] ?? '').toString(),
-      createdAt: (json['createdAt'] ?? json['sentAt'] ?? DateTime.now().toIso8601String()).toString(),
-      conversationId:
-          (json['conversationId'] ?? json['conversation_id'] ?? '').toString(),
+      createdAt:
+          (json['createdAt'] ??
+                  json['sentAt'] ??
+                  DateTime.now().toIso8601String())
+              .toString(),
+      conversationId: (json['conversationId'] ?? json['conversation_id'] ?? '')
+          .toString(),
       sender: MessageSenderModel.fromApi(senderJson),
     );
   }

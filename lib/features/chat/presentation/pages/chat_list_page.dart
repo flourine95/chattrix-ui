@@ -1,6 +1,6 @@
 import 'package:chattrix_ui/features/auth/presentation/providers/auth_providers.dart';
+import 'package:chattrix_ui/features/chat/presentation/providers/chat_providers.dart';
 import 'package:chattrix_ui/features/chat/presentation/utils/conversation_utils.dart';
-import 'package:chattrix_ui/features/chat/providers/chat_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
@@ -53,7 +53,10 @@ class ChatListPage extends ConsumerWidget {
               final initial = title.isNotEmpty ? title.substring(0, 1) : '?';
 
               // Get last message and format it
-              final lastMessageText = ConversationUtils.formatLastMessage(c.lastMessage, me);
+              final lastMessageText = ConversationUtils.formatLastMessage(
+                c.lastMessage,
+                me,
+              );
 
               // Check if user is online (for DIRECT conversations)
               final isOnline = ConversationUtils.isUserOnline(c, me);
@@ -64,7 +67,9 @@ class ChatListPage extends ConsumerWidget {
               debugPrint('   Type: ${c.type}');
               debugPrint('   Participants: ${c.participants.length}');
               for (var p in c.participants) {
-                debugPrint('   - User ${p.userId}: ${p.username} (${p.fullName})');
+                debugPrint(
+                  '   - User ${p.userId}: ${p.username} (${p.fullName})',
+                );
                 debugPrint('     nickname: ${p.nickname}');
                 debugPrint('     isOnline: ${p.isOnline}');
                 debugPrint('     lastSeen: ${p.lastSeen}');
@@ -80,7 +85,10 @@ class ChatListPage extends ConsumerWidget {
                 if (c.lastMessage != null) {
                   subtitle = lastMessageText;
                 } else {
-                  subtitle = ConversationUtils.formatLastSeen(isOnline, lastSeen);
+                  subtitle = ConversationUtils.formatLastSeen(
+                    isOnline,
+                    lastSeen,
+                  );
                 }
               } else {
                 // For GROUP: show last message
@@ -137,9 +145,13 @@ class ChatListPage extends ConsumerWidget {
                 ),
                 trailing: c.lastMessage != null
                     ? Text(
-                        ConversationUtils.formatTimeAgo(c.lastMessage!.createdAt),
+                        ConversationUtils.formatTimeAgo(
+                          c.lastMessage!.createdAt,
+                        ),
                         style: textTheme.bodySmall?.copyWith(
-                          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.onSurface.withValues(alpha: 0.6),
                         ),
                       )
                     : null,

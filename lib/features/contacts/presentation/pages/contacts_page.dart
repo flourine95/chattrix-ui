@@ -11,7 +11,7 @@ class ContactsPage extends StatelessWidget {
       appBar: AppBar(title: Text('Contacts', style: textTheme.titleLarge)),
       body: ListView.separated(
         itemCount: 15,
-        separatorBuilder: (_, __) => const Divider(height: 1),
+        separatorBuilder: (_, _) => const Divider(height: 1),
         itemBuilder: (context, index) {
           final name = 'Contact ${index + 1}';
           return ListTile(

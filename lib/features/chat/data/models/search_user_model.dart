@@ -39,4 +39,3 @@ abstract class SearchUserModel with _$SearchUserModel {
     );
   }
 }
-

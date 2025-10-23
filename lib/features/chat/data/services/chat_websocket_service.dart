@@ -2,7 +2,14 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:chattrix_ui/core/constants/api_constants.dart';
+import 'package:chattrix_ui/features/chat/data/models/conversation_update_model.dart';
 import 'package:chattrix_ui/features/chat/data/models/message_model.dart';
+import 'package:chattrix_ui/features/chat/data/models/typing_indicator_model.dart';
+import 'package:chattrix_ui/features/chat/data/models/user_status_update_model.dart';
+import 'package:chattrix_ui/features/chat/domain/entities/conversation_update.dart';
+import 'package:chattrix_ui/features/chat/domain/entities/message.dart';
+import 'package:chattrix_ui/features/chat/domain/entities/typing_indicator.dart';
+import 'package:chattrix_ui/features/chat/domain/entities/user_status_update.dart';
 import 'package:flutter/foundation.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
@@ -29,19 +36,22 @@ class ChatWebSocketService {
   String? _lastAccessToken;
   bool _isManualDisconnect = false;
 
-  final _messageController = StreamController<MessageModel>.broadcast();
+  // Stream controllers now emit entities instead of models
+  final _messageController = StreamController<Message>.broadcast();
   final _typingController = StreamController<TypingIndicator>.broadcast();
   final _userStatusController = StreamController<UserStatusUpdate>.broadcast();
-  final _conversationUpdateController = StreamController<ConversationUpdate>.broadcast();
+  final _conversationUpdateController =
+      StreamController<ConversationUpdate>.broadcast();
   final _connectionController = StreamController<bool>.broadcast();
 
-  Stream<MessageModel> get messageStream => _messageController.stream;
+  Stream<Message> get messageStream => _messageController.stream;
 
   Stream<TypingIndicator> get typingStream => _typingController.stream;
 
   Stream<UserStatusUpdate> get userStatusStream => _userStatusController.stream;
 
-  Stream<ConversationUpdate> get conversationUpdateStream => _conversationUpdateController.stream;
+  Stream<ConversationUpdate> get conversationUpdateStream =>
+      _conversationUpdateController.stream;
 
   Stream<bool> get connectionStream => _connectionController.stream;
 
@@ -202,7 +212,7 @@ class ChatWebSocketService {
         debugPrint('⚠️ Message has no type field, treating as direct message');
         // Server might be sending message directly without wrapper
         final messageModel = MessageModel.fromApi(data);
-        _messageController.add(messageModel);
+        _messageController.add(messageModel.toEntity());
         debugPrint('📨 Received direct message: ${messageModel.id}');
         return;
       }
@@ -216,26 +226,28 @@ class ChatWebSocketService {
       switch (type) {
         case ChatWebSocketResponse.chatMessage:
           final messageModel = MessageModel.fromApi(payload);
-          _messageController.add(messageModel);
+          _messageController.add(messageModel.toEntity());
           debugPrint('📨 Received message: ${messageModel.id}');
           break;
 
         case ChatWebSocketResponse.typingIndicator:
-          final indicator = TypingIndicator.fromJson(payload);
-          _typingController.add(indicator);
-          debugPrint('⌨️ Typing indicator: ${indicator.conversationId}');
+          final indicatorModel = TypingIndicatorModel.fromJson(payload);
+          _typingController.add(indicatorModel.toEntity());
+          debugPrint('⌨️ Typing indicator: ${indicatorModel.conversationId}');
           break;
 
         case ChatWebSocketResponse.userStatus:
-          final status = UserStatusUpdate.fromJson(payload);
-          _userStatusController.add(status);
-          debugPrint('👤 User status: ${status.userId} - ${status.isOnline}');
+          final statusModel = UserStatusUpdateModel.fromJson(payload);
+          _userStatusController.add(statusModel.toEntity());
+          debugPrint(
+            '👤 User status: ${statusModel.userId} - ${statusModel.isOnline}',
+          );
           break;
 
         case ChatWebSocketResponse.conversationUpdate:
-          final update = ConversationUpdate.fromJson(payload);
-          _conversationUpdateController.add(update);
-          debugPrint('💬 Conversation update: ${update.conversationId}');
+          final updateModel = ConversationUpdateModel.fromJson(payload);
+          _conversationUpdateController.add(updateModel.toEntity());
+          debugPrint('💬 Conversation update: ${updateModel.conversationId}');
           break;
 
         case ChatWebSocketResponse.heartbeatAck:
@@ -255,10 +267,7 @@ class ChatWebSocketService {
   void sendHeartbeat() {
     if (_channel == null) return;
 
-    final payload = {
-      'type': 'heartbeat',
-      'payload': {},
-    };
+    final payload = {'type': 'heartbeat', 'payload': {}};
 
     _channel!.sink.add(jsonEncode(payload));
     debugPrint('💓 Sent heartbeat');
@@ -274,122 +283,5 @@ class ChatWebSocketService {
     _userStatusController.close();
     _conversationUpdateController.close();
     _connectionController.close();
-  }
-}
-
-/// Typing indicator model
-class TypingIndicator {
-  final String conversationId;
-  final List<TypingUser> typingUsers;
-
-  TypingIndicator({required this.conversationId, required this.typingUsers});
-
-  factory TypingIndicator.fromJson(Map<String, dynamic> json) {
-    return TypingIndicator(
-      conversationId: json['conversationId'] as String,
-      typingUsers: (json['typingUsers'] as List)
-          .map((user) => TypingUser.fromJson(user as Map<String, dynamic>))
-          .toList(),
-    );
-  }
-}
-
-class TypingUser {
-  final String id;
-  final String username;
-  final String fullName;
-
-  TypingUser({
-    required this.id,
-    required this.username,
-    required this.fullName,
-  });
-
-  factory TypingUser.fromJson(Map<String, dynamic> json) {
-    return TypingUser(
-      id: json['id'] as String,
-      username: json['username'] as String,
-      fullName: json['fullName'] as String,
-    );
-  }
-}
-
-/// User status update model
-class UserStatusUpdate {
-  final String userId;
-  final String username;
-  final String displayName;
-  final bool isOnline;
-  final String? lastSeen;
-
-  UserStatusUpdate({
-    required this.userId,
-    required this.username,
-    required this.displayName,
-    required this.isOnline,
-    this.lastSeen,
-  });
-
-  factory UserStatusUpdate.fromJson(Map<String, dynamic> json) {
-    return UserStatusUpdate(
-      userId: json['userId'] as String,
-      username: json['username'] as String,
-      displayName: json['displayName'] as String,
-      isOnline: json['isOnline'] as bool,
-      lastSeen: json['lastSeen'] as String?,
-    );
-  }
-}
-
-/// Conversation update model (for lastMessage updates)
-class ConversationUpdate {
-  final int conversationId;
-  final String updatedAt;
-  final LastMessageInfo? lastMessage;
-
-  ConversationUpdate({
-    required this.conversationId,
-    required this.updatedAt,
-    this.lastMessage,
-  });
-
-  factory ConversationUpdate.fromJson(Map<String, dynamic> json) {
-    return ConversationUpdate(
-      conversationId: json['conversationId'] as int,
-      updatedAt: json['updatedAt'] as String,
-      lastMessage: json['lastMessage'] != null
-          ? LastMessageInfo.fromJson(json['lastMessage'] as Map<String, dynamic>)
-          : null,
-    );
-  }
-}
-
-/// Last message info model
-class LastMessageInfo {
-  final int id;
-  final String content;
-  final int senderId;
-  final String senderUsername;
-  final String sentAt;
-  final String type;
-
-  LastMessageInfo({
-    required this.id,
-    required this.content,
-    required this.senderId,
-    required this.senderUsername,
-    required this.sentAt,
-    required this.type,
-  });
-
-  factory LastMessageInfo.fromJson(Map<String, dynamic> json) {
-    return LastMessageInfo(
-      id: json['id'] as int,
-      content: json['content'] as String,
-      senderId: json['senderId'] as int,
-      senderUsername: json['senderUsername'] as String,
-      sentAt: json['sentAt'] as String,
-      type: json['type'] as String,
-    );
   }
 }

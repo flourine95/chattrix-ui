@@ -1,4 +1,5 @@
 import 'package:chattrix_ui/features/chat/domain/entities/participant.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'participant_model.freezed.dart';
@@ -24,18 +25,20 @@ abstract class ParticipantModel with _$ParticipantModel {
 
   factory ParticipantModel.fromApi(Map<String, dynamic> json) {
     // Debug: Print raw JSON to see what backend sends
-    print('🔍 ParticipantModel.fromApi JSON: $json');
+    debugPrint('🔍 ParticipantModel.fromApi JSON: $json');
 
     // Backend uses 'online' (lowercase) instead of 'isOnline'
-    final isOnline = json['isOnline'] as bool? ??
-                     json['is_online'] as bool? ??
-                     json['online'] as bool?;  // ← NEW: Support 'online'
+    final isOnline =
+        json['isOnline'] as bool? ??
+        json['is_online'] as bool? ??
+        json['online'] as bool?; // ← NEW: Support 'online'
 
-    final lastSeen = json['lastSeen']?.toString() ??
-                     json['last_seen']?.toString() ??
-                     json['lastSeen']?.toString();  // ← Support both formats
+    final lastSeen =
+        json['lastSeen']?.toString() ??
+        json['last_seen']?.toString() ??
+        json['lastSeen']?.toString(); // ← Support both formats
 
-    print('🔍   → isOnline: $isOnline, lastSeen: $lastSeen');
+    debugPrint('🔍   → isOnline: $isOnline, lastSeen: $lastSeen');
 
     return ParticipantModel(
       userId: (json['userId'] ?? json['user_id'] ?? ''),

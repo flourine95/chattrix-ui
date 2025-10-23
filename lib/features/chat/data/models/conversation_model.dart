@@ -1,8 +1,8 @@
+import 'package:chattrix_ui/features/chat/data/models/message_model.dart';
+import 'package:chattrix_ui/features/chat/data/models/participant_model.dart';
 import 'package:chattrix_ui/features/chat/domain/entities/conversation.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-
-import 'message_model.dart';
-import 'participant_model.dart';
 
 part 'conversation_model.freezed.dart';
 part 'conversation_model.g.dart';
@@ -26,10 +26,12 @@ abstract class ConversationModel with _$ConversationModel {
 
   factory ConversationModel.fromApi(Map<String, dynamic> json) {
     // Debug: Print raw JSON to see what backend sends
-    print('🔍 ConversationModel.fromApi JSON keys: ${json.keys.toList()}');
-    print('🔍 Conversation ID: ${json['id']}, Type: ${json['type']}');
-    print('🔍 Has lastMessage: ${json.containsKey('lastMessage')}');
-    print('🔍 Participants count: ${(json['participants'] as List?)?.length ?? 0}');
+    debugPrint('🔍 ConversationModel.fromApi JSON keys: ${json.keys.toList()}');
+    debugPrint('🔍 Conversation ID: ${json['id']}, Type: ${json['type']}');
+    debugPrint('🔍 Has lastMessage: ${json.containsKey('lastMessage')}');
+    debugPrint(
+      '🔍 Participants count: ${(json['participants'] as List?)?.length ?? 0}',
+    );
 
     final participantsJson = (json['participants'] as List? ?? [])
         .whereType<Map<String, dynamic>>()

@@ -29,10 +29,6 @@ abstract class MessageSenderModel with _$MessageSenderModel {
   }
 
   MessageSender toEntity() {
-    return MessageSender(
-      id: id,
-      username: username,
-      fullName: fullName,
-    );
+    return MessageSender(id: id, username: username, fullName: fullName);
   }
 }

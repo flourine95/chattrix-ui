@@ -7,7 +7,7 @@ import 'package:chattrix_ui/features/chat/data/models/search_user_model.dart';
 import 'package:chattrix_ui/features/chat/data/models/user_status_model.dart';
 import 'package:chattrix_ui/features/chat/domain/datasources/chat_remote_datasource.dart';
 import 'package:dio/dio.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 
 class ChatRemoteDatasourceImpl implements ChatRemoteDatasource {
   final Dio dio;
@@ -46,7 +46,9 @@ class ChatRemoteDatasourceImpl implements ChatRemoteDatasource {
   @override
   Future<List<ConversationModel>> getConversations() async {
     try {
-      final response = await dio.get('${ApiConstants.baseUrl}/${ApiConstants.conversationsBase}');
+      final response = await dio.get(
+        '${ApiConstants.baseUrl}/${ApiConstants.conversationsBase}',
+      );
 
       if (response.statusCode == 200) {
         debugPrint('📋 Conversations API Response:');
@@ -62,10 +64,15 @@ class ChatRemoteDatasourceImpl implements ChatRemoteDatasource {
           debugPrint('   First conversation keys: ${firstConv.keys.toList()}');
           if (firstConv.containsKey('participants')) {
             final participants = firstConv['participants'] as List;
-            debugPrint('   First conversation participants: ${participants.length}');
+            debugPrint(
+              '   First conversation participants: ${participants.length}',
+            );
             if (participants.isNotEmpty) {
-              final firstParticipant = participants.first as Map<String, dynamic>;
-              debugPrint('   First participant keys: ${firstParticipant.keys.toList()}');
+              final firstParticipant =
+                  participants.first as Map<String, dynamic>;
+              debugPrint(
+                '   First participant keys: ${firstParticipant.keys.toList()}',
+              );
               debugPrint('   First participant data: $firstParticipant');
             }
           }
@@ -136,7 +143,9 @@ class ChatRemoteDatasourceImpl implements ChatRemoteDatasource {
   @override
   Future<List<UserModel>> getOnlineUsers() async {
     try {
-      final response = await dio.get('${ApiConstants.baseUrl}/${ApiConstants.onlineUsers}');
+      final response = await dio.get(
+        '${ApiConstants.baseUrl}/${ApiConstants.onlineUsers}',
+      );
 
       if (response.statusCode == 200) {
         final data = response.data['data'] as List;
@@ -180,7 +189,9 @@ class ChatRemoteDatasourceImpl implements ChatRemoteDatasource {
   @override
   Future<UserStatusModel> getUserStatus(String userId) async {
     try {
-      final response = await dio.get('${ApiConstants.baseUrl}/${ApiConstants.userStatus(userId)}');
+      final response = await dio.get(
+        '${ApiConstants.baseUrl}/${ApiConstants.userStatus(userId)}',
+      );
 
       if (response.statusCode == 200) {
         final data = response.data['data'];
@@ -227,10 +238,7 @@ class ChatRemoteDatasourceImpl implements ChatRemoteDatasource {
     try {
       final response = await dio.get(
         '${ApiConstants.baseUrl}/${ApiConstants.searchUsers}',
-        queryParameters: {
-          'query': query,
-          'limit': limit,
-        },
+        queryParameters: {'query': query, 'limit': limit},
       );
 
       if (response.statusCode == 200) {

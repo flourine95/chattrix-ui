@@ -6,27 +6,30 @@ import 'package:chattrix_ui/features/chat/domain/entities/participant.dart';
 /// Utility functions for conversation display logic
 class ConversationUtils {
   /// Get conversation title based on type and participants
-  /// 
+  ///
   /// Rules:
   /// - GROUP: Use conversation.name if available, otherwise combine participant names (max 3)
   /// - DIRECT: Use contact.nickname → contactUser.fullName → contactUser.username (priority order)
-  static String getConversationTitle(Conversation conversation, User? currentUser) {
+  static String getConversationTitle(
+    Conversation conversation,
+    User? currentUser,
+  ) {
     if (conversation.type.toUpperCase() == 'GROUP') {
       // For GROUP conversations
       if (conversation.name != null && conversation.name!.isNotEmpty) {
         return conversation.name!;
       }
-      
+
       // Fallback: combine participant names (max 3)
       final otherParticipants = conversation.participants
           .where((p) => p.userId != currentUser?.id)
           .take(3)
           .toList();
-      
+
       if (otherParticipants.isEmpty) {
         return 'Group Chat';
       }
-      
+
       return otherParticipants
           .map((p) => p.fullName.isNotEmpty ? p.fullName : p.username)
           .join(', ');
@@ -36,22 +39,23 @@ class ConversationUtils {
         (p) => p.userId != currentUser?.id,
         orElse: () => conversation.participants.first,
       );
-      
+
       // Priority: nickname → fullName → username
-      if (otherParticipant.nickname != null && otherParticipant.nickname!.isNotEmpty) {
+      if (otherParticipant.nickname != null &&
+          otherParticipant.nickname!.isNotEmpty) {
         return otherParticipant.nickname!;
       }
-      
+
       if (otherParticipant.fullName.isNotEmpty) {
         return otherParticipant.fullName;
       }
-      
+
       return otherParticipant.username;
     }
   }
 
   /// Format last message for display in conversation list
-  /// 
+  ///
   /// Rules:
   /// - If message is from current user, add "Bạn: " prefix
   /// - If message is image, show "📷 Ảnh"
@@ -61,9 +65,9 @@ class ConversationUtils {
     if (lastMessage == null) {
       return 'No messages yet';
     }
-    
+
     String content;
-    
+
     // Check message type
     if (lastMessage.type.toUpperCase() == 'IMAGE') {
       content = '📷 Ảnh';
@@ -72,17 +76,17 @@ class ConversationUtils {
     } else {
       content = lastMessage.content;
     }
-    
+
     // Add "Bạn: " prefix if message is from current user
     if (currentUser != null && lastMessage.sender.id == currentUser.id) {
       return 'Bạn: $content';
     }
-    
+
     return content;
   }
 
   /// Format time ago from DateTime
-  /// 
+  ///
   /// Examples:
   /// - "Vừa xong" (just now)
   /// - "5 phút trước"
@@ -92,7 +96,7 @@ class ConversationUtils {
   static String formatTimeAgo(DateTime dateTime) {
     final now = DateTime.now();
     final difference = now.difference(dateTime);
-    
+
     if (difference.inSeconds < 60) {
       return 'Vừa xong';
     } else if (difference.inMinutes < 60) {
@@ -114,7 +118,7 @@ class ConversationUtils {
   }
 
   /// Format last seen status
-  /// 
+  ///
   /// Examples:
   /// - "Đang hoạt động" (if online)
   /// - "Hoạt động 5 phút trước"
@@ -123,26 +127,31 @@ class ConversationUtils {
     if (isOnline) {
       return 'Đang hoạt động';
     }
-    
+
     if (lastSeen == null) {
       return 'Offline';
     }
-    
+
     return 'Hoạt động ${formatTimeAgo(lastSeen)}';
   }
 
   /// Get other participant in DIRECT conversation
-  static Participant? getOtherParticipant(Conversation conversation, User? currentUser) {
+  static Participant? getOtherParticipant(
+    Conversation conversation,
+    User? currentUser,
+  ) {
     if (conversation.type.toUpperCase() != 'DIRECT') {
       return null;
     }
-    
+
     try {
       return conversation.participants.firstWhere(
         (p) => p.userId != currentUser?.id,
       );
     } catch (e) {
-      return conversation.participants.isNotEmpty ? conversation.participants.first : null;
+      return conversation.participants.isNotEmpty
+          ? conversation.participants.first
+          : null;
     }
   }
 
@@ -158,4 +167,3 @@ class ConversationUtils {
     return otherParticipant?.lastSeen;
   }
 }
-

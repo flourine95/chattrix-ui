@@ -1,7 +1,6 @@
+import 'package:chattrix_ui/features/chat/domain/entities/message.dart';
+import 'package:chattrix_ui/features/chat/domain/entities/participant.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-
-import 'message.dart';
-import 'participant.dart';
 
 part 'conversation.freezed.dart';
 
