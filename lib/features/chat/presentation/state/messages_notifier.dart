@@ -16,13 +16,30 @@ class MessagesNotifier extends _$MessagesNotifier {
   FutureOr<List<Message>> build(String conversationId) async {
     // Listen to WebSocket for real-time message updates
     final wsService = ref.watch(chatWebSocketServiceProvider);
-    wsService.messageStream.listen((messageModel) {
-      if (messageModel.conversationId == conversationId) {
+
+    // Subscribe to message stream once
+    final subscription = wsService.messageStream.listen((message) {
+      debugPrint(
+        '📨 WebSocket message received: conversationId="${message.conversationId}" (${message.conversationId.runtimeType}), current="$conversationId" (${conversationId.runtimeType})',
+      );
+
+      // Compare as strings to handle both int and string conversationIds
+      if (message.conversationId.toString() == conversationId.toString()) {
         debugPrint(
-          '📨 New message received in conversation $conversationId, refreshing',
+          '✅ Message matches current conversation, refreshing messages',
         );
         refresh();
+      } else {
+        debugPrint(
+          '⚠️ Message does NOT match current conversation',
+        );
       }
+    });
+
+    // Clean up subscription when provider is disposed
+    ref.onDispose(() {
+      debugPrint('🧹 Disposing messages notifier for conversation $conversationId');
+      subscription.cancel();
     });
 
     return _fetchMessages(conversationId);
