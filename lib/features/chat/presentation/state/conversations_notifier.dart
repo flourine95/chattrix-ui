@@ -16,13 +16,19 @@ class ConversationsNotifier extends _$ConversationsNotifier {
 
   @override
   FutureOr<List<Conversation>> build() async {
-    // Listen to WebSocket for conversation updates
-    final wsService = ref.watch(chatWebSocketServiceProvider);
-    wsService.conversationUpdateStream.listen((update) {
-      debugPrint(
-        '🔄 Conversation ${update.conversationId} updated, refreshing list',
-      );
-      refresh();
+    // Listen to WebSocket for updates
+    final wsService = ref.read(chatWebSocketServiceProvider);
+
+    // Listen to conversation updates
+    final conversationSub = wsService.conversationUpdateStream.listen((_) => refresh());
+
+    // Listen to new messages to update last message in conversation list
+    final messageSub = wsService.messageStream.listen((_) => refresh());
+
+    // Clean up subscriptions when provider is disposed
+    ref.onDispose(() {
+      conversationSub.cancel();
+      messageSub.cancel();
     });
 
     return _fetchConversations();
@@ -31,22 +37,14 @@ class ConversationsNotifier extends _$ConversationsNotifier {
   /// Fetch conversations from repository
   Future<List<Conversation>> _fetchConversations() async {
     final result = await _getConversationsUsecase();
-
     return result.fold(
-      (failure) {
-        debugPrint('❌ Failed to fetch conversations: ${failure.message}');
-        throw Exception(failure.message);
-      },
-      (conversations) {
-        debugPrint('✅ Fetched ${conversations.length} conversations');
-        return conversations;
-      },
+      (failure) => throw Exception(failure.message),
+      (conversations) => conversations,
     );
   }
 
-  /// Refresh conversations list
+  /// Refresh conversations list without showing loading indicator
   Future<void> refresh() async {
-    state = const AsyncLoading();
-    state = await AsyncValue.guard(() => _fetchConversations());
+    state = await AsyncValue.guard(_fetchConversations);
   }
 }

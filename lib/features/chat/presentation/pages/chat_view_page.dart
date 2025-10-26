@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:chattrix_ui/features/auth/presentation/providers/auth_providers.dart';
 import 'package:chattrix_ui/features/chat/presentation/providers/chat_providers.dart';
 import 'package:chattrix_ui/features/chat/presentation/utils/conversation_utils.dart';
@@ -20,6 +22,7 @@ class ChatViewPage extends HookConsumerWidget {
     final scrollController = useScrollController();
     final showScrollButton = useState(false);
     final previousMessageCount = useRef(0);
+    final previousFirstMessageId = useRef<int?>(null); // Track first message ID to detect changes
     final shouldAutoScroll = useRef(true); // Track if we should auto-scroll
     final hasNewMessages = useState(false); // Track if there are new messages while scrolled up
 
@@ -62,17 +65,13 @@ class ChatViewPage extends HookConsumerWidget {
           final maxScroll = scrollController.position.maxScrollExtent;
           final isAtBottom = pixels >= maxScroll - 100;
 
-          debugPrint('🔄 Scroll: pixels=$pixels, max=$maxScroll, isAtBottom=$isAtBottom');
-
           showScrollButton.value = !isAtBottom;
 
           // Update shouldAutoScroll based on scroll position
           shouldAutoScroll.value = isAtBottom;
-          debugPrint('📍 shouldAutoScroll = $isAtBottom');
 
           // Clear "new message" indicator when user scrolls to bottom
           if (isAtBottom && hasNewMessages.value) {
-            debugPrint('✅ Clearing hasNewMessages indicator');
             hasNewMessages.value = false;
           }
         }
@@ -87,7 +86,6 @@ class ChatViewPage extends HookConsumerWidget {
     useEffect(() {
       messagesAsync.whenData((messages) {
         if (messages.isNotEmpty && previousMessageCount.value == 0) {
-          debugPrint('🎬 First load: ${messages.length} messages, scrolling to bottom');
           // First time loading messages - scroll to bottom to see newest message
           WidgetsBinding.instance.addPostFrameCallback((_) {
             if (scrollController.hasClients) {
@@ -95,7 +93,6 @@ class ChatViewPage extends HookConsumerWidget {
               Future.delayed(const Duration(milliseconds: 100), () {
                 if (scrollController.hasClients) {
                   final maxScroll = scrollController.position.maxScrollExtent;
-                  debugPrint('🎬 Jumping to maxScrollExtent: $maxScroll');
                   scrollController.jumpTo(maxScroll);
                 }
               });
@@ -111,26 +108,27 @@ class ChatViewPage extends HookConsumerWidget {
       messagesAsync.whenData((messages) {
         final newCount = messages.length;
         final oldCount = previousMessageCount.value;
+        final newFirstId = messages.isNotEmpty ? messages.first.id : null;
+        final oldFirstId = previousFirstMessageId.value;
 
-        debugPrint('📊 Message count: old=$oldCount, new=$newCount');
+        // Detect new message by comparing first message ID (newest message)
+        // This works even when message count stays the same (e.g., at page size limit)
+        final hasNewMessage = (oldFirstId != null &&
+                               newFirstId != null &&
+                               newFirstId != oldFirstId) ||
+                              (newCount > oldCount && oldCount > 0);
 
-        if (newCount > oldCount && oldCount > 0) {
-          debugPrint('📨 New message detected! shouldAutoScroll=${shouldAutoScroll.value}');
-
+        if (hasNewMessage) {
           if (shouldAutoScroll.value) {
             // User is at bottom - auto-scroll to new message
-            debugPrint('⬇️ Auto-scrolling to new message');
-            hasNewMessages.value = false; // Clear indicator
+            hasNewMessages.value = false;
 
             // Wait for ListView to rebuild with new message
             WidgetsBinding.instance.addPostFrameCallback((_) {
-              // Use multiple frames to ensure layout is complete
               WidgetsBinding.instance.addPostFrameCallback((_) {
                 if (scrollController.hasClients) {
-                  final maxScroll = scrollController.position.maxScrollExtent;
-                  debugPrint('⬇️ Animating to maxScrollExtent: $maxScroll');
                   scrollController.animateTo(
-                    maxScroll,
+                    scrollController.position.maxScrollExtent,
                     duration: const Duration(milliseconds: 300),
                     curve: Curves.easeOut,
                   );
@@ -139,11 +137,12 @@ class ChatViewPage extends HookConsumerWidget {
             });
           } else {
             // User is reading old messages - show "New Message" indicator
-            debugPrint('🔔 Showing "New Message" indicator');
             hasNewMessages.value = true;
           }
         }
+
         previousMessageCount.value = newCount;
+        previousFirstMessageId.value = newFirstId;
       });
       return null;
     }, [messagesAsync]);
@@ -152,46 +151,34 @@ class ChatViewPage extends HookConsumerWidget {
       final text = controller.text.trim();
       if (text.isEmpty) return;
 
-      debugPrint('💬 Sending message: "$text"');
+      controller.clear();
 
       // Send via WebSocket if connected, otherwise use HTTP
       if (wsConnection.isConnected) {
-        debugPrint('🌐 Sending via WebSocket');
         wsService.sendMessage(chatId, text);
-        controller.clear();
-
-        // The auto-scroll effect will handle scrolling when the message arrives
-        // via WebSocket and triggers a refresh
+        // WebSocket will broadcast the message back, triggering auto-refresh via MessagesNotifier
       } else {
-        debugPrint('📡 Sending via HTTP');
+        // Fallback to HTTP if WebSocket is not connected
         final usecase = ref.read(sendMessageUsecaseProvider);
         final result = await usecase(conversationId: chatId, content: text);
         result.fold(
           (failure) {
-            debugPrint('❌ Send failed: ${failure.message}');
-            ScaffoldMessenger.of(
-              context,
-            ).showSnackBar(SnackBar(content: Text(failure.message)));
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(failure.message)),
+            );
           },
-          (_) async {
-            debugPrint('✅ Message sent via HTTP');
-            controller.clear();
-            // Refresh messages after sending
-            ref.invalidate(messagesProvider(chatId));
-
-            // The auto-scroll effect will handle scrolling when messages refresh
+          (_) {
+            // Refresh messages after HTTP send
+            ref.read(messagesProvider(chatId).notifier).refresh();
           },
         );
       }
     }
 
     void scrollToBottom() {
-      debugPrint('🔽 scrollToBottom() called');
       if (scrollController.hasClients) {
-        final maxScroll = scrollController.position.maxScrollExtent;
-        debugPrint('🔽 Scrolling to maxScrollExtent: $maxScroll');
         scrollController.animateTo(
-          maxScroll,
+          scrollController.position.maxScrollExtent,
           duration: const Duration(milliseconds: 300),
           curve: Curves.easeOut,
         );

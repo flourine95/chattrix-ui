@@ -56,7 +56,7 @@ final class MessagesNotifierProvider
   }
 }
 
-String _$messagesNotifierHash() => r'74b9de9ebd89e99daf7fd286536d86ca2eabe620';
+String _$messagesNotifierHash() => r'f43e4cd0596e3b61ffc18cc121f29323b1f974d3';
 
 /// Notifier for managing messages in a conversation
 /// Handles fetching and caching messages with real-time updates

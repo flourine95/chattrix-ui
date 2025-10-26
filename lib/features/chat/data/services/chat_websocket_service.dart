@@ -202,64 +202,82 @@ class ChatWebSocketService {
   /// Handle incoming WebSocket messages
   void _handleMessage(dynamic message) {
     try {
-      debugPrint('📥 Raw WebSocket message: $message');
+      debugPrint('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      debugPrint('📥 [WebSocket] Raw message received: $message');
 
       final data = jsonDecode(message as String) as Map<String, dynamic>;
-      debugPrint('📦 Parsed data: $data');
+      debugPrint('📦 [WebSocket] Parsed data: $data');
 
       final type = data['type'] as String?;
       if (type == null) {
-        debugPrint('⚠️ Message has no type field, treating as direct message');
+        debugPrint('⚠️ [WebSocket] Message has no type field, treating as direct message');
         // Server might be sending message directly without wrapper
         final messageModel = MessageModel.fromApi(data);
+        debugPrint('📨 [WebSocket] Broadcasting direct message to stream...');
+        debugPrint('   Message ID: ${messageModel.id}');
+        debugPrint('   ConversationId: ${messageModel.conversationId}');
+        debugPrint('   Content: "${messageModel.content}"');
+        debugPrint('   Stream has listeners: ${_messageController.hasListener}');
         _messageController.add(messageModel.toEntity());
-        debugPrint('📨 Received direct message: ${messageModel.id}');
+        debugPrint('✅ [WebSocket] Message broadcasted to ${_messageController.hasListener ? "active" : "NO"} listeners');
+        debugPrint('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
         return;
       }
 
       final payload = data['payload'] as Map<String, dynamic>?;
       if (payload == null) {
-        debugPrint('⚠️ Message has no payload field');
+        debugPrint('⚠️ [WebSocket] Message has no payload field');
+        debugPrint('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
         return;
       }
+
+      debugPrint('🔍 [WebSocket] Message type: $type');
 
       switch (type) {
         case ChatWebSocketResponse.chatMessage:
           final messageModel = MessageModel.fromApi(payload);
+          debugPrint('📨 [WebSocket] Broadcasting chat message to stream...');
+          debugPrint('   Message ID: ${messageModel.id}');
+          debugPrint('   ConversationId: ${messageModel.conversationId}');
+          debugPrint('   Content: "${messageModel.content}"');
+          debugPrint('   Sender: ${messageModel.sender.username}');
+          debugPrint('   Stream has listeners: ${_messageController.hasListener}');
           _messageController.add(messageModel.toEntity());
-          debugPrint('📨 Received message: ${messageModel.id}');
+          debugPrint('✅ [WebSocket] Message broadcasted to ${_messageController.hasListener ? "active" : "NO"} listeners');
           break;
 
         case ChatWebSocketResponse.typingIndicator:
           final indicatorModel = TypingIndicatorModel.fromJson(payload);
           _typingController.add(indicatorModel.toEntity());
-          debugPrint('⌨️ Typing indicator: ${indicatorModel.conversationId}');
+          debugPrint('⌨️ [WebSocket] Typing indicator: ${indicatorModel.conversationId}');
           break;
 
         case ChatWebSocketResponse.userStatus:
           final statusModel = UserStatusUpdateModel.fromJson(payload);
           _userStatusController.add(statusModel.toEntity());
           debugPrint(
-            '👤 User status: ${statusModel.userId} - ${statusModel.isOnline}',
+            '👤 [WebSocket] User status: ${statusModel.userId} - ${statusModel.isOnline}',
           );
           break;
 
         case ChatWebSocketResponse.conversationUpdate:
           final updateModel = ConversationUpdateModel.fromJson(payload);
           _conversationUpdateController.add(updateModel.toEntity());
-          debugPrint('💬 Conversation update: ${updateModel.conversationId}');
+          debugPrint('💬 [WebSocket] Conversation update: ${updateModel.conversationId}');
           break;
 
         case ChatWebSocketResponse.heartbeatAck:
-          debugPrint('💓 Heartbeat acknowledged');
+          debugPrint('💓 [WebSocket] Heartbeat acknowledged');
           break;
 
         default:
-          debugPrint('⚠️ Unknown WebSocket event type: $type');
+          debugPrint('⚠️ [WebSocket] Unknown event type: $type');
       }
+      debugPrint('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     } catch (e, stackTrace) {
-      debugPrint('❌ Error handling WebSocket message: $e');
+      debugPrint('❌ [WebSocket] Error handling message: $e');
       debugPrint('Stack trace: $stackTrace');
+      debugPrint('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     }
   }
 

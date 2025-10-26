@@ -1,12 +1,15 @@
+import 'dart:async';
+
 import 'package:chattrix_ui/features/auth/presentation/providers/auth_providers.dart';
 import 'package:chattrix_ui/features/chat/presentation/providers/chat_providers.dart';
 import 'package:chattrix_ui/features/chat/presentation/utils/conversation_utils.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-class ChatListPage extends ConsumerWidget {
+class ChatListPage extends HookConsumerWidget {
   const ChatListPage({super.key});
 
   Color _avatarColor(BuildContext context, int seed) {
@@ -34,6 +37,13 @@ class ChatListPage extends ConsumerWidget {
     final me = ref.watch(currentUserProvider);
 
     final conversationsAsync = ref.watch(conversationsProvider);
+    final wsService = ref.watch(chatWebSocketServiceProvider);
+
+    // Initialize WebSocket connection
+    useEffect(() {
+      ref.read(webSocketConnectionProvider.notifier);
+      return null;
+    }, []);
 
     return Scaffold(
       appBar: AppBar(title: Text('Chats', style: textTheme.titleLarge)),

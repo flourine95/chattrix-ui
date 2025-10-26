@@ -15,32 +15,18 @@ class MessagesNotifier extends _$MessagesNotifier {
   @override
   FutureOr<List<Message>> build(String conversationId) async {
     // Listen to WebSocket for real-time message updates
-    final wsService = ref.watch(chatWebSocketServiceProvider);
+    final wsService = ref.read(chatWebSocketServiceProvider);
 
-    // Subscribe to message stream once
+    // Subscribe to message stream for this conversation
     final subscription = wsService.messageStream.listen((message) {
-      debugPrint(
-        '📨 WebSocket message received: conversationId="${message.conversationId}" (${message.conversationId.runtimeType}), current="$conversationId" (${conversationId.runtimeType})',
-      );
-
       // Compare as strings to handle both int and string conversationIds
       if (message.conversationId.toString() == conversationId.toString()) {
-        debugPrint(
-          '✅ Message matches current conversation, refreshing messages',
-        );
         refresh();
-      } else {
-        debugPrint(
-          '⚠️ Message does NOT match current conversation',
-        );
       }
     });
 
     // Clean up subscription when provider is disposed
-    ref.onDispose(() {
-      debugPrint('🧹 Disposing messages notifier for conversation $conversationId');
-      subscription.cancel();
-    });
+    ref.onDispose(subscription.cancel);
 
     return _fetchMessages(conversationId);
   }
@@ -54,28 +40,13 @@ class MessagesNotifier extends _$MessagesNotifier {
     );
 
     return result.fold(
-      (failure) {
-        debugPrint('❌ Failed to fetch messages: ${failure.message}');
-        throw Exception(failure.message);
-      },
-      (messages) {
-        debugPrint(
-          '✅ Fetched ${messages.length} messages for conversation $conversationId',
-        );
-
-        if (messages.isNotEmpty) {
-          debugPrint('📊 First message ID: ${messages.first.id}, content: ${messages.first.content}');
-          debugPrint('📊 Last message ID: ${messages.last.id}, content: ${messages.last.content}');
-        }
-
-        return messages;
-      },
+      (failure) => throw Exception(failure.message),
+      (messages) => messages,
     );
   }
 
-  /// Refresh messages list
+  /// Refresh messages list without showing loading indicator
   Future<void> refresh() async {
-    state = const AsyncLoading();
     state = await AsyncValue.guard(() => _fetchMessages(conversationId));
   }
 }

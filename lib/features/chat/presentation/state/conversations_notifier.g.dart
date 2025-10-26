@@ -40,7 +40,7 @@ final class ConversationsNotifierProvider
 }
 
 String _$conversationsNotifierHash() =>
-    r'912f6b47a719188fd58e8016e06bc5abbb2b6d38';
+    r'be8a8637e2ad7b22a78e424197aa1abebabcbe06';
 
 /// Notifier for managing conversations list
 /// Handles fetching and caching conversations with real-time updates
