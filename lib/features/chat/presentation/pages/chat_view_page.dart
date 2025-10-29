@@ -62,13 +62,13 @@ class ChatViewPage extends HookConsumerWidget {
     }, []);
 
     // Listen to scroll position to show/hide scroll button
-    // Show button when scrolled away from bottom (newest messages)
+    // With reverse: true, position 0 is at bottom (newest), scrolling up increases position
     useEffect(() {
       void onScroll() {
         if (scrollController.hasClients) {
           final pixels = scrollController.position.pixels;
-          final maxScroll = scrollController.position.maxScrollExtent;
-          final isAtBottom = pixels >= maxScroll - 100;
+          // With reverse ListView, pixels = 0 means at bottom (newest messages)
+          final isAtBottom = pixels <= 100;
 
           showScrollButton.value = !isAtBottom;
 
@@ -85,28 +85,6 @@ class ChatViewPage extends HookConsumerWidget {
       scrollController.addListener(onScroll);
       return () => scrollController.removeListener(onScroll);
     }, [scrollController]);
-
-    // Auto-scroll to bottom when messages first load
-    // Messages are in DESC order (newest first) from API, but we reverse them for display
-    useEffect(() {
-      messagesAsync.whenData((messages) {
-        if (messages.isNotEmpty && previousMessageCount.value == 0) {
-          // First time loading messages - scroll to bottom to see newest message
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (scrollController.hasClients) {
-              // Wait for layout to complete
-              Future.delayed(const Duration(milliseconds: 100), () {
-                if (scrollController.hasClients) {
-                  final maxScroll = scrollController.position.maxScrollExtent;
-                  scrollController.jumpTo(maxScroll);
-                }
-              });
-            }
-          });
-        }
-      });
-      return null;
-    }, [messagesAsync]);
 
     // Scroll to bottom when new message arrives
     useEffect(() {
@@ -128,12 +106,12 @@ class ChatViewPage extends HookConsumerWidget {
             // User is at bottom - auto-scroll to new message
             hasNewMessages.value = false;
 
-            // Wait for ListView to rebuild with new message
+            // With reverse ListView, scroll to position 0 (bottom)
             WidgetsBinding.instance.addPostFrameCallback((_) {
               WidgetsBinding.instance.addPostFrameCallback((_) {
                 if (scrollController.hasClients) {
                   scrollController.animateTo(
-                    scrollController.position.maxScrollExtent,
+                    0,
                     duration: const Duration(milliseconds: 300),
                     curve: Curves.easeOut,
                   );
@@ -182,8 +160,9 @@ class ChatViewPage extends HookConsumerWidget {
 
     void scrollToBottom() {
       if (scrollController.hasClients) {
+        // With reverse ListView, position 0 is at bottom
         scrollController.animateTo(
-          scrollController.position.maxScrollExtent,
+          0,
           duration: const Duration(milliseconds: 300),
           curve: Curves.easeOut,
         );
@@ -260,19 +239,18 @@ class ChatViewPage extends HookConsumerWidget {
               Expanded(
                 child: messagesAsync.when(
                   data: (messages) {
-                    // Reverse messages to show oldest first (top) and newest last (bottom)
-                    // API returns DESC order (newest first), we need ASC for chat display
-                    final reversedMessages = messages.reversed.toList();
-
+                    // API returns DESC order (newest first)
+                    // Use reverse: true to show newest at bottom naturally without scroll animation
                     return ListView.builder(
                       controller: scrollController,
+                      reverse: true,
                       padding: const EdgeInsets.symmetric(
                         horizontal: 12,
                         vertical: 8,
                       ),
-                      itemCount: reversedMessages.length,
+                      itemCount: messages.length,
                       itemBuilder: (context, index) {
-                        final m = reversedMessages[index];
+                        final m = messages[index];
                         final isMe = m.sender.id == me?.id;
                         return Align(
                           alignment: isMe
