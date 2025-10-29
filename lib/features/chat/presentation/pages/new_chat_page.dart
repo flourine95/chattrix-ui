@@ -220,7 +220,7 @@ class NewChatPage extends HookConsumerWidget {
     if (isSearching) {
       return const Center(child: CircularProgressIndicator());
     }
-
+    debugPrint('🔍 Search error: ${error}');
     // Error state
     if (error != null) {
       return Center(

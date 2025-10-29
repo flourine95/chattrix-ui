@@ -31,6 +31,17 @@ abstract class ChatRepository {
   Future<Either<Failure, Message>> sendMessage({
     required String conversationId,
     required String content,
+    String? type,
+    String? mediaUrl,
+    String? thumbnailUrl,
+    String? fileName,
+    int? fileSize,
+    int? duration,
+    double? latitude,
+    double? longitude,
+    String? locationName,
+    int? replyToMessageId,
+    String? mentions,
   });
 
   /// Search users by query

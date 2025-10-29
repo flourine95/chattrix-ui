@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:chattrix_ui/features/auth/presentation/providers/auth_providers.dart';
 import 'package:chattrix_ui/features/chat/presentation/providers/chat_providers.dart';
 import 'package:chattrix_ui/features/chat/presentation/utils/conversation_utils.dart';
@@ -37,7 +35,6 @@ class ChatListPage extends HookConsumerWidget {
     final me = ref.watch(currentUserProvider);
 
     final conversationsAsync = ref.watch(conversationsProvider);
-    final wsService = ref.watch(chatWebSocketServiceProvider);
 
     // Initialize WebSocket connection
     useEffect(() {

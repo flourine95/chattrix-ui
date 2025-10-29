@@ -120,13 +120,31 @@ class ChatRemoteDatasourceImpl implements ChatRemoteDatasource {
     String sort = 'DESC',
   }) async {
     try {
+      final url =
+          '${ApiConstants.baseUrl}/${ApiConstants.messagesInConversation(conversationId)}';
+      debugPrint('💬 Get Messages Request:');
+      debugPrint('   URL: $url');
+      debugPrint('   Conversation ID: $conversationId');
+      debugPrint('   Page: $page, Size: $size, Sort: $sort');
+
       final response = await dio.get(
-        '${ApiConstants.baseUrl}/${ApiConstants.messagesInConversation(conversationId)}',
+        url,
         queryParameters: {'page': page, 'size': size, 'sort': sort},
       );
 
+      debugPrint('💬 Get Messages Response:');
+      debugPrint('   Status: ${response.statusCode}');
+      debugPrint('   Data type: ${response.data.runtimeType}');
+
       if (response.statusCode == 200) {
         final data = response.data['data'] as List;
+        debugPrint('   Messages count: ${data.length}');
+
+        if (data.isNotEmpty) {
+          debugPrint('   First message keys: ${(data.first as Map).keys}');
+          debugPrint('   First message: ${data.first}');
+        }
+
         return data
             .whereType<Map<String, dynamic>>()
             .map((json) => MessageModel.fromApi(json))
@@ -135,9 +153,30 @@ class ChatRemoteDatasourceImpl implements ChatRemoteDatasource {
 
       throw ServerException(message: 'Failed to fetch messages');
     } on DioException catch (e) {
+      debugPrint('❌ Get Messages Error:');
+      debugPrint('   Type: ${e.type}');
+      debugPrint('   Message: ${e.message}');
+      debugPrint('   Status Code: ${e.response?.statusCode}');
+      debugPrint('   Response Data: ${e.response?.data}');
+      debugPrint('   Response Headers: ${e.response?.headers}');
+
+      // If 500 error, return empty list instead of throwing
+      // This allows the app to continue working while backend is being fixed
+      if (e.response?.statusCode == 500) {
+        debugPrint('⚠️ Backend error 500, returning empty messages list');
+        debugPrint(
+          '⚠️ Please check backend logs for the actual error details',
+        );
+        return []; // Return empty list instead of crashing
+      }
+
       throw ServerException(
         message: e.response?.data['message'] ?? 'Failed to fetch messages',
       );
+    } catch (e, stackTrace) {
+      debugPrint('❌ Get Messages Unexpected Error: $e');
+      debugPrint('   Stack trace: $stackTrace');
+      throw ServerException(message: 'Failed to fetch messages: $e');
     }
   }
 
@@ -211,16 +250,43 @@ class ChatRemoteDatasourceImpl implements ChatRemoteDatasource {
   Future<MessageModel> sendMessage({
     required String conversationId,
     required String content,
+    String? type,
+    String? mediaUrl,
+    String? thumbnailUrl,
+    String? fileName,
+    int? fileSize,
+    int? duration,
+    double? latitude,
+    double? longitude,
+    String? locationName,
+    int? replyToMessageId,
+    String? mentions,
   }) async {
     try {
+      // Build request data with all fields
+      final data = <String, dynamic>{
+        'content': content,
+        if (type != null) 'type': type,
+        if (mediaUrl != null) 'mediaUrl': mediaUrl,
+        if (thumbnailUrl != null) 'thumbnailUrl': thumbnailUrl,
+        if (fileName != null) 'fileName': fileName,
+        if (fileSize != null) 'fileSize': fileSize,
+        if (duration != null) 'duration': duration,
+        if (latitude != null) 'latitude': latitude,
+        if (longitude != null) 'longitude': longitude,
+        if (locationName != null) 'locationName': locationName,
+        if (replyToMessageId != null) 'replyToMessageId': replyToMessageId,
+        if (mentions != null) 'mentions': mentions,
+      };
+
       final response = await dio.post(
         '${ApiConstants.baseUrl}/${ApiConstants.messagesInConversation(conversationId)}',
-        data: {'content': content},
+        data: data,
       );
 
       if (response.statusCode == 201) {
-        final data = response.data['data'] as Map<String, dynamic>;
-        return MessageModel.fromApi(data);
+        final responseData = response.data['data'] as Map<String, dynamic>;
+        return MessageModel.fromApi(responseData);
       }
 
       throw ServerException(message: 'Failed to send message');
@@ -237,13 +303,30 @@ class ChatRemoteDatasourceImpl implements ChatRemoteDatasource {
     int limit = 20,
   }) async {
     try {
+      final url = '${ApiConstants.baseUrl}/${ApiConstants.searchUsers}';
+      debugPrint('🔍 Search Users Request:');
+      debugPrint('   URL: $url');
+      debugPrint('   Query: $query');
+      debugPrint('   Limit: $limit');
+
       final response = await dio.get(
-        '${ApiConstants.baseUrl}/${ApiConstants.searchUsers}',
+        url,
         queryParameters: {'query': query, 'limit': limit},
       );
 
+      debugPrint('🔍 Search Users Response:');
+      debugPrint('   Status: ${response.statusCode}');
+      debugPrint('   Data type: ${response.data.runtimeType}');
+      debugPrint('   Data: ${response.data}');
+
       if (response.statusCode == 200) {
         final data = response.data['data'] as List;
+        debugPrint('   Users found: ${data.length}');
+
+        if (data.isNotEmpty) {
+          debugPrint('   First user: ${data.first}');
+        }
+
         return data
             .whereType<Map<String, dynamic>>()
             .map((json) => SearchUserModel.fromJson(json))
@@ -252,9 +335,18 @@ class ChatRemoteDatasourceImpl implements ChatRemoteDatasource {
 
       throw ServerException(message: 'Failed to search users');
     } on DioException catch (e) {
+      debugPrint('❌ Search Users Error:');
+      debugPrint('   Type: ${e.type}');
+      debugPrint('   Message: ${e.message}');
+      debugPrint('   Response: ${e.response?.data}');
+      debugPrint('   Status Code: ${e.response?.statusCode}');
+
       throw ServerException(
         message: e.response?.data['message'] ?? 'Failed to search users',
       );
+    } catch (e) {
+      debugPrint('❌ Search Users Unexpected Error: $e');
+      throw ServerException(message: 'Failed to search users: $e');
     }
   }
 }

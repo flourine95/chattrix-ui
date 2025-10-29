@@ -16,6 +16,21 @@ abstract class MessageModel with _$MessageModel {
     required String createdAt,
     required String conversationId,
     required MessageSenderModel sender,
+    // Rich media fields
+    String? mediaUrl,
+    String? thumbnailUrl,
+    String? fileName,
+    int? fileSize,
+    int? duration,
+    // Location fields
+    double? latitude,
+    double? longitude,
+    String? locationName,
+    // Reply/Thread fields
+    int? replyToMessageId,
+    // Reactions and mentions (JSON strings)
+    String? reactions,
+    String? mentions,
   }) = _MessageModel;
 
   factory MessageModel.fromJson(Map<String, dynamic> json) =>
@@ -47,6 +62,21 @@ abstract class MessageModel with _$MessageModel {
       conversationId: (json['conversationId'] ?? json['conversation_id'] ?? '')
           .toString(),
       sender: MessageSenderModel.fromApi(senderJson),
+      // Rich media fields
+      mediaUrl: json['mediaUrl']?.toString(),
+      thumbnailUrl: json['thumbnailUrl']?.toString(),
+      fileName: json['fileName']?.toString(),
+      fileSize: json['fileSize'] != null ? (json['fileSize'] as num).toInt() : null,
+      duration: json['duration'] != null ? (json['duration'] as num).toInt() : null,
+      // Location fields
+      latitude: json['latitude'] != null ? (json['latitude'] as num).toDouble() : null,
+      longitude: json['longitude'] != null ? (json['longitude'] as num).toDouble() : null,
+      locationName: json['locationName']?.toString(),
+      // Reply/Thread fields
+      replyToMessageId: json['replyToMessageId'] != null ? (json['replyToMessageId'] as num).toInt() : null,
+      // Reactions and mentions
+      reactions: json['reactions']?.toString(),
+      mentions: json['mentions']?.toString(),
     );
   }
 
@@ -58,6 +88,17 @@ abstract class MessageModel with _$MessageModel {
       createdAt: DateTime.parse(createdAt),
       conversationId: conversationId,
       sender: sender.toEntity(),
+      mediaUrl: mediaUrl,
+      thumbnailUrl: thumbnailUrl,
+      fileName: fileName,
+      fileSize: fileSize,
+      duration: duration,
+      latitude: latitude,
+      longitude: longitude,
+      locationName: locationName,
+      replyToMessageId: replyToMessageId,
+      reactions: reactions,
+      mentions: mentions,
     );
   }
 }

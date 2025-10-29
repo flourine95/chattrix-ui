@@ -33,6 +33,17 @@ abstract class ChatRemoteDatasource {
   Future<MessageModel> sendMessage({
     required String conversationId,
     required String content,
+    String? type,
+    String? mediaUrl,
+    String? thumbnailUrl,
+    String? fileName,
+    int? fileSize,
+    int? duration,
+    double? latitude,
+    double? longitude,
+    String? locationName,
+    int? replyToMessageId,
+    String? mentions,
   });
 
   /// Get list of online users

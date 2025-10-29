@@ -1,8 +1,13 @@
 import 'dart:async';
+import 'dart:io';
 
+import 'package:chattrix_ui/core/services/cloudinary_provider.dart';
+import 'package:chattrix_ui/core/services/media_picker_provider.dart';
 import 'package:chattrix_ui/features/auth/presentation/providers/auth_providers.dart';
 import 'package:chattrix_ui/features/chat/presentation/providers/chat_providers.dart';
 import 'package:chattrix_ui/features/chat/presentation/utils/conversation_utils.dart';
+import 'package:chattrix_ui/features/chat/presentation/widgets/attachment_picker_bottom_sheet.dart';
+import 'package:chattrix_ui/features/chat/presentation/widgets/message_bubble.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -273,7 +278,7 @@ class ChatViewPage extends HookConsumerWidget {
                           alignment: isMe
                               ? Alignment.centerRight
                               : Alignment.centerLeft,
-                          child: ChatBubble(text: m.content, isMe: isMe),
+                          child: MessageBubble(message: m, isMe: isMe),
                         );
                       },
                     );
@@ -288,7 +293,11 @@ class ChatViewPage extends HookConsumerWidget {
                   ),
                 ),
               ),
-              _InputBar(controller: controller, onSend: sendMessage),
+              _InputBar(
+                controller: controller,
+                onSend: sendMessage,
+                chatId: chatId,
+              ),
             ],
           ),
           // Floating scroll to bottom button (to see newest messages)
@@ -356,14 +365,171 @@ class ChatViewPage extends HookConsumerWidget {
   }
 }
 
-class _InputBar extends StatelessWidget {
-  const _InputBar({required this.controller, required this.onSend});
+class _InputBar extends HookConsumerWidget {
+  const _InputBar({
+    required this.controller,
+    required this.onSend,
+    required this.chatId,
+  });
 
   final TextEditingController controller;
   final VoidCallback onSend;
+  final String chatId;
+
+  Future<void> _handleAttachment(
+    BuildContext context,
+    WidgetRef ref,
+    AttachmentType type,
+  ) async {
+    final mediaPickerService = ref.read(mediaPickerServiceProvider);
+    final cloudinaryService = ref.read(cloudinaryServiceProvider);
+    final sendMessageUsecase = ref.read(sendMessageUsecaseProvider);
+
+    try {
+      // Show loading indicator
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Processing...')),
+        );
+      }
+
+      File? file;
+      String? fileName;
+      String messageType = 'TEXT';
+      String content = '';
+
+      switch (type) {
+        case AttachmentType.camera:
+          file = await mediaPickerService.takePhoto();
+          messageType = 'IMAGE';
+          content = 'Photo';
+          break;
+        case AttachmentType.gallery:
+          file = await mediaPickerService.pickImageFromGallery();
+          messageType = 'IMAGE';
+          content = 'Image';
+          break;
+        case AttachmentType.video:
+          file = await mediaPickerService.pickVideoFromGallery();
+          messageType = 'VIDEO';
+          content = 'Video';
+          break;
+        case AttachmentType.audio:
+          file = await mediaPickerService.pickAudioFile();
+          messageType = 'AUDIO';
+          content = 'Audio';
+          break;
+        case AttachmentType.document:
+          final pickedFile = await mediaPickerService.pickDocument();
+          file = pickedFile?.file;
+          fileName = pickedFile?.name;
+          messageType = 'DOCUMENT';
+          content = fileName ?? 'Document';
+          break;
+        case AttachmentType.location:
+          final location = await mediaPickerService.getCurrentLocation();
+          if (location != null && context.mounted) {
+            // Send location message directly
+            final result = await sendMessageUsecase(
+              conversationId: chatId,
+              content: 'Shared location',
+              type: 'LOCATION',
+              latitude: location.latitude,
+              longitude: location.longitude,
+            );
+
+            result.fold(
+              (failure) {
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text(failure.message)),
+                  );
+                }
+              },
+              (_) {
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Location shared')),
+                  );
+                }
+                ref.read(messagesProvider(chatId).notifier).refresh();
+              },
+            );
+          }
+          return;
+      }
+
+      if (file == null) return;
+
+      // Upload to Cloudinary
+      String? mediaUrl;
+      String? thumbnailUrl;
+      int? fileSize;
+      int? duration;
+
+      if (messageType == 'IMAGE') {
+        final result = await cloudinaryService.uploadImage(file);
+        mediaUrl = result.url;
+        fileSize = result.bytes;
+      } else if (messageType == 'VIDEO') {
+        final result = await cloudinaryService.uploadVideo(file);
+        mediaUrl = result.url;
+        thumbnailUrl = result.thumbnailUrl;
+        fileSize = result.bytes;
+        duration = result.duration?.toInt();
+      } else if (messageType == 'AUDIO') {
+        final result = await cloudinaryService.uploadAudio(file);
+        mediaUrl = result.url;
+        fileSize = result.bytes;
+        duration = result.duration?.toInt();
+      } else if (messageType == 'DOCUMENT') {
+        final result = await cloudinaryService.uploadDocument(file, fileName: fileName);
+        mediaUrl = result.url;
+        fileSize = result.bytes;
+      }
+
+      // Send message with media
+      if (context.mounted) {
+        final result = await sendMessageUsecase(
+          conversationId: chatId,
+          content: content,
+          type: messageType,
+          mediaUrl: mediaUrl,
+          thumbnailUrl: thumbnailUrl,
+          fileName: fileName,
+          fileSize: fileSize,
+          duration: duration,
+        );
+
+        result.fold(
+          (failure) {
+            if (context.mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text(failure.message)),
+              );
+            }
+          },
+          (_) {
+            if (context.mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Sent successfully')),
+              );
+            }
+            ref.read(messagesProvider(chatId).notifier).refresh();
+          },
+        );
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: $e')),
+        );
+      }
+    }
+  }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final colors = Theme.of(context).colorScheme;
 
     return SafeArea(
@@ -379,7 +545,12 @@ class _InputBar extends StatelessWidget {
         child: Row(
           children: [
             IconButton(
-              onPressed: () {},
+              onPressed: () async {
+                final type = await AttachmentPickerBottomSheet.show(context);
+                if (type != null && context.mounted) {
+                  await _handleAttachment(context, ref, type);
+                }
+              },
               icon: const FaIcon(FontAwesomeIcons.paperclip),
               color: colors.onSurface,
             ),
@@ -394,11 +565,11 @@ class _InputBar extends StatelessWidget {
                   fillColor: colors.surface.withValues(alpha: 0.6),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(20),
-                    borderSide: BorderSide(color: Colors.transparent),
+                    borderSide: const BorderSide(color: Colors.transparent),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(20),
-                    borderSide: BorderSide(color: Colors.transparent),
+                    borderSide: const BorderSide(color: Colors.transparent),
                   ),
                   contentPadding: const EdgeInsets.symmetric(
                     horizontal: 16,
@@ -416,61 +587,6 @@ class _InputBar extends StatelessWidget {
           ],
         ),
       ),
-    );
-  }
-}
-
-class ChatBubble extends StatelessWidget {
-  const ChatBubble({super.key, required this.text, required this.isMe});
-
-  final String text;
-  final bool isMe;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colors = theme.colorScheme;
-    final textTheme = theme.textTheme;
-    final isDark = theme.brightness == Brightness.dark;
-
-    final bg = isMe
-        ? (isDark
-              ? colors.primary
-              : Colors.grey.shade200) // mình: xám nhạt ở light mode
-        : (isDark
-              ? colors.surface
-              : Colors.black); // người khác: đen ở light mode
-    final fg = isMe
-        ? (isDark
-              ? colors.onPrimary
-              : Colors.black) // mình: chữ đen ở light mode
-        : (isDark
-              ? colors.onSurface
-              : Colors.white); // người khác: chữ trắng ở light mode
-
-    return Container(
-      margin: EdgeInsets.only(
-        left: isMe ? 48 : 8,
-        right: isMe ? 8 : 48,
-        top: 6,
-        bottom: 6,
-      ),
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-      decoration: BoxDecoration(
-        color: bg,
-        borderRadius: BorderRadius.only(
-          topLeft: const Radius.circular(16),
-          topRight: const Radius.circular(16),
-          bottomLeft: Radius.circular(isMe ? 16 : 4),
-          bottomRight: Radius.circular(isMe ? 4 : 16),
-        ),
-        border: isMe
-            ? Border.all(
-                color: Colors.grey.shade300,
-              ) // giúp bubble sáng vẫn tách nền
-            : null,
-      ),
-      child: Text(text, style: textTheme.bodyMedium?.copyWith(color: fg)),
     );
   }
 }
