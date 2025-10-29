@@ -14,9 +14,9 @@ abstract class SearchUserModel with _$SearchUserModel {
     required String email,
     required String fullName,
     String? avatarUrl,
-    @JsonKey(name: 'online') required bool isOnline,
+    required bool isOnline,
     String? lastSeen,
-    required bool contact,
+    required bool isContact,
     required bool hasConversation,
     int? conversationId,
   }) = _SearchUserModel;
@@ -33,7 +33,7 @@ abstract class SearchUserModel with _$SearchUserModel {
       avatarUrl: avatarUrl,
       isOnline: isOnline,
       lastSeen: lastSeen != null ? DateTime.parse(lastSeen!) : DateTime.now(),
-      contact: contact,
+      isContact: isContact,
       hasConversation: hasConversation,
       conversationId: conversationId,
     );

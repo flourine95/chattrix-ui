@@ -27,16 +27,10 @@ abstract class ParticipantModel with _$ParticipantModel {
     // Debug: Print raw JSON to see what backend sends
     debugPrint('🔍 ParticipantModel.fromApi JSON: $json');
 
-    // Backend uses 'online' (lowercase) instead of 'isOnline'
-    final isOnline =
-        json['isOnline'] as bool? ??
-        json['is_online'] as bool? ??
-        json['online'] as bool?; // ← NEW: Support 'online'
+    // Backend now uses 'isOnline' (camelCase with 'is' prefix)
+    final isOnline = json['isOnline'] as bool?;
 
-    final lastSeen =
-        json['lastSeen']?.toString() ??
-        json['last_seen']?.toString() ??
-        json['lastSeen']?.toString(); // ← Support both formats
+    final lastSeen = json['lastSeen']?.toString();
 
     debugPrint('🔍   → isOnline: $isOnline, lastSeen: $lastSeen');
 

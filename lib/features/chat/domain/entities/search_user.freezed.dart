@@ -14,7 +14,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$SearchUser {
 
- int get id; String get username; String get email; String get fullName; String? get avatarUrl; bool get isOnline; DateTime get lastSeen; bool get contact; bool get hasConversation; int? get conversationId;
+ int get id; String get username; String get email; String get fullName; String? get avatarUrl; bool get isOnline; DateTime get lastSeen; bool get isContact; bool get hasConversation; int? get conversationId;
 /// Create a copy of SearchUser
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -25,16 +25,16 @@ $SearchUserCopyWith<SearchUser> get copyWith => _$SearchUserCopyWithImpl<SearchU
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is SearchUser&&(identical(other.id, id) || other.id == id)&&(identical(other.username, username) || other.username == username)&&(identical(other.email, email) || other.email == email)&&(identical(other.fullName, fullName) || other.fullName == fullName)&&(identical(other.avatarUrl, avatarUrl) || other.avatarUrl == avatarUrl)&&(identical(other.isOnline, isOnline) || other.isOnline == isOnline)&&(identical(other.lastSeen, lastSeen) || other.lastSeen == lastSeen)&&(identical(other.contact, contact) || other.contact == contact)&&(identical(other.hasConversation, hasConversation) || other.hasConversation == hasConversation)&&(identical(other.conversationId, conversationId) || other.conversationId == conversationId));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is SearchUser&&(identical(other.id, id) || other.id == id)&&(identical(other.username, username) || other.username == username)&&(identical(other.email, email) || other.email == email)&&(identical(other.fullName, fullName) || other.fullName == fullName)&&(identical(other.avatarUrl, avatarUrl) || other.avatarUrl == avatarUrl)&&(identical(other.isOnline, isOnline) || other.isOnline == isOnline)&&(identical(other.lastSeen, lastSeen) || other.lastSeen == lastSeen)&&(identical(other.isContact, isContact) || other.isContact == isContact)&&(identical(other.hasConversation, hasConversation) || other.hasConversation == hasConversation)&&(identical(other.conversationId, conversationId) || other.conversationId == conversationId));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,id,username,email,fullName,avatarUrl,isOnline,lastSeen,contact,hasConversation,conversationId);
+int get hashCode => Object.hash(runtimeType,id,username,email,fullName,avatarUrl,isOnline,lastSeen,isContact,hasConversation,conversationId);
 
 @override
 String toString() {
-  return 'SearchUser(id: $id, username: $username, email: $email, fullName: $fullName, avatarUrl: $avatarUrl, isOnline: $isOnline, lastSeen: $lastSeen, contact: $contact, hasConversation: $hasConversation, conversationId: $conversationId)';
+  return 'SearchUser(id: $id, username: $username, email: $email, fullName: $fullName, avatarUrl: $avatarUrl, isOnline: $isOnline, lastSeen: $lastSeen, isContact: $isContact, hasConversation: $hasConversation, conversationId: $conversationId)';
 }
 
 
@@ -45,7 +45,7 @@ abstract mixin class $SearchUserCopyWith<$Res>  {
   factory $SearchUserCopyWith(SearchUser value, $Res Function(SearchUser) _then) = _$SearchUserCopyWithImpl;
 @useResult
 $Res call({
- int id, String username, String email, String fullName, String? avatarUrl, bool isOnline, DateTime lastSeen, bool contact, bool hasConversation, int? conversationId
+ int id, String username, String email, String fullName, String? avatarUrl, bool isOnline, DateTime lastSeen, bool isContact, bool hasConversation, int? conversationId
 });
 
 
@@ -62,7 +62,7 @@ class _$SearchUserCopyWithImpl<$Res>
 
 /// Create a copy of SearchUser
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? username = null,Object? email = null,Object? fullName = null,Object? avatarUrl = freezed,Object? isOnline = null,Object? lastSeen = null,Object? contact = null,Object? hasConversation = null,Object? conversationId = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? username = null,Object? email = null,Object? fullName = null,Object? avatarUrl = freezed,Object? isOnline = null,Object? lastSeen = null,Object? isContact = null,Object? hasConversation = null,Object? conversationId = freezed,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as int,username: null == username ? _self.username : username // ignore: cast_nullable_to_non_nullable
@@ -71,7 +71,7 @@ as String,fullName: null == fullName ? _self.fullName : fullName // ignore: cast
 as String,avatarUrl: freezed == avatarUrl ? _self.avatarUrl : avatarUrl // ignore: cast_nullable_to_non_nullable
 as String?,isOnline: null == isOnline ? _self.isOnline : isOnline // ignore: cast_nullable_to_non_nullable
 as bool,lastSeen: null == lastSeen ? _self.lastSeen : lastSeen // ignore: cast_nullable_to_non_nullable
-as DateTime,contact: null == contact ? _self.contact : contact // ignore: cast_nullable_to_non_nullable
+as DateTime,isContact: null == isContact ? _self.isContact : isContact // ignore: cast_nullable_to_non_nullable
 as bool,hasConversation: null == hasConversation ? _self.hasConversation : hasConversation // ignore: cast_nullable_to_non_nullable
 as bool,conversationId: freezed == conversationId ? _self.conversationId : conversationId // ignore: cast_nullable_to_non_nullable
 as int?,
@@ -159,10 +159,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int id,  String username,  String email,  String fullName,  String? avatarUrl,  bool isOnline,  DateTime lastSeen,  bool contact,  bool hasConversation,  int? conversationId)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int id,  String username,  String email,  String fullName,  String? avatarUrl,  bool isOnline,  DateTime lastSeen,  bool isContact,  bool hasConversation,  int? conversationId)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _SearchUser() when $default != null:
-return $default(_that.id,_that.username,_that.email,_that.fullName,_that.avatarUrl,_that.isOnline,_that.lastSeen,_that.contact,_that.hasConversation,_that.conversationId);case _:
+return $default(_that.id,_that.username,_that.email,_that.fullName,_that.avatarUrl,_that.isOnline,_that.lastSeen,_that.isContact,_that.hasConversation,_that.conversationId);case _:
   return orElse();
 
 }
@@ -180,10 +180,10 @@ return $default(_that.id,_that.username,_that.email,_that.fullName,_that.avatarU
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int id,  String username,  String email,  String fullName,  String? avatarUrl,  bool isOnline,  DateTime lastSeen,  bool contact,  bool hasConversation,  int? conversationId)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int id,  String username,  String email,  String fullName,  String? avatarUrl,  bool isOnline,  DateTime lastSeen,  bool isContact,  bool hasConversation,  int? conversationId)  $default,) {final _that = this;
 switch (_that) {
 case _SearchUser():
-return $default(_that.id,_that.username,_that.email,_that.fullName,_that.avatarUrl,_that.isOnline,_that.lastSeen,_that.contact,_that.hasConversation,_that.conversationId);case _:
+return $default(_that.id,_that.username,_that.email,_that.fullName,_that.avatarUrl,_that.isOnline,_that.lastSeen,_that.isContact,_that.hasConversation,_that.conversationId);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -200,10 +200,10 @@ return $default(_that.id,_that.username,_that.email,_that.fullName,_that.avatarU
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int id,  String username,  String email,  String fullName,  String? avatarUrl,  bool isOnline,  DateTime lastSeen,  bool contact,  bool hasConversation,  int? conversationId)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int id,  String username,  String email,  String fullName,  String? avatarUrl,  bool isOnline,  DateTime lastSeen,  bool isContact,  bool hasConversation,  int? conversationId)?  $default,) {final _that = this;
 switch (_that) {
 case _SearchUser() when $default != null:
-return $default(_that.id,_that.username,_that.email,_that.fullName,_that.avatarUrl,_that.isOnline,_that.lastSeen,_that.contact,_that.hasConversation,_that.conversationId);case _:
+return $default(_that.id,_that.username,_that.email,_that.fullName,_that.avatarUrl,_that.isOnline,_that.lastSeen,_that.isContact,_that.hasConversation,_that.conversationId);case _:
   return null;
 
 }
@@ -215,7 +215,7 @@ return $default(_that.id,_that.username,_that.email,_that.fullName,_that.avatarU
 
 
 class _SearchUser implements SearchUser {
-  const _SearchUser({required this.id, required this.username, required this.email, required this.fullName, this.avatarUrl, required this.isOnline, required this.lastSeen, required this.contact, required this.hasConversation, this.conversationId});
+  const _SearchUser({required this.id, required this.username, required this.email, required this.fullName, this.avatarUrl, required this.isOnline, required this.lastSeen, required this.isContact, required this.hasConversation, this.conversationId});
   
 
 @override final  int id;
@@ -225,7 +225,7 @@ class _SearchUser implements SearchUser {
 @override final  String? avatarUrl;
 @override final  bool isOnline;
 @override final  DateTime lastSeen;
-@override final  bool contact;
+@override final  bool isContact;
 @override final  bool hasConversation;
 @override final  int? conversationId;
 
@@ -239,16 +239,16 @@ _$SearchUserCopyWith<_SearchUser> get copyWith => __$SearchUserCopyWithImpl<_Sea
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _SearchUser&&(identical(other.id, id) || other.id == id)&&(identical(other.username, username) || other.username == username)&&(identical(other.email, email) || other.email == email)&&(identical(other.fullName, fullName) || other.fullName == fullName)&&(identical(other.avatarUrl, avatarUrl) || other.avatarUrl == avatarUrl)&&(identical(other.isOnline, isOnline) || other.isOnline == isOnline)&&(identical(other.lastSeen, lastSeen) || other.lastSeen == lastSeen)&&(identical(other.contact, contact) || other.contact == contact)&&(identical(other.hasConversation, hasConversation) || other.hasConversation == hasConversation)&&(identical(other.conversationId, conversationId) || other.conversationId == conversationId));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _SearchUser&&(identical(other.id, id) || other.id == id)&&(identical(other.username, username) || other.username == username)&&(identical(other.email, email) || other.email == email)&&(identical(other.fullName, fullName) || other.fullName == fullName)&&(identical(other.avatarUrl, avatarUrl) || other.avatarUrl == avatarUrl)&&(identical(other.isOnline, isOnline) || other.isOnline == isOnline)&&(identical(other.lastSeen, lastSeen) || other.lastSeen == lastSeen)&&(identical(other.isContact, isContact) || other.isContact == isContact)&&(identical(other.hasConversation, hasConversation) || other.hasConversation == hasConversation)&&(identical(other.conversationId, conversationId) || other.conversationId == conversationId));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,id,username,email,fullName,avatarUrl,isOnline,lastSeen,contact,hasConversation,conversationId);
+int get hashCode => Object.hash(runtimeType,id,username,email,fullName,avatarUrl,isOnline,lastSeen,isContact,hasConversation,conversationId);
 
 @override
 String toString() {
-  return 'SearchUser(id: $id, username: $username, email: $email, fullName: $fullName, avatarUrl: $avatarUrl, isOnline: $isOnline, lastSeen: $lastSeen, contact: $contact, hasConversation: $hasConversation, conversationId: $conversationId)';
+  return 'SearchUser(id: $id, username: $username, email: $email, fullName: $fullName, avatarUrl: $avatarUrl, isOnline: $isOnline, lastSeen: $lastSeen, isContact: $isContact, hasConversation: $hasConversation, conversationId: $conversationId)';
 }
 
 
@@ -259,7 +259,7 @@ abstract mixin class _$SearchUserCopyWith<$Res> implements $SearchUserCopyWith<$
   factory _$SearchUserCopyWith(_SearchUser value, $Res Function(_SearchUser) _then) = __$SearchUserCopyWithImpl;
 @override @useResult
 $Res call({
- int id, String username, String email, String fullName, String? avatarUrl, bool isOnline, DateTime lastSeen, bool contact, bool hasConversation, int? conversationId
+ int id, String username, String email, String fullName, String? avatarUrl, bool isOnline, DateTime lastSeen, bool isContact, bool hasConversation, int? conversationId
 });
 
 
@@ -276,7 +276,7 @@ class __$SearchUserCopyWithImpl<$Res>
 
 /// Create a copy of SearchUser
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? username = null,Object? email = null,Object? fullName = null,Object? avatarUrl = freezed,Object? isOnline = null,Object? lastSeen = null,Object? contact = null,Object? hasConversation = null,Object? conversationId = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? username = null,Object? email = null,Object? fullName = null,Object? avatarUrl = freezed,Object? isOnline = null,Object? lastSeen = null,Object? isContact = null,Object? hasConversation = null,Object? conversationId = freezed,}) {
   return _then(_SearchUser(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as int,username: null == username ? _self.username : username // ignore: cast_nullable_to_non_nullable
@@ -285,7 +285,7 @@ as String,fullName: null == fullName ? _self.fullName : fullName // ignore: cast
 as String,avatarUrl: freezed == avatarUrl ? _self.avatarUrl : avatarUrl // ignore: cast_nullable_to_non_nullable
 as String?,isOnline: null == isOnline ? _self.isOnline : isOnline // ignore: cast_nullable_to_non_nullable
 as bool,lastSeen: null == lastSeen ? _self.lastSeen : lastSeen // ignore: cast_nullable_to_non_nullable
-as DateTime,contact: null == contact ? _self.contact : contact // ignore: cast_nullable_to_non_nullable
+as DateTime,isContact: null == isContact ? _self.isContact : isContact // ignore: cast_nullable_to_non_nullable
 as bool,hasConversation: null == hasConversation ? _self.hasConversation : hasConversation // ignore: cast_nullable_to_non_nullable
 as bool,conversationId: freezed == conversationId ? _self.conversationId : conversationId // ignore: cast_nullable_to_non_nullable
 as int?,

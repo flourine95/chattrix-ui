@@ -321,7 +321,7 @@ class NewChatPage extends HookConsumerWidget {
       title: Row(
         children: [
           Expanded(child: Text(userName, style: textTheme.titleMedium)),
-          if (user.contact)
+          if (user.isContact)
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
               decoration: BoxDecoration(

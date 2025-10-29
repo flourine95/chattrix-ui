@@ -12,7 +12,7 @@ abstract class SearchUser with _$SearchUser {
     String? avatarUrl,
     required bool isOnline,
     required DateTime lastSeen,
-    required bool contact,
+    required bool isContact,
     required bool hasConversation,
     int? conversationId,
   }) = _SearchUser;

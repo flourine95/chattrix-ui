@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$UserModel {
 
- int get id; String get username; String get email; String get fullName; String? get avatarUrl;@JsonKey(name: 'online') bool get isOnline; String get lastSeen;
+ int get id; String get username; String get email; String get fullName; String? get avatarUrl; bool get isOnline; String get lastSeen;
 /// Create a copy of UserModel
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -48,7 +48,7 @@ abstract mixin class $UserModelCopyWith<$Res>  {
   factory $UserModelCopyWith(UserModel value, $Res Function(UserModel) _then) = _$UserModelCopyWithImpl;
 @useResult
 $Res call({
- int id, String username, String email, String fullName, String? avatarUrl,@JsonKey(name: 'online') bool isOnline, String lastSeen
+ int id, String username, String email, String fullName, String? avatarUrl, bool isOnline, String lastSeen
 });
 
 
@@ -159,7 +159,7 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int id,  String username,  String email,  String fullName,  String? avatarUrl, @JsonKey(name: 'online')  bool isOnline,  String lastSeen)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int id,  String username,  String email,  String fullName,  String? avatarUrl,  bool isOnline,  String lastSeen)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _UserModel() when $default != null:
 return $default(_that.id,_that.username,_that.email,_that.fullName,_that.avatarUrl,_that.isOnline,_that.lastSeen);case _:
@@ -180,7 +180,7 @@ return $default(_that.id,_that.username,_that.email,_that.fullName,_that.avatarU
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int id,  String username,  String email,  String fullName,  String? avatarUrl, @JsonKey(name: 'online')  bool isOnline,  String lastSeen)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int id,  String username,  String email,  String fullName,  String? avatarUrl,  bool isOnline,  String lastSeen)  $default,) {final _that = this;
 switch (_that) {
 case _UserModel():
 return $default(_that.id,_that.username,_that.email,_that.fullName,_that.avatarUrl,_that.isOnline,_that.lastSeen);case _:
@@ -200,7 +200,7 @@ return $default(_that.id,_that.username,_that.email,_that.fullName,_that.avatarU
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int id,  String username,  String email,  String fullName,  String? avatarUrl, @JsonKey(name: 'online')  bool isOnline,  String lastSeen)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int id,  String username,  String email,  String fullName,  String? avatarUrl,  bool isOnline,  String lastSeen)?  $default,) {final _that = this;
 switch (_that) {
 case _UserModel() when $default != null:
 return $default(_that.id,_that.username,_that.email,_that.fullName,_that.avatarUrl,_that.isOnline,_that.lastSeen);case _:
@@ -215,7 +215,7 @@ return $default(_that.id,_that.username,_that.email,_that.fullName,_that.avatarU
 @JsonSerializable()
 
 class _UserModel extends UserModel {
-  const _UserModel({required this.id, required this.username, required this.email, required this.fullName, this.avatarUrl, @JsonKey(name: 'online') required this.isOnline, required this.lastSeen}): super._();
+  const _UserModel({required this.id, required this.username, required this.email, required this.fullName, this.avatarUrl, required this.isOnline, required this.lastSeen}): super._();
   factory _UserModel.fromJson(Map<String, dynamic> json) => _$UserModelFromJson(json);
 
 @override final  int id;
@@ -223,7 +223,7 @@ class _UserModel extends UserModel {
 @override final  String email;
 @override final  String fullName;
 @override final  String? avatarUrl;
-@override@JsonKey(name: 'online') final  bool isOnline;
+@override final  bool isOnline;
 @override final  String lastSeen;
 
 /// Create a copy of UserModel
@@ -259,7 +259,7 @@ abstract mixin class _$UserModelCopyWith<$Res> implements $UserModelCopyWith<$Re
   factory _$UserModelCopyWith(_UserModel value, $Res Function(_UserModel) _then) = __$UserModelCopyWithImpl;
 @override @useResult
 $Res call({
- int id, String username, String email, String fullName, String? avatarUrl,@JsonKey(name: 'online') bool isOnline, String lastSeen
+ int id, String username, String email, String fullName, String? avatarUrl, bool isOnline, String lastSeen
 });
 
 
