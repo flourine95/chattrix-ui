@@ -36,7 +36,6 @@ class AppRouter {
       initialLocation: '/',
       refreshListenable: ref.watch(authNotifierWrapperProvider),
       redirect: (context, state) async {
-        // Check if user is logged in
         final isLoggedIn = await ref.read(isLoggedInUseCaseProvider)();
         final isGoingToAuth =
             state.matchedLocation == loginPath ||
@@ -44,20 +43,17 @@ class AppRouter {
             state.matchedLocation == forgotPasswordPath ||
             state.matchedLocation == otpVerificationPath;
 
-        // Nếu chưa login và không đang đi đến auth screen -> redirect đến login
         if (!isLoggedIn && !isGoingToAuth) {
           return loginPath;
         }
 
-        // Nếu đã login và đang ở auth screen -> redirect về home
         if (isLoggedIn && isGoingToAuth) {
           return '/';
         }
 
-        return null; // Không redirect
+        return null;
       },
       routes: <RouteBase>[
-        // Shell with bottom navigation
         ShellRoute(
           builder: (context, state, child) => _NavShell(child: child),
           routes: [
@@ -82,14 +78,12 @@ class AppRouter {
           ],
         ),
 
-        // Chat view route
         GoRoute(
           path: '/chat/:id',
           name: 'chat-view',
           builder: (context, state) {
             final id = state.pathParameters['id']!;
 
-            // Lấy extra nếu có
             final extra = state.extra as Map<String, dynamic>?;
 
             final name = extra?['name'] as String?;
@@ -99,14 +93,12 @@ class AppRouter {
           },
         ),
 
-        // New chat route
         GoRoute(
           path: '/new-chat',
           name: 'new-chat',
           builder: (context, state) => const NewChatPage(),
         ),
 
-        // Auth routes
         GoRoute(
           path: loginPath,
           name: 'login',
@@ -160,7 +152,6 @@ class _NavShell extends StatelessWidget {
     for (int i = 0; i < _routes.length; i++) {
       if (location == _routes[i]) return i;
     }
-    // default to Chats for any nested routes
     return 0;
   }
 

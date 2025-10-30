@@ -409,10 +409,8 @@ class AuthNotifier extends Notifier<AuthState> {
       ref.invalidate(onlineUsersProvider);
       ref.invalidate(userStatusProvider);
       ref.invalidate(webSocketConnectionProvider);
-
-      debugPrint('✅ All app state cleared');
     } catch (e) {
-      debugPrint('⚠️ Error clearing app state: $e');
+      // Silently handle error
     }
   }
 }

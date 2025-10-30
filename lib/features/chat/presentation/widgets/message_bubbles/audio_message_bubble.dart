@@ -110,10 +110,6 @@ class _AudioMessageBubbleState extends State<AudioMessageBubble>
   Widget build(BuildContext context) {
     super.build(context); // Required for AutomaticKeepAliveClientMixin
 
-    debugPrint('🎵 [AudioMessageBubble] Building for message ${widget.message.id}');
-    debugPrint('   mediaUrl: ${widget.message.mediaUrl}');
-    debugPrint('   duration: ${widget.message.duration}');
-
     final textColor = getTextColor(context, widget.isMe);
     final textTheme = Theme.of(context).textTheme;
 

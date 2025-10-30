@@ -1,5 +1,4 @@
 import 'package:chattrix_ui/features/chat/domain/entities/participant.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'participant_model.freezed.dart';
@@ -24,15 +23,9 @@ abstract class ParticipantModel with _$ParticipantModel {
       _$ParticipantModelFromJson(json);
 
   factory ParticipantModel.fromApi(Map<String, dynamic> json) {
-    // Debug: Print raw JSON to see what backend sends
-    debugPrint('🔍 ParticipantModel.fromApi JSON: $json');
-
-    // Backend now uses 'isOnline' (camelCase with 'is' prefix)
     final isOnline = json['isOnline'] as bool?;
 
     final lastSeen = json['lastSeen']?.toString();
-
-    debugPrint('🔍   → isOnline: $isOnline, lastSeen: $lastSeen');
 
     return ParticipantModel(
       userId: (json['userId'] ?? json['user_id'] ?? ''),

@@ -29,10 +29,6 @@ class ImageMessageBubble extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    debugPrint('🖼️ [ImageMessageBubble] Building for message ${message.id}');
-    debugPrint('   mediaUrl: ${message.mediaUrl}');
-    debugPrint('   content: ${message.content}');
-
     final textColor = getTextColor(context, isMe);
     final textTheme = Theme.of(context).textTheme;
 
@@ -63,8 +59,6 @@ class ImageMessageBubble extends StatelessWidget {
                     ),
                   ),
                   errorWidget: (context, url, error) {
-                    debugPrint('❌ [ImageMessageBubble] Failed to load image: $url');
-                    debugPrint('   Error: $error');
                     return Container(
                       width: 280,
                       height: 200,

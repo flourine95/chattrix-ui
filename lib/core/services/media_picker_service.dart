@@ -5,12 +5,9 @@ import 'package:geolocator/geolocator.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
 
-/// Service for picking media files (images, videos, audio, documents)
-/// and getting location
 class MediaPickerService {
   final ImagePicker _imagePicker = ImagePicker();
 
-  /// Pick an image from gallery
   Future<File?> pickImageFromGallery() async {
     try {
       final XFile? image = await _imagePicker.pickImage(
@@ -29,7 +26,6 @@ class MediaPickerService {
     }
   }
 
-  /// Pick multiple images from gallery
   Future<List<File>> pickMultipleImagesFromGallery() async {
     try {
       final List<XFile> images = await _imagePicker.pickMultiImage(
@@ -47,10 +43,8 @@ class MediaPickerService {
     }
   }
 
-  /// Take a photo with camera
   Future<File?> takePhoto() async {
     try {
-      // Request camera permission
       final status = await Permission.camera.request();
       if (!status.isGranted) {
         return null;
@@ -72,7 +66,6 @@ class MediaPickerService {
     }
   }
 
-  /// Pick a video from gallery
   Future<File?> pickVideoFromGallery() async {
     try {
       final XFile? video = await _imagePicker.pickVideo(
@@ -89,10 +82,8 @@ class MediaPickerService {
     }
   }
 
-  /// Record a video with camera
   Future<File?> recordVideo() async {
     try {
-      // Request camera permission
       final status = await Permission.camera.request();
       if (!status.isGranted) {
         return null;
@@ -112,7 +103,6 @@ class MediaPickerService {
     }
   }
 
-  /// Pick an audio file
   Future<File?> pickAudioFile() async {
     try {
       final result = await FilePicker.platform.pickFiles(
@@ -132,7 +122,6 @@ class MediaPickerService {
     }
   }
 
-  /// Pick a document file (PDF, DOCX, etc.)
   Future<PickedFile?> pickDocument() async {
     try {
       final result = await FilePicker.platform.pickFiles(
@@ -160,16 +149,13 @@ class MediaPickerService {
     }
   }
 
-  /// Get current location
   Future<LocationData?> getCurrentLocation() async {
     try {
-      // Check if location services are enabled
       bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
       if (!serviceEnabled) {
         return null;
       }
 
-      // Request location permission
       LocationPermission permission = await Geolocator.checkPermission();
       if (permission == LocationPermission.denied) {
         permission = await Geolocator.requestPermission();
@@ -182,7 +168,6 @@ class MediaPickerService {
         return null;
       }
 
-      // Get current position
       final position = await Geolocator.getCurrentPosition(
         locationSettings: const LocationSettings(
           accuracy: LocationAccuracy.high,
@@ -199,7 +184,6 @@ class MediaPickerService {
   }
 }
 
-/// Represents a picked file with metadata
 class PickedFile {
   final File file;
   final String name;
@@ -214,7 +198,6 @@ class PickedFile {
   });
 }
 
-/// Represents location data
 class LocationData {
   final double latitude;
   final double longitude;

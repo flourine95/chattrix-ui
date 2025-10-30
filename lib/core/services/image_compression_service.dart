@@ -1,12 +1,9 @@
 import 'dart:io';
-import 'package:flutter/foundation.dart';
+
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:path_provider/path_provider.dart';
 
-/// Service for compressing images before upload
 class ImageCompressionService {
-  /// Compress an image file
-  /// Returns the compressed file or the original if compression fails
   Future<File> compressImage(
     File file, {
     int quality = 85,
@@ -16,12 +13,10 @@ class ImageCompressionService {
     try {
       final originalSize = await file.length();
 
-      // Get temporary directory
       final tempDir = await getTemporaryDirectory();
       final timestamp = DateTime.now().millisecondsSinceEpoch;
       final targetPath = '${tempDir.path}/compressed_$timestamp.jpg';
 
-      // Compress the image
       final result = await FlutterImageCompress.compressAndGetFile(
         file.absolute.path,
         targetPath,
@@ -38,7 +33,6 @@ class ImageCompressionService {
       final compressedFile = File(result.path);
       final compressedSize = await compressedFile.length();
 
-      // If compressed file is larger, use original
       if (compressedSize >= originalSize) {
         await compressedFile.delete();
         return file;
@@ -50,7 +44,6 @@ class ImageCompressionService {
     }
   }
 
-  /// Compress multiple images
   Future<List<File>> compressImages(
     List<File> files, {
     int quality = 85,
@@ -58,7 +51,7 @@ class ImageCompressionService {
     int maxHeight = 1920,
   }) async {
     final compressed = <File>[];
-    
+
     for (final file in files) {
       final result = await compressImage(
         file,
@@ -68,36 +61,30 @@ class ImageCompressionService {
       );
       compressed.add(result);
     }
-    
+
     return compressed;
   }
 
-  /// Get image dimensions
   Future<ImageDimensions?> getImageDimensions(File file) async {
     try {
-      // FlutterImageCompress doesn't have getImageSize method
-      // We'll return null for now, or you can use image package
       return null;
     } catch (e) {
       return null;
     }
   }
 
-  /// Check if image needs compression
   Future<bool> needsCompression(
     File file, {
-    int maxSizeBytes = 5 * 1024 * 1024, // 5MB
+    int maxSizeBytes = 5 * 1024 * 1024,
     int maxWidth = 1920,
     int maxHeight = 1920,
   }) async {
     try {
-      // Check file size
       final size = await file.length();
       if (size > maxSizeBytes) {
         return true;
       }
 
-      // Check dimensions
       final dimensions = await getImageDimensions(file);
       if (dimensions != null) {
         if (dimensions.width > maxWidth || dimensions.height > maxHeight) {
@@ -111,23 +98,19 @@ class ImageCompressionService {
     }
   }
 
-  /// Compress image with automatic quality adjustment
-  /// Tries to achieve target file size
   Future<File> compressToTargetSize(
     File file, {
-    int targetSizeBytes = 1 * 1024 * 1024, // 1MB
+    int targetSizeBytes = 1 * 1024 * 1024,
     int maxWidth = 1920,
     int maxHeight = 1920,
   }) async {
     try {
       final originalSize = await file.length();
-      
-      // If already smaller than target, return original
+
       if (originalSize <= targetSizeBytes) {
         return file;
       }
 
-      // Try different quality levels
       final qualities = [85, 75, 65, 55, 45];
 
       for (final quality in qualities) {
@@ -145,7 +128,6 @@ class ImageCompressionService {
         }
       }
 
-      // If still too large, return the most compressed version
       return await compressImage(
         file,
         quality: 45,
@@ -168,19 +150,14 @@ class ImageCompressionService {
   }
 }
 
-/// Image dimensions
 class ImageDimensions {
   final int width;
   final int height;
 
-  const ImageDimensions({
-    required this.width,
-    required this.height,
-  });
+  const ImageDimensions({required this.width, required this.height});
 
   double get aspectRatio => width / height;
 
   @override
   String toString() => '${width}x$height';
 }
-

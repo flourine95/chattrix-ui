@@ -12,7 +12,6 @@ class ApiConstants {
   static const String lanBaseUrl = 'http://$lanIpAddress:$port$apiPrefix';
 
   static String get baseUrl {
-    // return localhostBaseUrl;
     if (kIsWeb) {
       return localhostBaseUrl;
     } else {

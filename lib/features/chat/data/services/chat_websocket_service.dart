@@ -60,7 +60,6 @@ class ChatWebSocketService {
   /// Connect to WebSocket
   Future<void> connect(String accessToken) async {
     if (_channel != null) {
-      debugPrint('⚠️ WebSocket already connected');
       return;
     }
 
@@ -70,13 +69,10 @@ class ChatWebSocketService {
 
       final wsUrl =
           '${ApiConstants.wsBaseUrl}/${ApiConstants.chatWebSocket}?token=$accessToken';
-      debugPrint('🔌 Connecting to WebSocket: $wsUrl');
 
       _channel = WebSocketChannel.connect(Uri.parse(wsUrl));
 
       _connectionController.add(true);
-      debugPrint('✅ WebSocket connected');
-      debugPrint('   Ready state: ${_channel!.closeCode == null ? "OPEN" : "CLOSED"}');
 
       // Start heartbeat timer
       _startHeartbeat();
@@ -84,27 +80,17 @@ class ChatWebSocketService {
       // Listen to messages from server
       _channel!.stream.listen(
         (message) {
-          debugPrint('📨 [WebSocket] Message received from server');
           _handleMessage(message);
         },
         onError: (error, stackTrace) {
-          debugPrint('❌ [WebSocket] Stream error: $error');
-          debugPrint('   Error type: ${error.runtimeType}');
-          debugPrint('Stack trace: $stackTrace');
           _handleDisconnect();
         },
         onDone: () {
-          debugPrint('🔌 [WebSocket] Stream closed (onDone called)');
-          debugPrint('   Manual disconnect: $_isManualDisconnect');
-          debugPrint('   Channel null: ${_channel == null}');
-          debugPrint('   Close code: ${_channel?.closeCode}');
-          debugPrint('   Close reason: ${_channel?.closeReason}');
           _handleDisconnect();
         },
         cancelOnError: false,
       );
     } catch (e) {
-      debugPrint('❌ Failed to connect WebSocket: $e');
       _connectionController.add(false);
       _channel = null;
       _scheduleReconnect();
@@ -130,12 +116,8 @@ class ChatWebSocketService {
   void _scheduleReconnect() {
     _reconnectTimer?.cancel();
 
-    debugPrint('🔄 Scheduling reconnect in 5 seconds...');
-    debugPrint('   Will reconnect with token: ${_lastAccessToken?.substring(0, 20)}...');
     _reconnectTimer = Timer(const Duration(seconds: 5), () {
       if (_lastAccessToken != null && !_isManualDisconnect) {
-        debugPrint('🔄 Attempting to reconnect...');
-        debugPrint('⚠️ WARNING: Reconnecting with OLD token. If token was refreshed, this will fail!');
         connect(_lastAccessToken!);
       }
     });
@@ -148,8 +130,6 @@ class ChatWebSocketService {
     _heartbeatTimer = Timer.periodic(const Duration(seconds: 30), (timer) {
       sendHeartbeat();
     });
-
-    debugPrint('💓 Heartbeat timer started (30s interval)');
   }
 
   /// Stop heartbeat timer
@@ -169,14 +149,12 @@ class ChatWebSocketService {
       await _channel!.sink.close();
       _channel = null;
       _connectionController.add(false);
-      debugPrint('🔌 WebSocket disconnected');
     }
   }
 
   /// Send a chat message
   void sendMessage(String conversationId, String content) {
     if (_channel == null) {
-      debugPrint('⚠️ Cannot send message: WebSocket not connected');
       return;
     }
 
@@ -186,7 +164,6 @@ class ChatWebSocketService {
     };
 
     _channel!.sink.add(jsonEncode(payload));
-    debugPrint('📤 Sent message to conversation: $conversationId');
   }
 
   /// Send typing start indicator
@@ -216,84 +193,50 @@ class ChatWebSocketService {
   /// Handle incoming WebSocket messages
   void _handleMessage(dynamic message) {
     try {
-      debugPrint('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      debugPrint('📥 [WebSocket] Raw message received: $message');
-
       final data = jsonDecode(message as String) as Map<String, dynamic>;
-      debugPrint('📦 [WebSocket] Parsed data: $data');
 
       final type = data['type'] as String?;
       if (type == null) {
-        debugPrint('⚠️ [WebSocket] Message has no type field, treating as direct message');
         // Server might be sending message directly without wrapper
         final messageModel = MessageModel.fromApi(data);
-        debugPrint('📨 [WebSocket] Broadcasting direct message to stream...');
-        debugPrint('   Message ID: ${messageModel.id}');
-        debugPrint('   ConversationId: ${messageModel.conversationId}');
-        debugPrint('   Content: "${messageModel.content}"');
-        debugPrint('   Stream has listeners: ${_messageController.hasListener}');
         _messageController.add(messageModel.toEntity());
-        debugPrint('✅ [WebSocket] Message broadcasted to ${_messageController.hasListener ? "active" : "NO"} listeners');
-        debugPrint('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
         return;
       }
 
       final payload = data['payload'] as Map<String, dynamic>?;
       if (payload == null) {
-        debugPrint('⚠️ [WebSocket] Message has no payload field');
-        debugPrint('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
         return;
       }
-
-      debugPrint('🔍 [WebSocket] Message type: $type');
 
       switch (type) {
         case ChatWebSocketResponse.chatMessage:
           final messageModel = MessageModel.fromApi(payload);
-          debugPrint('📨 [WebSocket] Broadcasting chat message to stream...');
-          debugPrint('   Message ID: ${messageModel.id}');
-          debugPrint('   ConversationId: ${messageModel.conversationId}');
-          debugPrint('   Type: ${messageModel.type}');
-          debugPrint('   Content: "${messageModel.content}"');
-          debugPrint('   MediaUrl: ${messageModel.mediaUrl}');
-          debugPrint('   Sender: ${messageModel.sender.username}');
-          debugPrint('   Stream has listeners: ${_messageController.hasListener}');
           _messageController.add(messageModel.toEntity());
-          debugPrint('✅ [WebSocket] Message broadcasted to ${_messageController.hasListener ? "active" : "NO"} listeners');
           break;
 
         case ChatWebSocketResponse.typingIndicator:
           final indicatorModel = TypingIndicatorModel.fromJson(payload);
           _typingController.add(indicatorModel.toEntity());
-          debugPrint('⌨️ [WebSocket] Typing indicator: ${indicatorModel.conversationId}');
           break;
 
         case ChatWebSocketResponse.userStatus:
           final statusModel = UserStatusUpdateModel.fromJson(payload);
           _userStatusController.add(statusModel.toEntity());
-          debugPrint(
-            '👤 [WebSocket] User status: ${statusModel.userId} - ${statusModel.isOnline}',
-          );
           break;
 
         case ChatWebSocketResponse.conversationUpdate:
           final updateModel = ConversationUpdateModel.fromJson(payload);
           _conversationUpdateController.add(updateModel.toEntity());
-          debugPrint('💬 [WebSocket] Conversation update: ${updateModel.conversationId}');
           break;
 
         case ChatWebSocketResponse.heartbeatAck:
-          debugPrint('💓 [WebSocket] Heartbeat acknowledged');
           break;
 
         default:
-          debugPrint('⚠️ [WebSocket] Unknown event type: $type');
+          break;
       }
-      debugPrint('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     } catch (e, stackTrace) {
-      debugPrint('❌ [WebSocket] Error handling message: $e');
-      debugPrint('Stack trace: $stackTrace');
-      debugPrint('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      // Silently handle error
     }
   }
 
@@ -304,7 +247,6 @@ class ChatWebSocketService {
     final payload = {'type': 'heartbeat', 'payload': {}};
 
     _channel!.sink.add(jsonEncode(payload));
-    debugPrint('💓 Sent heartbeat');
   }
 
   /// Dispose resources

@@ -7,7 +7,6 @@ import 'package:chattrix_ui/features/chat/data/models/search_user_model.dart';
 import 'package:chattrix_ui/features/chat/data/models/user_status_model.dart';
 import 'package:chattrix_ui/features/chat/domain/datasources/chat_remote_datasource.dart';
 import 'package:dio/dio.dart';
-import 'package:flutter/foundation.dart';
 
 class ChatRemoteDatasourceImpl implements ChatRemoteDatasource {
   final Dio dio;
@@ -97,10 +96,6 @@ class ChatRemoteDatasourceImpl implements ChatRemoteDatasource {
     try {
       final url =
           '${ApiConstants.baseUrl}/${ApiConstants.messagesInConversation(conversationId)}';
-      debugPrint('💬 Get Messages Request:');
-      debugPrint('   URL: $url');
-      debugPrint('   Conversation ID: $conversationId');
-      debugPrint('   Page: $page, Size: $size, Sort: $sort');
 
       final response = await dio.get(
         url,
@@ -127,9 +122,7 @@ class ChatRemoteDatasourceImpl implements ChatRemoteDatasource {
       throw ServerException(
         message: e.response?.data['message'] ?? 'Failed to fetch messages',
       );
-    } catch (e, stackTrace) {
-      debugPrint('❌ Get Messages Unexpected Error: $e');
-      debugPrint('   Stack trace: $stackTrace');
+    } catch (e) {
       throw ServerException(message: 'Failed to fetch messages: $e');
     }
   }
@@ -233,14 +226,10 @@ class ChatRemoteDatasourceImpl implements ChatRemoteDatasource {
         if (mentions != null) 'mentions': mentions,
       };
 
-      final url = '${ApiConstants.baseUrl}/${ApiConstants.messagesInConversation(conversationId)}';
-      debugPrint('📤 [API] POST $url');
-      debugPrint('📤 [API] Request data: $data');
+      final url =
+          '${ApiConstants.baseUrl}/${ApiConstants.messagesInConversation(conversationId)}';
 
       final response = await dio.post(url, data: data);
-
-      debugPrint('📥 [API] Response status: ${response.statusCode}');
-      debugPrint('📥 [API] Response data: ${response.data}');
 
       if (response.statusCode == 201) {
         final responseData = response.data['data'] as Map<String, dynamic>;
@@ -249,14 +238,10 @@ class ChatRemoteDatasourceImpl implements ChatRemoteDatasource {
 
       throw ServerException(message: 'Failed to send message');
     } on DioException catch (e) {
-      debugPrint('❌ [API] DioException: ${e.message}');
-      debugPrint('❌ [API] Response: ${e.response?.data}');
-      debugPrint('❌ [API] Status code: ${e.response?.statusCode}');
       throw ServerException(
         message: e.response?.data['message'] ?? 'Failed to send message',
       );
     } catch (e) {
-      debugPrint('❌ [API] Unexpected error: $e');
       rethrow;
     }
   }
@@ -268,28 +253,14 @@ class ChatRemoteDatasourceImpl implements ChatRemoteDatasource {
   }) async {
     try {
       final url = '${ApiConstants.baseUrl}/${ApiConstants.searchUsers}';
-      debugPrint('🔍 Search Users Request:');
-      debugPrint('   URL: $url');
-      debugPrint('   Query: $query');
-      debugPrint('   Limit: $limit');
 
       final response = await dio.get(
         url,
         queryParameters: {'query': query, 'limit': limit},
       );
 
-      debugPrint('🔍 Search Users Response:');
-      debugPrint('   Status: ${response.statusCode}');
-      debugPrint('   Data type: ${response.data.runtimeType}');
-      debugPrint('   Data: ${response.data}');
-
       if (response.statusCode == 200) {
         final data = response.data['data'] as List;
-        debugPrint('   Users found: ${data.length}');
-
-        if (data.isNotEmpty) {
-          debugPrint('   First user: ${data.first}');
-        }
 
         return data
             .whereType<Map<String, dynamic>>()
@@ -299,17 +270,10 @@ class ChatRemoteDatasourceImpl implements ChatRemoteDatasource {
 
       throw ServerException(message: 'Failed to search users');
     } on DioException catch (e) {
-      debugPrint('❌ Search Users Error:');
-      debugPrint('   Type: ${e.type}');
-      debugPrint('   Message: ${e.message}');
-      debugPrint('   Response: ${e.response?.data}');
-      debugPrint('   Status Code: ${e.response?.statusCode}');
-
       throw ServerException(
         message: e.response?.data['message'] ?? 'Failed to search users',
       );
     } catch (e) {
-      debugPrint('❌ Search Users Unexpected Error: $e');
       throw ServerException(message: 'Failed to search users: $e');
     }
   }

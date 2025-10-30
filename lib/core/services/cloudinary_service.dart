@@ -1,25 +1,24 @@
 import 'dart:io';
 import 'package:cloudinary_public/cloudinary_public.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
-/// Service for uploading media files to Cloudinary
-/// Handles images, videos, audio, and documents
 class CloudinaryService {
   late final CloudinaryPublic _cloudinary;
-  
-  // TODO: Replace with your Cloudinary credentials
-  static const String _cloudName = 'dk3gud5kq';
-  static const String _uploadPreset = 'chattrix_media';
-  
+
   CloudinaryService() {
-    _cloudinary = CloudinaryPublic(_cloudName, _uploadPreset, cache: false);
+    final cloudName = dotenv.env['CLOUDINARY_CLOUD_NAME'];
+    final uploadPreset = dotenv.env['CLOUDINARY_UPLOAD_PRESET'];
+
+    if (cloudName == null || uploadPreset == null) {
+      throw Exception('⚠️ Missing Cloudinary env vars. Check your .env file.');
+    }
+
+    _cloudinary = CloudinaryPublic(cloudName, uploadPreset, cache: false);
   }
 
-  /// Upload an image file to Cloudinary
-  /// Returns the secure URL of the uploaded image
   Future<CloudinaryUploadResult> uploadImage(File file, {String? fileName}) async {
     try {
-
       final response = await _cloudinary.uploadFile(
         CloudinaryFile.fromFile(
           file.path,
@@ -29,19 +28,13 @@ class CloudinaryService {
         ),
       );
 
-      // Extract data from response.data map
-      final format = response.data['format'] as String?;
-      final width = response.data['width'] as int?;
-      final height = response.data['height'] as int?;
-      final bytes = response.data['bytes'] as int?;
-
       return CloudinaryUploadResult(
         url: response.secureUrl,
         publicId: response.publicId,
-        format: format,
-        width: width,
-        height: height,
-        bytes: bytes,
+        format: response.data['format'],
+        width: response.data['width'],
+        height: response.data['height'],
+        bytes: response.data['bytes'],
       );
     } catch (e) {
       debugPrint('❌ Failed to upload image: $e');
@@ -49,11 +42,8 @@ class CloudinaryService {
     }
   }
 
-  /// Upload a video file to Cloudinary
-  /// Returns the secure URL and thumbnail URL
   Future<CloudinaryUploadResult> uploadVideo(File file, {String? fileName}) async {
     try {
-
       final response = await _cloudinary.uploadFile(
         CloudinaryFile.fromFile(
           file.path,
@@ -63,21 +53,15 @@ class CloudinaryService {
         ),
       );
 
-      // Generate thumbnail URL (Cloudinary auto-generates thumbnails for videos)
       final thumbnailUrl = response.secureUrl.replaceAll('.mp4', '.jpg');
-
-      // Extract data from response.data map
-      final format = response.data['format'] as String?;
-      final duration = response.data['duration'] as num?;
-      final bytes = response.data['bytes'] as int?;
 
       return CloudinaryUploadResult(
         url: response.secureUrl,
         thumbnailUrl: thumbnailUrl,
         publicId: response.publicId,
-        format: format,
-        duration: duration?.toDouble(),
-        bytes: bytes,
+        format: response.data['format'],
+        duration: (response.data['duration'] as num?)?.toDouble(),
+        bytes: response.data['bytes'],
       );
     } catch (e) {
       debugPrint('❌ Failed to upload video: $e');
@@ -85,31 +69,23 @@ class CloudinaryService {
     }
   }
 
-  /// Upload an audio file to Cloudinary
-  /// Returns the secure URL
   Future<CloudinaryUploadResult> uploadAudio(File file, {String? fileName}) async {
     try {
-
       final response = await _cloudinary.uploadFile(
         CloudinaryFile.fromFile(
           file.path,
-          resourceType: CloudinaryResourceType.Video, // Audio uses video resource type
+          resourceType: CloudinaryResourceType.Video, // Cloudinary dùng "video" cho audio
           folder: 'chattrix/audio',
           publicId: fileName,
         ),
       );
 
-      // Extract data from response.data map
-      final format = response.data['format'] as String?;
-      final duration = response.data['duration'] as num?;
-      final bytes = response.data['bytes'] as int?;
-
       return CloudinaryUploadResult(
         url: response.secureUrl,
         publicId: response.publicId,
-        format: format,
-        duration: duration?.toDouble(),
-        bytes: bytes,
+        format: response.data['format'],
+        duration: (response.data['duration'] as num?)?.toDouble(),
+        bytes: response.data['bytes'],
       );
     } catch (e) {
       debugPrint('❌ Failed to upload audio: $e');
@@ -117,29 +93,22 @@ class CloudinaryService {
     }
   }
 
-  /// Upload a document file to Cloudinary
-  /// Returns the secure URL
   Future<CloudinaryUploadResult> uploadDocument(File file, {String? fileName}) async {
     try {
-
       final response = await _cloudinary.uploadFile(
         CloudinaryFile.fromFile(
           file.path,
-          resourceType: CloudinaryResourceType.Raw, // Raw for documents
+          resourceType: CloudinaryResourceType.Raw,
           folder: 'chattrix/documents',
           publicId: fileName,
         ),
       );
 
-      // Extract data from response.data map
-      final format = response.data['format'] as String?;
-      final bytes = response.data['bytes'] as int?;
-
       return CloudinaryUploadResult(
         url: response.secureUrl,
         publicId: response.publicId,
-        format: format,
-        bytes: bytes,
+        format: response.data['format'],
+        bytes: response.data['bytes'],
       );
     } catch (e) {
       debugPrint('❌ Failed to upload document: $e');
@@ -147,18 +116,13 @@ class CloudinaryService {
     }
   }
 
-  /// Delete a file from Cloudinary by public ID
-  /// Note: This requires API secret and should be done on backend
-  /// The cloudinary_public package doesn't support deletion (unsigned uploads only)
   Future<void> deleteFile(String publicId, CloudinaryResourceType resourceType) async {
     throw UnimplementedError(
-      'File deletion requires API secret and should be implemented on backend. '
-      'Use your backend API to delete files from Cloudinary.'
+      '⚠️ File deletion requires API secret. Implement this in your backend.',
     );
   }
 }
 
-/// Result of a Cloudinary upload operation
 class CloudinaryUploadResult {
   final String url;
   final String? thumbnailUrl;
@@ -180,4 +144,3 @@ class CloudinaryUploadResult {
     this.bytes,
   });
 }
-

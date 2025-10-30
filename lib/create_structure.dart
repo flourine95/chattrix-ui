@@ -22,6 +22,5 @@ void main() {
 
   for (final dir in dirs) {
     Directory(dir).createSync(recursive: true);
-    debugPrint('Created: $dir');
   }
 }

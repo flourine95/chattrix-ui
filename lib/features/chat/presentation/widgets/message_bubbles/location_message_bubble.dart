@@ -32,7 +32,7 @@ class LocationMessageBubble extends StatelessWidget {
         await launchUrl(googleMapsUrl, mode: LaunchMode.externalApplication);
       }
     } catch (e) {
-      debugPrint('❌ Failed to open maps: $e');
+      // Silently handle error
     }
   }
 

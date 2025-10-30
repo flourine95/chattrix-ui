@@ -54,7 +54,6 @@ class DocumentMessageBubble extends StatelessWidget {
         }
       }
     } catch (e) {
-      debugPrint('❌ Failed to open document: $e');
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Failed to open document: $e')),

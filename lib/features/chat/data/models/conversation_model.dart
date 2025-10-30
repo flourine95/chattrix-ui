@@ -25,14 +25,6 @@ abstract class ConversationModel with _$ConversationModel {
       _$ConversationModelFromJson(json);
 
   factory ConversationModel.fromApi(Map<String, dynamic> json) {
-    // Debug: Print raw JSON to see what backend sends
-    debugPrint('🔍 ConversationModel.fromApi JSON keys: ${json.keys.toList()}');
-    debugPrint('🔍 Conversation ID: ${json['id']}, Type: ${json['type']}');
-    debugPrint('🔍 Has lastMessage: ${json.containsKey('lastMessage')}');
-    debugPrint(
-      '🔍 Participants count: ${(json['participants'] as List?)?.length ?? 0}',
-    );
-
     final participantsJson = (json['participants'] as List? ?? [])
         .whereType<Map<String, dynamic>>()
         .toList();
