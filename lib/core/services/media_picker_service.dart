@@ -19,7 +19,7 @@ class MediaPickerService {
         maxHeight: 1920,
         imageQuality: 85,
       );
-      
+
       if (image != null) {
         debugPrint('📷 Image picked from gallery: ${image.path}');
         return File(image.path);
@@ -27,6 +27,26 @@ class MediaPickerService {
       return null;
     } catch (e) {
       debugPrint('❌ Failed to pick image from gallery: $e');
+      rethrow;
+    }
+  }
+
+  /// Pick multiple images from gallery
+  Future<List<File>> pickMultipleImagesFromGallery() async {
+    try {
+      final List<XFile> images = await _imagePicker.pickMultiImage(
+        maxWidth: 1920,
+        maxHeight: 1920,
+        imageQuality: 85,
+      );
+
+      if (images.isNotEmpty) {
+        debugPrint('📷 ${images.length} images picked from gallery');
+        return images.map((image) => File(image.path)).toList();
+      }
+      return [];
+    } catch (e) {
+      debugPrint('❌ Failed to pick multiple images from gallery: $e');
       rethrow;
     }
   }

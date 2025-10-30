@@ -1,6 +1,6 @@
 # Chattrix API - Tài liệu cho Client Developer
 
-**Base URL:** `http://localhost:8080/api` (hoặc domain production của bạn)
+**Base URL:** `http://localhost:8080/chattrix-api/api` (hoặc domain production của bạn)
 
 **API Version:** `v1`
 

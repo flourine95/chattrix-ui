@@ -76,6 +76,7 @@ class ChatWebSocketService {
 
       _connectionController.add(true);
       debugPrint('✅ WebSocket connected');
+      debugPrint('   Ready state: ${_channel!.closeCode == null ? "OPEN" : "CLOSED"}');
 
       // Start heartbeat timer
       _startHeartbeat();
@@ -83,16 +84,24 @@ class ChatWebSocketService {
       // Listen to messages from server
       _channel!.stream.listen(
         (message) {
+          debugPrint('📨 [WebSocket] Message received from server');
           _handleMessage(message);
         },
-        onError: (error) {
-          debugPrint('❌ WebSocket error: $error');
+        onError: (error, stackTrace) {
+          debugPrint('❌ [WebSocket] Stream error: $error');
+          debugPrint('   Error type: ${error.runtimeType}');
+          debugPrint('Stack trace: $stackTrace');
           _handleDisconnect();
         },
         onDone: () {
-          debugPrint('🔌 WebSocket connection closed');
+          debugPrint('🔌 [WebSocket] Stream closed (onDone called)');
+          debugPrint('   Manual disconnect: $_isManualDisconnect');
+          debugPrint('   Channel null: ${_channel == null}');
+          debugPrint('   Close code: ${_channel?.closeCode}');
+          debugPrint('   Close reason: ${_channel?.closeReason}');
           _handleDisconnect();
         },
+        cancelOnError: false,
       );
     } catch (e) {
       debugPrint('❌ Failed to connect WebSocket: $e');
@@ -115,13 +124,18 @@ class ChatWebSocketService {
   }
 
   /// Schedule reconnect attempt
+  /// Note: This will use the SAME token that was used before
+  /// If you need to reconnect with a NEW token (e.g., after refresh),
+  /// call disconnect() then connect(newToken) instead
   void _scheduleReconnect() {
     _reconnectTimer?.cancel();
 
     debugPrint('🔄 Scheduling reconnect in 5 seconds...');
+    debugPrint('   Will reconnect with token: ${_lastAccessToken?.substring(0, 20)}...');
     _reconnectTimer = Timer(const Duration(seconds: 5), () {
       if (_lastAccessToken != null && !_isManualDisconnect) {
         debugPrint('🔄 Attempting to reconnect...');
+        debugPrint('⚠️ WARNING: Reconnecting with OLD token. If token was refreshed, this will fail!');
         connect(_lastAccessToken!);
       }
     });
@@ -239,7 +253,9 @@ class ChatWebSocketService {
           debugPrint('📨 [WebSocket] Broadcasting chat message to stream...');
           debugPrint('   Message ID: ${messageModel.id}');
           debugPrint('   ConversationId: ${messageModel.conversationId}');
+          debugPrint('   Type: ${messageModel.type}');
           debugPrint('   Content: "${messageModel.content}"');
+          debugPrint('   MediaUrl: ${messageModel.mediaUrl}');
           debugPrint('   Sender: ${messageModel.sender.username}');
           debugPrint('   Stream has listeners: ${_messageController.hasListener}');
           _messageController.add(messageModel.toEntity());

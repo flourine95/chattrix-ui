@@ -2,7 +2,7 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 
 class ApiConstants {
   static const String localhostHost = 'localhost';
-  static const String lanIpAddress = '172.19.240.1';
+  static const String lanIpAddress = '10.0.2.2';
 
   static const String port = '8080';
   static const String apiPrefix = '/chattrix-api/api';
@@ -12,6 +12,7 @@ class ApiConstants {
   static const String lanBaseUrl = 'http://$lanIpAddress:$port$apiPrefix';
 
   static String get baseUrl {
+    // return localhostBaseUrl;
     if (kIsWeb) {
       return localhostBaseUrl;
     } else {

@@ -8,6 +8,7 @@ import 'package:chattrix_ui/features/chat/presentation/providers/chat_providers.
 import 'package:chattrix_ui/features/chat/presentation/utils/conversation_utils.dart';
 import 'package:chattrix_ui/features/chat/presentation/widgets/attachment_picker_bottom_sheet.dart';
 import 'package:chattrix_ui/features/chat/presentation/widgets/message_bubble.dart';
+import 'package:chattrix_ui/features/chat/presentation/widgets/voice_recorder_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -55,11 +56,8 @@ class ChatViewPage extends HookConsumerWidget {
       orElse: () => conversationsAsync.value!.first,
     );
 
-    // Initialize WebSocket connection on first build
-    useEffect(() {
-      ref.read(webSocketConnectionProvider.notifier);
-      return null;
-    }, []);
+    // WebSocket connection is automatically initialized by watching webSocketConnectionProvider above
+    // No need for manual initialization
 
     // Listen to scroll position to show/hide scroll button
     // With reverse: true, position 0 is at bottom (newest), scrolling up increases position
@@ -354,6 +352,69 @@ class _InputBar extends HookConsumerWidget {
   final VoidCallback onSend;
   final String chatId;
 
+  /// Show voice recorder widget
+  Future<void> _showVoiceRecorder(BuildContext context, WidgetRef ref) async {
+    final cloudinaryService = ref.read(cloudinaryServiceProvider);
+    final sendMessageUsecase = ref.read(sendMessageUsecaseProvider);
+
+    await showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => VoiceRecorderWidget(
+        onRecordingComplete: (audioFile, duration) async {
+          try {
+            Navigator.pop(context);
+
+            if (!context.mounted) return;
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Uploading audio...')),
+            );
+
+            // Upload to Cloudinary
+            final result = await cloudinaryService.uploadAudio(audioFile);
+
+            // Send message
+            if (context.mounted) {
+              final sendResult = await sendMessageUsecase(
+                conversationId: chatId,
+                content: 'Voice message',
+                type: 'AUDIO',
+                mediaUrl: result.url,
+                fileSize: result.bytes,
+                duration: duration.inSeconds,
+              );
+
+              sendResult.fold(
+                (failure) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Failed to send voice message: ${failure.message}')),
+                  );
+                },
+                (_) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Voice message sent')),
+                  );
+                  // Manually trigger refresh since backend doesn't broadcast multimedia via WebSocket
+                  ref.read(messagesProvider(chatId).notifier).refresh();
+                },
+              );
+            }
+          } catch (e) {
+            if (context.mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('Failed to send voice message: $e')),
+              );
+            }
+          }
+        },
+        onCancel: () {
+          Navigator.pop(context);
+        },
+      ),
+    );
+  }
+
   Future<void> _handleAttachment(
     BuildContext context,
     WidgetRef ref,
@@ -364,13 +425,6 @@ class _InputBar extends HookConsumerWidget {
     final sendMessageUsecase = ref.read(sendMessageUsecaseProvider);
 
     try {
-      // Show loading indicator
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Processing...')),
-        );
-      }
-
       File? file;
       String? fileName;
       String messageType = 'TEXT';
@@ -379,30 +433,163 @@ class _InputBar extends HookConsumerWidget {
       switch (type) {
         case AttachmentType.camera:
           file = await mediaPickerService.takePhoto();
+          if (file == null) return;
+
           messageType = 'IMAGE';
           content = 'Photo';
+          fileName = 'photo_${DateTime.now().millisecondsSinceEpoch}.jpg';
+
+          if (context.mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Row(
+                  children: [
+                    const SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(child: Text('Uploading $fileName...')),
+                  ],
+                ),
+                duration: const Duration(hours: 1), // Long duration, will dismiss manually
+              ),
+            );
+          }
           break;
         case AttachmentType.gallery:
-          file = await mediaPickerService.pickImageFromGallery();
-          messageType = 'IMAGE';
-          content = 'Image';
-          break;
+          // Pick multiple images
+          final images = await mediaPickerService.pickMultipleImagesFromGallery();
+          if (images.isEmpty) return;
+
+          // Send each image as a separate message
+          for (int i = 0; i < images.length; i++) {
+            try {
+              final imageFile = images[i];
+              final imageName = 'Image ${i + 1}/${images.length}';
+
+              if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Row(
+                      children: [
+                        const SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(child: Text('Uploading $imageName...')),
+                      ],
+                    ),
+                    duration: const Duration(hours: 1),
+                  ),
+                );
+              }
+
+              // Upload to Cloudinary
+              final result = await cloudinaryService.uploadImage(imageFile);
+
+              // Dismiss progress snackbar
+              if (context.mounted) {
+                ScaffoldMessenger.of(context).hideCurrentSnackBar();
+              }
+
+              // Send message
+              if (context.mounted) {
+                final sendResult = await sendMessageUsecase(
+                  conversationId: chatId,
+                  content: imageName,
+                  type: 'IMAGE',
+                  mediaUrl: result.url,
+                  fileSize: result.bytes,
+                );
+
+                // Manually trigger refresh for all participants
+                // This is a workaround since backend doesn't broadcast multimedia messages via WebSocket
+                sendResult.fold(
+                  (failure) => debugPrint('❌ Failed to send image: ${failure.message}'),
+                  (_) => ref.read(messagesProvider(chatId).notifier).refresh(),
+                );
+              }
+            } catch (e) {
+              if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Failed to upload image ${i + 1}: $e')),
+                );
+              }
+            }
+          }
+
+          // Refresh messages
+          if (context.mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('${images.length} images sent')),
+            );
+            ref.read(messagesProvider(chatId).notifier).refresh();
+          }
+          return;
         case AttachmentType.video:
           file = await mediaPickerService.pickVideoFromGallery();
+          if (file == null) return;
+
           messageType = 'VIDEO';
-          content = 'Video';
+          fileName = file.path.split('/').last;
+          content = fileName;
+
+          if (context.mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Row(
+                  children: [
+                    const SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(child: Text('Uploading $fileName...')),
+                  ],
+                ),
+                duration: const Duration(hours: 1),
+              ),
+            );
+          }
           break;
         case AttachmentType.audio:
-          file = await mediaPickerService.pickAudioFile();
-          messageType = 'AUDIO';
-          content = 'Audio';
-          break;
+          // Show voice recorder widget instead of file picker
+          if (context.mounted) {
+            await _showVoiceRecorder(context, ref);
+          }
+          return;
         case AttachmentType.document:
           final pickedFile = await mediaPickerService.pickDocument();
-          file = pickedFile?.file;
-          fileName = pickedFile?.name;
+          if (pickedFile == null) return;
+
+          file = pickedFile.file;
+          fileName = pickedFile.name;
           messageType = 'DOCUMENT';
-          content = fileName ?? 'Document';
+          content = fileName;
+
+          if (context.mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Row(
+                  children: [
+                    const SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(child: Text('Uploading $fileName...')),
+                  ],
+                ),
+                duration: const Duration(hours: 1),
+              ),
+            );
+          }
           break;
         case AttachmentType.location:
           final location = await mediaPickerService.getCurrentLocation();
@@ -437,8 +624,6 @@ class _InputBar extends HookConsumerWidget {
           return;
       }
 
-      if (file == null) return;
-
       // Upload to Cloudinary
       String? mediaUrl;
       String? thumbnailUrl;
@@ -464,6 +649,11 @@ class _InputBar extends HookConsumerWidget {
         final result = await cloudinaryService.uploadDocument(file, fileName: fileName);
         mediaUrl = result.url;
         fileSize = result.bytes;
+      }
+
+      // Dismiss upload progress snackbar
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).hideCurrentSnackBar();
       }
 
       // Send message with media

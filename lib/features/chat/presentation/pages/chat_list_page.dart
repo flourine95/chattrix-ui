@@ -2,7 +2,6 @@ import 'package:chattrix_ui/features/auth/presentation/providers/auth_providers.
 import 'package:chattrix_ui/features/chat/presentation/providers/chat_providers.dart';
 import 'package:chattrix_ui/features/chat/presentation/utils/conversation_utils.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -36,11 +35,8 @@ class ChatListPage extends HookConsumerWidget {
 
     final conversationsAsync = ref.watch(conversationsProvider);
 
-    // Initialize WebSocket connection
-    useEffect(() {
-      ref.read(webSocketConnectionProvider.notifier);
-      return null;
-    }, []);
+    // Watch WebSocket connection to ensure it's initialized
+    ref.watch(webSocketConnectionProvider);
 
     return Scaffold(
       appBar: AppBar(title: Text('Chats', style: textTheme.titleLarge)),

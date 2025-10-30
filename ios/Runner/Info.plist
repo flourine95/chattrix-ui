@@ -45,5 +45,25 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+
+	<!-- Privacy - Camera Usage Description -->
+	<key>NSCameraUsageDescription</key>
+	<string>This app needs camera access to take photos and videos for chat messages.</string>
+
+	<!-- Privacy - Microphone Usage Description -->
+	<key>NSMicrophoneUsageDescription</key>
+	<string>This app needs microphone access to record audio messages.</string>
+
+	<!-- Privacy - Photo Library Usage Description -->
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>This app needs photo library access to select images and videos for chat messages.</string>
+
+	<!-- Privacy - Photo Library Add Usage Description -->
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>This app needs permission to save photos to your library.</string>
+
+	<!-- Privacy - Location When In Use Usage Description -->
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>This app needs location access to share your location in chat messages.</string>
 </dict>
 </plist>
