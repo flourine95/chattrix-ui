@@ -14,9 +14,7 @@ class ImageCompressionService {
     int maxHeight = 1920,
   }) async {
     try {
-      debugPrint('📸 Compressing image: ${file.path}');
       final originalSize = await file.length();
-      debugPrint('📊 Original size: ${_formatBytes(originalSize)}');
 
       // Get temporary directory
       final tempDir = await getTemporaryDirectory();
@@ -34,28 +32,20 @@ class ImageCompressionService {
       );
 
       if (result == null) {
-        debugPrint('⚠️ Compression returned null, using original');
         return file;
       }
 
       final compressedFile = File(result.path);
       final compressedSize = await compressedFile.length();
-      final savedBytes = originalSize - compressedSize;
-      final savedPercent = (savedBytes / originalSize * 100).toStringAsFixed(1);
-
-      debugPrint('✅ Compressed size: ${_formatBytes(compressedSize)}');
-      debugPrint('💾 Saved: ${_formatBytes(savedBytes)} ($savedPercent%)');
 
       // If compressed file is larger, use original
       if (compressedSize >= originalSize) {
-        debugPrint('⚠️ Compressed file is larger, using original');
         await compressedFile.delete();
         return file;
       }
 
       return compressedFile;
     } catch (e) {
-      debugPrint('❌ Failed to compress image: $e');
       return file;
     }
   }
@@ -87,10 +77,8 @@ class ImageCompressionService {
     try {
       // FlutterImageCompress doesn't have getImageSize method
       // We'll return null for now, or you can use image package
-      debugPrint('⚠️ Image dimensions not available');
       return null;
     } catch (e) {
-      debugPrint('❌ Failed to get image dimensions: $e');
       return null;
     }
   }
@@ -119,7 +107,6 @@ class ImageCompressionService {
 
       return false;
     } catch (e) {
-      debugPrint('❌ Failed to check if compression needed: $e');
       return false;
     }
   }
@@ -137,13 +124,12 @@ class ImageCompressionService {
       
       // If already smaller than target, return original
       if (originalSize <= targetSizeBytes) {
-        debugPrint('✅ Image already smaller than target size');
         return file;
       }
 
       // Try different quality levels
       final qualities = [85, 75, 65, 55, 45];
-      
+
       for (final quality in qualities) {
         final compressed = await compressImage(
           file,
@@ -151,18 +137,15 @@ class ImageCompressionService {
           maxWidth: maxWidth,
           maxHeight: maxHeight,
         );
-        
+
         final size = await compressed.length();
-        debugPrint('🔍 Quality $quality: ${_formatBytes(size)}');
-        
+
         if (size <= targetSizeBytes) {
-          debugPrint('✅ Achieved target size with quality $quality');
           return compressed;
         }
       }
 
       // If still too large, return the most compressed version
-      debugPrint('⚠️ Could not achieve target size, using lowest quality');
       return await compressImage(
         file,
         quality: 45,
@@ -170,7 +153,6 @@ class ImageCompressionService {
         maxHeight: maxHeight,
       );
     } catch (e) {
-      debugPrint('❌ Failed to compress to target size: $e');
       return file;
     }
   }

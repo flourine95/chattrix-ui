@@ -19,7 +19,6 @@ class CloudinaryService {
   /// Returns the secure URL of the uploaded image
   Future<CloudinaryUploadResult> uploadImage(File file, {String? fileName}) async {
     try {
-      debugPrint('📤 Uploading image to Cloudinary: ${file.path}');
 
       final response = await _cloudinary.uploadFile(
         CloudinaryFile.fromFile(
@@ -29,8 +28,6 @@ class CloudinaryService {
           publicId: fileName,
         ),
       );
-
-      debugPrint('✅ Image uploaded: ${response.secureUrl}');
 
       // Extract data from response.data map
       final format = response.data['format'] as String?;
@@ -56,7 +53,6 @@ class CloudinaryService {
   /// Returns the secure URL and thumbnail URL
   Future<CloudinaryUploadResult> uploadVideo(File file, {String? fileName}) async {
     try {
-      debugPrint('📤 Uploading video to Cloudinary: ${file.path}');
 
       final response = await _cloudinary.uploadFile(
         CloudinaryFile.fromFile(
@@ -69,8 +65,6 @@ class CloudinaryService {
 
       // Generate thumbnail URL (Cloudinary auto-generates thumbnails for videos)
       final thumbnailUrl = response.secureUrl.replaceAll('.mp4', '.jpg');
-
-      debugPrint('✅ Video uploaded: ${response.secureUrl}');
 
       // Extract data from response.data map
       final format = response.data['format'] as String?;
@@ -95,7 +89,6 @@ class CloudinaryService {
   /// Returns the secure URL
   Future<CloudinaryUploadResult> uploadAudio(File file, {String? fileName}) async {
     try {
-      debugPrint('📤 Uploading audio to Cloudinary: ${file.path}');
 
       final response = await _cloudinary.uploadFile(
         CloudinaryFile.fromFile(
@@ -105,8 +98,6 @@ class CloudinaryService {
           publicId: fileName,
         ),
       );
-
-      debugPrint('✅ Audio uploaded: ${response.secureUrl}');
 
       // Extract data from response.data map
       final format = response.data['format'] as String?;
@@ -130,7 +121,6 @@ class CloudinaryService {
   /// Returns the secure URL
   Future<CloudinaryUploadResult> uploadDocument(File file, {String? fileName}) async {
     try {
-      debugPrint('📤 Uploading document to Cloudinary: ${file.path}');
 
       final response = await _cloudinary.uploadFile(
         CloudinaryFile.fromFile(
@@ -140,8 +130,6 @@ class CloudinaryService {
           publicId: fileName,
         ),
       );
-
-      debugPrint('✅ Document uploaded: ${response.secureUrl}');
 
       // Extract data from response.data map
       final format = response.data['format'] as String?;

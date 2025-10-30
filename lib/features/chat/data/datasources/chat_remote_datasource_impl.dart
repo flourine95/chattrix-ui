@@ -51,32 +51,7 @@ class ChatRemoteDatasourceImpl implements ChatRemoteDatasource {
       );
 
       if (response.statusCode == 200) {
-        debugPrint('📋 Conversations API Response:');
-        debugPrint('   Status: ${response.statusCode}');
-        debugPrint('   Data type: ${response.data.runtimeType}');
-
         final data = response.data['data'] as List;
-        debugPrint('   Conversations count: ${data.length}');
-
-        // Debug first conversation to see structure
-        if (data.isNotEmpty) {
-          final firstConv = data.first as Map<String, dynamic>;
-          debugPrint('   First conversation keys: ${firstConv.keys.toList()}');
-          if (firstConv.containsKey('participants')) {
-            final participants = firstConv['participants'] as List;
-            debugPrint(
-              '   First conversation participants: ${participants.length}',
-            );
-            if (participants.isNotEmpty) {
-              final firstParticipant =
-                  participants.first as Map<String, dynamic>;
-              debugPrint(
-                '   First participant keys: ${firstParticipant.keys.toList()}',
-              );
-              debugPrint('   First participant data: $firstParticipant');
-            }
-          }
-        }
 
         return data
             .whereType<Map<String, dynamic>>()
@@ -132,25 +107,8 @@ class ChatRemoteDatasourceImpl implements ChatRemoteDatasource {
         queryParameters: {'page': page, 'size': size, 'sort': sort},
       );
 
-      debugPrint('💬 Get Messages Response:');
-      debugPrint('   Status: ${response.statusCode}');
-      debugPrint('   Data type: ${response.data.runtimeType}');
-
       if (response.statusCode == 200) {
         final data = response.data['data'] as List;
-        debugPrint('   Messages count: ${data.length}');
-
-        if (data.isNotEmpty) {
-          debugPrint('   First message keys: ${(data.first as Map).keys}');
-          debugPrint('   First message: ${data.first}');
-
-          // Log all message types and media URLs
-          debugPrint('   📊 Message types breakdown:');
-          for (var i = 0; i < data.length; i++) {
-            final msg = data[i] as Map<String, dynamic>;
-            debugPrint('      [$i] type: ${msg['type']}, mediaUrl: ${msg['mediaUrl']}, content: ${msg['content']}');
-          }
-        }
 
         return data
             .whereType<Map<String, dynamic>>()
@@ -160,20 +118,9 @@ class ChatRemoteDatasourceImpl implements ChatRemoteDatasource {
 
       throw ServerException(message: 'Failed to fetch messages');
     } on DioException catch (e) {
-      debugPrint('❌ Get Messages Error:');
-      debugPrint('   Type: ${e.type}');
-      debugPrint('   Message: ${e.message}');
-      debugPrint('   Status Code: ${e.response?.statusCode}');
-      debugPrint('   Response Data: ${e.response?.data}');
-      debugPrint('   Response Headers: ${e.response?.headers}');
-
       // If 500 error, return empty list instead of throwing
       // This allows the app to continue working while backend is being fixed
       if (e.response?.statusCode == 500) {
-        debugPrint('⚠️ Backend error 500, returning empty messages list');
-        debugPrint(
-          '⚠️ Please check backend logs for the actual error details',
-        );
         return []; // Return empty list instead of crashing
       }
 

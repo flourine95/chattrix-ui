@@ -65,22 +65,6 @@ class ChatListPage extends HookConsumerWidget {
               final isOnline = ConversationUtils.isUserOnline(c, me);
               final lastSeen = ConversationUtils.getLastSeen(c, me);
 
-              // Debug: Print conversation data
-              debugPrint('🔍 Conversation ${c.id} ($title):');
-              debugPrint('   Type: ${c.type}');
-              debugPrint('   Participants: ${c.participants.length}');
-              for (var p in c.participants) {
-                debugPrint(
-                  '   - User ${p.userId}: ${p.username} (${p.fullName})',
-                );
-                debugPrint('     nickname: ${p.nickname}');
-                debugPrint('     isOnline: ${p.isOnline}');
-                debugPrint('     lastSeen: ${p.lastSeen}');
-              }
-              debugPrint('   isOnline (computed): $isOnline');
-              debugPrint('   lastSeen (computed): $lastSeen');
-              debugPrint('   lastMessage: ${c.lastMessage?.content}');
-
               // Format subtitle based on conversation type
               String subtitle;
               if (c.type.toUpperCase() == 'DIRECT') {

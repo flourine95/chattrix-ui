@@ -34,13 +34,11 @@ class VoiceRecorderService {
       // Check permission
       final hasPermission = await requestPermission();
       if (!hasPermission) {
-        debugPrint('❌ Microphone permission denied');
         return null;
       }
-      
+
       // Check if already recording
       if (await _recorder.isRecording()) {
-        debugPrint('⚠️ Already recording');
         return null;
       }
       
@@ -64,11 +62,9 @@ class VoiceRecorderService {
       
       // Start duration timer
       _startDurationTimer();
-      
-      debugPrint('🎤 Started recording: $path');
+
       return path;
     } catch (e) {
-      debugPrint('❌ Failed to start recording: $e');
       return null;
     }
   }
@@ -77,33 +73,26 @@ class VoiceRecorderService {
   Future<File?> stopRecording() async {
     try {
       if (!await _recorder.isRecording()) {
-        debugPrint('⚠️ Not recording');
         return null;
       }
-      
+
       final path = await _recorder.stop();
       _stopDurationTimer();
-      
+
       if (path == null) {
-        debugPrint('❌ Recording path is null');
         return null;
       }
-      
+
       final file = File(path);
       if (!await file.exists()) {
-        debugPrint('❌ Recording file does not exist');
         return null;
       }
-      
-      debugPrint('✅ Stopped recording: $path');
-      debugPrint('📊 File size: ${await file.length()} bytes');
-      
+
       _currentRecordingPath = null;
       _recordingStartTime = null;
-      
+
       return file;
     } catch (e) {
-      debugPrint('❌ Failed to stop recording: $e');
       return null;
     }
   }
@@ -122,14 +111,13 @@ class VoiceRecorderService {
         final file = File(_currentRecordingPath!);
         if (await file.exists()) {
           await file.delete();
-          debugPrint('🗑️ Deleted recording: $_currentRecordingPath');
         }
       }
-      
+
       _currentRecordingPath = null;
       _recordingStartTime = null;
     } catch (e) {
-      debugPrint('❌ Failed to cancel recording: $e');
+      // Silently handle error
     }
   }
   
@@ -139,10 +127,9 @@ class VoiceRecorderService {
       if (await _recorder.isRecording()) {
         await _recorder.pause();
         _stopDurationTimer();
-        debugPrint('⏸️ Paused recording');
       }
     } catch (e) {
-      debugPrint('❌ Failed to pause recording: $e');
+      // Silently handle error
     }
   }
   
@@ -152,10 +139,9 @@ class VoiceRecorderService {
       if (await _recorder.isPaused()) {
         await _recorder.resume();
         _startDurationTimer();
-        debugPrint('▶️ Resumed recording');
       }
     } catch (e) {
-      debugPrint('❌ Failed to resume recording: $e');
+      // Silently handle error
     }
   }
   

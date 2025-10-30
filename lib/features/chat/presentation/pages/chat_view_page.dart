@@ -374,10 +374,6 @@ class _InputBar extends HookConsumerWidget {
       builder: (modalContext) => VoiceRecorderWidget(
         onRecordingComplete: (audioFile, duration) async {
           try {
-            debugPrint('🎤 Voice recording complete: ${audioFile.path}');
-            debugPrint('🎤 Duration: ${duration.inSeconds}s');
-            debugPrint('🎤 File size: ${await audioFile.length()} bytes');
-
             // Close modal using modal context
             if (modalContext.mounted) {
               Navigator.pop(modalContext);
@@ -392,12 +388,9 @@ class _InputBar extends HookConsumerWidget {
             );
 
             // Upload to Cloudinary
-            debugPrint('📤 Uploading audio to Cloudinary...');
             final result = await cloudinaryService.uploadAudio(audioFile);
-            debugPrint('✅ Audio uploaded: ${result.url}');
 
             // Send message
-            debugPrint('📨 Sending audio message to conversation: $chatId');
             final sendResult = await sendMessageUsecase(
               conversationId: chatId,
               content: 'Voice message',
@@ -407,28 +400,22 @@ class _InputBar extends HookConsumerWidget {
               duration: duration.inSeconds,
             );
 
-            debugPrint('📨 Send result received');
-
             // Remove upload snackbar immediately using the saved reference
             scaffoldMessenger.removeCurrentSnackBar();
 
             sendResult.fold(
               (failure) {
-                debugPrint('❌ Failed to send audio message: ${failure.message}');
                 scaffoldMessenger.showSnackBar(
                   SnackBar(content: Text('Failed to send: ${failure.message}')),
                 );
               },
               (message) {
-                debugPrint('✅ Audio message sent successfully: ${message.id}');
                 // Don't show success snackbar - user can see the message in chat
                 // Manually trigger refresh since backend doesn't broadcast multimedia via WebSocket
                 ref.read(messagesProvider(chatId).notifier).refresh();
               },
             );
           } catch (e, stackTrace) {
-            debugPrint('❌ Error sending voice message: $e');
-            debugPrint('Stack trace: $stackTrace');
             scaffoldMessenger.removeCurrentSnackBar();
             scaffoldMessenger.showSnackBar(
               SnackBar(content: Text('Error: $e')),
@@ -536,7 +523,7 @@ class _InputBar extends HookConsumerWidget {
                 // Manually trigger refresh for all participants
                 // This is a workaround since backend doesn't broadcast multimedia messages via WebSocket
                 sendResult.fold(
-                  (failure) => debugPrint('❌ Failed to send image: ${failure.message}'),
+                  (failure) => null,
                   (_) => ref.read(messagesProvider(chatId).notifier).refresh(),
                 );
               }

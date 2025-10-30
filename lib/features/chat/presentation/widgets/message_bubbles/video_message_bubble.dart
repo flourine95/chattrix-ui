@@ -96,10 +96,6 @@ class _VideoMessageBubbleState extends State<VideoMessageBubble>
   Widget build(BuildContext context) {
     super.build(context); // Required for AutomaticKeepAliveClientMixin
 
-    debugPrint('🎥 [VideoMessageBubble] Building for message ${widget.message.id}');
-    debugPrint('   mediaUrl: ${widget.message.mediaUrl}');
-    debugPrint('   isInitialized: $_isInitialized');
-
     final textColor = getTextColor(context, widget.isMe);
     final textTheme = Theme.of(context).textTheme;
 

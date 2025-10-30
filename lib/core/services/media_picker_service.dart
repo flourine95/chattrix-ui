@@ -21,12 +21,10 @@ class MediaPickerService {
       );
 
       if (image != null) {
-        debugPrint('📷 Image picked from gallery: ${image.path}');
         return File(image.path);
       }
       return null;
     } catch (e) {
-      debugPrint('❌ Failed to pick image from gallery: $e');
       rethrow;
     }
   }
@@ -41,12 +39,10 @@ class MediaPickerService {
       );
 
       if (images.isNotEmpty) {
-        debugPrint('📷 ${images.length} images picked from gallery');
         return images.map((image) => File(image.path)).toList();
       }
       return [];
     } catch (e) {
-      debugPrint('❌ Failed to pick multiple images from gallery: $e');
       rethrow;
     }
   }
@@ -57,7 +53,6 @@ class MediaPickerService {
       // Request camera permission
       final status = await Permission.camera.request();
       if (!status.isGranted) {
-        debugPrint('❌ Camera permission denied');
         return null;
       }
 
@@ -67,14 +62,12 @@ class MediaPickerService {
         maxHeight: 1920,
         imageQuality: 85,
       );
-      
+
       if (image != null) {
-        debugPrint('📷 Photo taken: ${image.path}');
         return File(image.path);
       }
       return null;
     } catch (e) {
-      debugPrint('❌ Failed to take photo: $e');
       rethrow;
     }
   }
@@ -88,12 +81,10 @@ class MediaPickerService {
       );
       
       if (video != null) {
-        debugPrint('🎥 Video picked from gallery: ${video.path}');
         return File(video.path);
       }
       return null;
     } catch (e) {
-      debugPrint('❌ Failed to pick video from gallery: $e');
       rethrow;
     }
   }
@@ -104,7 +95,6 @@ class MediaPickerService {
       // Request camera permission
       final status = await Permission.camera.request();
       if (!status.isGranted) {
-        debugPrint('❌ Camera permission denied');
         return null;
       }
 
@@ -112,14 +102,12 @@ class MediaPickerService {
         source: ImageSource.camera,
         maxDuration: const Duration(minutes: 5),
       );
-      
+
       if (video != null) {
-        debugPrint('🎥 Video recorded: ${video.path}');
         return File(video.path);
       }
       return null;
     } catch (e) {
-      debugPrint('❌ Failed to record video: $e');
       rethrow;
     }
   }
@@ -135,13 +123,11 @@ class MediaPickerService {
       if (result != null && result.files.isNotEmpty) {
         final path = result.files.first.path;
         if (path != null) {
-          debugPrint('🎵 Audio file picked: $path');
           return File(path);
         }
       }
       return null;
     } catch (e) {
-      debugPrint('❌ Failed to pick audio file: $e');
       rethrow;
     }
   }
@@ -170,7 +156,6 @@ class MediaPickerService {
       }
       return null;
     } catch (e) {
-      debugPrint('❌ Failed to pick document: $e');
       rethrow;
     }
   }
@@ -181,7 +166,6 @@ class MediaPickerService {
       // Check if location services are enabled
       bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
       if (!serviceEnabled) {
-        debugPrint('❌ Location services are disabled');
         return null;
       }
 
@@ -190,13 +174,11 @@ class MediaPickerService {
       if (permission == LocationPermission.denied) {
         permission = await Geolocator.requestPermission();
         if (permission == LocationPermission.denied) {
-          debugPrint('❌ Location permission denied');
           return null;
         }
       }
 
       if (permission == LocationPermission.deniedForever) {
-        debugPrint('❌ Location permission denied forever');
         return null;
       }
 
@@ -207,13 +189,11 @@ class MediaPickerService {
         ),
       );
 
-      debugPrint('📍 Location obtained: ${position.latitude}, ${position.longitude}');
       return LocationData(
         latitude: position.latitude,
         longitude: position.longitude,
       );
     } catch (e) {
-      debugPrint('❌ Failed to get location: $e');
       rethrow;
     }
   }

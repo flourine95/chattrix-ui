@@ -20,9 +20,6 @@ class AuthDioClient {
     dio.interceptors.add(
       InterceptorsWrapper(
         onRequest: (options, handler) async {
-          // 📊 Log call API
-          debugPrint('🌐 API Call: ${options.method} ${options.uri}');
-
           // Thêm access token vào header nếu có
           final accessToken = await secureStorage.read(
             key: ApiConstants.accessTokenKey,
@@ -34,18 +31,10 @@ class AuthDioClient {
           handler.next(options);
         },
         onResponse: (response, handler) {
-          // 📊 Log response status
-          debugPrint(
-            '✅ Response: ${response.statusCode} - ${response.requestOptions.method} ${response.requestOptions.uri}',
-          );
           handler.next(response);
         },
         onError: (error, handler) async {
-          // 📊 Log error
           final statusCode = error.response?.statusCode;
-          debugPrint(
-            '❌ Error: $statusCode - ${error.requestOptions.method} ${error.requestOptions.uri}',
-          );
 
           // Nếu nhận được 401 (Unauthorized), thử refresh token
           if (statusCode == 401) {
@@ -70,8 +59,6 @@ class AuthDioClient {
               _refreshLock = Completer<void>();
 
               try {
-                // Thử refresh token
-                debugPrint('🔄 Auto-refreshing token...');
                 final newAccessToken = await _refreshAccessToken();
 
                 if (newAccessToken != null) {
@@ -80,9 +67,6 @@ class AuthDioClient {
                       'Bearer $newAccessToken';
 
                   final response = await dio.fetch(error.requestOptions);
-                  debugPrint(
-                    '✅ Retry: ${response.statusCode} - ${error.requestOptions.method} ${error.requestOptions.uri}',
-                  );
 
                   _refreshLock?.complete();
                   _refreshLock = null;
@@ -90,7 +74,6 @@ class AuthDioClient {
                   return handler.resolve(response);
                 }
               } catch (e) {
-                debugPrint('❌ Auto-refresh failed: $e');
                 await _clearTokens();
               } finally {
                 // Giải phóng lock
@@ -113,14 +96,9 @@ class AuthDioClient {
       );
 
       if (refreshToken == null) {
-        debugPrint('❌ Refresh token not found in storage');
         await _clearTokens();
         return null;
       }
-
-      debugPrint(
-        '🔑 Refreshing with token: ${refreshToken.substring(0, 20)}...',
-      );
 
       // Tạo Dio instance mới để tránh interceptor loop
       final refreshDio = Dio(
@@ -135,8 +113,6 @@ class AuthDioClient {
         '${ApiConstants.baseUrl}/${ApiConstants.refresh}',
         data: {'refreshToken': refreshToken},
       );
-
-      debugPrint('🔄 Refresh response: ${response.statusCode}');
 
       if (response.statusCode == 200) {
         final data = response.data['data'];
@@ -154,25 +130,12 @@ class AuthDioClient {
           value: newRefreshToken,
         );
 
-        debugPrint('✅ Token refreshed successfully');
         return newAccessToken;
-      } else if (response.statusCode == 401) {
-        // Refresh token hết hạn hoặc không hợp lệ
-        debugPrint('❌ Refresh token expired or invalid');
-        await _clearTokens();
-        return null;
       } else {
-        debugPrint('❌ Refresh failed with status: ${response.statusCode}');
-        debugPrint('Response: ${response.data}');
+        await _clearTokens();
         return null;
       }
     } catch (e) {
-      debugPrint('❌ Exception during refresh: $e');
-      if (e is DioException) {
-        debugPrint('DioException type: ${e.type}');
-        debugPrint('DioException message: ${e.message}');
-        debugPrint('DioException response: ${e.response?.data}');
-      }
       return null;
     }
   }

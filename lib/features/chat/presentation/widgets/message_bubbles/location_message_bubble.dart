@@ -69,10 +69,6 @@ class LocationMessageBubble extends StatelessWidget {
                             '&markers=color:red%7C${message.latitude},${message.longitude}'
                             '&key=$apiKey';
 
-                        // Debug: Print URL to console
-                        debugPrint('🗺️ Map URL: $mapUrl');
-                        debugPrint('🔑 API Key: ${apiKey.isEmpty ? "EMPTY!" : "${apiKey.substring(0, 10)}..."}');
-
                         return CachedNetworkImage(
                           imageUrl: mapUrl,
                           width: 280,
@@ -89,10 +85,6 @@ class LocationMessageBubble extends StatelessWidget {
                             ),
                           ),
                           errorWidget: (context, url, error) {
-                            // Debug: Print error
-                            debugPrint('❌ Map loading error: $error');
-                            debugPrint('❌ Failed URL: $url');
-
                             return Container(
                               width: 280,
                               height: 150,
