@@ -6,6 +6,7 @@ import 'package:chattrix_ui/features/chat/domain/usecases/get_online_users_useca
 import 'package:chattrix_ui/features/chat/domain/usecases/get_user_status_usecase.dart';
 import 'package:chattrix_ui/features/chat/domain/usecases/search_users_usecase.dart';
 import 'package:chattrix_ui/features/chat/domain/usecases/send_message_usecase.dart';
+import 'package:chattrix_ui/features/chat/domain/usecases/toggle_reaction_usecase.dart';
 import 'package:chattrix_ui/features/chat/presentation/providers/chat_repository_provider.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
@@ -67,4 +68,12 @@ final getUserStatusUsecaseProvider = Provider<GetUserStatusUsecase>((ref) {
 final searchUsersUsecaseProvider = Provider<SearchUsersUsecase>((ref) {
   final repository = ref.watch(chatRepositoryProvider);
   return SearchUsersUsecase(repository);
+});
+
+// ========== Reaction Use Cases ==========
+
+/// Provider for toggling reactions
+final toggleReactionUsecaseProvider = Provider<ToggleReactionUsecase>((ref) {
+  final repository = ref.watch(chatRepositoryProvider);
+  return ToggleReactionUsecase(repository);
 });

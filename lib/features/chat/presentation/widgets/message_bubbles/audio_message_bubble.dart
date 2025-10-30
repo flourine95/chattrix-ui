@@ -9,10 +9,20 @@ class AudioMessageBubble extends StatefulWidget {
     super.key,
     required this.message,
     required this.isMe,
+    this.onReply,
+    this.onReactionTap,
+    this.onAddReaction,
+    this.currentUserId,
+    this.replyToMessage,
   });
 
   final Message message;
   final bool isMe;
+  final VoidCallback? onReply;
+  final Function(String emoji)? onReactionTap;
+  final VoidCallback? onAddReaction;
+  final int? currentUserId;
+  final Message? replyToMessage;
 
   @override
   State<AudioMessageBubble> createState() => _AudioMessageBubbleState();
@@ -122,6 +132,12 @@ class _AudioMessageBubbleState extends State<AudioMessageBubble>
 
     return BaseBubbleContainer(
       isMe: widget.isMe,
+      message: widget.message,
+      onReply: widget.onReply,
+      onReactionTap: widget.onReactionTap,
+      onAddReaction: widget.onAddReaction,
+      currentUserId: widget.currentUserId,
+      replyToMessage: widget.replyToMessage,
       child: Padding(
         padding: const EdgeInsets.all(12),
         child: Row(

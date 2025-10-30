@@ -10,10 +10,20 @@ class VideoMessageBubble extends StatefulWidget {
     super.key,
     required this.message,
     required this.isMe,
+    this.onReply,
+    this.onReactionTap,
+    this.onAddReaction,
+    this.currentUserId,
+    this.replyToMessage,
   });
 
   final Message message;
   final bool isMe;
+  final VoidCallback? onReply;
+  final Function(String emoji)? onReactionTap;
+  final VoidCallback? onAddReaction;
+  final int? currentUserId;
+  final Message? replyToMessage;
 
   @override
   State<VideoMessageBubble> createState() => _VideoMessageBubbleState();
@@ -102,6 +112,12 @@ class _VideoMessageBubbleState extends State<VideoMessageBubble>
     return BaseBubbleContainer(
       isMe: widget.isMe,
       maxWidth: 280,
+      message: widget.message,
+      onReply: widget.onReply,
+      onReactionTap: widget.onReactionTap,
+      onAddReaction: widget.onAddReaction,
+      currentUserId: widget.currentUserId,
+      replyToMessage: widget.replyToMessage,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

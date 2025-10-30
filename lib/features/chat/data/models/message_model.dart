@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:chattrix_ui/features/chat/data/models/message_sender_model.dart';
 import 'package:chattrix_ui/features/chat/domain/entities/message.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -75,9 +76,45 @@ abstract class MessageModel with _$MessageModel {
       // Reply/Thread fields
       replyToMessageId: json['replyToMessageId'] != null ? (json['replyToMessageId'] as num).toInt() : null,
       // Reactions and mentions
-      reactions: json['reactions']?.toString(),
-      mentions: json['mentions']?.toString(),
+      reactions: _convertReactionsToJson(json['reactions']),
+      mentions: _convertMentionsToJson(json['mentions']),
     );
+  }
+
+  /// Convert reactions from API format to JSON string
+  /// API returns: {"👍": [1, 5], "❤️": [7]} (object)
+  /// We need: "{\"👍\": [1, 5], \"❤️\": [7]}" (JSON string)
+  static String? _convertReactionsToJson(dynamic reactions) {
+    if (reactions == null) return null;
+    if (reactions is String) return reactions;
+    if (reactions is Map) {
+      try {
+        // Convert Map to JSON string
+        return jsonEncode(reactions);
+      } catch (e) {
+        print('Error converting reactions to JSON: $e');
+        return null;
+      }
+    }
+    return null;
+  }
+
+  /// Convert mentions from API format to JSON string
+  /// API returns: [1, 2, 3] (array)
+  /// We need: "[1, 2, 3]" (JSON string)
+  static String? _convertMentionsToJson(dynamic mentions) {
+    if (mentions == null) return null;
+    if (mentions is String) return mentions;
+    if (mentions is List) {
+      try {
+        // Convert List to JSON string
+        return jsonEncode(mentions);
+      } catch (e) {
+        print('Error converting mentions to JSON: $e');
+        return null;
+      }
+    }
+    return null;
   }
 
   Message toEntity() {

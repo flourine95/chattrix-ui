@@ -277,4 +277,54 @@ class ChatRemoteDatasourceImpl implements ChatRemoteDatasource {
       throw ServerException(message: 'Failed to search users: $e');
     }
   }
+
+  @override
+  Future<Map<String, dynamic>> toggleReaction({
+    required String messageId,
+    required String emoji,
+  }) async {
+    try {
+      final url =
+          '${ApiConstants.baseUrl}/${ApiConstants.messageReactions(messageId)}';
+
+      final response = await dio.post(
+        url,
+        data: {'emoji': emoji},
+      );
+
+      if (response.statusCode == 200) {
+        return response.data['data'] as Map<String, dynamic>;
+      }
+
+      throw ServerException(message: 'Failed to toggle reaction');
+    } on DioException catch (e) {
+      throw ServerException(
+        message: e.response?.data['message'] ?? 'Failed to toggle reaction',
+      );
+    } catch (e) {
+      throw ServerException(message: 'Failed to toggle reaction: $e');
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> getReactions(String messageId) async {
+    try {
+      final url =
+          '${ApiConstants.baseUrl}/${ApiConstants.messageReactions(messageId)}';
+
+      final response = await dio.get(url);
+
+      if (response.statusCode == 200) {
+        return response.data['data'] as Map<String, dynamic>;
+      }
+
+      throw ServerException(message: 'Failed to get reactions');
+    } on DioException catch (e) {
+      throw ServerException(
+        message: e.response?.data['message'] ?? 'Failed to get reactions',
+      );
+    } catch (e) {
+      throw ServerException(message: 'Failed to get reactions: $e');
+    }
+  }
 }

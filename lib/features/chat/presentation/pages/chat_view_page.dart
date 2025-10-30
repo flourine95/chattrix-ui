@@ -4,10 +4,13 @@ import 'dart:io';
 import 'package:chattrix_ui/core/services/cloudinary_provider.dart';
 import 'package:chattrix_ui/core/services/media_picker_provider.dart';
 import 'package:chattrix_ui/features/auth/presentation/providers/auth_providers.dart';
+import 'package:chattrix_ui/features/chat/domain/entities/message.dart';
 import 'package:chattrix_ui/features/chat/presentation/providers/chat_providers.dart';
 import 'package:chattrix_ui/features/chat/presentation/utils/conversation_utils.dart';
 import 'package:chattrix_ui/features/chat/presentation/widgets/attachment_picker_bottom_sheet.dart';
 import 'package:chattrix_ui/features/chat/presentation/widgets/message_bubble.dart';
+import 'package:chattrix_ui/features/chat/presentation/widgets/message_reactions.dart';
+import 'package:chattrix_ui/features/chat/presentation/widgets/reply_message_preview.dart';
 import 'package:chattrix_ui/features/chat/presentation/widgets/voice_recorder_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -31,6 +34,7 @@ class ChatViewPage extends HookConsumerWidget {
     final previousFirstMessageId = useRef<int?>(null); // Track first message ID to detect changes
     final shouldAutoScroll = useRef(true); // Track if we should auto-scroll
     final hasNewMessages = useState(false); // Track if there are new messages while scrolled up
+    final replyToMessage = useState<Message?>(null); // Track message being replied to
 
     final textTheme = Theme.of(context).textTheme;
     final colors = Theme.of(context).colorScheme;
@@ -132,16 +136,22 @@ class ChatViewPage extends HookConsumerWidget {
       final text = controller.text.trim();
       if (text.isEmpty) return;
 
+      final replyId = replyToMessage.value?.id;
       controller.clear();
+      replyToMessage.value = null; // Clear reply after sending
 
       // Send via WebSocket if connected, otherwise use HTTP
       if (wsConnection.isConnected) {
-        wsService.sendMessage(chatId, text);
+        wsService.sendMessage(chatId, text, replyToMessageId: replyId);
         // WebSocket will broadcast the message back, triggering auto-refresh via MessagesNotifier
       } else {
         // Fallback to HTTP if WebSocket is not connected
         final usecase = ref.read(sendMessageUsecaseProvider);
-        final result = await usecase(conversationId: chatId, content: text);
+        final result = await usecase(
+          conversationId: chatId,
+          content: text,
+          replyToMessageId: replyId,
+        );
         result.fold(
           (failure) {
             ScaffoldMessenger.of(context).showSnackBar(
@@ -154,6 +164,25 @@ class ChatViewPage extends HookConsumerWidget {
           },
         );
       }
+    }
+
+    Future<void> handleReaction(Message message, String emoji) async {
+      final usecase = ref.read(toggleReactionUsecaseProvider);
+      final result = await usecase(
+        messageId: message.id.toString(),
+        emoji: emoji,
+      );
+      result.fold(
+        (failure) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(failure.message)),
+          );
+        },
+        (_) {
+          // Refresh messages to show updated reactions
+          ref.read(messagesProvider(chatId).notifier).refresh();
+        },
+      );
     }
 
     void scrollToBottom() {
@@ -254,12 +283,45 @@ class ChatViewPage extends HookConsumerWidget {
                       itemBuilder: (context, index) {
                         final m = messages[index];
                         final isMe = m.sender.id == me?.id;
+
+                        // Find replied message if exists
+                        Message? repliedMsg;
+                        if (m.replyToMessageId != null) {
+                          try {
+                            repliedMsg = messages.firstWhere(
+                              (msg) => msg.id == m.replyToMessageId,
+                            );
+                          } catch (e) {
+                            // Message not found in current list
+                            repliedMsg = null;
+                          }
+                        }
+
                         return Align(
                           key: ValueKey(m.id), // Add key for better performance
                           alignment: isMe
                               ? Alignment.centerRight
                               : Alignment.centerLeft,
-                          child: MessageBubble(message: m, isMe: isMe),
+                          child: MessageBubble(
+                            message: m,
+                            isMe: isMe,
+                            currentUserId: me?.id,
+                            replyToMessage: repliedMsg,
+                            onReply: () {
+                              replyToMessage.value = m;
+                            },
+                            onReactionTap: (emoji) {
+                              handleReaction(m, emoji);
+                            },
+                            onAddReaction: () {
+                              showReactionPicker(
+                                context,
+                                (emoji) {
+                                  handleReaction(m, emoji);
+                                },
+                              );
+                            },
+                          ),
                         );
                       },
                     );
@@ -274,10 +336,22 @@ class ChatViewPage extends HookConsumerWidget {
                   ),
                 ),
               ),
-              _InputBar(
-                controller: controller,
-                onSend: sendMessage,
-                chatId: chatId,
+              Column(
+                children: [
+                  // Reply preview
+                  if (replyToMessage.value != null)
+                    ReplyMessagePreview(
+                      replyToMessage: replyToMessage.value!,
+                      onCancel: () {
+                        replyToMessage.value = null;
+                      },
+                    ),
+                  _InputBar(
+                    controller: controller,
+                    onSend: sendMessage,
+                    chatId: chatId,
+                  ),
+                ],
               ),
             ],
           ),

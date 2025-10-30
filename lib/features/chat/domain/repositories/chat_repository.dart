@@ -49,4 +49,13 @@ abstract class ChatRepository {
     required String query,
     int limit = 20,
   });
+
+  /// Toggle reaction on a message
+  Future<Either<Failure, Map<String, dynamic>>> toggleReaction({
+    required String messageId,
+    required String emoji,
+  });
+
+  /// Get reactions for a message
+  Future<Either<Failure, Map<String, dynamic>>> getReactions(String messageId);
 }

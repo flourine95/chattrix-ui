@@ -140,4 +140,36 @@ class ChatRepositoryImpl implements ChatRepository {
       return Left(ServerFailure(message: 'Failed to search users'));
     }
   }
+
+  @override
+  Future<Either<Failure, Map<String, dynamic>>> toggleReaction({
+    required String messageId,
+    required String emoji,
+  }) async {
+    try {
+      final result = await remoteDatasource.toggleReaction(
+        messageId: messageId,
+        emoji: emoji,
+      );
+      return Right(result);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(message: e.message));
+    } catch (e) {
+      return Left(ServerFailure(message: 'Failed to toggle reaction'));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Map<String, dynamic>>> getReactions(
+    String messageId,
+  ) async {
+    try {
+      final result = await remoteDatasource.getReactions(messageId);
+      return Right(result);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(message: e.message));
+    } catch (e) {
+      return Left(ServerFailure(message: 'Failed to get reactions'));
+    }
+  }
 }

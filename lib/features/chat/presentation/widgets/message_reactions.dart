@@ -18,12 +18,20 @@ class MessageReactions extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Debug logging
+    print('MessageReactions - reactions: $reactions');
+    print('MessageReactions - currentUserId: $currentUserId');
+
     if (reactions == null || reactions!.isEmpty) {
+      print('MessageReactions - reactions is null or empty');
       return const SizedBox.shrink();
     }
 
     final reactionsMap = _parseReactions(reactions!);
+    print('MessageReactions - reactionsMap: $reactionsMap');
+
     if (reactionsMap.isEmpty) {
+      print('MessageReactions - reactionsMap is empty after parsing');
       return const SizedBox.shrink();
     }
 

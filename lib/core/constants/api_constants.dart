@@ -63,6 +63,15 @@ class ApiConstants {
   static String typingStatus(String conversationId) =>
       '$typingBase/status/$conversationId';
 
+  // Reaction API endpoints
+  static const String messagesBase = '$apiVersion/messages';
+
+  static String messageReactions(String messageId) =>
+      '$messagesBase/$messageId/reactions';
+
+  static String deleteReaction(String messageId, String emoji) =>
+      '$messagesBase/$messageId/reactions/$emoji';
+
   // WebSocket endpoint
   static String get wsBaseUrl {
     // WebSocket base URL: ws://host:port/chattrix-api

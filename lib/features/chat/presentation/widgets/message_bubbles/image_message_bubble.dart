@@ -9,10 +9,20 @@ class ImageMessageBubble extends StatelessWidget {
     super.key,
     required this.message,
     required this.isMe,
+    this.onReply,
+    this.onReactionTap,
+    this.onAddReaction,
+    this.currentUserId,
+    this.replyToMessage,
   });
 
   final Message message;
   final bool isMe;
+  final VoidCallback? onReply;
+  final Function(String emoji)? onReactionTap;
+  final VoidCallback? onAddReaction;
+  final int? currentUserId;
+  final Message? replyToMessage;
 
   void _openFullScreenImage(BuildContext context) {
     if (message.mediaUrl == null) return;
@@ -35,6 +45,12 @@ class ImageMessageBubble extends StatelessWidget {
     return BaseBubbleContainer(
       isMe: isMe,
       maxWidth: 280,
+      message: message,
+      onReply: onReply,
+      onReactionTap: onReactionTap,
+      onAddReaction: onAddReaction,
+      currentUserId: currentUserId,
+      replyToMessage: replyToMessage,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

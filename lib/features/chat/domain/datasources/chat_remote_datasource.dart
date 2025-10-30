@@ -60,4 +60,13 @@ abstract class ChatRemoteDatasource {
     required String query,
     int limit = 20,
   });
+
+  /// Add or toggle reaction to a message
+  Future<Map<String, dynamic>> toggleReaction({
+    required String messageId,
+    required String emoji,
+  });
+
+  /// Get reactions for a message
+  Future<Map<String, dynamic>> getReactions(String messageId);
 }

@@ -152,14 +152,22 @@ class ChatWebSocketService {
   }
 
   /// Send a chat message
-  void sendMessage(String conversationId, String content) {
+  void sendMessage(
+    String conversationId,
+    String content, {
+    int? replyToMessageId,
+  }) {
     if (_channel == null) {
       return;
     }
 
     final payload = {
       'type': ChatWebSocketEvent.chatMessage,
-      'payload': {'conversationId': conversationId, 'content': content},
+      'payload': {
+        'conversationId': conversationId,
+        'content': content,
+        if (replyToMessageId != null) 'replyToMessageId': replyToMessageId,
+      },
     };
 
     _channel!.sink.add(jsonEncode(payload));
