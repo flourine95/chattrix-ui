@@ -75,6 +75,19 @@ class _VideoMessageBubbleState extends State<VideoMessageBubble> {
     });
   }
 
+  void _openFullScreenVideo(BuildContext context) {
+    if (widget.message.mediaUrl == null) return;
+
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => _FullScreenVideoPlayer(
+          videoUrl: widget.message.mediaUrl!,
+          caption: widget.message.content,
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final textColor = getTextColor(context, widget.isMe);
@@ -90,6 +103,7 @@ class _VideoMessageBubbleState extends State<VideoMessageBubble> {
           if (widget.message.mediaUrl != null)
             GestureDetector(
               onTap: _togglePlayPause,
+              onLongPress: () => _openFullScreenVideo(context),
               child: Stack(
                 alignment: Alignment.center,
                 children: [
@@ -195,6 +209,141 @@ class _VideoMessageBubbleState extends State<VideoMessageBubble> {
               ),
             ),
         ],
+      ),
+    );
+  }
+}
+
+/// Full screen video player
+class _FullScreenVideoPlayer extends StatefulWidget {
+  const _FullScreenVideoPlayer({
+    required this.videoUrl,
+    this.caption,
+  });
+
+  final String videoUrl;
+  final String? caption;
+
+  @override
+  State<_FullScreenVideoPlayer> createState() => _FullScreenVideoPlayerState();
+}
+
+class _FullScreenVideoPlayerState extends State<_FullScreenVideoPlayer> {
+  VideoPlayerController? _controller;
+  bool _isInitialized = false;
+  bool _isPlaying = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _initializeVideo();
+  }
+
+  Future<void> _initializeVideo() async {
+    try {
+      _controller = VideoPlayerController.networkUrl(
+        Uri.parse(widget.videoUrl),
+      );
+
+      await _controller!.initialize();
+
+      if (mounted) {
+        setState(() {
+          _isInitialized = true;
+        });
+        // Auto-play when opened
+        _controller!.play();
+      }
+
+      _controller!.addListener(() {
+        if (mounted) {
+          setState(() {
+            _isPlaying = _controller!.value.isPlaying;
+          });
+        }
+      });
+    } catch (e) {
+      debugPrint('❌ Failed to initialize video: $e');
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller?.dispose();
+    super.dispose();
+  }
+
+  void _togglePlayPause() {
+    if (_controller == null || !_isInitialized) return;
+
+    setState(() {
+      if (_controller!.value.isPlaying) {
+        _controller!.pause();
+      } else {
+        _controller!.play();
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.black,
+      appBar: AppBar(
+        backgroundColor: Colors.black,
+        iconTheme: const IconThemeData(color: Colors.white),
+        title: widget.caption != null && widget.caption!.isNotEmpty
+            ? Text(
+                widget.caption!,
+                style: const TextStyle(color: Colors.white),
+              )
+            : null,
+      ),
+      body: Center(
+        child: _isInitialized && _controller != null
+            ? GestureDetector(
+                onTap: _togglePlayPause,
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    AspectRatio(
+                      aspectRatio: _controller!.value.aspectRatio,
+                      child: VideoPlayer(_controller!),
+                    ),
+                    // Play/Pause overlay
+                    if (!_isPlaying)
+                      Container(
+                        width: 80,
+                        height: 80,
+                        decoration: BoxDecoration(
+                          color: Colors.black.withValues(alpha: 0.6),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(
+                          Icons.play_arrow,
+                          color: Colors.white,
+                          size: 48,
+                        ),
+                      ),
+                    // Progress indicator
+                    Positioned(
+                      bottom: 0,
+                      left: 0,
+                      right: 0,
+                      child: VideoProgressIndicator(
+                        _controller!,
+                        allowScrubbing: true,
+                        colors: const VideoProgressColors(
+                          playedColor: Colors.blue,
+                          bufferedColor: Colors.grey,
+                          backgroundColor: Colors.black26,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              )
+            : const CircularProgressIndicator(color: Colors.white),
       ),
     );
   }

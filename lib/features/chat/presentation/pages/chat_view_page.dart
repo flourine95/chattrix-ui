@@ -364,46 +364,74 @@ class _InputBar extends HookConsumerWidget {
       builder: (context) => VoiceRecorderWidget(
         onRecordingComplete: (audioFile, duration) async {
           try {
+            debugPrint('🎤 Voice recording complete: ${audioFile.path}');
+            debugPrint('🎤 Duration: ${duration.inSeconds}s');
+            debugPrint('🎤 File size: ${await audioFile.length()} bytes');
+
             Navigator.pop(context);
 
-            if (!context.mounted) return;
+            if (!context.mounted) {
+              debugPrint('⚠️ Context not mounted after Navigator.pop');
+              return;
+            }
+
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Uploading audio...')),
+              const SnackBar(
+                content: Text('Uploading audio...'),
+                duration: Duration(hours: 1),
+              ),
             );
 
             // Upload to Cloudinary
+            debugPrint('📤 Uploading audio to Cloudinary...');
             final result = await cloudinaryService.uploadAudio(audioFile);
+            debugPrint('✅ Audio uploaded: ${result.url}');
 
-            // Send message
+            // Send message - don't check context.mounted here, just send it
+            debugPrint('📨 Sending audio message to conversation: $chatId');
+            final sendResult = await sendMessageUsecase(
+              conversationId: chatId,
+              content: 'Voice message',
+              type: 'AUDIO',
+              mediaUrl: result.url,
+              fileSize: result.bytes,
+              duration: duration.inSeconds,
+            );
+
+            debugPrint('📨 Send result received');
+
+            // Dismiss upload snackbar
             if (context.mounted) {
-              final sendResult = await sendMessageUsecase(
-                conversationId: chatId,
-                content: 'Voice message',
-                type: 'AUDIO',
-                mediaUrl: result.url,
-                fileSize: result.bytes,
-                duration: duration.inSeconds,
-              );
+              ScaffoldMessenger.of(context).hideCurrentSnackBar();
+            }
 
-              sendResult.fold(
-                (failure) {
+            sendResult.fold(
+              (failure) {
+                debugPrint('❌ Failed to send audio message: ${failure.message}');
+                if (context.mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Failed to send voice message: ${failure.message}')),
+                    SnackBar(content: Text('Failed to send: ${failure.message}')),
                   );
-                },
-                (_) {
+                }
+              },
+              (message) {
+                debugPrint('✅ Audio message sent successfully: ${message.id}');
+                if (context.mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(content: Text('Voice message sent')),
                   );
-                  // Manually trigger refresh since backend doesn't broadcast multimedia via WebSocket
-                  ref.read(messagesProvider(chatId).notifier).refresh();
-                },
-              );
-            }
-          } catch (e) {
+                }
+                // Manually trigger refresh since backend doesn't broadcast multimedia via WebSocket
+                ref.read(messagesProvider(chatId).notifier).refresh();
+              },
+            );
+          } catch (e, stackTrace) {
+            debugPrint('❌ Error sending voice message: $e');
+            debugPrint('Stack trace: $stackTrace');
             if (context.mounted) {
+              ScaffoldMessenger.of(context).hideCurrentSnackBar();
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('Failed to send voice message: $e')),
+                SnackBar(content: Text('Error: $e')),
               );
             }
           }

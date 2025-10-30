@@ -279,10 +279,14 @@ class ChatRemoteDatasourceImpl implements ChatRemoteDatasource {
         if (mentions != null) 'mentions': mentions,
       };
 
-      final response = await dio.post(
-        '${ApiConstants.baseUrl}/${ApiConstants.messagesInConversation(conversationId)}',
-        data: data,
-      );
+      final url = '${ApiConstants.baseUrl}/${ApiConstants.messagesInConversation(conversationId)}';
+      debugPrint('📤 [API] POST $url');
+      debugPrint('📤 [API] Request data: $data');
+
+      final response = await dio.post(url, data: data);
+
+      debugPrint('📥 [API] Response status: ${response.statusCode}');
+      debugPrint('📥 [API] Response data: ${response.data}');
 
       if (response.statusCode == 201) {
         final responseData = response.data['data'] as Map<String, dynamic>;
@@ -291,9 +295,15 @@ class ChatRemoteDatasourceImpl implements ChatRemoteDatasource {
 
       throw ServerException(message: 'Failed to send message');
     } on DioException catch (e) {
+      debugPrint('❌ [API] DioException: ${e.message}');
+      debugPrint('❌ [API] Response: ${e.response?.data}');
+      debugPrint('❌ [API] Status code: ${e.response?.statusCode}');
       throw ServerException(
         message: e.response?.data['message'] ?? 'Failed to send message',
       );
+    } catch (e) {
+      debugPrint('❌ [API] Unexpected error: $e');
+      rethrow;
     }
   }
 
