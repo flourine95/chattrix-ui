@@ -23,23 +23,17 @@ class MessageBubble extends StatelessWidget {
     // Determine message type and render appropriate bubble
     final messageType = message.type.toUpperCase();
 
-    switch (messageType) {
-      case 'IMAGE':
-        return ImageMessageBubble(message: message, isMe: isMe);
-      case 'VIDEO':
-        return VideoMessageBubble(message: message, isMe: isMe);
-      case 'AUDIO':
-      case 'VOICE':
-        return AudioMessageBubble(message: message, isMe: isMe);
-      case 'DOCUMENT':
-      case 'FILE':
-        return DocumentMessageBubble(message: message, isMe: isMe);
-      case 'LOCATION':
-        return LocationMessageBubble(message: message, isMe: isMe);
-      case 'TEXT':
-      default:
-        return TextMessageBubble(message: message, isMe: isMe);
-    }
+    // Wrap in RepaintBoundary to isolate repaints and improve scroll performance
+    return RepaintBoundary(
+      child: switch (messageType) {
+        'IMAGE' => ImageMessageBubble(message: message, isMe: isMe),
+        'VIDEO' => VideoMessageBubble(message: message, isMe: isMe),
+        'AUDIO' || 'VOICE' => AudioMessageBubble(message: message, isMe: isMe),
+        'DOCUMENT' || 'FILE' => DocumentMessageBubble(message: message, isMe: isMe),
+        'LOCATION' => LocationMessageBubble(message: message, isMe: isMe),
+        _ => TextMessageBubble(message: message, isMe: isMe),
+      },
+    );
   }
 }
 

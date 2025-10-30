@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:chattrix_ui/features/chat/domain/entities/message.dart';
 import 'package:chattrix_ui/features/chat/presentation/widgets/message_bubble.dart';
 import 'package:flutter/material.dart';
@@ -41,7 +42,7 @@ class ImageMessageBubble extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Image
+          // Image with caching
           if (message.mediaUrl != null)
             GestureDetector(
               onTap: () => _openFullScreenImage(context),
@@ -49,27 +50,20 @@ class ImageMessageBubble extends StatelessWidget {
                 borderRadius: const BorderRadius.vertical(
                   top: Radius.circular(16),
                 ),
-                child: Image.network(
-                  message.mediaUrl!,
+                child: CachedNetworkImage(
+                  imageUrl: message.mediaUrl!,
                   width: 280,
                   fit: BoxFit.cover,
-                  loadingBuilder: (context, child, loadingProgress) {
-                    if (loadingProgress == null) {
-                      debugPrint('✅ [ImageMessageBubble] Image loaded: ${message.mediaUrl}');
-                      return child;
-                    }
-                    debugPrint('⏳ [ImageMessageBubble] Loading image: ${message.mediaUrl}');
-                    return Container(
-                      width: 280,
-                      height: 200,
-                      color: Colors.grey.shade300,
-                      child: const Center(
-                        child: CircularProgressIndicator(),
-                      ),
-                    );
-                  },
-                  errorBuilder: (context, error, stackTrace) {
-                    debugPrint('❌ [ImageMessageBubble] Failed to load image: ${message.mediaUrl}');
+                  placeholder: (context, url) => Container(
+                    width: 280,
+                    height: 200,
+                    color: Colors.grey.shade300,
+                    child: const Center(
+                      child: CircularProgressIndicator(),
+                    ),
+                  ),
+                  errorWidget: (context, url, error) {
+                    debugPrint('❌ [ImageMessageBubble] Failed to load image: $url');
                     debugPrint('   Error: $error');
                     return Container(
                       width: 280,
@@ -78,6 +72,11 @@ class ImageMessageBubble extends StatelessWidget {
                       child: const Icon(Icons.broken_image, size: 48),
                     );
                   },
+                  // Performance optimizations
+                  memCacheWidth: 560, // 2x for retina displays
+                  maxWidthDiskCache: 560,
+                  fadeInDuration: const Duration(milliseconds: 200),
+                  fadeOutDuration: const Duration(milliseconds: 100),
                 ),
               ),
             ),
@@ -125,30 +124,25 @@ class _FullScreenImageViewer extends StatelessWidget {
         minScale: 0.5,
         maxScale: 4.0,
         child: Center(
-          child: Image.network(
-            imageUrl,
+          child: CachedNetworkImage(
+            imageUrl: imageUrl,
             fit: BoxFit.contain,
-            loadingBuilder: (context, child, loadingProgress) {
-              if (loadingProgress == null) return child;
-              return const Center(
-                child: CircularProgressIndicator(color: Colors.white),
-              );
-            },
-            errorBuilder: (context, error, stackTrace) {
-              return const Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(Icons.broken_image, size: 64, color: Colors.white),
-                    SizedBox(height: 16),
-                    Text(
-                      'Failed to load image',
-                      style: TextStyle(color: Colors.white),
-                    ),
-                  ],
-                ),
-              );
-            },
+            placeholder: (context, url) => const Center(
+              child: CircularProgressIndicator(color: Colors.white),
+            ),
+            errorWidget: (context, url, error) => const Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.broken_image, size: 64, color: Colors.white),
+                  SizedBox(height: 16),
+                  Text(
+                    'Failed to load image',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ],
+              ),
+            ),
           ),
         ),
       ),

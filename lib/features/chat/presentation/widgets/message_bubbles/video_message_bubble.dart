@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:chattrix_ui/features/chat/domain/entities/message.dart';
 import 'package:chattrix_ui/features/chat/presentation/widgets/message_bubble.dart';
 import 'package:flutter/material.dart';
@@ -18,19 +19,24 @@ class VideoMessageBubble extends StatefulWidget {
   State<VideoMessageBubble> createState() => _VideoMessageBubbleState();
 }
 
-class _VideoMessageBubbleState extends State<VideoMessageBubble> {
+class _VideoMessageBubbleState extends State<VideoMessageBubble>
+    with AutomaticKeepAliveClientMixin {
   VideoPlayerController? _controller;
   bool _isInitialized = false;
   bool _isPlaying = false;
+  bool _shouldInitialize = false; // Lazy initialization flag
+
+  @override
+  bool get wantKeepAlive => true; // Keep state when scrolling
 
   @override
   void initState() {
     super.initState();
-    _initializeVideo();
+    // Don't initialize video immediately - wait for user interaction
   }
 
   Future<void> _initializeVideo() async {
-    if (widget.message.mediaUrl == null) return;
+    if (widget.message.mediaUrl == null || _isInitialized || _controller != null) return;
 
     try {
       _controller = VideoPlayerController.networkUrl(
@@ -63,7 +69,12 @@ class _VideoMessageBubbleState extends State<VideoMessageBubble> {
     super.dispose();
   }
 
-  void _togglePlayPause() {
+  Future<void> _togglePlayPause() async {
+    // Initialize video on first play
+    if (!_isInitialized && _controller == null) {
+      await _initializeVideo();
+    }
+
     if (_controller == null || !_isInitialized) return;
 
     setState(() {
@@ -90,6 +101,8 @@ class _VideoMessageBubbleState extends State<VideoMessageBubble> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context); // Required for AutomaticKeepAliveClientMixin
+
     debugPrint('🎥 [VideoMessageBubble] Building for message ${widget.message.id}');
     debugPrint('   mediaUrl: ${widget.message.mediaUrl}');
     debugPrint('   isInitialized: $_isInitialized');
@@ -121,12 +134,22 @@ class _VideoMessageBubbleState extends State<VideoMessageBubble> {
                             child: VideoPlayer(_controller!),
                           )
                         : widget.message.thumbnailUrl != null
-                            ? Image.network(
-                                widget.message.thumbnailUrl!,
+                            ? CachedNetworkImage(
+                                imageUrl: widget.message.thumbnailUrl!,
                                 width: 280,
                                 height: 200,
                                 fit: BoxFit.cover,
-                                errorBuilder: (context, error, stackTrace) {
+                                memCacheWidth: 560,
+                                maxWidthDiskCache: 560,
+                                placeholder: (context, url) => Container(
+                                  width: 280,
+                                  height: 200,
+                                  color: Colors.grey.shade300,
+                                  child: const Center(
+                                    child: CircularProgressIndicator(),
+                                  ),
+                                ),
+                                errorWidget: (context, url, error) {
                                   return Container(
                                     width: 280,
                                     height: 200,

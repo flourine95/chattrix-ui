@@ -1,6 +1,8 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:chattrix_ui/features/chat/domain/entities/message.dart';
 import 'package:chattrix_ui/features/chat/presentation/widgets/message_bubble.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -55,28 +57,66 @@ class LocationMessageBubble extends StatelessWidget {
               child: Stack(
                 alignment: Alignment.center,
                 children: [
-                  // Static map image from Google Maps
+                  // Static map image from Google Maps with caching
                   if (message.latitude != null && message.longitude != null)
-                    Image.network(
-                      'https://maps.googleapis.com/maps/api/staticmap?'
-                      'center=${message.latitude},${message.longitude}'
-                      '&zoom=15'
-                      '&size=280x150'
-                      '&markers=color:red%7C${message.latitude},${message.longitude}'
-                      '&key=YOUR_GOOGLE_MAPS_API_KEY', // TODO: Add your API key
-                      width: 280,
-                      height: 150,
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) {
-                        return Container(
+                    Builder(
+                      builder: (context) {
+                        final apiKey = dotenv.env['GOOGLE_MAPS_API_KEY'] ?? '';
+                        final mapUrl = 'https://maps.googleapis.com/maps/api/staticmap?'
+                            'center=${message.latitude},${message.longitude}'
+                            '&zoom=15'
+                            '&size=280x150'
+                            '&markers=color:red%7C${message.latitude},${message.longitude}'
+                            '&key=$apiKey';
+
+                        // Debug: Print URL to console
+                        print('🗺️ Map URL: $mapUrl');
+                        print('🔑 API Key: ${apiKey.isEmpty ? "EMPTY!" : "${apiKey.substring(0, 10)}..."}');
+
+                        return CachedNetworkImage(
+                          imageUrl: mapUrl,
                           width: 280,
                           height: 150,
-                          color: Colors.grey.shade300,
-                          child: const Icon(
-                            FontAwesomeIcons.mapLocationDot,
-                            size: 48,
-                            color: Colors.red,
+                          fit: BoxFit.cover,
+                          memCacheWidth: 560,
+                          maxWidthDiskCache: 560,
+                          placeholder: (context, url) => Container(
+                            width: 280,
+                            height: 150,
+                            color: Colors.grey.shade300,
+                            child: const Center(
+                              child: CircularProgressIndicator(),
+                            ),
                           ),
+                          errorWidget: (context, url, error) {
+                            // Debug: Print error
+                            print('❌ Map loading error: $error');
+                            print('❌ Failed URL: $url');
+
+                            return Container(
+                              width: 280,
+                              height: 150,
+                              color: Colors.grey.shade300,
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  const Icon(
+                                    FontAwesomeIcons.mapLocationDot,
+                                    size: 48,
+                                    color: Colors.red,
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    'Map load failed',
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      color: Colors.grey.shade600,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
                         );
                       },
                     )

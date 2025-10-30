@@ -18,11 +18,15 @@ class AudioMessageBubble extends StatefulWidget {
   State<AudioMessageBubble> createState() => _AudioMessageBubbleState();
 }
 
-class _AudioMessageBubbleState extends State<AudioMessageBubble> {
+class _AudioMessageBubbleState extends State<AudioMessageBubble>
+    with AutomaticKeepAliveClientMixin {
   final AudioPlayer _audioPlayer = AudioPlayer();
   bool _isPlaying = false;
   Duration _currentPosition = Duration.zero;
   Duration _totalDuration = Duration.zero;
+
+  @override
+  bool get wantKeepAlive => true; // Keep audio player state when scrolling
 
   @override
   void initState() {
@@ -104,6 +108,8 @@ class _AudioMessageBubbleState extends State<AudioMessageBubble> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context); // Required for AutomaticKeepAliveClientMixin
+
     debugPrint('🎵 [AudioMessageBubble] Building for message ${widget.message.id}');
     debugPrint('   mediaUrl: ${widget.message.mediaUrl}');
     debugPrint('   duration: ${widget.message.duration}');

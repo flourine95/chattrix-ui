@@ -247,10 +247,15 @@ class ChatViewPage extends HookConsumerWidget {
                         vertical: 8,
                       ),
                       itemCount: messages.length,
+                      // Performance optimizations
+                      addAutomaticKeepAlives: true, // Keep state of items
+                      addRepaintBoundaries: true, // Already added in MessageBubble
+                      cacheExtent: 500, // Cache items 500px outside viewport
                       itemBuilder: (context, index) {
                         final m = messages[index];
                         final isMe = m.sender.id == me?.id;
                         return Align(
+                          key: ValueKey(m.id), // Add key for better performance
                           alignment: isMe
                               ? Alignment.centerRight
                               : Alignment.centerLeft,
