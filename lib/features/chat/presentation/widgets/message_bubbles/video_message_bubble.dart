@@ -90,6 +90,10 @@ class _VideoMessageBubbleState extends State<VideoMessageBubble> {
 
   @override
   Widget build(BuildContext context) {
+    debugPrint('🎥 [VideoMessageBubble] Building for message ${widget.message.id}');
+    debugPrint('   mediaUrl: ${widget.message.mediaUrl}');
+    debugPrint('   isInitialized: $_isInitialized');
+
     final textColor = getTextColor(context, widget.isMe);
     final textTheme = Theme.of(context).textTheme;
 

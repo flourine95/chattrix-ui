@@ -357,25 +357,27 @@ class _InputBar extends HookConsumerWidget {
     final cloudinaryService = ref.read(cloudinaryServiceProvider);
     final sendMessageUsecase = ref.read(sendMessageUsecaseProvider);
 
+    // Save the page context BEFORE opening modal
+    // This ensures we use the correct ScaffoldMessenger
+    final pageContext = context;
+    final scaffoldMessenger = ScaffoldMessenger.of(pageContext);
+
     await showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) => VoiceRecorderWidget(
+      builder: (modalContext) => VoiceRecorderWidget(
         onRecordingComplete: (audioFile, duration) async {
           try {
             debugPrint('🎤 Voice recording complete: ${audioFile.path}');
             debugPrint('🎤 Duration: ${duration.inSeconds}s');
             debugPrint('🎤 File size: ${await audioFile.length()} bytes');
 
-            Navigator.pop(context);
+            // Close modal using modal context
+            Navigator.pop(modalContext);
 
-            if (!context.mounted) {
-              debugPrint('⚠️ Context not mounted after Navigator.pop');
-              return;
-            }
-
-            ScaffoldMessenger.of(context).showSnackBar(
+            // Use the page's ScaffoldMessenger (saved before modal was opened)
+            scaffoldMessenger.showSnackBar(
               const SnackBar(
                 content: Text('Uploading audio...'),
                 duration: Duration(hours: 1),
@@ -387,7 +389,7 @@ class _InputBar extends HookConsumerWidget {
             final result = await cloudinaryService.uploadAudio(audioFile);
             debugPrint('✅ Audio uploaded: ${result.url}');
 
-            // Send message - don't check context.mounted here, just send it
+            // Send message
             debugPrint('📨 Sending audio message to conversation: $chatId');
             final sendResult = await sendMessageUsecase(
               conversationId: chatId,
@@ -400,27 +402,19 @@ class _InputBar extends HookConsumerWidget {
 
             debugPrint('📨 Send result received');
 
-            // Dismiss upload snackbar
-            if (context.mounted) {
-              ScaffoldMessenger.of(context).hideCurrentSnackBar();
-            }
+            // Remove upload snackbar immediately using the saved reference
+            scaffoldMessenger.removeCurrentSnackBar();
 
             sendResult.fold(
               (failure) {
                 debugPrint('❌ Failed to send audio message: ${failure.message}');
-                if (context.mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Failed to send: ${failure.message}')),
-                  );
-                }
+                scaffoldMessenger.showSnackBar(
+                  SnackBar(content: Text('Failed to send: ${failure.message}')),
+                );
               },
               (message) {
                 debugPrint('✅ Audio message sent successfully: ${message.id}');
-                if (context.mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Voice message sent')),
-                  );
-                }
+                // Don't show success snackbar - user can see the message in chat
                 // Manually trigger refresh since backend doesn't broadcast multimedia via WebSocket
                 ref.read(messagesProvider(chatId).notifier).refresh();
               },
@@ -428,16 +422,14 @@ class _InputBar extends HookConsumerWidget {
           } catch (e, stackTrace) {
             debugPrint('❌ Error sending voice message: $e');
             debugPrint('Stack trace: $stackTrace');
-            if (context.mounted) {
-              ScaffoldMessenger.of(context).hideCurrentSnackBar();
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('Error: $e')),
-              );
-            }
+            scaffoldMessenger.removeCurrentSnackBar();
+            scaffoldMessenger.showSnackBar(
+              SnackBar(content: Text('Error: $e')),
+            );
           }
         },
         onCancel: () {
-          Navigator.pop(context);
+          Navigator.pop(modalContext);
         },
       ),
     );
@@ -519,9 +511,9 @@ class _InputBar extends HookConsumerWidget {
               // Upload to Cloudinary
               final result = await cloudinaryService.uploadImage(imageFile);
 
-              // Dismiss progress snackbar
+              // Remove progress snackbar immediately
               if (context.mounted) {
-                ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                ScaffoldMessenger.of(context).removeCurrentSnackBar();
               }
 
               // Send message
@@ -543,6 +535,7 @@ class _InputBar extends HookConsumerWidget {
               }
             } catch (e) {
               if (context.mounted) {
+                ScaffoldMessenger.of(context).removeCurrentSnackBar();
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(content: Text('Failed to upload image ${i + 1}: $e')),
                 );
@@ -550,11 +543,10 @@ class _InputBar extends HookConsumerWidget {
             }
           }
 
-          // Refresh messages
+          // Remove any remaining snackbar and don't show success message
+          // User can see the images in chat
           if (context.mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('${images.length} images sent')),
-            );
+            ScaffoldMessenger.of(context).removeCurrentSnackBar();
             ref.read(messagesProvider(chatId).notifier).refresh();
           }
           return;
@@ -679,9 +671,9 @@ class _InputBar extends HookConsumerWidget {
         fileSize = result.bytes;
       }
 
-      // Dismiss upload progress snackbar
+      // Remove upload progress snackbar immediately
       if (context.mounted) {
-        ScaffoldMessenger.of(context).hideCurrentSnackBar();
+        ScaffoldMessenger.of(context).removeCurrentSnackBar();
       }
 
       // Send message with media
@@ -706,17 +698,14 @@ class _InputBar extends HookConsumerWidget {
             }
           },
           (_) {
-            if (context.mounted) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Sent successfully')),
-              );
-            }
+            // Don't show success snackbar - user can see the message in chat
             ref.read(messagesProvider(chatId).notifier).refresh();
           },
         );
       }
     } catch (e) {
       if (context.mounted) {
+        ScaffoldMessenger.of(context).removeCurrentSnackBar();
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Error: $e')),
         );

@@ -143,6 +143,13 @@ class ChatRemoteDatasourceImpl implements ChatRemoteDatasource {
         if (data.isNotEmpty) {
           debugPrint('   First message keys: ${(data.first as Map).keys}');
           debugPrint('   First message: ${data.first}');
+
+          // Log all message types and media URLs
+          debugPrint('   📊 Message types breakdown:');
+          for (var i = 0; i < data.length; i++) {
+            final msg = data[i] as Map<String, dynamic>;
+            debugPrint('      [$i] type: ${msg['type']}, mediaUrl: ${msg['mediaUrl']}, content: ${msg['content']}');
+          }
         }
 
         return data

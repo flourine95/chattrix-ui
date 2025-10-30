@@ -104,6 +104,10 @@ class _AudioMessageBubbleState extends State<AudioMessageBubble> {
 
   @override
   Widget build(BuildContext context) {
+    debugPrint('🎵 [AudioMessageBubble] Building for message ${widget.message.id}');
+    debugPrint('   mediaUrl: ${widget.message.mediaUrl}');
+    debugPrint('   duration: ${widget.message.duration}');
+
     final textColor = getTextColor(context, widget.isMe);
     final textTheme = Theme.of(context).textTheme;
 
