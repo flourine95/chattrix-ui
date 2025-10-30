@@ -379,7 +379,9 @@ class _InputBar extends HookConsumerWidget {
             debugPrint('🎤 File size: ${await audioFile.length()} bytes');
 
             // Close modal using modal context
-            Navigator.pop(modalContext);
+            if (modalContext.mounted) {
+              Navigator.pop(modalContext);
+            }
 
             // Use the page's ScaffoldMessenger (saved before modal was opened)
             scaffoldMessenger.showSnackBar(

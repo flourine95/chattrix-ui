@@ -24,16 +24,9 @@ class _VideoMessageBubbleState extends State<VideoMessageBubble>
   VideoPlayerController? _controller;
   bool _isInitialized = false;
   bool _isPlaying = false;
-  bool _shouldInitialize = false; // Lazy initialization flag
 
   @override
   bool get wantKeepAlive => true; // Keep state when scrolling
-
-  @override
-  void initState() {
-    super.initState();
-    // Don't initialize video immediately - wait for user interaction
-  }
 
   Future<void> _initializeVideo() async {
     if (widget.message.mediaUrl == null || _isInitialized || _controller != null) return;

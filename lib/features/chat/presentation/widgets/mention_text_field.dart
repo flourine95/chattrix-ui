@@ -183,9 +183,7 @@ class _MentionTextFieldState extends State<MentionTextField> {
     final cursorPosition = widget.controller.selection.baseOffset;
 
     // Replace from @ to cursor with the mention
-    final newText = text.substring(0, _mentionStartPosition) +
-        '@${user.name} ' +
-        text.substring(cursorPosition);
+    final newText = '${text.substring(0, _mentionStartPosition)}@${user.name} ${text.substring(cursorPosition)}';
 
     widget.controller.text = newText;
     widget.controller.selection = TextSelection.collapsed(

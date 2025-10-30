@@ -123,7 +123,7 @@ class QuotedMessageWidget extends StatelessWidget {
         margin: const EdgeInsets.only(bottom: 8),
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
-          color: colors.surfaceContainerHighest.withOpacity(0.5),
+          color: colors.surfaceContainerHighest.withValues(alpha: 0.5),
           borderRadius: BorderRadius.circular(8),
           border: Border(
             left: BorderSide(

@@ -48,7 +48,7 @@ class VoiceRecorderWidget extends HookConsumerWidget {
         color: colors.surface,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.withValues(alpha: 0.1),
             blurRadius: 8,
             offset: const Offset(0, -2),
           ),
@@ -66,7 +66,7 @@ class VoiceRecorderWidget extends HookConsumerWidget {
                 width: 12,
                 height: 12,
                 decoration: BoxDecoration(
-                  color: isPaused.value ? colors.error.withOpacity(0.5) : colors.error,
+                  color: isPaused.value ? colors.error.withValues(alpha: 0.5) : colors.error,
                   shape: BoxShape.circle,
                 ),
               ),
@@ -255,7 +255,7 @@ class _WaveformVisualizerState extends State<_WaveformVisualizer>
             height: 20,
             margin: const EdgeInsets.symmetric(horizontal: 2),
             decoration: BoxDecoration(
-              color: colors.onSurfaceVariant.withOpacity(0.3),
+              color: colors.onSurfaceVariant.withValues(alpha: 0.3),
               borderRadius: BorderRadius.circular(2),
             ),
           );
