@@ -1,7 +1,6 @@
 import 'package:chattrix_ui/core/constants/api_constants.dart';
 import 'package:chattrix_ui/features/auth/presentation/providers/auth_providers.dart';
 import 'package:chattrix_ui/features/chat/data/services/chat_websocket_service.dart';
-import 'package:flutter/foundation.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 // ========== WebSocket Service ==========
@@ -78,7 +77,9 @@ class WebSocketConnectionNotifier extends Notifier<WebSocketConnectionState> {
           await Future.delayed(const Duration(seconds: 3));
 
           // Get fresh token from storage (might have been refreshed)
-          final freshToken = await secureStorage.read(key: ApiConstants.accessTokenKey);
+          final freshToken = await secureStorage.read(
+            key: ApiConstants.accessTokenKey,
+          );
           if (freshToken != null && freshToken != accessToken) {
             await wsService.disconnect(); // Stop auto-reconnect with old token
             await Future.delayed(const Duration(milliseconds: 500));
@@ -97,7 +98,7 @@ class WebSocketConnectionNotifier extends Notifier<WebSocketConnectionState> {
       await wsService.connect(accessToken);
 
       state = state.copyWith(isConnected: true, clearError: true);
-    } catch (e, stackTrace) {
+    } catch (e) {
       state = state.copyWith(error: e.toString());
     }
   }

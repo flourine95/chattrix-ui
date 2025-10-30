@@ -22,7 +22,6 @@ import 'package:chattrix_ui/features/auth/domain/usecases/reset_password_usecase
 import 'package:chattrix_ui/features/auth/domain/usecases/verify_email_usecase.dart';
 import 'package:chattrix_ui/features/chat/presentation/providers/chat_providers.dart';
 import 'package:dio/dio.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 

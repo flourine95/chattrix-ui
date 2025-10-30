@@ -10,7 +10,6 @@ import 'package:chattrix_ui/features/chat/domain/entities/conversation_update.da
 import 'package:chattrix_ui/features/chat/domain/entities/message.dart';
 import 'package:chattrix_ui/features/chat/domain/entities/typing_indicator.dart';
 import 'package:chattrix_ui/features/chat/domain/entities/user_status_update.dart';
-import 'package:flutter/foundation.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
 /// WebSocket events from client to server
@@ -235,7 +234,7 @@ class ChatWebSocketService {
         default:
           break;
       }
-    } catch (e, stackTrace) {
+    } catch (e) {
       // Silently handle error
     }
   }

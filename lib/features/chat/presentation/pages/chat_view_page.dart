@@ -415,7 +415,7 @@ class _InputBar extends HookConsumerWidget {
                 ref.read(messagesProvider(chatId).notifier).refresh();
               },
             );
-          } catch (e, stackTrace) {
+          } catch (e) {
             scaffoldMessenger.removeCurrentSnackBar();
             scaffoldMessenger.showSnackBar(
               SnackBar(content: Text('Error: $e')),
