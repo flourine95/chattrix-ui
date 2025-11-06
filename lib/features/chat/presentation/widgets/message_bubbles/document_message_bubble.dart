@@ -16,6 +16,8 @@ class DocumentMessageBubble extends StatelessWidget {
     this.onAddReaction,
     this.currentUserId,
     this.replyToMessage,
+    this.onEdit,
+    this.onDelete,
   });
 
   final Message message;
@@ -25,6 +27,8 @@ class DocumentMessageBubble extends StatelessWidget {
   final VoidCallback? onAddReaction;
   final int? currentUserId;
   final Message? replyToMessage;
+  final VoidCallback? onEdit;
+  final VoidCallback? onDelete;
 
   IconData _getFileIcon(String? fileName) {
     if (fileName == null) return FontAwesomeIcons.file;
@@ -86,6 +90,8 @@ class DocumentMessageBubble extends StatelessWidget {
       onAddReaction: onAddReaction,
       currentUserId: currentUserId,
       replyToMessage: replyToMessage,
+      onEdit: onEdit,
+      onDelete: onDelete,
       child: InkWell(
         onTap: () => _openDocument(context),
         borderRadius: BorderRadius.circular(16),

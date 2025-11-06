@@ -172,4 +172,34 @@ class ChatRepositoryImpl implements ChatRepository {
       return Left(ServerFailure(message: 'Failed to get reactions'));
     }
   }
+
+  @override
+  Future<Either<Failure, Message>> editMessage({
+    required String messageId,
+    required String content,
+  }) async {
+    try {
+      final model = await remoteDatasource.editMessage(
+        messageId: messageId,
+        content: content,
+      );
+      return Right(model.toEntity());
+    } on ServerException catch (e) {
+      return Left(ServerFailure(message: e.message));
+    } catch (e) {
+      return Left(ServerFailure(message: 'Failed to edit message'));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> deleteMessage(String messageId) async {
+    try {
+      await remoteDatasource.deleteMessage(messageId);
+      return const Right(null);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(message: e.message));
+    } catch (e) {
+      return Left(ServerFailure(message: 'Failed to delete message'));
+    }
+  }
 }

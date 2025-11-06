@@ -1,4 +1,6 @@
 import 'package:chattrix_ui/features/chat/domain/usecases/create_conversation_usecase.dart';
+import 'package:chattrix_ui/features/chat/domain/usecases/delete_message_usecase.dart';
+import 'package:chattrix_ui/features/chat/domain/usecases/edit_message_usecase.dart';
 import 'package:chattrix_ui/features/chat/domain/usecases/get_conversation_usecase.dart';
 import 'package:chattrix_ui/features/chat/domain/usecases/get_conversations_usecase.dart';
 import 'package:chattrix_ui/features/chat/domain/usecases/get_messages_usecase.dart';
@@ -46,6 +48,18 @@ final getMessagesUsecaseProvider = Provider<GetMessagesUsecase>((ref) {
 final sendMessageUsecaseProvider = Provider<SendMessageUsecase>((ref) {
   final repository = ref.watch(chatRepositoryProvider);
   return SendMessageUsecase(repository);
+});
+
+/// Provider for editing a message
+final editMessageUsecaseProvider = Provider<EditMessageUsecase>((ref) {
+  final repository = ref.watch(chatRepositoryProvider);
+  return EditMessageUsecase(repository: repository);
+});
+
+/// Provider for deleting a message
+final deleteMessageUsecaseProvider = Provider<DeleteMessageUsecase>((ref) {
+  final repository = ref.watch(chatRepositoryProvider);
+  return DeleteMessageUsecase(repository: repository);
 });
 
 // ========== User Status Use Cases ==========

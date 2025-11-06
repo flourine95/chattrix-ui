@@ -14,6 +14,8 @@ class TextMessageBubble extends StatelessWidget {
     this.onAddReaction,
     this.currentUserId,
     this.replyToMessage,
+    this.onEdit,
+    this.onDelete,
   });
 
   final Message message;
@@ -23,6 +25,8 @@ class TextMessageBubble extends StatelessWidget {
   final VoidCallback? onAddReaction;
   final int? currentUserId;
   final Message? replyToMessage;
+  final VoidCallback? onEdit;
+  final VoidCallback? onDelete;
 
   @override
   Widget build(BuildContext context) {
@@ -37,6 +41,8 @@ class TextMessageBubble extends StatelessWidget {
       onAddReaction: onAddReaction,
       currentUserId: currentUserId,
       replyToMessage: replyToMessage,
+      onEdit: onEdit,
+      onDelete: onDelete,
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
         child: Text(

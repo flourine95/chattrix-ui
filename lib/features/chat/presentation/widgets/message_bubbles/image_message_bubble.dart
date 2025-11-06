@@ -15,6 +15,8 @@ class ImageMessageBubble extends StatelessWidget {
     this.onAddReaction,
     this.currentUserId,
     this.replyToMessage,
+    this.onEdit,
+    this.onDelete,
   });
 
   final Message message;
@@ -24,6 +26,8 @@ class ImageMessageBubble extends StatelessWidget {
   final VoidCallback? onAddReaction;
   final int? currentUserId;
   final Message? replyToMessage;
+  final VoidCallback? onEdit;
+  final VoidCallback? onDelete;
 
   void _openFullScreenImage(BuildContext context) {
     if (message.mediaUrl == null) return;
@@ -52,6 +56,8 @@ class ImageMessageBubble extends StatelessWidget {
       onAddReaction: onAddReaction,
       currentUserId: currentUserId,
       replyToMessage: replyToMessage,
+      onEdit: onEdit,
+      onDelete: onDelete,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

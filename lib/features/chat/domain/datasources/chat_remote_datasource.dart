@@ -69,4 +69,13 @@ abstract class ChatRemoteDatasource {
 
   /// Get reactions for a message
   Future<Map<String, dynamic>> getReactions(String messageId);
+
+  /// Edit a message
+  Future<MessageModel> editMessage({
+    required String messageId,
+    required String content,
+  });
+
+  /// Delete a message
+  Future<void> deleteMessage(String messageId);
 }

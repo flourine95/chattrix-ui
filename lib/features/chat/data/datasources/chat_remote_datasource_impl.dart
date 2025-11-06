@@ -253,20 +253,15 @@ class ChatRemoteDatasourceImpl implements ChatRemoteDatasource {
   }) async {
     try {
       final url = '${ApiConstants.baseUrl}/${ApiConstants.searchUsers}';
-      print('🔍 [SearchUsers] Searching with query: "$query", limit: $limit');
-      print('🔍 [SearchUsers] URL: $url');
 
       final response = await dio.get(
         url,
         queryParameters: {'query': query, 'limit': limit},
       );
 
-      print('🔍 [SearchUsers] Response status: ${response.statusCode}');
-      print('🔍 [SearchUsers] Response data: ${response.data}');
 
       if (response.statusCode == 200) {
         final data = response.data['data'] as List;
-        print('🔍 [SearchUsers] Found ${data.length} users');
 
         return data
             .whereType<Map<String, dynamic>>()
@@ -276,16 +271,11 @@ class ChatRemoteDatasourceImpl implements ChatRemoteDatasource {
 
       throw ServerException(message: 'Failed to search users');
     } on DioException catch (e) {
-      print('❌ [SearchUsers] DioException: ${e.type}');
-      print('❌ [SearchUsers] Status code: ${e.response?.statusCode}');
-      print('❌ [SearchUsers] Response data: ${e.response?.data}');
-      print('❌ [SearchUsers] Error message: ${e.message}');
 
       throw ServerException(
         message: e.response?.data['message'] ?? 'Failed to search users',
       );
     } catch (e) {
-      print('❌ [SearchUsers] Unexpected error: $e');
       throw ServerException(message: 'Failed to search users: $e');
     }
   }
@@ -337,6 +327,57 @@ class ChatRemoteDatasourceImpl implements ChatRemoteDatasource {
       );
     } catch (e) {
       throw ServerException(message: 'Failed to get reactions: $e');
+    }
+  }
+
+  @override
+  Future<MessageModel> editMessage({
+    required String messageId,
+    required String content,
+  }) async {
+    try {
+      final url =
+          '${ApiConstants.baseUrl}/${ApiConstants.messageEdit(messageId)}';
+
+      final response = await dio.put(
+        url,
+        data: {'content': content},
+      );
+
+      if (response.statusCode == 200) {
+        final data = response.data['data'] as Map<String, dynamic>;
+        return MessageModel.fromApi(data);
+      }
+
+      throw ServerException(message: 'Failed to edit message');
+    } on DioException catch (e) {
+      throw ServerException(
+        message: e.response?.data['message'] ?? 'Failed to edit message',
+      );
+    } catch (e) {
+      throw ServerException(message: 'Failed to edit message: $e');
+    }
+  }
+
+  @override
+  Future<void> deleteMessage(String messageId) async {
+    try {
+      final url =
+          '${ApiConstants.baseUrl}/${ApiConstants.messageDelete(messageId)}';
+
+      final response = await dio.delete(url);
+
+      if (response.statusCode == 200 || response.statusCode == 204) {
+        return;
+      }
+
+      throw ServerException(message: 'Failed to delete message');
+    } on DioException catch (e) {
+      throw ServerException(
+        message: e.response?.data['message'] ?? 'Failed to delete message',
+      );
+    } catch (e) {
+      throw ServerException(message: 'Failed to delete message: $e');
     }
   }
 }

@@ -20,6 +20,8 @@ class MessageBubble extends StatelessWidget {
     this.onAddReaction,
     this.currentUserId,
     this.replyToMessage,
+    this.onEdit,
+    this.onDelete,
   });
 
   final Message message;
@@ -29,6 +31,8 @@ class MessageBubble extends StatelessWidget {
   final VoidCallback? onAddReaction;
   final int? currentUserId;
   final Message? replyToMessage;
+  final VoidCallback? onEdit;
+  final VoidCallback? onDelete;
 
   @override
   Widget build(BuildContext context) {
@@ -46,6 +50,8 @@ class MessageBubble extends StatelessWidget {
             onAddReaction: onAddReaction,
             currentUserId: currentUserId,
             replyToMessage: replyToMessage,
+            onEdit: onEdit,
+            onDelete: onDelete,
           ),
         'VIDEO' => VideoMessageBubble(
             message: message,
@@ -55,6 +61,8 @@ class MessageBubble extends StatelessWidget {
             onAddReaction: onAddReaction,
             currentUserId: currentUserId,
             replyToMessage: replyToMessage,
+            onEdit: onEdit,
+            onDelete: onDelete,
           ),
         'AUDIO' || 'VOICE' => AudioMessageBubble(
             message: message,
@@ -64,6 +72,8 @@ class MessageBubble extends StatelessWidget {
             onAddReaction: onAddReaction,
             currentUserId: currentUserId,
             replyToMessage: replyToMessage,
+            onEdit: onEdit,
+            onDelete: onDelete,
           ),
         'DOCUMENT' || 'FILE' => DocumentMessageBubble(
             message: message,
@@ -73,6 +83,8 @@ class MessageBubble extends StatelessWidget {
             onAddReaction: onAddReaction,
             currentUserId: currentUserId,
             replyToMessage: replyToMessage,
+            onEdit: onEdit,
+            onDelete: onDelete,
           ),
         'LOCATION' => LocationMessageBubble(
             message: message,
@@ -82,6 +94,8 @@ class MessageBubble extends StatelessWidget {
             onAddReaction: onAddReaction,
             currentUserId: currentUserId,
             replyToMessage: replyToMessage,
+            onEdit: onEdit,
+            onDelete: onDelete,
           ),
         _ => TextMessageBubble(
             message: message,
@@ -91,6 +105,8 @@ class MessageBubble extends StatelessWidget {
             onAddReaction: onAddReaction,
             currentUserId: currentUserId,
             replyToMessage: replyToMessage,
+            onEdit: onEdit,
+            onDelete: onDelete,
           ),
       },
     );
@@ -110,6 +126,8 @@ class BaseBubbleContainer extends StatelessWidget {
     this.onAddReaction,
     this.currentUserId,
     this.replyToMessage,
+    this.onEdit,
+    this.onDelete,
   });
 
   final bool isMe;
@@ -121,6 +139,8 @@ class BaseBubbleContainer extends StatelessWidget {
   final VoidCallback? onAddReaction;
   final int? currentUserId;
   final Message? replyToMessage;
+  final VoidCallback? onEdit;
+  final VoidCallback? onDelete;
 
   @override
   Widget build(BuildContext context) {
@@ -188,7 +208,7 @@ class BaseBubbleContainer extends StatelessWidget {
   }
 
   void _showMessageOptions(BuildContext context) {
-    if (onReply == null && onAddReaction == null) return;
+    if (onReply == null && onAddReaction == null && onEdit == null && onDelete == null) return;
 
     showModalBottomSheet(
       context: context,
@@ -218,6 +238,24 @@ class BaseBubbleContainer extends StatelessWidget {
                 onTap: () {
                   Navigator.pop(context);
                   onAddReaction!();
+                },
+              ),
+            if (isMe && onEdit != null && message?.type == 'TEXT')
+              ListTile(
+                leading: const Icon(Icons.edit),
+                title: const Text('Edit'),
+                onTap: () {
+                  Navigator.pop(context);
+                  onEdit!();
+                },
+              ),
+            if (isMe && onDelete != null)
+              ListTile(
+                leading: const Icon(Icons.delete, color: Colors.red),
+                title: const Text('Delete', style: TextStyle(color: Colors.red)),
+                onTap: () {
+                  Navigator.pop(context);
+                  onDelete!();
                 },
               ),
           ],

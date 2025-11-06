@@ -49,7 +49,7 @@ class MembersListWidget extends HookConsumerWidget {
                 controller: searchController,
                 onChanged: (value) => searchQuery.value = value,
                 decoration: InputDecoration(
-                  hintText: 'Tìm kiếm thành viên...',
+                  hintText: 'Search members...',
                   prefixIcon: const Icon(Icons.search),
                   suffixIcon: searchController.text.isNotEmpty
                       ? IconButton(
@@ -125,7 +125,7 @@ class MembersListWidget extends HookConsumerWidget {
                       ),
                       const SizedBox(height: 16),
                       Text(
-                        'Không tìm thấy thành viên',
+                        'No members found',
                         style: textTheme.bodyLarge?.copyWith(
                           color: colors.onSurface.withValues(alpha: 0.6),
                         ),
@@ -201,7 +201,11 @@ class MembersListWidget extends HookConsumerWidget {
           children: [
             ListTile(
               leading: CircleAvatar(
-                child: Text(member.fullName.substring(0, 1).toUpperCase()),
+                child: Text(
+                  member.fullName.isNotEmpty
+                      ? member.fullName.substring(0, 1).toUpperCase()
+                      : '?',
+                ),
               ),
               title: Text(member.fullName),
               subtitle: Text('@${member.username}'),
@@ -210,7 +214,7 @@ class MembersListWidget extends HookConsumerWidget {
             if (!isAdmin)
               ListTile(
                 leading: const Icon(Icons.admin_panel_settings),
-                title: const Text('Đặt làm quản trị viên'),
+                title: const Text('Make Admin'),
                 onTap: () {
                   Navigator.pop(context);
                   _confirmPromoteToAdmin(context, member);
@@ -219,7 +223,7 @@ class MembersListWidget extends HookConsumerWidget {
             if (isAdmin)
               ListTile(
                 leading: const Icon(Icons.remove_moderator),
-                title: const Text('Gỡ quyền quản trị viên'),
+                title: const Text('Remove Admin'),
                 onTap: () {
                   Navigator.pop(context);
                   _confirmDemoteFromAdmin(context, member);
@@ -246,21 +250,21 @@ class MembersListWidget extends HookConsumerWidget {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Đặt làm quản trị viên'),
+        title: const Text('Make Admin'),
         content: Text(
-          'Bạn có chắc chắn muốn đặt ${member.fullName} làm quản trị viên?',
+          'Are you sure you want to make ${member.fullName} an admin?',
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Hủy'),
+            child: const Text('Cancel'),
           ),
           TextButton(
             onPressed: () {
               // TODO: Promote to admin
               Navigator.pop(context);
             },
-            child: const Text('Xác nhận'),
+            child: const Text('Confirm'),
           ),
         ],
       ),
@@ -271,21 +275,21 @@ class MembersListWidget extends HookConsumerWidget {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Gỡ quyền quản trị viên'),
+        title: const Text('Remove Admin'),
         content: Text(
-          'Bạn có chắc chắn muốn gỡ quyền quản trị viên của ${member.fullName}?',
+          'Are you sure you want to remove admin privileges from ${member.fullName}?',
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Hủy'),
+            child: const Text('Cancel'),
           ),
           TextButton(
             onPressed: () {
               // TODO: Demote from admin
               Navigator.pop(context);
             },
-            child: const Text('Xác nhận'),
+            child: const Text('Confirm'),
           ),
         ],
       ),
@@ -358,7 +362,9 @@ class _MemberListItem extends StatelessWidget {
             CircleAvatar(
               backgroundColor: colors.primary,
               child: Text(
-                member.fullName.substring(0, 1).toUpperCase(),
+                member.fullName.isNotEmpty
+                    ? member.fullName.substring(0, 1).toUpperCase()
+                    : '?',
                 style: TextStyle(color: colors.onPrimary),
               ),
             ),
@@ -412,7 +418,7 @@ class _MemberListItem extends StatelessWidget {
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Text(
-                  'Bạn',
+                  'You',
                   style: textTheme.labelSmall?.copyWith(
                     color: colors.secondary,
                     fontWeight: FontWeight.bold,

@@ -58,4 +58,13 @@ abstract class ChatRepository {
 
   /// Get reactions for a message
   Future<Either<Failure, Map<String, dynamic>>> getReactions(String messageId);
+
+  /// Edit a message
+  Future<Either<Failure, Message>> editMessage({
+    required String messageId,
+    required String content,
+  });
+
+  /// Delete a message
+  Future<Either<Failure, void>> deleteMessage(String messageId);
 }

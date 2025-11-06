@@ -72,6 +72,15 @@ class ApiConstants {
   static String deleteReaction(String messageId, String emoji) =>
       '$messagesBase/$messageId/reactions/$emoji';
 
+  // Message Edit & Delete API endpoints
+  static String messageEdit(String messageId) =>
+      '$messagesBase/$messageId/edit';
+
+  static String messageDelete(String messageId) => '$messagesBase/$messageId';
+
+  static String messageEditHistory(String messageId) =>
+      '$messagesBase/$messageId/edit-history';
+
   // WebSocket endpoint
   static String get wsBaseUrl {
     // WebSocket base URL: ws://host:port/chattrix-api

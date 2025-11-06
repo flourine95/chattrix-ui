@@ -6,8 +6,10 @@ import 'package:chattrix_ui/core/services/media_picker_provider.dart';
 import 'package:chattrix_ui/features/auth/presentation/providers/auth_providers.dart';
 import 'package:chattrix_ui/features/chat/domain/entities/message.dart';
 import 'package:chattrix_ui/features/chat/presentation/providers/chat_providers.dart';
+import 'package:chattrix_ui/features/chat/presentation/providers/chat_usecase_provider.dart';
 import 'package:chattrix_ui/features/chat/presentation/utils/conversation_utils.dart';
 import 'package:chattrix_ui/features/chat/presentation/widgets/attachment_picker_bottom_sheet.dart';
+import 'package:chattrix_ui/features/chat/presentation/widgets/edit_message_dialog.dart';
 import 'package:chattrix_ui/features/chat/presentation/widgets/message_bubble.dart';
 import 'package:chattrix_ui/features/chat/presentation/widgets/message_reactions.dart';
 import 'package:chattrix_ui/features/chat/presentation/widgets/reply_message_preview.dart';
@@ -185,6 +187,79 @@ class ChatViewPage extends HookConsumerWidget {
       );
     }
 
+    Future<void> handleEditMessage(Message message) async {
+      final newContent = await showDialog<String>(
+        context: context,
+        builder: (context) => EditMessageDialog(
+          initialContent: message.content,
+        ),
+      );
+
+      if (newContent != null && newContent.isNotEmpty) {
+        final usecase = ref.read(editMessageUsecaseProvider);
+        final result = await usecase(
+          messageId: message.id.toString(),
+          content: newContent,
+        );
+
+        result.fold(
+          (failure) {
+            if (context.mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text(failure.message)),
+              );
+            }
+          },
+          (_) {
+            // Refresh messages to show updated content
+            ref.read(messagesProvider(chatId).notifier).refresh();
+          },
+        );
+      }
+    }
+
+    Future<void> handleDeleteMessage(Message message) async {
+      final confirmed = await showDialog<bool>(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('Delete Message'),
+          content: const Text('Are you sure you want to delete this message?'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: const Text('Cancel'),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              style: FilledButton.styleFrom(
+                backgroundColor: Colors.red,
+              ),
+              child: const Text('Delete'),
+            ),
+          ],
+        ),
+      );
+
+      if (confirmed == true) {
+        final usecase = ref.read(deleteMessageUsecaseProvider);
+        final result = await usecase(messageId: message.id.toString());
+
+        result.fold(
+          (failure) {
+            if (context.mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text(failure.message)),
+              );
+            }
+          },
+          (_) {
+            // Refresh messages to remove deleted message
+            ref.read(messagesProvider(chatId).notifier).refresh();
+          },
+        );
+      }
+    }
+
     void scrollToBottom() {
       if (scrollController.hasClients) {
         // With reverse ListView, position 0 is at bottom
@@ -340,6 +415,8 @@ class ChatViewPage extends HookConsumerWidget {
                                 },
                               );
                             },
+                            onEdit: isMe ? () => handleEditMessage(m) : null,
+                            onDelete: isMe ? () => handleDeleteMessage(m) : null,
                           ),
                         );
                       },
@@ -411,7 +488,7 @@ class ChatViewPage extends HookConsumerWidget {
                           ),
                           const SizedBox(width: 4),
                           Text(
-                            'Tin mới',
+                            'New',
                             style: textTheme.labelSmall?.copyWith(
                               color: colors.onPrimary,
                               fontWeight: FontWeight.bold,

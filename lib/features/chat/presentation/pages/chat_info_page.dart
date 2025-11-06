@@ -30,7 +30,7 @@ class ChatInfoPage extends HookConsumerWidget {
           onPressed: () => context.pop(),
         ),
         title: Text(
-          'Thông tin hội thoại',
+          'Conversation Info',
           style: textTheme.titleMedium,
         ),
       ),
@@ -51,7 +51,7 @@ class ChatInfoPage extends HookConsumerWidget {
             child: Row(
               children: [
                 _TabButton(
-                  label: 'Tổng quan',
+                  label: 'Overview',
                   icon: Icons.info_outline,
                   isSelected: selectedTab.value == 0,
                   onTap: () => selectedTab.value = 0,
@@ -63,7 +63,7 @@ class ChatInfoPage extends HookConsumerWidget {
                   onTap: () => selectedTab.value = 1,
                 ),
                 _TabButton(
-                  label: 'Tìm kiếm',
+                  label: 'Search',
                   icon: Icons.search,
                   isSelected: selectedTab.value == 2,
                   onTap: () => selectedTab.value = 2,
