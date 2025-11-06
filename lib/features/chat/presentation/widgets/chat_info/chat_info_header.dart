@@ -68,7 +68,7 @@ class ChatInfoHeader extends ConsumerWidget {
           // Status or member count
           if (isGroup)
             Text(
-              '$memberCount thành viên',
+              '$memberCount members',
               style: textTheme.bodyMedium?.copyWith(
                 color: colors.onSurface.withValues(alpha: 0.6),
               ),

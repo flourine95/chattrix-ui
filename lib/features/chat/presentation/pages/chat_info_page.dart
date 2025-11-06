@@ -70,7 +70,7 @@ class ChatInfoPage extends HookConsumerWidget {
                 ),
                 if (conversation.type.toUpperCase() == 'GROUP')
                   _TabButton(
-                    label: 'Thành viên',
+                    label: 'Members',
                     icon: Icons.people_outline,
                     isSelected: selectedTab.value == 3,
                     onTap: () => selectedTab.value = 3,

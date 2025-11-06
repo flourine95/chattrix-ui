@@ -8,6 +8,7 @@ import 'package:chattrix_ui/features/chat/presentation/pages/chat_info_page.dart
 import 'package:chattrix_ui/features/chat/presentation/pages/chat_list_page.dart';
 import 'package:chattrix_ui/features/chat/presentation/pages/chat_view_page.dart';
 import 'package:chattrix_ui/features/chat/presentation/pages/new_chat_page.dart';
+import 'package:chattrix_ui/features/chat/presentation/pages/new_group_chat_page.dart';
 import 'package:chattrix_ui/features/contacts/presentation/pages/contacts_page.dart';
 import 'package:chattrix_ui/features/profile/presentation/pages/profile_page.dart';
 import 'package:flutter/material.dart';
@@ -99,6 +100,12 @@ class AppRouter {
           path: '/new-chat',
           name: 'new-chat',
           builder: (context, state) => const NewChatPage(),
+        ),
+
+        GoRoute(
+          path: '/new-group',
+          name: 'new-group',
+          builder: (context, state) => const NewGroupChatPage(),
         ),
 
         GoRoute(

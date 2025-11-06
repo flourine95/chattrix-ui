@@ -8,8 +8,8 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-class NewChatPage extends HookConsumerWidget {
-  const NewChatPage({super.key});
+class NewGroupChatPage extends HookConsumerWidget {
+  const NewGroupChatPage({super.key});
 
   Color _avatarColor(BuildContext context, int seed) {
     final palette = <Color>[
@@ -29,23 +29,26 @@ class NewChatPage extends HookConsumerWidget {
     return palette[index];
   }
 
-  Future<void> _handleUserTap(
+  Future<void> _createGroup(
     BuildContext context,
     WidgetRef ref,
-    SearchUser user,
+    String groupName,
+    List<SearchUser> selectedUsers,
   ) async {
-    // If already has conversation, navigate to it
-    if (user.hasConversation && user.conversationId != null) {
-      final userName = user.fullName.isNotEmpty ? user.fullName : user.username;
-      context.pop();
-      context.push(
-        '/chat/${user.conversationId}',
-        extra: {'name': userName, 'color': _avatarColor(context, user.id)},
+    if (groupName.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please enter a group name')),
       );
       return;
     }
 
-    // Otherwise, create new conversation
+    if (selectedUsers.length < 2) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please select at least 2 members')),
+      );
+      return;
+    }
+
     final currentUser = ref.read(currentUserProvider);
     if (currentUser == null) return;
 
@@ -56,10 +59,17 @@ class NewChatPage extends HookConsumerWidget {
       builder: (context) => const Center(child: CircularProgressIndicator()),
     );
 
+    // Prepare participant IDs (current user + selected users)
+    final participantIds = [
+      currentUser.id.toString(),
+      ...selectedUsers.map((u) => u.id.toString()),
+    ];
+
     final createUsecase = ref.read(createConversationUsecaseProvider);
     final result = await createUsecase(
-      type: 'DIRECT',
-      participantIds: [currentUser.id.toString(), user.id.toString()],
+      name: groupName.trim(),
+      type: 'GROUP',
+      participantIds: participantIds,
     );
 
     // Close loading dialog
@@ -70,9 +80,9 @@ class NewChatPage extends HookConsumerWidget {
     result.fold(
       (failure) {
         if (context.mounted) {
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(SnackBar(content: Text(failure.message)));
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(failure.message)),
+          );
         }
       },
       (conversation) {
@@ -81,15 +91,14 @@ class NewChatPage extends HookConsumerWidget {
 
         // Navigate to chat view
         if (context.mounted) {
-          final userName = user.fullName.isNotEmpty
-              ? user.fullName
-              : user.username;
-
           // Pop current page and navigate to chat
           context.pop();
           context.push(
             '/chat/${conversation.id}',
-            extra: {'name': userName, 'color': _avatarColor(context, user.id)},
+            extra: {
+              'name': groupName.trim(),
+              'color': _avatarColor(context, conversation.id),
+            },
           );
         }
       },
@@ -100,12 +109,14 @@ class NewChatPage extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final textTheme = Theme.of(context).textTheme;
     final searchController = useTextEditingController();
+    final groupNameController = useTextEditingController();
     final searchQuery = useState('');
     final searchResults = useState<List<SearchUser>>([]);
+    final selectedUsers = useState<List<SearchUser>>([]);
     final isSearching = useState(false);
     final searchError = useState<String?>(null);
 
-    // Debounce timer
+    // Debounce timer for search
     useEffect(() {
       Timer? debounceTimer;
 
@@ -154,50 +165,83 @@ class NewChatPage extends HookConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('New Chat', style: textTheme.titleLarge),
+        title: Text('New Group', style: textTheme.titleLarge),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () => context.pop(),
         ),
+        actions: [
+          TextButton(
+            onPressed: () => _createGroup(
+              context,
+              ref,
+              groupNameController.text,
+              selectedUsers.value,
+            ),
+            child: Text(
+              'Create',
+              style: textTheme.titleMedium?.copyWith(
+                color: Theme.of(context).colorScheme.primary,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ],
       ),
       body: Column(
         children: [
-          // New Group Button
+          // Group Name Input
           Padding(
             padding: const EdgeInsets.all(16.0),
-            child: SizedBox(
-              width: double.infinity,
-              child: ElevatedButton.icon(
-                onPressed: () => context.push('/new-group'),
-                icon: const Icon(Icons.group_add),
-                label: const Text('New Group'),
-                style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
+            child: TextField(
+              controller: groupNameController,
+              decoration: InputDecoration(
+                hintText: 'Group name',
+                prefixIcon: const Icon(Icons.group),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
                 ),
+                filled: true,
+                fillColor: Theme.of(context).colorScheme.surfaceContainerHighest,
               ),
             ),
           ),
 
-          // Divider
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: Row(
-              children: [
-                Expanded(child: Divider(color: Colors.grey[300])),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                  child: Text(
-                    'OR',
-                    style: textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
-                  ),
-                ),
-                Expanded(child: Divider(color: Colors.grey[300])),
-              ],
+          // Selected Users Chips
+          if (selectedUsers.value.isNotEmpty)
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              height: 60,
+              child: ListView.builder(
+                scrollDirection: Axis.horizontal,
+                itemCount: selectedUsers.value.length,
+                itemBuilder: (context, index) {
+                  final user = selectedUsers.value[index];
+                  final userName = user.fullName.isNotEmpty
+                      ? user.fullName
+                      : user.username;
+                  return Padding(
+                    padding: const EdgeInsets.only(right: 8.0),
+                    child: Chip(
+                      avatar: CircleAvatar(
+                        backgroundColor: _avatarColor(context, user.id),
+                        child: Text(
+                          userName.substring(0, 1),
+                          style: textTheme.labelSmall?.copyWith(
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                      label: Text(userName),
+                      onDeleted: () {
+                        selectedUsers.value = List.from(selectedUsers.value)
+                          ..removeAt(index);
+                      },
+                    ),
+                  );
+                },
+              ),
             ),
-          ),
 
           // Search TextField
           Padding(
@@ -205,7 +249,7 @@ class NewChatPage extends HookConsumerWidget {
             child: TextField(
               controller: searchController,
               decoration: InputDecoration(
-                hintText: 'Search users...',
+                hintText: 'Search users to add...',
                 prefixIcon: const Icon(Icons.search),
                 suffixIcon: searchController.text.isNotEmpty
                     ? IconButton(
@@ -219,11 +263,8 @@ class NewChatPage extends HookConsumerWidget {
                   borderRadius: BorderRadius.circular(12),
                 ),
                 filled: true,
-                fillColor: Theme.of(
-                  context,
-                ).colorScheme.surfaceContainerHighest,
+                fillColor: Theme.of(context).colorScheme.surfaceContainerHighest,
               ),
-              autofocus: false,
             ),
           ),
 
@@ -235,8 +276,17 @@ class NewChatPage extends HookConsumerWidget {
               textTheme,
               searchQuery.value,
               searchResults.value,
+              selectedUsers.value,
               isSearching.value,
               searchError.value,
+              (user) {
+                if (selectedUsers.value.contains(user)) {
+                  selectedUsers.value = List.from(selectedUsers.value)
+                    ..remove(user);
+                } else {
+                  selectedUsers.value = [...selectedUsers.value, user];
+                }
+              },
             ),
           ),
         ],
@@ -250,8 +300,10 @@ class NewChatPage extends HookConsumerWidget {
     TextTheme textTheme,
     String query,
     List<SearchUser> results,
+    List<SearchUser> selectedUsers,
     bool isSearching,
     String? error,
+    void Function(SearchUser) onUserToggle,
   ) {
     // Loading state
     if (isSearching) {
@@ -286,15 +338,15 @@ class NewChatPage extends HookConsumerWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.search, size: 64, color: Colors.grey[400]),
+            Icon(Icons.group_add, size: 64, color: Colors.grey[400]),
             const SizedBox(height: 16),
             Text(
-              'Search for users',
+              'Add members to your group',
               style: textTheme.titleMedium?.copyWith(color: Colors.grey[600]),
             ),
             const SizedBox(height: 8),
             Text(
-              'Enter a name, username, or email',
+              'Search for users to add',
               style: textTheme.bodySmall?.copyWith(color: Colors.grey[500]),
             ),
           ],
@@ -330,7 +382,15 @@ class NewChatPage extends HookConsumerWidget {
       separatorBuilder: (_, _) => const Divider(height: 1),
       itemBuilder: (context, index) {
         final user = results[index];
-        return _buildUserTile(context, ref, textTheme, user);
+        final isSelected = selectedUsers.contains(user);
+        return _buildUserTile(
+          context,
+          ref,
+          textTheme,
+          user,
+          isSelected,
+          onUserToggle,
+        );
       },
     );
   }
@@ -340,13 +400,15 @@ class NewChatPage extends HookConsumerWidget {
     WidgetRef ref,
     TextTheme textTheme,
     SearchUser user,
+    bool isSelected,
+    void Function(SearchUser) onUserToggle,
   ) {
     final userName = user.fullName.isNotEmpty ? user.fullName : user.username;
     final avatarColor = _avatarColor(context, user.id);
     final initial = userName.isNotEmpty ? userName.substring(0, 1) : '?';
 
     return ListTile(
-      onTap: () => _handleUserTap(context, ref, user),
+      onTap: () => onUserToggle(user),
       leading: CircleAvatar(
         backgroundColor: avatarColor,
         child: Text(
@@ -373,35 +435,15 @@ class NewChatPage extends HookConsumerWidget {
             ),
         ],
       ),
-      subtitle: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            '@${user.username}',
-            style: textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
-          ),
-          if (user.hasConversation)
-            Text(
-              'Already chatting',
-              style: textTheme.bodySmall?.copyWith(
-                color: Theme.of(context).colorScheme.primary,
-                fontStyle: FontStyle.italic,
-              ),
-            ),
-        ],
+      subtitle: Text(
+        '@${user.username}',
+        style: textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
       ),
-      trailing: Container(
-        width: 12,
-        height: 12,
-        decoration: BoxDecoration(
-          color: user.isOnline ? Colors.green : Colors.grey,
-          shape: BoxShape.circle,
-          border: Border.all(
-            color: Theme.of(context).scaffoldBackgroundColor,
-            width: 2,
-          ),
-        ),
+      trailing: Checkbox(
+        value: isSelected,
+        onChanged: (_) => onUserToggle(user),
       ),
     );
   }
 }
+

@@ -53,7 +53,7 @@ class MessageSearchWidget extends HookConsumerWidget {
               TextField(
                 controller: searchController,
                 decoration: InputDecoration(
-                  hintText: 'Tìm kiếm tin nhắn...',
+                  hintText: 'Search messages...',
                   prefixIcon: const Icon(Icons.search),
                   suffixIcon: searchController.text.isNotEmpty
                       ? IconButton(
@@ -178,8 +178,8 @@ class MessageSearchWidget extends HookConsumerWidget {
                       const SizedBox(height: 16),
                       Text(
                         searchQuery.value.isEmpty
-                            ? 'Nhập từ khóa để tìm kiếm'
-                            : 'Không tìm thấy tin nhắn nào',
+                            ? 'Enter keywords to search'
+                            : 'No messages found',
                         style: textTheme.bodyLarge?.copyWith(
                           color: colors.onSurface.withValues(alpha: 0.6),
                         ),
@@ -210,7 +210,7 @@ class MessageSearchWidget extends HookConsumerWidget {
             loading: () => const Center(child: CircularProgressIndicator()),
             error: (e, st) => Center(
               child: Text(
-                'Không thể tải tin nhắn',
+                'Failed to load messages',
                 style: textTheme.bodyMedium,
               ),
             ),

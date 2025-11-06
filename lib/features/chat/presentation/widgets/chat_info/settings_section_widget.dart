@@ -26,12 +26,12 @@ class SettingsSectionWidget extends HookConsumerWidget {
       padding: const EdgeInsets.all(16),
       children: [
         // Customization section
-        _SectionHeader(title: 'Tùy chỉnh'),
+        _SectionHeader(title: 'Customization'),
         const SizedBox(height: 8),
         _SettingsTile(
           icon: Icons.color_lens_outlined,
-          title: 'Chủ đề & màu sắc',
-          subtitle: 'Thay đổi giao diện cuộc trò chuyện',
+          title: 'Theme & Colors',
+          subtitle: 'Change conversation appearance',
           onTap: () {
             // TODO: Implement theme customization
             _showThemeCustomization(context);
@@ -40,8 +40,8 @@ class SettingsSectionWidget extends HookConsumerWidget {
         if (!isGroup)
           _SettingsTile(
             icon: Icons.edit_outlined,
-            title: 'Biệt danh',
-            subtitle: 'Đặt biệt danh cho người này',
+            title: 'Nickname',
+            subtitle: 'Set a nickname for this person',
             onTap: () {
               // TODO: Implement nickname
               _showNicknameDialog(context);
@@ -50,8 +50,8 @@ class SettingsSectionWidget extends HookConsumerWidget {
         if (isGroup)
           _SettingsTile(
             icon: Icons.image_outlined,
-            title: 'Đổi ảnh nhóm',
-            subtitle: 'Thay đổi ảnh đại diện nhóm',
+            title: 'Change Group Photo',
+            subtitle: 'Update group avatar',
             onTap: () {
               // TODO: Implement change group avatar
             },
@@ -59,8 +59,8 @@ class SettingsSectionWidget extends HookConsumerWidget {
         if (isGroup)
           _SettingsTile(
             icon: Icons.edit_outlined,
-            title: 'Đổi tên nhóm',
-            subtitle: 'Thay đổi tên nhóm',
+            title: 'Rename Group',
+            subtitle: 'Change group name',
             onTap: () {
               // TODO: Implement change group name
               _showRenameGroupDialog(context);
@@ -70,14 +70,14 @@ class SettingsSectionWidget extends HookConsumerWidget {
         const SizedBox(height: 24),
 
         // Notifications section
-        _SectionHeader(title: 'Thông báo'),
+        _SectionHeader(title: 'Notifications'),
         const SizedBox(height: 8),
         _SettingsSwitchTile(
           icon: Icons.notifications_outlined,
-          title: 'Thông báo',
+          title: 'Notifications',
           subtitle: notificationsEnabled.value
-              ? 'Nhận thông báo từ cuộc trò chuyện này'
-              : 'Đã tắt thông báo',
+              ? 'Receive notifications from this conversation'
+              : 'Notifications disabled',
           value: notificationsEnabled.value,
           onChanged: (value) {
             notificationsEnabled.value = value;
@@ -86,10 +86,10 @@ class SettingsSectionWidget extends HookConsumerWidget {
         ),
         _SettingsSwitchTile(
           icon: Icons.volume_off_outlined,
-          title: 'Tắt tiếng',
+          title: 'Mute',
           subtitle: isMuted.value
-              ? 'Đã tắt tiếng cuộc trò chuyện'
-              : 'Tắt âm thanh thông báo',
+              ? 'Conversation is muted'
+              : 'Mute notification sounds',
           value: isMuted.value,
           onChanged: (value) {
             isMuted.value = value;
@@ -100,15 +100,15 @@ class SettingsSectionWidget extends HookConsumerWidget {
         const SizedBox(height: 24),
 
         // Privacy & Support section
-        _SectionHeader(title: 'Quyền riêng tư & Hỗ trợ'),
+        _SectionHeader(title: 'Privacy & Support'),
         const SizedBox(height: 8),
         if (!isGroup)
           _SettingsSwitchTile(
             icon: Icons.block_outlined,
-            title: 'Chặn',
+            title: 'Block',
             subtitle: isBlocked.value
-                ? 'Đã chặn người dùng này'
-                : 'Chặn tin nhắn và cuộc gọi',
+                ? 'User is blocked'
+                : 'Block messages and calls',
             value: isBlocked.value,
             onChanged: (value) {
               isBlocked.value = value;
@@ -119,8 +119,8 @@ class SettingsSectionWidget extends HookConsumerWidget {
           ),
         _SettingsTile(
           icon: Icons.report_outlined,
-          title: 'Báo cáo',
-          subtitle: 'Báo cáo spam hoặc lạm dụng',
+          title: 'Report',
+          subtitle: 'Report spam or abuse',
           onTap: () {
             // TODO: Implement report
             _showReportDialog(context);
@@ -130,13 +130,13 @@ class SettingsSectionWidget extends HookConsumerWidget {
         const SizedBox(height: 24),
 
         // Danger zone
-        _SectionHeader(title: 'Vùng nguy hiểm', isDestructive: true),
+        _SectionHeader(title: 'Danger Zone', isDestructive: true),
         const SizedBox(height: 8),
         if (isGroup)
           _SettingsTile(
             icon: Icons.exit_to_app_outlined,
-            title: 'Rời khỏi nhóm',
-            subtitle: 'Bạn sẽ không còn là thành viên',
+            title: 'Leave Group',
+            subtitle: 'You will no longer be a member',
             onTap: () {
               // TODO: Implement leave group
               _confirmLeaveGroup(context);
@@ -145,8 +145,8 @@ class SettingsSectionWidget extends HookConsumerWidget {
           ),
         _SettingsTile(
           icon: Icons.delete_outline,
-          title: 'Xóa cuộc trò chuyện',
-          subtitle: 'Xóa toàn bộ lịch sử tin nhắn',
+          title: 'Delete Conversation',
+          subtitle: 'Delete all message history',
           onTap: () {
             // TODO: Implement delete conversation
             _confirmDeleteConversation(context);
@@ -165,7 +165,7 @@ class SettingsSectionWidget extends HookConsumerWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Text('Chọn màu chủ đề'),
+            const Text('Choose Theme Color'),
             const SizedBox(height: 16),
             Wrap(
               spacing: 12,
@@ -203,24 +203,24 @@ class SettingsSectionWidget extends HookConsumerWidget {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Đặt biệt danh'),
+        title: const Text('Set Nickname'),
         content: TextField(
           controller: controller,
           decoration: const InputDecoration(
-            hintText: 'Nhập biệt danh...',
+            hintText: 'Enter nickname...',
           ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Hủy'),
+            child: const Text('Cancel'),
           ),
           TextButton(
             onPressed: () {
               // TODO: Update nickname
               Navigator.pop(context);
             },
-            child: const Text('Lưu'),
+            child: const Text('Save'),
           ),
         ],
       ),
@@ -232,24 +232,24 @@ class SettingsSectionWidget extends HookConsumerWidget {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Đổi tên nhóm'),
+        title: const Text('Rename Group'),
         content: TextField(
           controller: controller,
           decoration: const InputDecoration(
-            hintText: 'Nhập tên nhóm...',
+            hintText: 'Enter group name...',
           ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Hủy'),
+            child: const Text('Cancel'),
           ),
           TextButton(
             onPressed: () {
               // TODO: Update group name
               Navigator.pop(context);
             },
-            child: const Text('Lưu'),
+            child: const Text('Save'),
           ),
         ],
       ),
@@ -262,15 +262,15 @@ class SettingsSectionWidget extends HookConsumerWidget {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Chặn người dùng'),
+        title: const Text('Block User'),
         content: const Text(
-          'Bạn sẽ không nhận được tin nhắn và cuộc gọi từ người này. '
-          'Họ sẽ không biết bạn đã chặn họ.',
+          'You will not receive messages and calls from this person. '
+          'They will not be notified that you blocked them.',
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Hủy'),
+            child: const Text('Cancel'),
           ),
           TextButton(
             onPressed: () {
@@ -280,7 +280,7 @@ class SettingsSectionWidget extends HookConsumerWidget {
             style: TextButton.styleFrom(
               foregroundColor: Colors.red,
             ),
-            child: const Text('Chặn'),
+            child: const Text('Block'),
           ),
         ],
       ),
@@ -291,7 +291,7 @@ class SettingsSectionWidget extends HookConsumerWidget {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Báo cáo'),
+        title: const Text('Report'),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -303,14 +303,14 @@ class SettingsSectionWidget extends HookConsumerWidget {
               },
             ),
             ListTile(
-              title: const Text('Lạm dụng'),
+              title: const Text('Abuse'),
               onTap: () {
                 // TODO: Report as abuse
                 Navigator.pop(context);
               },
             ),
             ListTile(
-              title: const Text('Nội dung không phù hợp'),
+              title: const Text('Inappropriate Content'),
               onTap: () {
                 // TODO: Report inappropriate content
                 Navigator.pop(context);
@@ -326,15 +326,15 @@ class SettingsSectionWidget extends HookConsumerWidget {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Rời khỏi nhóm'),
+        title: const Text('Leave Group'),
         content: const Text(
-          'Bạn có chắc chắn muốn rời khỏi nhóm này? '
-          'Bạn sẽ không thể xem tin nhắn mới.',
+          'Are you sure you want to leave this group? '
+          'You will not be able to see new messages.',
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Hủy'),
+            child: const Text('Cancel'),
           ),
           TextButton(
             onPressed: () {
@@ -345,7 +345,7 @@ class SettingsSectionWidget extends HookConsumerWidget {
             style: TextButton.styleFrom(
               foregroundColor: Colors.red,
             ),
-            child: const Text('Rời nhóm'),
+            child: const Text('Leave'),
           ),
         ],
       ),
@@ -356,15 +356,15 @@ class SettingsSectionWidget extends HookConsumerWidget {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Xóa cuộc trò chuyện'),
+        title: const Text('Delete Conversation'),
         content: const Text(
-          'Bạn có chắc chắn muốn xóa cuộc trò chuyện này? '
-          'Toàn bộ lịch sử tin nhắn sẽ bị xóa vĩnh viễn.',
+          'Are you sure you want to delete this conversation? '
+          'All message history will be permanently deleted.',
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Hủy'),
+            child: const Text('Cancel'),
           ),
           TextButton(
             onPressed: () {
@@ -375,7 +375,7 @@ class SettingsSectionWidget extends HookConsumerWidget {
             style: TextButton.styleFrom(
               foregroundColor: Colors.red,
             ),
-            child: const Text('Xóa'),
+            child: const Text('Delete'),
           ),
         ],
       ),

@@ -44,14 +44,14 @@ class MediaGridWidget extends HookConsumerWidget {
                 ),
                 const SizedBox(width: 8),
                 _MediaTypeChip(
-                  label: 'Ảnh',
+                  label: 'Photos',
                   icon: Icons.image,
                   isSelected: selectedMediaType.value == 'IMAGE',
                   onTap: () => selectedMediaType.value = 'IMAGE',
                 ),
                 const SizedBox(width: 8),
                 _MediaTypeChip(
-                  label: 'Video',
+                  label: 'Videos',
                   icon: Icons.videocam,
                   isSelected: selectedMediaType.value == 'VIDEO',
                   onTap: () => selectedMediaType.value = 'VIDEO',
@@ -99,7 +99,7 @@ class MediaGridWidget extends HookConsumerWidget {
                       ),
                       const SizedBox(height: 16),
                       Text(
-                        'Chưa có media nào',
+                        'No media yet',
                         style: textTheme.bodyLarge?.copyWith(
                           color: colors.onSurface.withValues(alpha: 0.6),
                         ),
@@ -126,7 +126,7 @@ class MediaGridWidget extends HookConsumerWidget {
             loading: () => const Center(child: CircularProgressIndicator()),
             error: (e, st) => Center(
               child: Text(
-                'Không thể tải media',
+                'Failed to load media',
                 style: textTheme.bodyMedium,
               ),
             ),

@@ -79,7 +79,7 @@ class MembersListWidget extends HookConsumerWidget {
                       _showAddMemberDialog(context);
                     },
                     icon: const Icon(Icons.person_add),
-                    label: const Text('Thêm thành viên'),
+                    label: const Text('Add Member'),
                   ),
                 ),
               ],
@@ -174,12 +174,12 @@ class MembersListWidget extends HookConsumerWidget {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Thêm thành viên'),
-        content: const Text('Chức năng đang phát triển'),
+        title: const Text('Add Member'),
+        content: const Text('Feature in development'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Đóng'),
+            child: const Text('Close'),
           ),
         ],
       ),
@@ -227,7 +227,7 @@ class MembersListWidget extends HookConsumerWidget {
             ListTile(
               leading: const Icon(Icons.person_remove, color: Colors.red),
               title: const Text(
-                'Xóa khỏi nhóm',
+                'Remove from group',
                 style: TextStyle(color: Colors.red),
               ),
               onTap: () {
@@ -295,14 +295,14 @@ class MembersListWidget extends HookConsumerWidget {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Xóa thành viên'),
+        title: const Text('Remove Member'),
         content: Text(
-          'Bạn có chắc chắn muốn xóa ${member.fullName} khỏi nhóm?',
+          'Are you sure you want to remove ${member.fullName} from the group?',
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Hủy'),
+            child: const Text('Cancel'),
           ),
           TextButton(
             onPressed: () {
@@ -312,7 +312,7 @@ class MembersListWidget extends HookConsumerWidget {
             style: TextButton.styleFrom(
               foregroundColor: Colors.red,
             ),
-            child: const Text('Xóa'),
+            child: const Text('Remove'),
           ),
         ],
       ),
