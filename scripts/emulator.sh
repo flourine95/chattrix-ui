@@ -1,0 +1,3 @@
+emulator -list-avds
+
+emulator

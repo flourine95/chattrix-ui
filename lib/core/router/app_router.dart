@@ -3,6 +3,8 @@ import 'package:chattrix_ui/features/auth/presentation/pages/login_screen.dart';
 import 'package:chattrix_ui/features/auth/presentation/pages/otp_verification_screen.dart';
 import 'package:chattrix_ui/features/auth/presentation/pages/register_screen.dart';
 import 'package:chattrix_ui/features/auth/presentation/providers/auth_providers.dart';
+import 'package:chattrix_ui/features/chat/domain/entities/conversation.dart';
+import 'package:chattrix_ui/features/chat/presentation/pages/chat_info_page.dart';
 import 'package:chattrix_ui/features/chat/presentation/pages/chat_list_page.dart';
 import 'package:chattrix_ui/features/chat/presentation/pages/chat_view_page.dart';
 import 'package:chattrix_ui/features/chat/presentation/pages/new_chat_page.dart';
@@ -97,6 +99,15 @@ class AppRouter {
           path: '/new-chat',
           name: 'new-chat',
           builder: (context, state) => const NewChatPage(),
+        ),
+
+        GoRoute(
+          path: '/chat-info',
+          name: 'chat-info',
+          builder: (context, state) {
+            final conversation = state.extra as Conversation;
+            return ChatInfoPage(conversation: conversation);
+          },
         ),
 
         GoRoute(

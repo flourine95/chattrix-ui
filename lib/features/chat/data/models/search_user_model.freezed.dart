@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$SearchUserModel {
 
- int get id; String get username; String get email; String get fullName; String? get avatarUrl; bool get isOnline; String? get lastSeen; bool get isContact; bool get hasConversation; int? get conversationId;
+ int get id; String get username; String get email; String get fullName; String? get avatarUrl; bool get isOnline; String? get lastSeen;@JsonKey(name: 'contact') bool get isContact; bool get hasConversation; int? get conversationId;
 /// Create a copy of SearchUserModel
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -48,7 +48,7 @@ abstract mixin class $SearchUserModelCopyWith<$Res>  {
   factory $SearchUserModelCopyWith(SearchUserModel value, $Res Function(SearchUserModel) _then) = _$SearchUserModelCopyWithImpl;
 @useResult
 $Res call({
- int id, String username, String email, String fullName, String? avatarUrl, bool isOnline, String? lastSeen, bool isContact, bool hasConversation, int? conversationId
+ int id, String username, String email, String fullName, String? avatarUrl, bool isOnline, String? lastSeen,@JsonKey(name: 'contact') bool isContact, bool hasConversation, int? conversationId
 });
 
 
@@ -162,7 +162,7 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int id,  String username,  String email,  String fullName,  String? avatarUrl,  bool isOnline,  String? lastSeen,  bool isContact,  bool hasConversation,  int? conversationId)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int id,  String username,  String email,  String fullName,  String? avatarUrl,  bool isOnline,  String? lastSeen, @JsonKey(name: 'contact')  bool isContact,  bool hasConversation,  int? conversationId)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _SearchUserModel() when $default != null:
 return $default(_that.id,_that.username,_that.email,_that.fullName,_that.avatarUrl,_that.isOnline,_that.lastSeen,_that.isContact,_that.hasConversation,_that.conversationId);case _:
@@ -183,7 +183,7 @@ return $default(_that.id,_that.username,_that.email,_that.fullName,_that.avatarU
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int id,  String username,  String email,  String fullName,  String? avatarUrl,  bool isOnline,  String? lastSeen,  bool isContact,  bool hasConversation,  int? conversationId)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int id,  String username,  String email,  String fullName,  String? avatarUrl,  bool isOnline,  String? lastSeen, @JsonKey(name: 'contact')  bool isContact,  bool hasConversation,  int? conversationId)  $default,) {final _that = this;
 switch (_that) {
 case _SearchUserModel():
 return $default(_that.id,_that.username,_that.email,_that.fullName,_that.avatarUrl,_that.isOnline,_that.lastSeen,_that.isContact,_that.hasConversation,_that.conversationId);case _:
@@ -203,7 +203,7 @@ return $default(_that.id,_that.username,_that.email,_that.fullName,_that.avatarU
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int id,  String username,  String email,  String fullName,  String? avatarUrl,  bool isOnline,  String? lastSeen,  bool isContact,  bool hasConversation,  int? conversationId)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int id,  String username,  String email,  String fullName,  String? avatarUrl,  bool isOnline,  String? lastSeen, @JsonKey(name: 'contact')  bool isContact,  bool hasConversation,  int? conversationId)?  $default,) {final _that = this;
 switch (_that) {
 case _SearchUserModel() when $default != null:
 return $default(_that.id,_that.username,_that.email,_that.fullName,_that.avatarUrl,_that.isOnline,_that.lastSeen,_that.isContact,_that.hasConversation,_that.conversationId);case _:
@@ -218,7 +218,7 @@ return $default(_that.id,_that.username,_that.email,_that.fullName,_that.avatarU
 @JsonSerializable()
 
 class _SearchUserModel extends SearchUserModel {
-  const _SearchUserModel({required this.id, required this.username, required this.email, required this.fullName, this.avatarUrl, required this.isOnline, this.lastSeen, required this.isContact, required this.hasConversation, this.conversationId}): super._();
+  const _SearchUserModel({required this.id, required this.username, required this.email, required this.fullName, this.avatarUrl, required this.isOnline, this.lastSeen, @JsonKey(name: 'contact') required this.isContact, required this.hasConversation, this.conversationId}): super._();
   factory _SearchUserModel.fromJson(Map<String, dynamic> json) => _$SearchUserModelFromJson(json);
 
 @override final  int id;
@@ -228,7 +228,7 @@ class _SearchUserModel extends SearchUserModel {
 @override final  String? avatarUrl;
 @override final  bool isOnline;
 @override final  String? lastSeen;
-@override final  bool isContact;
+@override@JsonKey(name: 'contact') final  bool isContact;
 @override final  bool hasConversation;
 @override final  int? conversationId;
 
@@ -265,7 +265,7 @@ abstract mixin class _$SearchUserModelCopyWith<$Res> implements $SearchUserModel
   factory _$SearchUserModelCopyWith(_SearchUserModel value, $Res Function(_SearchUserModel) _then) = __$SearchUserModelCopyWithImpl;
 @override @useResult
 $Res call({
- int id, String username, String email, String fullName, String? avatarUrl, bool isOnline, String? lastSeen, bool isContact, bool hasConversation, int? conversationId
+ int id, String username, String email, String fullName, String? avatarUrl, bool isOnline, String? lastSeen,@JsonKey(name: 'contact') bool isContact, bool hasConversation, int? conversationId
 });
 
 

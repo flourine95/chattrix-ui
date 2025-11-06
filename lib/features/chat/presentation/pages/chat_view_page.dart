@@ -202,62 +202,81 @@ class ChatViewPage extends HookConsumerWidget {
           icon: const Icon(Icons.arrow_back),
           onPressed: () => context.pop(),
         ),
-        title: Row(
-          children: [
-            CircleAvatar(
-              backgroundColor: avatarColor,
-              child: Text(
-                (name ?? 'User $chatId').substring(0, 1).toUpperCase(),
-                style: textTheme.titleMedium?.copyWith(color: onAvatarColor),
+        title: InkWell(
+          onTap: () {
+            // Navigate to chat info page
+            if (conversation != null) {
+              context.push('/chat-info', extra: conversation);
+            }
+          },
+          child: Row(
+            children: [
+              CircleAvatar(
+                backgroundColor: avatarColor,
+                child: Text(
+                  (name ?? 'User $chatId').substring(0, 1).toUpperCase(),
+                  style: textTheme.titleMedium?.copyWith(color: onAvatarColor),
+                ),
               ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(name ?? 'User $chatId', style: textTheme.titleMedium),
-                  // Show user status for DIRECT conversations
-                  if (conversation != null &&
-                      conversation.type.toUpperCase() == 'DIRECT')
-                    Builder(
-                      builder: (context) {
-                        final isOnline = ConversationUtils.isUserOnline(
-                          conversation,
-                          me,
-                        );
-                        final lastSeen = ConversationUtils.getLastSeen(
-                          conversation,
-                          me,
-                        );
-                        final statusText = ConversationUtils.formatLastSeen(
-                          isOnline,
-                          lastSeen,
-                        );
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(name ?? 'User $chatId', style: textTheme.titleMedium),
+                    // Show user status for DIRECT conversations
+                    if (conversation != null &&
+                        conversation.type.toUpperCase() == 'DIRECT')
+                      Builder(
+                        builder: (context) {
+                          final isOnline = ConversationUtils.isUserOnline(
+                            conversation,
+                            me,
+                          );
+                          final lastSeen = ConversationUtils.getLastSeen(
+                            conversation,
+                            me,
+                          );
+                          final statusText = ConversationUtils.formatLastSeen(
+                            isOnline,
+                            lastSeen,
+                          );
 
-                        return Text(
-                          statusText,
-                          style: textTheme.bodySmall?.copyWith(
-                            color: isOnline ? Colors.green : Colors.grey,
-                          ),
-                        );
-                      },
-                    )
-                  else
-                    // Fallback to WebSocket connection status for GROUP or when conversation not loaded
-                    Text(
-                      wsConnection.isConnected ? 'Connected' : 'Connecting...',
-                      style: textTheme.bodySmall?.copyWith(
-                        color: wsConnection.isConnected
-                            ? Colors.green
-                            : Colors.grey,
+                          return Text(
+                            statusText,
+                            style: textTheme.bodySmall?.copyWith(
+                              color: isOnline ? Colors.green : Colors.grey,
+                            ),
+                          );
+                        },
+                      )
+                    else
+                      // Fallback to WebSocket connection status for GROUP or when conversation not loaded
+                      Text(
+                        wsConnection.isConnected ? 'Connected' : 'Connecting...',
+                        style: textTheme.bodySmall?.copyWith(
+                          color: wsConnection.isConnected
+                              ? Colors.green
+                              : Colors.grey,
+                        ),
                       ),
-                    ),
-                ],
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.info_outline),
+            onPressed: () {
+              // Navigate to chat info page
+              if (conversation != null) {
+                context.push('/chat-info', extra: conversation);
+              }
+            },
+          ),
+        ],
       ),
       body: Stack(
         children: [

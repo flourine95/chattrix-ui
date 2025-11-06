@@ -15,7 +15,7 @@ _SearchUserModel _$SearchUserModelFromJson(Map<String, dynamic> json) =>
       avatarUrl: json['avatarUrl'] as String?,
       isOnline: json['isOnline'] as bool,
       lastSeen: json['lastSeen'] as String?,
-      isContact: json['isContact'] as bool,
+      isContact: json['contact'] as bool,
       hasConversation: json['hasConversation'] as bool,
       conversationId: (json['conversationId'] as num?)?.toInt(),
     );
@@ -29,7 +29,7 @@ Map<String, dynamic> _$SearchUserModelToJson(_SearchUserModel instance) =>
       'avatarUrl': instance.avatarUrl,
       'isOnline': instance.isOnline,
       'lastSeen': instance.lastSeen,
-      'isContact': instance.isContact,
+      'contact': instance.isContact,
       'hasConversation': instance.hasConversation,
       'conversationId': instance.conversationId,
     };

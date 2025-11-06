@@ -8,18 +8,12 @@ part of 'conversations_notifier.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
-/// Notifier for managing conversations list
-/// Handles fetching and caching conversations with real-time updates
 
 @ProviderFor(ConversationsNotifier)
 const conversationsProvider = ConversationsNotifierProvider._();
 
-/// Notifier for managing conversations list
-/// Handles fetching and caching conversations with real-time updates
 final class ConversationsNotifierProvider
     extends $AsyncNotifierProvider<ConversationsNotifier, List<Conversation>> {
-  /// Notifier for managing conversations list
-  /// Handles fetching and caching conversations with real-time updates
   const ConversationsNotifierProvider._()
     : super(
         from: null,
@@ -40,10 +34,7 @@ final class ConversationsNotifierProvider
 }
 
 String _$conversationsNotifierHash() =>
-    r'0be47bd01d7edb093fd2bed3dba0ace7fa4bf563';
-
-/// Notifier for managing conversations list
-/// Handles fetching and caching conversations with real-time updates
+    r'84a3ba437f8024b6a9af5c6051d81f9c219879d7';
 
 abstract class _$ConversationsNotifier
     extends $AsyncNotifier<List<Conversation>> {

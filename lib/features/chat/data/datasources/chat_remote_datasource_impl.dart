@@ -253,14 +253,20 @@ class ChatRemoteDatasourceImpl implements ChatRemoteDatasource {
   }) async {
     try {
       final url = '${ApiConstants.baseUrl}/${ApiConstants.searchUsers}';
+      print('🔍 [SearchUsers] Searching with query: "$query", limit: $limit');
+      print('🔍 [SearchUsers] URL: $url');
 
       final response = await dio.get(
         url,
         queryParameters: {'query': query, 'limit': limit},
       );
 
+      print('🔍 [SearchUsers] Response status: ${response.statusCode}');
+      print('🔍 [SearchUsers] Response data: ${response.data}');
+
       if (response.statusCode == 200) {
         final data = response.data['data'] as List;
+        print('🔍 [SearchUsers] Found ${data.length} users');
 
         return data
             .whereType<Map<String, dynamic>>()
@@ -270,10 +276,16 @@ class ChatRemoteDatasourceImpl implements ChatRemoteDatasource {
 
       throw ServerException(message: 'Failed to search users');
     } on DioException catch (e) {
+      print('❌ [SearchUsers] DioException: ${e.type}');
+      print('❌ [SearchUsers] Status code: ${e.response?.statusCode}');
+      print('❌ [SearchUsers] Response data: ${e.response?.data}');
+      print('❌ [SearchUsers] Error message: ${e.message}');
+
       throw ServerException(
         message: e.response?.data['message'] ?? 'Failed to search users',
       );
     } catch (e) {
+      print('❌ [SearchUsers] Unexpected error: $e');
       throw ServerException(message: 'Failed to search users: $e');
     }
   }

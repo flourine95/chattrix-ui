@@ -16,7 +16,7 @@ abstract class SearchUserModel with _$SearchUserModel {
     String? avatarUrl,
     required bool isOnline,
     String? lastSeen,
-    required bool isContact,
+    @JsonKey(name: 'contact') required bool isContact,
     required bool hasConversation,
     int? conversationId,
   }) = _SearchUserModel;

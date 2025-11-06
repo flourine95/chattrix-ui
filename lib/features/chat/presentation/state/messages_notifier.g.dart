@@ -8,18 +8,12 @@ part of 'messages_notifier.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
-/// Notifier for managing messages in a conversation
-/// Handles fetching and caching messages with real-time updates
 
 @ProviderFor(MessagesNotifier)
 const messagesProvider = MessagesNotifierFamily._();
 
-/// Notifier for managing messages in a conversation
-/// Handles fetching and caching messages with real-time updates
 final class MessagesNotifierProvider
     extends $AsyncNotifierProvider<MessagesNotifier, List<Message>> {
-  /// Notifier for managing messages in a conversation
-  /// Handles fetching and caching messages with real-time updates
   const MessagesNotifierProvider._({
     required MessagesNotifierFamily super.from,
     required String super.argument,
@@ -56,10 +50,7 @@ final class MessagesNotifierProvider
   }
 }
 
-String _$messagesNotifierHash() => r'83705a429ee15d35e663b5604d1dedc4df478fa6';
-
-/// Notifier for managing messages in a conversation
-/// Handles fetching and caching messages with real-time updates
+String _$messagesNotifierHash() => r'0cd67c3a47496801cb4999d8b054c881ac34e3a6';
 
 final class MessagesNotifierFamily extends $Family
     with
@@ -79,18 +70,12 @@ final class MessagesNotifierFamily extends $Family
         isAutoDispose: true,
       );
 
-  /// Notifier for managing messages in a conversation
-  /// Handles fetching and caching messages with real-time updates
-
   MessagesNotifierProvider call(String conversationId) =>
       MessagesNotifierProvider._(argument: conversationId, from: this);
 
   @override
   String toString() => r'messagesProvider';
 }
-
-/// Notifier for managing messages in a conversation
-/// Handles fetching and caching messages with real-time updates
 
 abstract class _$MessagesNotifier extends $AsyncNotifier<List<Message>> {
   late final _$args = ref.$arg as String;
