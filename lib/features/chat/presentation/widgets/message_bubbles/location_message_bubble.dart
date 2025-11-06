@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:chattrix_ui/features/chat/domain/entities/message.dart';
+import 'package:chattrix_ui/features/chat/presentation/utils/format_utils.dart';
 import 'package:chattrix_ui/features/chat/presentation/widgets/message_bubble.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -48,7 +49,7 @@ class LocationMessageBubble extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final textColor = getTextColor(context, isMe);
+    final textColor = FormatUtils.getTextColor(context, isMe);
     final textTheme = Theme.of(context).textTheme;
 
     return GestureDetector(

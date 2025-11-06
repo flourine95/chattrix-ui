@@ -1,6 +1,7 @@
 import 'package:chattrix_ui/features/auth/presentation/providers/auth_providers.dart';
 import 'package:chattrix_ui/features/chat/domain/entities/message.dart';
 import 'package:chattrix_ui/features/chat/presentation/providers/chat_providers.dart';
+import 'package:chattrix_ui/features/chat/presentation/utils/format_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
@@ -267,7 +268,7 @@ class _SearchResultItem extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  _formatDateTime(message.createdAt),
+                  FormatUtils.formatDateTime(message.createdAt),
                   style: textTheme.labelSmall?.copyWith(
                     color: colors.onSurface.withValues(alpha: 0.6),
                   ),
@@ -359,15 +360,6 @@ class _SearchResultItem extends StatelessWidget {
         ],
       ),
     );
-  }
-
-  String _formatDateTime(DateTime dateTime) {
-    final day = dateTime.day.toString().padLeft(2, '0');
-    final month = dateTime.month.toString().padLeft(2, '0');
-    final year = dateTime.year.toString();
-    final hour = dateTime.hour.toString().padLeft(2, '0');
-    final minute = dateTime.minute.toString().padLeft(2, '0');
-    return '$day/$month/$year $hour:$minute';
   }
 
   IconData _getMessageTypeIcon() {

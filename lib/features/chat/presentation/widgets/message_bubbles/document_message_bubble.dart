@@ -1,4 +1,5 @@
 import 'package:chattrix_ui/features/chat/domain/entities/message.dart';
+import 'package:chattrix_ui/features/chat/presentation/utils/format_utils.dart';
 import 'package:chattrix_ui/features/chat/presentation/widgets/message_bubble.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -74,7 +75,7 @@ class DocumentMessageBubble extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final textColor = getTextColor(context, isMe);
+    final textColor = FormatUtils.getTextColor(context, isMe);
     final textTheme = Theme.of(context).textTheme;
 
     return BaseBubbleContainer(
@@ -129,7 +130,7 @@ class DocumentMessageBubble extends StatelessWidget {
                     // File size
                     if (message.fileSize != null)
                       Text(
-                        formatFileSize(message.fileSize!),
+                        FormatUtils.formatFileSize(message.fileSize!),
                         style: textTheme.bodySmall?.copyWith(
                           color: textColor.withValues(alpha: 0.7),
                         ),

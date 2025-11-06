@@ -1,6 +1,7 @@
 import 'package:chattrix_ui/features/auth/presentation/providers/auth_providers.dart';
 import 'package:chattrix_ui/features/chat/domain/entities/conversation.dart';
 import 'package:chattrix_ui/features/chat/domain/entities/participant.dart';
+import 'package:chattrix_ui/features/chat/presentation/utils/format_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -426,14 +427,14 @@ class _MemberListItem extends StatelessWidget {
             Text('@${member.username}'),
             if (member.isOnline ?? false)
               Text(
-                'Đang hoạt động',
+                'Active now',
                 style: textTheme.labelSmall?.copyWith(
                   color: Colors.green,
                 ),
               )
             else if (member.lastSeen != null)
               Text(
-                'Hoạt động ${_formatLastSeen(member.lastSeen!)}',
+                'Active ${FormatUtils.formatTimeAgo(member.lastSeen!)}',
                 style: textTheme.labelSmall?.copyWith(
                   color: colors.onSurface.withValues(alpha: 0.6),
                 ),
@@ -451,24 +452,4 @@ class _MemberListItem extends StatelessWidget {
     );
   }
 
-  String _formatLastSeen(DateTime lastSeen) {
-    final now = DateTime.now();
-    final difference = now.difference(lastSeen);
-
-    if (difference.inMinutes < 1) {
-      return 'vừa xong';
-    } else if (difference.inHours < 1) {
-      return '${difference.inMinutes} phút trước';
-    } else if (difference.inDays < 1) {
-      return '${difference.inHours} giờ trước';
-    } else if (difference.inDays < 7) {
-      return '${difference.inDays} ngày trước';
-    } else {
-      // Format as dd/MM/yyyy
-      final day = lastSeen.day.toString().padLeft(2, '0');
-      final month = lastSeen.month.toString().padLeft(2, '0');
-      final year = lastSeen.year.toString();
-      return '$day/$month/$year';
-    }
-  }
 }

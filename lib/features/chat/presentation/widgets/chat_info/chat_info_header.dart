@@ -20,7 +20,7 @@ class ChatInfoHeader extends ConsumerWidget {
 
     final isGroup = conversation.type.toUpperCase() == 'GROUP';
     final displayName = isGroup
-        ? (conversation.name ?? 'Nhóm ${conversation.id}')
+        ? (conversation.name ?? 'Group ${conversation.id}')
         : ConversationUtils.getConversationTitle(conversation, me);
 
     final memberCount = conversation.participants.length;

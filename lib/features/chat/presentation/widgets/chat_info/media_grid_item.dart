@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:chattrix_ui/features/chat/domain/entities/message.dart';
+import 'package:chattrix_ui/features/chat/presentation/utils/format_utils.dart';
 import 'package:flutter/material.dart';
 
 class MediaGridItem extends StatelessWidget {
@@ -116,7 +117,7 @@ class MediaGridItem extends StatelessWidget {
                     borderRadius: BorderRadius.circular(4),
                   ),
                   child: Text(
-                    _formatDuration(message.duration!),
+                    FormatUtils.formatDuration(message.duration!),
                     style: textTheme.labelSmall?.copyWith(
                       color: Colors.white,
                     ),
@@ -140,7 +141,7 @@ class MediaGridItem extends StatelessWidget {
               if (message.duration != null) ...[
                 const SizedBox(height: 4),
                 Text(
-                  _formatDuration(message.duration!),
+                  FormatUtils.formatDuration(message.duration!),
                   style: textTheme.labelSmall?.copyWith(
                     color: colors.primary,
                   ),
@@ -183,12 +184,6 @@ class MediaGridItem extends StatelessWidget {
           ),
         );
     }
-  }
-
-  String _formatDuration(int seconds) {
-    final minutes = seconds ~/ 60;
-    final remainingSeconds = seconds % 60;
-    return '${minutes.toString().padLeft(2, '0')}:${remainingSeconds.toString().padLeft(2, '0')}';
   }
 
   void _showMediaViewer(BuildContext context) {

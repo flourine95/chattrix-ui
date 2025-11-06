@@ -227,31 +227,3 @@ class BaseBubbleContainer extends StatelessWidget {
   }
 }
 
-/// Helper to get text color based on theme and sender
-Color getTextColor(BuildContext context, bool isMe) {
-  final theme = Theme.of(context);
-  final colors = theme.colorScheme;
-  final isDark = theme.brightness == Brightness.dark;
-
-  return isMe
-      ? (isDark ? colors.onPrimary : Colors.black)
-      : (isDark ? colors.onSurface : Colors.white);
-}
-
-/// Helper to format file size
-String formatFileSize(int bytes) {
-  if (bytes < 1024) return '$bytes B';
-  if (bytes < 1024 * 1024) return '${(bytes / 1024).toStringAsFixed(1)} KB';
-  if (bytes < 1024 * 1024 * 1024) {
-    return '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
-  }
-  return '${(bytes / (1024 * 1024 * 1024)).toStringAsFixed(1)} GB';
-}
-
-/// Helper to format duration
-String formatDuration(int seconds) {
-  final minutes = seconds ~/ 60;
-  final remainingSeconds = seconds % 60;
-  return '${minutes.toString().padLeft(2, '0')}:${remainingSeconds.toString().padLeft(2, '0')}';
-}
-

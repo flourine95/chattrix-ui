@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:chattrix_ui/features/chat/domain/entities/message.dart';
+import 'package:chattrix_ui/features/chat/presentation/utils/format_utils.dart';
 import 'package:chattrix_ui/features/chat/presentation/widgets/message_bubble.dart';
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
@@ -106,7 +107,7 @@ class _VideoMessageBubbleState extends State<VideoMessageBubble>
   Widget build(BuildContext context) {
     super.build(context); // Required for AutomaticKeepAliveClientMixin
 
-    final textColor = getTextColor(context, widget.isMe);
+    final textColor = FormatUtils.getTextColor(context, widget.isMe);
     final textTheme = Theme.of(context).textTheme;
 
     return BaseBubbleContainer(
@@ -202,7 +203,7 @@ class _VideoMessageBubbleState extends State<VideoMessageBubble>
                           borderRadius: BorderRadius.circular(4),
                         ),
                         child: Text(
-                          formatDuration(widget.message.duration!),
+                          FormatUtils.formatDuration(widget.message.duration!),
                           style: const TextStyle(
                             color: Colors.white,
                             fontSize: 12,

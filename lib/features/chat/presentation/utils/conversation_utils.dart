@@ -57,9 +57,9 @@ class ConversationUtils {
   /// Format last message for display in conversation list
   ///
   /// Rules:
-  /// - If message is from current user, add "Bạn: " prefix
-  /// - If message is image, show "📷 Ảnh"
-  /// - If message is file, show "📎 Tệp"
+  /// - If message is from current user, add "You: " prefix
+  /// - If message is image, show "📷 Photo"
+  /// - If message is file, show "📎 File"
   /// - Otherwise show content
   static String formatLastMessage(Message? lastMessage, User? currentUser) {
     if (lastMessage == null) {
@@ -70,16 +70,16 @@ class ConversationUtils {
 
     // Check message type
     if (lastMessage.type.toUpperCase() == 'IMAGE') {
-      content = '📷 Ảnh';
+      content = '📷 Photo';
     } else if (lastMessage.type.toUpperCase() == 'FILE') {
-      content = '📎 Tệp';
+      content = '📎 File';
     } else {
       content = lastMessage.content;
     }
 
-    // Add "Bạn: " prefix if message is from current user
+    // Add "You: " prefix if message is from current user
     if (currentUser != null && lastMessage.sender.id == currentUser.id) {
-      return 'Bạn: $content';
+      return 'You: $content';
     }
 
     return content;
@@ -88,51 +88,54 @@ class ConversationUtils {
   /// Format time ago from DateTime
   ///
   /// Examples:
-  /// - "Vừa xong" (just now)
-  /// - "5 phút trước"
-  /// - "2 giờ trước"
-  /// - "3 ngày trước"
-  /// - "1 tuần trước"
+  /// - "Just now"
+  /// - "5 minutes ago"
+  /// - "2 hours ago"
+  /// - "3 days ago"
+  /// - "1 week ago"
   static String formatTimeAgo(DateTime dateTime) {
     final now = DateTime.now();
     final difference = now.difference(dateTime);
 
     if (difference.inSeconds < 60) {
-      return 'Vừa xong';
+      return 'Just now';
     } else if (difference.inMinutes < 60) {
-      return '${difference.inMinutes} phút trước';
+      final minutes = difference.inMinutes;
+      return '$minutes ${minutes == 1 ? 'minute' : 'minutes'} ago';
     } else if (difference.inHours < 24) {
-      return '${difference.inHours} giờ trước';
+      final hours = difference.inHours;
+      return '$hours ${hours == 1 ? 'hour' : 'hours'} ago';
     } else if (difference.inDays < 7) {
-      return '${difference.inDays} ngày trước';
+      final days = difference.inDays;
+      return '$days ${days == 1 ? 'day' : 'days'} ago';
     } else if (difference.inDays < 30) {
       final weeks = (difference.inDays / 7).floor();
-      return '$weeks tuần trước';
+      return '$weeks ${weeks == 1 ? 'week' : 'weeks'} ago';
     } else if (difference.inDays < 365) {
       final months = (difference.inDays / 30).floor();
-      return '$months tháng trước';
+      return '$months ${months == 1 ? 'month' : 'months'} ago';
     } else {
       final years = (difference.inDays / 365).floor();
-      return '$years năm trước';
+      return '$years ${years == 1 ? 'year' : 'years'} ago';
     }
   }
 
   /// Format last seen status
   ///
   /// Examples:
-  /// - "Đang hoạt động" (if online)
-  /// - "Hoạt động 5 phút trước"
-  /// - "Hoạt động 2 giờ trước"
+  /// - "Active now" (if online)
+  /// - "Active 5 minutes ago"
+  /// - "Active 2 hours ago"
   static String formatLastSeen(bool isOnline, DateTime? lastSeen) {
     if (isOnline) {
-      return 'Đang hoạt động';
+      return 'Active now';
     }
 
     if (lastSeen == null) {
       return 'Offline';
     }
 
-    return 'Hoạt động ${formatTimeAgo(lastSeen)}';
+    return 'Active ${formatTimeAgo(lastSeen)}';
   }
 
   /// Get other participant in DIRECT conversation

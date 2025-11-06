@@ -1,5 +1,6 @@
 import 'package:audioplayers/audioplayers.dart';
 import 'package:chattrix_ui/features/chat/domain/entities/message.dart';
+import 'package:chattrix_ui/features/chat/presentation/utils/format_utils.dart';
 import 'package:chattrix_ui/features/chat/presentation/widgets/message_bubble.dart';
 import 'package:flutter/material.dart';
 
@@ -120,7 +121,7 @@ class _AudioMessageBubbleState extends State<AudioMessageBubble>
   Widget build(BuildContext context) {
     super.build(context); // Required for AutomaticKeepAliveClientMixin
 
-    final textColor = getTextColor(context, widget.isMe);
+    final textColor = FormatUtils.getTextColor(context, widget.isMe);
     final textTheme = Theme.of(context).textTheme;
 
     // Use actual duration if available, otherwise use message duration
@@ -198,8 +199,8 @@ class _AudioMessageBubbleState extends State<AudioMessageBubble>
                   // Duration display
                   Text(
                     _isPlaying
-                        ? '${formatDuration(_currentPosition.inSeconds)} / ${formatDuration(displayDuration.inSeconds)}'
-                        : formatDuration(displayDuration.inSeconds),
+                        ? '${FormatUtils.formatDuration(_currentPosition.inSeconds)} / ${FormatUtils.formatDuration(displayDuration.inSeconds)}'
+                        : FormatUtils.formatDuration(displayDuration.inSeconds),
                     style: textTheme.bodySmall?.copyWith(
                       color: textColor.withValues(alpha: 0.7),
                     ),
