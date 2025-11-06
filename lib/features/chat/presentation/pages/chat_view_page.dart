@@ -33,10 +33,16 @@ class ChatViewPage extends HookConsumerWidget {
     final scrollController = useScrollController();
     final showScrollButton = useState(false);
     final previousMessageCount = useRef(0);
-    final previousFirstMessageId = useRef<int?>(null); // Track first message ID to detect changes
+    final previousFirstMessageId = useRef<int?>(
+      null,
+    ); // Track first message ID to detect changes
     final shouldAutoScroll = useRef(true); // Track if we should auto-scroll
-    final hasNewMessages = useState(false); // Track if there are new messages while scrolled up
-    final replyToMessage = useState<Message?>(null); // Track message being replied to
+    final hasNewMessages = useState(
+      false,
+    ); // Track if there are new messages while scrolled up
+    final replyToMessage = useState<Message?>(
+      null,
+    ); // Track message being replied to
 
     final textTheme = Theme.of(context).textTheme;
     final colors = Theme.of(context).colorScheme;
@@ -100,10 +106,11 @@ class ChatViewPage extends HookConsumerWidget {
 
         // Detect new message by comparing first message ID (newest message)
         // This works even when message count stays the same (e.g., at page size limit)
-        final hasNewMessage = (oldFirstId != null &&
-                               newFirstId != null &&
-                               newFirstId != oldFirstId) ||
-                              (newCount > oldCount && oldCount > 0);
+        final hasNewMessage =
+            (oldFirstId != null &&
+                newFirstId != null &&
+                newFirstId != oldFirstId) ||
+            (newCount > oldCount && oldCount > 0);
 
         if (hasNewMessage) {
           if (shouldAutoScroll.value) {
@@ -156,9 +163,9 @@ class ChatViewPage extends HookConsumerWidget {
         );
         result.fold(
           (failure) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(failure.message)),
-            );
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(SnackBar(content: Text(failure.message)));
           },
           (_) {
             // Refresh messages after HTTP send
@@ -176,9 +183,9 @@ class ChatViewPage extends HookConsumerWidget {
       );
       result.fold(
         (failure) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(failure.message)),
-          );
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(failure.message)));
         },
         (_) {
           // Refresh messages to show updated reactions
@@ -190,9 +197,8 @@ class ChatViewPage extends HookConsumerWidget {
     Future<void> handleEditMessage(Message message) async {
       final newContent = await showDialog<String>(
         context: context,
-        builder: (context) => EditMessageDialog(
-          initialContent: message.content,
-        ),
+        builder: (context) =>
+            EditMessageDialog(initialContent: message.content),
       );
 
       if (newContent != null && newContent.isNotEmpty) {
@@ -205,9 +211,9 @@ class ChatViewPage extends HookConsumerWidget {
         result.fold(
           (failure) {
             if (context.mounted) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text(failure.message)),
-              );
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(SnackBar(content: Text(failure.message)));
             }
           },
           (_) {
@@ -231,9 +237,7 @@ class ChatViewPage extends HookConsumerWidget {
             ),
             FilledButton(
               onPressed: () => Navigator.of(context).pop(true),
-              style: FilledButton.styleFrom(
-                backgroundColor: Colors.red,
-              ),
+              style: FilledButton.styleFrom(backgroundColor: Colors.red),
               child: const Text('Delete'),
             ),
           ],
@@ -247,9 +251,9 @@ class ChatViewPage extends HookConsumerWidget {
         result.fold(
           (failure) {
             if (context.mounted) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text(failure.message)),
-              );
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(SnackBar(content: Text(failure.message)));
             }
           },
           (_) {
@@ -328,7 +332,9 @@ class ChatViewPage extends HookConsumerWidget {
                     else
                       // Fallback to WebSocket connection status for GROUP or when conversation not loaded
                       Text(
-                        wsConnection.isConnected ? 'Connected' : 'Connecting...',
+                        wsConnection.isConnected
+                            ? 'Connected'
+                            : 'Connecting...',
                         style: textTheme.bodySmall?.copyWith(
                           color: wsConnection.isConnected
                               ? Colors.green
@@ -372,7 +378,8 @@ class ChatViewPage extends HookConsumerWidget {
                       itemCount: messages.length,
                       // Performance optimizations
                       addAutomaticKeepAlives: true, // Keep state of items
-                      addRepaintBoundaries: true, // Already added in MessageBubble
+                      addRepaintBoundaries:
+                          true, // Already added in MessageBubble
                       cacheExtent: 500, // Cache items 500px outside viewport
                       itemBuilder: (context, index) {
                         final m = messages[index];
@@ -408,15 +415,14 @@ class ChatViewPage extends HookConsumerWidget {
                               handleReaction(m, emoji);
                             },
                             onAddReaction: () {
-                              showReactionPicker(
-                                context,
-                                (emoji) {
-                                  handleReaction(m, emoji);
-                                },
-                              );
+                              showReactionPicker(context, (emoji) {
+                                handleReaction(m, emoji);
+                              });
                             },
                             onEdit: isMe ? () => handleEditMessage(m) : null,
-                            onDelete: isMe ? () => handleDeleteMessage(m) : null,
+                            onDelete: isMe
+                                ? () => handleDeleteMessage(m)
+                                : null,
                           ),
                         );
                       },
@@ -455,7 +461,7 @@ class ChatViewPage extends HookConsumerWidget {
           if (showScrollButton.value)
             Positioned(
               right: 16,
-              bottom: 80,
+              bottom: replyToMessage.value != null ? 160 : 100,
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -501,7 +507,8 @@ class ChatViewPage extends HookConsumerWidget {
                   FloatingActionButton.small(
                     onPressed: () {
                       scrollToBottom();
-                      hasNewMessages.value = false; // Clear indicator when clicked
+                      hasNewMessages.value =
+                          false; // Clear indicator when clicked
                     },
                     backgroundColor: colors.primary,
                     foregroundColor: colors.onPrimary,
@@ -631,20 +638,26 @@ class _InputBar extends HookConsumerWidget {
                     const SizedBox(
                       width: 20,
                       height: 20,
-                      child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: Colors.white,
+                      ),
                     ),
                     const SizedBox(width: 16),
                     Expanded(child: Text('Uploading $fileName...')),
                   ],
                 ),
-                duration: const Duration(hours: 1), // Long duration, will dismiss manually
+                duration: const Duration(
+                  hours: 1,
+                ), // Long duration, will dismiss manually
               ),
             );
           }
           break;
         case AttachmentType.gallery:
           // Pick multiple images
-          final images = await mediaPickerService.pickMultipleImagesFromGallery();
+          final images = await mediaPickerService
+              .pickMultipleImagesFromGallery();
           if (images.isEmpty) return;
 
           // Send each image as a separate message
@@ -661,7 +674,10 @@ class _InputBar extends HookConsumerWidget {
                         const SizedBox(
                           width: 20,
                           height: 20,
-                          child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Colors.white,
+                          ),
                         ),
                         const SizedBox(width: 16),
                         Expanded(child: Text('Uploading $imageName...')),
@@ -701,7 +717,9 @@ class _InputBar extends HookConsumerWidget {
               if (context.mounted) {
                 ScaffoldMessenger.of(context).removeCurrentSnackBar();
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Failed to upload image ${i + 1}: $e')),
+                  SnackBar(
+                    content: Text('Failed to upload image ${i + 1}: $e'),
+                  ),
                 );
               }
             }
@@ -730,7 +748,10 @@ class _InputBar extends HookConsumerWidget {
                     const SizedBox(
                       width: 20,
                       height: 20,
-                      child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: Colors.white,
+                      ),
                     ),
                     const SizedBox(width: 16),
                     Expanded(child: Text('Uploading $fileName...')),
@@ -764,7 +785,10 @@ class _InputBar extends HookConsumerWidget {
                     const SizedBox(
                       width: 20,
                       height: 20,
-                      child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: Colors.white,
+                      ),
                     ),
                     const SizedBox(width: 16),
                     Expanded(child: Text('Uploading $fileName...')),
@@ -790,9 +814,9 @@ class _InputBar extends HookConsumerWidget {
             result.fold(
               (failure) {
                 if (context.mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text(failure.message)),
-                  );
+                  ScaffoldMessenger.of(
+                    context,
+                  ).showSnackBar(SnackBar(content: Text(failure.message)));
                 }
               },
               (_) {
@@ -830,7 +854,10 @@ class _InputBar extends HookConsumerWidget {
         fileSize = result.bytes;
         duration = result.duration?.toInt();
       } else if (messageType == 'DOCUMENT') {
-        final result = await cloudinaryService.uploadDocument(file, fileName: fileName);
+        final result = await cloudinaryService.uploadDocument(
+          file,
+          fileName: fileName,
+        );
         mediaUrl = result.url;
         fileSize = result.bytes;
       }
@@ -856,9 +883,9 @@ class _InputBar extends HookConsumerWidget {
         result.fold(
           (failure) {
             if (context.mounted) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text(failure.message)),
-              );
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(SnackBar(content: Text(failure.message)));
             }
           },
           (_) {
@@ -870,9 +897,9 @@ class _InputBar extends HookConsumerWidget {
     } catch (e) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).removeCurrentSnackBar();
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error: $e')));
       }
     }
   }

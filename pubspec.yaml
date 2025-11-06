@@ -37,6 +37,7 @@ dependencies:
   audioplayers: ^6.5.1
   cached_network_image: ^3.4.1
   flutter_dotenv: ^6.0.0
+  flutter_emoji: ^2.5.1
 
 dev_dependencies:
   flutter_test:

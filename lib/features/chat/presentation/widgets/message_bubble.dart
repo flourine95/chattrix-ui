@@ -5,6 +5,7 @@ import 'package:chattrix_ui/features/chat/presentation/widgets/message_bubbles/i
 import 'package:chattrix_ui/features/chat/presentation/widgets/message_bubbles/location_message_bubble.dart';
 import 'package:chattrix_ui/features/chat/presentation/widgets/message_bubbles/text_message_bubble.dart';
 import 'package:chattrix_ui/features/chat/presentation/widgets/message_bubbles/video_message_bubble.dart';
+import 'package:chattrix_ui/features/chat/presentation/widgets/message_long_press_overlay.dart';
 import 'package:chattrix_ui/features/chat/presentation/widgets/message_reactions.dart';
 import 'package:chattrix_ui/features/chat/presentation/widgets/reply_message_preview.dart';
 import 'package:flutter/material.dart';
@@ -43,78 +44,78 @@ class MessageBubble extends StatelessWidget {
     return RepaintBoundary(
       child: switch (messageType) {
         'IMAGE' => ImageMessageBubble(
-            message: message,
-            isMe: isMe,
-            onReply: onReply,
-            onReactionTap: onReactionTap,
-            onAddReaction: onAddReaction,
-            currentUserId: currentUserId,
-            replyToMessage: replyToMessage,
-            onEdit: onEdit,
-            onDelete: onDelete,
-          ),
+          message: message,
+          isMe: isMe,
+          onReply: onReply,
+          onReactionTap: onReactionTap,
+          onAddReaction: onAddReaction,
+          currentUserId: currentUserId,
+          replyToMessage: replyToMessage,
+          onEdit: onEdit,
+          onDelete: onDelete,
+        ),
         'VIDEO' => VideoMessageBubble(
-            message: message,
-            isMe: isMe,
-            onReply: onReply,
-            onReactionTap: onReactionTap,
-            onAddReaction: onAddReaction,
-            currentUserId: currentUserId,
-            replyToMessage: replyToMessage,
-            onEdit: onEdit,
-            onDelete: onDelete,
-          ),
+          message: message,
+          isMe: isMe,
+          onReply: onReply,
+          onReactionTap: onReactionTap,
+          onAddReaction: onAddReaction,
+          currentUserId: currentUserId,
+          replyToMessage: replyToMessage,
+          onEdit: onEdit,
+          onDelete: onDelete,
+        ),
         'AUDIO' || 'VOICE' => AudioMessageBubble(
-            message: message,
-            isMe: isMe,
-            onReply: onReply,
-            onReactionTap: onReactionTap,
-            onAddReaction: onAddReaction,
-            currentUserId: currentUserId,
-            replyToMessage: replyToMessage,
-            onEdit: onEdit,
-            onDelete: onDelete,
-          ),
+          message: message,
+          isMe: isMe,
+          onReply: onReply,
+          onReactionTap: onReactionTap,
+          onAddReaction: onAddReaction,
+          currentUserId: currentUserId,
+          replyToMessage: replyToMessage,
+          onEdit: onEdit,
+          onDelete: onDelete,
+        ),
         'DOCUMENT' || 'FILE' => DocumentMessageBubble(
-            message: message,
-            isMe: isMe,
-            onReply: onReply,
-            onReactionTap: onReactionTap,
-            onAddReaction: onAddReaction,
-            currentUserId: currentUserId,
-            replyToMessage: replyToMessage,
-            onEdit: onEdit,
-            onDelete: onDelete,
-          ),
+          message: message,
+          isMe: isMe,
+          onReply: onReply,
+          onReactionTap: onReactionTap,
+          onAddReaction: onAddReaction,
+          currentUserId: currentUserId,
+          replyToMessage: replyToMessage,
+          onEdit: onEdit,
+          onDelete: onDelete,
+        ),
         'LOCATION' => LocationMessageBubble(
-            message: message,
-            isMe: isMe,
-            onReply: onReply,
-            onReactionTap: onReactionTap,
-            onAddReaction: onAddReaction,
-            currentUserId: currentUserId,
-            replyToMessage: replyToMessage,
-            onEdit: onEdit,
-            onDelete: onDelete,
-          ),
+          message: message,
+          isMe: isMe,
+          onReply: onReply,
+          onReactionTap: onReactionTap,
+          onAddReaction: onAddReaction,
+          currentUserId: currentUserId,
+          replyToMessage: replyToMessage,
+          onEdit: onEdit,
+          onDelete: onDelete,
+        ),
         _ => TextMessageBubble(
-            message: message,
-            isMe: isMe,
-            onReply: onReply,
-            onReactionTap: onReactionTap,
-            onAddReaction: onAddReaction,
-            currentUserId: currentUserId,
-            replyToMessage: replyToMessage,
-            onEdit: onEdit,
-            onDelete: onDelete,
-          ),
+          message: message,
+          isMe: isMe,
+          onReply: onReply,
+          onReactionTap: onReactionTap,
+          onAddReaction: onAddReaction,
+          currentUserId: currentUserId,
+          replyToMessage: replyToMessage,
+          onEdit: onEdit,
+          onDelete: onDelete,
+        ),
       },
     );
   }
 }
 
 /// Base bubble container for all message types with reply and reaction support
-class BaseBubbleContainer extends StatelessWidget {
+class BaseBubbleContainer extends StatefulWidget {
   const BaseBubbleContainer({
     super.key,
     required this.isMe,
@@ -143,125 +144,182 @@ class BaseBubbleContainer extends StatelessWidget {
   final VoidCallback? onDelete;
 
   @override
+  State<BaseBubbleContainer> createState() => _BaseBubbleContainerState();
+}
+
+class _BaseBubbleContainerState extends State<BaseBubbleContainer> {
+  final GlobalKey _messageKey = GlobalKey();
+  double _dragDistance = 0;
+  double _initialDragDirection = 0;
+
+  void _handleQuickReaction(String emoji) {
+    if (widget.onReactionTap != null) {
+      widget.onReactionTap!(emoji);
+    }
+  }
+
+  void _handleSwipeReply() {
+    if (widget.onReply != null) {
+      widget.onReply!();
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
     final isDark = theme.brightness == Brightness.dark;
 
-    final bg = isMe
+    final bg = widget.isMe
         ? (isDark ? colors.primary : Colors.grey.shade200)
         : (isDark ? colors.surface : Colors.black);
 
-    return GestureDetector(
-      onLongPress: () => _showMessageOptions(context),
-      child: Container(
-        margin: EdgeInsets.only(
-          left: isMe ? 48 : 8,
-          right: isMe ? 8 : 48,
-          top: 6,
-          bottom: 6,
-        ),
-        constraints: BoxConstraints(maxWidth: maxWidth),
-        child: Column(
-          crossAxisAlignment:
-              isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+    return Container(
+      key: _messageKey,
+      margin: EdgeInsets.only(
+        left: widget.isMe ? 48 : 8,
+        right: widget.isMe ? 8 : 48,
+        top: 6,
+        bottom: 6,
+      ),
+      constraints: BoxConstraints(maxWidth: widget.maxWidth),
+      child: GestureDetector(
+        onDoubleTap: () {
+          if (widget.onReactionTap != null) {
+            widget.onReactionTap!('❤️');
+          }
+        },
+        onHorizontalDragStart: (details) {
+          if (widget.onReply == null) return;
+          _initialDragDirection = 0;
+        },
+        onHorizontalDragUpdate: (details) {
+          if (widget.onReply == null) return;
+
+          setState(() {
+            // Track initial direction
+            if (_initialDragDirection == 0 && details.delta.dx.abs() > 1) {
+              _initialDragDirection = details.delta.dx > 0 ? 1 : -1;
+            }
+
+            // Only allow dragging in the initial direction
+            final currentDirection = details.delta.dx > 0 ? 1 : -1;
+            if (_initialDragDirection != 0 &&
+                currentDirection == _initialDragDirection) {
+              _dragDistance += details.delta.dx;
+              _dragDistance = _dragDistance.clamp(-100.0, 100.0);
+            } else if (_initialDragDirection != 0 &&
+                currentDirection != _initialDragDirection) {
+              // Dragging back - cancel the swipe
+              _dragDistance += details.delta.dx * 1.5;
+              if ((_initialDragDirection > 0 && _dragDistance < 0) ||
+                  (_initialDragDirection < 0 && _dragDistance > 0)) {
+                _dragDistance = 0;
+                _initialDragDirection = 0;
+              }
+            }
+          });
+        },
+        onHorizontalDragEnd: (details) {
+          if (widget.onReply == null) return;
+
+          // Only trigger reply if dragged in consistent direction and > threshold
+          if (_dragDistance.abs() > 50 &&
+              ((_initialDragDirection > 0 && _dragDistance > 0) ||
+                  (_initialDragDirection < 0 && _dragDistance < 0))) {
+            _handleSwipeReply();
+          }
+
+          setState(() {
+            _dragDistance = 0;
+            _initialDragDirection = 0;
+          });
+        },
+        onLongPress: () {
+          if (widget.onReply == null &&
+              widget.onAddReaction == null &&
+              widget.onEdit == null &&
+              widget.onDelete == null) {
+            return;
+          }
+
+          showMessageLongPressOverlay(
+            context: context,
+            messageKey: _messageKey,
+            isMe: widget.isMe,
+            onReply: widget.onReply,
+            onAddReaction: widget.onAddReaction,
+            onEdit: widget.onEdit,
+            onDelete: widget.onDelete,
+            onQuickReaction: _handleQuickReaction,
+            canEdit: widget.message?.type == 'TEXT',
+          );
+        },
+        child: Stack(
           children: [
-            Container(
-              decoration: BoxDecoration(
-                color: bg,
-                borderRadius: BorderRadius.only(
-                  topLeft: const Radius.circular(16),
-                  topRight: const Radius.circular(16),
-                  bottomLeft: Radius.circular(isMe ? 16 : 4),
-                  bottomRight: Radius.circular(isMe ? 4 : 16),
+            if (_dragDistance.abs() > 10)
+              Positioned(
+                left: widget.isMe ? null : 0,
+                right: widget.isMe ? 0 : null,
+                top: 0,
+                bottom: 0,
+                child: Center(
+                  child: Opacity(
+                    opacity: (_dragDistance.abs() / 50).clamp(0.0, 1.0),
+                    child: Icon(Icons.reply, color: colors.primary, size: 24),
+                  ),
                 ),
-                border: isMe ? Border.all(color: Colors.grey.shade300) : null,
               ),
+            Transform.translate(
+              offset: Offset(_dragDistance * 0.5, 0),
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment: widget.isMe
+                    ? CrossAxisAlignment.end
+                    : CrossAxisAlignment.start,
                 children: [
-                  // Show quoted message if this is a reply
-                  if (replyToMessage != null)
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(12, 8, 12, 0),
-                      child: QuotedMessageWidget(
-                        replyToMessage: replyToMessage!,
-                        onTap: null,
+                  Container(
+                    decoration: BoxDecoration(
+                      color: bg,
+                      borderRadius: BorderRadius.only(
+                        topLeft: const Radius.circular(16),
+                        topRight: const Radius.circular(16),
+                        bottomLeft: Radius.circular(widget.isMe ? 16 : 4),
+                        bottomRight: Radius.circular(widget.isMe ? 4 : 16),
                       ),
+                      border: widget.isMe
+                          ? Border.all(color: Colors.grey.shade300)
+                          : null,
                     ),
-                  child,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Show quoted message if this is a reply
+                        if (widget.replyToMessage != null)
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(12, 8, 12, 0),
+                            child: QuotedMessageWidget(
+                              replyToMessage: widget.replyToMessage!,
+                              onTap: null,
+                            ),
+                          ),
+                        widget.child,
+                      ],
+                    ),
+                  ),
+                  // Reactions
+                  if (widget.message != null && widget.currentUserId != null)
+                    MessageReactions(
+                      reactions: widget.message!.reactions,
+                      currentUserId: widget.currentUserId!,
+                      onReactionTap: widget.onReactionTap ?? (_) {},
+                      onAddReaction: widget.onAddReaction ?? () {},
+                    ),
                 ],
               ),
             ),
-            // Reactions
-            if (message != null && currentUserId != null)
-              MessageReactions(
-                reactions: message!.reactions,
-                currentUserId: currentUserId!,
-                onReactionTap: onReactionTap ?? (_) {},
-                onAddReaction: onAddReaction ?? () {},
-              ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  void _showMessageOptions(BuildContext context) {
-    if (onReply == null && onAddReaction == null && onEdit == null && onDelete == null) return;
-
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.transparent,
-      builder: (context) => Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.surface,
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (onReply != null)
-              ListTile(
-                leading: const Icon(Icons.reply),
-                title: const Text('Reply'),
-                onTap: () {
-                  Navigator.pop(context);
-                  onReply!();
-                },
-              ),
-            if (onAddReaction != null)
-              ListTile(
-                leading: const Icon(Icons.add_reaction_outlined),
-                title: const Text('Add Reaction'),
-                onTap: () {
-                  Navigator.pop(context);
-                  onAddReaction!();
-                },
-              ),
-            if (isMe && onEdit != null && message?.type == 'TEXT')
-              ListTile(
-                leading: const Icon(Icons.edit),
-                title: const Text('Edit'),
-                onTap: () {
-                  Navigator.pop(context);
-                  onEdit!();
-                },
-              ),
-            if (isMe && onDelete != null)
-              ListTile(
-                leading: const Icon(Icons.delete, color: Colors.red),
-                title: const Text('Delete', style: TextStyle(color: Colors.red)),
-                onTap: () {
-                  Navigator.pop(context);
-                  onDelete!();
-                },
-              ),
           ],
         ),
       ),
     );
   }
 }
-
