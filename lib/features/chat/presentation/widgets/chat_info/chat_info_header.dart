@@ -5,10 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 class ChatInfoHeader extends ConsumerWidget {
-  const ChatInfoHeader({
-    super.key,
-    required this.conversation,
-  });
+  const ChatInfoHeader({super.key, required this.conversation});
 
   final Conversation conversation;
 
@@ -26,18 +23,21 @@ class ChatInfoHeader extends ConsumerWidget {
     final memberCount = conversation.participants.length;
 
     // For direct chat, get other user's online status
-    final isOnline = !isGroup && ConversationUtils.isUserOnline(conversation, me);
-    final lastSeen = !isGroup ? ConversationUtils.getLastSeen(conversation, me) : null;
-    final statusText = !isGroup ? ConversationUtils.formatLastSeen(isOnline, lastSeen) : null;
+    final isOnline =
+        !isGroup && ConversationUtils.isUserOnline(conversation, me);
+    final lastSeen = !isGroup
+        ? ConversationUtils.getLastSeen(conversation, me)
+        : null;
+    final statusText = !isGroup
+        ? ConversationUtils.formatLastSeen(isOnline, lastSeen)
+        : null;
 
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         color: colors.surface,
         border: Border(
-          bottom: BorderSide(
-            color: colors.onSurface.withValues(alpha: 0.1),
-          ),
+          bottom: BorderSide(color: colors.onSurface.withValues(alpha: 0.1)),
         ),
       ),
       child: Column(
@@ -58,9 +58,7 @@ class ChatInfoHeader extends ConsumerWidget {
           // Name
           Text(
             displayName,
-            style: textTheme.titleLarge?.copyWith(
-              fontWeight: FontWeight.bold,
-            ),
+            style: textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 8),
@@ -77,7 +75,9 @@ class ChatInfoHeader extends ConsumerWidget {
             Text(
               statusText,
               style: textTheme.bodyMedium?.copyWith(
-                color: isOnline ? Colors.green : colors.onSurface.withValues(alpha: 0.6),
+                color: isOnline
+                    ? Colors.green
+                    : colors.onSurface.withValues(alpha: 0.6),
               ),
             ),
 
@@ -89,7 +89,7 @@ class ChatInfoHeader extends ConsumerWidget {
             children: [
               _QuickActionButton(
                 icon: Icons.call_outlined,
-                label: 'Gọi',
+                label: 'Call',
                 onTap: () {
                   // TODO: Implement call
                 },
@@ -103,7 +103,7 @@ class ChatInfoHeader extends ConsumerWidget {
               ),
               _QuickActionButton(
                 icon: Icons.notifications_outlined,
-                label: 'Tắt thông báo',
+                label: 'Mute',
                 onTap: () {
                   // TODO: Implement mute
                 },
@@ -146,21 +146,13 @@ class _QuickActionButton extends StatelessWidget {
                 color: colors.primary.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
-              child: Icon(
-                icon,
-                color: colors.primary,
-                size: 24,
-              ),
+              child: Icon(icon, color: colors.primary, size: 24),
             ),
             const SizedBox(height: 8),
-            Text(
-              label,
-              style: textTheme.labelSmall,
-            ),
+            Text(label, style: textTheme.labelSmall),
           ],
         ),
       ),
     );
   }
 }
-

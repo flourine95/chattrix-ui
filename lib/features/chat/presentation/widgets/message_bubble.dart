@@ -147,10 +147,19 @@ class BaseBubbleContainer extends StatefulWidget {
   State<BaseBubbleContainer> createState() => _BaseBubbleContainerState();
 }
 
-class _BaseBubbleContainerState extends State<BaseBubbleContainer> {
+class _BaseBubbleContainerState extends State<BaseBubbleContainer>
+    with AutomaticKeepAliveClientMixin {
   final GlobalKey _messageKey = GlobalKey();
   double _dragDistance = 0;
   double _initialDragDirection = 0;
+  bool _isDragging = false;
+
+  // Cache colors to avoid rebuilding
+  static final _greyLight = Colors.grey.shade200;
+  static final _greyBorder = Colors.grey.shade300;
+
+  @override
+  bool get wantKeepAlive => true;
 
   void _handleQuickReaction(String emoji) {
     if (widget.onReactionTap != null) {
@@ -166,12 +175,14 @@ class _BaseBubbleContainerState extends State<BaseBubbleContainer> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context); // Required for AutomaticKeepAliveClientMixin
+
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
     final isDark = theme.brightness == Brightness.dark;
 
     final bg = widget.isMe
-        ? (isDark ? colors.primary : Colors.grey.shade200)
+        ? (isDark ? colors.primary : _greyLight)
         : (isDark ? colors.surface : Colors.black);
 
     return Container(
@@ -191,14 +202,17 @@ class _BaseBubbleContainerState extends State<BaseBubbleContainer> {
         },
         onHorizontalDragStart: (details) {
           if (widget.onReply == null) return;
-          _initialDragDirection = 0;
+          setState(() {
+            _isDragging = true;
+            _initialDragDirection = 0;
+          });
         },
         onHorizontalDragUpdate: (details) {
-          if (widget.onReply == null) return;
+          if (widget.onReply == null || !_isDragging) return;
 
           setState(() {
             // Track initial direction
-            if (_initialDragDirection == 0 && details.delta.dx.abs() > 1) {
+            if (_initialDragDirection == 0 && details.delta.dx.abs() > 2) {
               _initialDragDirection = details.delta.dx > 0 ? 1 : -1;
             }
 
@@ -233,6 +247,7 @@ class _BaseBubbleContainerState extends State<BaseBubbleContainer> {
           setState(() {
             _dragDistance = 0;
             _initialDragDirection = 0;
+            _isDragging = false;
           });
         },
         onLongPress: () {
@@ -287,7 +302,7 @@ class _BaseBubbleContainerState extends State<BaseBubbleContainer> {
                         bottomRight: Radius.circular(widget.isMe ? 4 : 16),
                       ),
                       border: widget.isMe
-                          ? Border.all(color: Colors.grey.shade300)
+                          ? Border.all(color: _greyBorder)
                           : null,
                     ),
                     child: Column(

@@ -10,10 +10,7 @@ import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 class ChatInfoPage extends HookConsumerWidget {
-  const ChatInfoPage({
-    super.key,
-    required this.conversation,
-  });
+  const ChatInfoPage({super.key, required this.conversation});
 
   final Conversation conversation;
 
@@ -29,10 +26,7 @@ class ChatInfoPage extends HookConsumerWidget {
           icon: const Icon(Icons.arrow_back),
           onPressed: () => context.pop(),
         ),
-        title: Text(
-          'Conversation Info',
-          style: textTheme.titleMedium,
-        ),
+        title: Text('Conversation Info', style: textTheme.titleMedium),
       ),
       body: Column(
         children: [
@@ -142,13 +136,17 @@ class _TabButton extends StatelessWidget {
               Icon(
                 icon,
                 size: 20,
-                color: isSelected ? colors.primary : colors.onSurface.withValues(alpha: 0.6),
+                color: isSelected
+                    ? colors.primary
+                    : colors.onSurface.withValues(alpha: 0.6),
               ),
               const SizedBox(height: 4),
               Text(
                 label,
                 style: textTheme.labelSmall?.copyWith(
-                  color: isSelected ? colors.primary : colors.onSurface.withValues(alpha: 0.6),
+                  color: isSelected
+                      ? colors.primary
+                      : colors.onSurface.withValues(alpha: 0.6),
                   fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
                 ),
               ),
@@ -159,4 +157,3 @@ class _TabButton extends StatelessWidget {
     );
   }
 }
-
