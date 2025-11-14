@@ -86,14 +86,16 @@ extension FailurePatterns on Failure {
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( ServerFailure value)?  server,TResult Function( NetworkFailure value)?  network,TResult Function( ValidationFailure value)?  validation,TResult Function( UnauthorizedFailure value)?  unauthorized,TResult Function( NotFoundFailure value)?  notFound,TResult Function( ConflictFailure value)?  conflict,TResult Function( RateLimitFailure value)?  rateLimitExceeded,TResult Function( UnknownFailure value)?  unknown,required TResult orElse(),}){
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( ServerFailure value)?  server,TResult Function( NetworkFailure value)?  network,TResult Function( ValidationFailure value)?  validation,TResult Function( BadRequestFailure value)?  badRequest,TResult Function( UnauthorizedFailure value)?  unauthorized,TResult Function( ForbiddenFailure value)?  forbidden,TResult Function( NotFoundFailure value)?  notFound,TResult Function( ConflictFailure value)?  conflict,TResult Function( RateLimitFailure value)?  rateLimitExceeded,TResult Function( UnknownFailure value)?  unknown,required TResult orElse(),}){
 final _that = this;
 switch (_that) {
 case ServerFailure() when server != null:
 return server(_that);case NetworkFailure() when network != null:
 return network(_that);case ValidationFailure() when validation != null:
-return validation(_that);case UnauthorizedFailure() when unauthorized != null:
-return unauthorized(_that);case NotFoundFailure() when notFound != null:
+return validation(_that);case BadRequestFailure() when badRequest != null:
+return badRequest(_that);case UnauthorizedFailure() when unauthorized != null:
+return unauthorized(_that);case ForbiddenFailure() when forbidden != null:
+return forbidden(_that);case NotFoundFailure() when notFound != null:
 return notFound(_that);case ConflictFailure() when conflict != null:
 return conflict(_that);case RateLimitFailure() when rateLimitExceeded != null:
 return rateLimitExceeded(_that);case UnknownFailure() when unknown != null:
@@ -115,14 +117,16 @@ return unknown(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( ServerFailure value)  server,required TResult Function( NetworkFailure value)  network,required TResult Function( ValidationFailure value)  validation,required TResult Function( UnauthorizedFailure value)  unauthorized,required TResult Function( NotFoundFailure value)  notFound,required TResult Function( ConflictFailure value)  conflict,required TResult Function( RateLimitFailure value)  rateLimitExceeded,required TResult Function( UnknownFailure value)  unknown,}){
+@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( ServerFailure value)  server,required TResult Function( NetworkFailure value)  network,required TResult Function( ValidationFailure value)  validation,required TResult Function( BadRequestFailure value)  badRequest,required TResult Function( UnauthorizedFailure value)  unauthorized,required TResult Function( ForbiddenFailure value)  forbidden,required TResult Function( NotFoundFailure value)  notFound,required TResult Function( ConflictFailure value)  conflict,required TResult Function( RateLimitFailure value)  rateLimitExceeded,required TResult Function( UnknownFailure value)  unknown,}){
 final _that = this;
 switch (_that) {
 case ServerFailure():
 return server(_that);case NetworkFailure():
 return network(_that);case ValidationFailure():
-return validation(_that);case UnauthorizedFailure():
-return unauthorized(_that);case NotFoundFailure():
+return validation(_that);case BadRequestFailure():
+return badRequest(_that);case UnauthorizedFailure():
+return unauthorized(_that);case ForbiddenFailure():
+return forbidden(_that);case NotFoundFailure():
 return notFound(_that);case ConflictFailure():
 return conflict(_that);case RateLimitFailure():
 return rateLimitExceeded(_that);case UnknownFailure():
@@ -143,14 +147,16 @@ return unknown(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( ServerFailure value)?  server,TResult? Function( NetworkFailure value)?  network,TResult? Function( ValidationFailure value)?  validation,TResult? Function( UnauthorizedFailure value)?  unauthorized,TResult? Function( NotFoundFailure value)?  notFound,TResult? Function( ConflictFailure value)?  conflict,TResult? Function( RateLimitFailure value)?  rateLimitExceeded,TResult? Function( UnknownFailure value)?  unknown,}){
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( ServerFailure value)?  server,TResult? Function( NetworkFailure value)?  network,TResult? Function( ValidationFailure value)?  validation,TResult? Function( BadRequestFailure value)?  badRequest,TResult? Function( UnauthorizedFailure value)?  unauthorized,TResult? Function( ForbiddenFailure value)?  forbidden,TResult? Function( NotFoundFailure value)?  notFound,TResult? Function( ConflictFailure value)?  conflict,TResult? Function( RateLimitFailure value)?  rateLimitExceeded,TResult? Function( UnknownFailure value)?  unknown,}){
 final _that = this;
 switch (_that) {
 case ServerFailure() when server != null:
 return server(_that);case NetworkFailure() when network != null:
 return network(_that);case ValidationFailure() when validation != null:
-return validation(_that);case UnauthorizedFailure() when unauthorized != null:
-return unauthorized(_that);case NotFoundFailure() when notFound != null:
+return validation(_that);case BadRequestFailure() when badRequest != null:
+return badRequest(_that);case UnauthorizedFailure() when unauthorized != null:
+return unauthorized(_that);case ForbiddenFailure() when forbidden != null:
+return forbidden(_that);case NotFoundFailure() when notFound != null:
 return notFound(_that);case ConflictFailure() when conflict != null:
 return conflict(_that);case RateLimitFailure() when rateLimitExceeded != null:
 return rateLimitExceeded(_that);case UnknownFailure() when unknown != null:
@@ -171,13 +177,15 @@ return unknown(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( String message,  String? errorCode)?  server,TResult Function( String message)?  network,TResult Function( String message,  List<ValidationError>? errors)?  validation,TResult Function( String message,  String? errorCode)?  unauthorized,TResult Function( String message,  String? errorCode)?  notFound,TResult Function( String message,  String? errorCode)?  conflict,TResult Function( String message)?  rateLimitExceeded,TResult Function( String message)?  unknown,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( String message,  String? errorCode)?  server,TResult Function( String message)?  network,TResult Function( String message,  List<ValidationError>? errors)?  validation,TResult Function( String message,  String? errorCode)?  badRequest,TResult Function( String message,  String? errorCode)?  unauthorized,TResult Function( String message,  String? errorCode)?  forbidden,TResult Function( String message,  String? errorCode)?  notFound,TResult Function( String message,  String? errorCode)?  conflict,TResult Function( String message)?  rateLimitExceeded,TResult Function( String message)?  unknown,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case ServerFailure() when server != null:
 return server(_that.message,_that.errorCode);case NetworkFailure() when network != null:
 return network(_that.message);case ValidationFailure() when validation != null:
-return validation(_that.message,_that.errors);case UnauthorizedFailure() when unauthorized != null:
-return unauthorized(_that.message,_that.errorCode);case NotFoundFailure() when notFound != null:
+return validation(_that.message,_that.errors);case BadRequestFailure() when badRequest != null:
+return badRequest(_that.message,_that.errorCode);case UnauthorizedFailure() when unauthorized != null:
+return unauthorized(_that.message,_that.errorCode);case ForbiddenFailure() when forbidden != null:
+return forbidden(_that.message,_that.errorCode);case NotFoundFailure() when notFound != null:
 return notFound(_that.message,_that.errorCode);case ConflictFailure() when conflict != null:
 return conflict(_that.message,_that.errorCode);case RateLimitFailure() when rateLimitExceeded != null:
 return rateLimitExceeded(_that.message);case UnknownFailure() when unknown != null:
@@ -199,13 +207,15 @@ return unknown(_that.message);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( String message,  String? errorCode)  server,required TResult Function( String message)  network,required TResult Function( String message,  List<ValidationError>? errors)  validation,required TResult Function( String message,  String? errorCode)  unauthorized,required TResult Function( String message,  String? errorCode)  notFound,required TResult Function( String message,  String? errorCode)  conflict,required TResult Function( String message)  rateLimitExceeded,required TResult Function( String message)  unknown,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( String message,  String? errorCode)  server,required TResult Function( String message)  network,required TResult Function( String message,  List<ValidationError>? errors)  validation,required TResult Function( String message,  String? errorCode)  badRequest,required TResult Function( String message,  String? errorCode)  unauthorized,required TResult Function( String message,  String? errorCode)  forbidden,required TResult Function( String message,  String? errorCode)  notFound,required TResult Function( String message,  String? errorCode)  conflict,required TResult Function( String message)  rateLimitExceeded,required TResult Function( String message)  unknown,}) {final _that = this;
 switch (_that) {
 case ServerFailure():
 return server(_that.message,_that.errorCode);case NetworkFailure():
 return network(_that.message);case ValidationFailure():
-return validation(_that.message,_that.errors);case UnauthorizedFailure():
-return unauthorized(_that.message,_that.errorCode);case NotFoundFailure():
+return validation(_that.message,_that.errors);case BadRequestFailure():
+return badRequest(_that.message,_that.errorCode);case UnauthorizedFailure():
+return unauthorized(_that.message,_that.errorCode);case ForbiddenFailure():
+return forbidden(_that.message,_that.errorCode);case NotFoundFailure():
 return notFound(_that.message,_that.errorCode);case ConflictFailure():
 return conflict(_that.message,_that.errorCode);case RateLimitFailure():
 return rateLimitExceeded(_that.message);case UnknownFailure():
@@ -226,13 +236,15 @@ return unknown(_that.message);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( String message,  String? errorCode)?  server,TResult? Function( String message)?  network,TResult? Function( String message,  List<ValidationError>? errors)?  validation,TResult? Function( String message,  String? errorCode)?  unauthorized,TResult? Function( String message,  String? errorCode)?  notFound,TResult? Function( String message,  String? errorCode)?  conflict,TResult? Function( String message)?  rateLimitExceeded,TResult? Function( String message)?  unknown,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( String message,  String? errorCode)?  server,TResult? Function( String message)?  network,TResult? Function( String message,  List<ValidationError>? errors)?  validation,TResult? Function( String message,  String? errorCode)?  badRequest,TResult? Function( String message,  String? errorCode)?  unauthorized,TResult? Function( String message,  String? errorCode)?  forbidden,TResult? Function( String message,  String? errorCode)?  notFound,TResult? Function( String message,  String? errorCode)?  conflict,TResult? Function( String message)?  rateLimitExceeded,TResult? Function( String message)?  unknown,}) {final _that = this;
 switch (_that) {
 case ServerFailure() when server != null:
 return server(_that.message,_that.errorCode);case NetworkFailure() when network != null:
 return network(_that.message);case ValidationFailure() when validation != null:
-return validation(_that.message,_that.errors);case UnauthorizedFailure() when unauthorized != null:
-return unauthorized(_that.message,_that.errorCode);case NotFoundFailure() when notFound != null:
+return validation(_that.message,_that.errors);case BadRequestFailure() when badRequest != null:
+return badRequest(_that.message,_that.errorCode);case UnauthorizedFailure() when unauthorized != null:
+return unauthorized(_that.message,_that.errorCode);case ForbiddenFailure() when forbidden != null:
+return forbidden(_that.message,_that.errorCode);case NotFoundFailure() when notFound != null:
 return notFound(_that.message,_that.errorCode);case ConflictFailure() when conflict != null:
 return conflict(_that.message,_that.errorCode);case RateLimitFailure() when rateLimitExceeded != null:
 return rateLimitExceeded(_that.message);case UnknownFailure() when unknown != null:
@@ -457,6 +469,74 @@ as List<ValidationError>?,
 /// @nodoc
 
 
+class BadRequestFailure implements Failure {
+  const BadRequestFailure({required this.message, this.errorCode});
+  
+
+@override final  String message;
+ final  String? errorCode;
+
+/// Create a copy of Failure
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$BadRequestFailureCopyWith<BadRequestFailure> get copyWith => _$BadRequestFailureCopyWithImpl<BadRequestFailure>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is BadRequestFailure&&(identical(other.message, message) || other.message == message)&&(identical(other.errorCode, errorCode) || other.errorCode == errorCode));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,message,errorCode);
+
+@override
+String toString() {
+  return 'Failure.badRequest(message: $message, errorCode: $errorCode)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $BadRequestFailureCopyWith<$Res> implements $FailureCopyWith<$Res> {
+  factory $BadRequestFailureCopyWith(BadRequestFailure value, $Res Function(BadRequestFailure) _then) = _$BadRequestFailureCopyWithImpl;
+@override @useResult
+$Res call({
+ String message, String? errorCode
+});
+
+
+
+
+}
+/// @nodoc
+class _$BadRequestFailureCopyWithImpl<$Res>
+    implements $BadRequestFailureCopyWith<$Res> {
+  _$BadRequestFailureCopyWithImpl(this._self, this._then);
+
+  final BadRequestFailure _self;
+  final $Res Function(BadRequestFailure) _then;
+
+/// Create a copy of Failure
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? message = null,Object? errorCode = freezed,}) {
+  return _then(BadRequestFailure(
+message: null == message ? _self.message : message // ignore: cast_nullable_to_non_nullable
+as String,errorCode: freezed == errorCode ? _self.errorCode : errorCode // ignore: cast_nullable_to_non_nullable
+as String?,
+  ));
+}
+
+
+}
+
+/// @nodoc
+
+
 class UnauthorizedFailure implements Failure {
   const UnauthorizedFailure({required this.message, this.errorCode});
   
@@ -513,6 +593,74 @@ class _$UnauthorizedFailureCopyWithImpl<$Res>
 /// with the given fields replaced by the non-null parameter values.
 @override @pragma('vm:prefer-inline') $Res call({Object? message = null,Object? errorCode = freezed,}) {
   return _then(UnauthorizedFailure(
+message: null == message ? _self.message : message // ignore: cast_nullable_to_non_nullable
+as String,errorCode: freezed == errorCode ? _self.errorCode : errorCode // ignore: cast_nullable_to_non_nullable
+as String?,
+  ));
+}
+
+
+}
+
+/// @nodoc
+
+
+class ForbiddenFailure implements Failure {
+  const ForbiddenFailure({required this.message, this.errorCode});
+  
+
+@override final  String message;
+ final  String? errorCode;
+
+/// Create a copy of Failure
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$ForbiddenFailureCopyWith<ForbiddenFailure> get copyWith => _$ForbiddenFailureCopyWithImpl<ForbiddenFailure>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ForbiddenFailure&&(identical(other.message, message) || other.message == message)&&(identical(other.errorCode, errorCode) || other.errorCode == errorCode));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,message,errorCode);
+
+@override
+String toString() {
+  return 'Failure.forbidden(message: $message, errorCode: $errorCode)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $ForbiddenFailureCopyWith<$Res> implements $FailureCopyWith<$Res> {
+  factory $ForbiddenFailureCopyWith(ForbiddenFailure value, $Res Function(ForbiddenFailure) _then) = _$ForbiddenFailureCopyWithImpl;
+@override @useResult
+$Res call({
+ String message, String? errorCode
+});
+
+
+
+
+}
+/// @nodoc
+class _$ForbiddenFailureCopyWithImpl<$Res>
+    implements $ForbiddenFailureCopyWith<$Res> {
+  _$ForbiddenFailureCopyWithImpl(this._self, this._then);
+
+  final ForbiddenFailure _self;
+  final $Res Function(ForbiddenFailure) _then;
+
+/// Create a copy of Failure
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? message = null,Object? errorCode = freezed,}) {
+  return _then(ForbiddenFailure(
 message: null == message ? _self.message : message // ignore: cast_nullable_to_non_nullable
 as String,errorCode: freezed == errorCode ? _self.errorCode : errorCode // ignore: cast_nullable_to_non_nullable
 as String?,

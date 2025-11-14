@@ -6,7 +6,6 @@ import 'package:chattrix_ui/core/services/media_picker_provider.dart';
 import 'package:chattrix_ui/features/auth/presentation/providers/auth_providers.dart';
 import 'package:chattrix_ui/features/chat/domain/entities/message.dart';
 import 'package:chattrix_ui/features/chat/presentation/providers/chat_providers.dart';
-import 'package:chattrix_ui/features/chat/presentation/providers/chat_usecase_provider.dart';
 import 'package:chattrix_ui/features/chat/presentation/utils/conversation_utils.dart';
 import 'package:chattrix_ui/features/chat/presentation/widgets/attachment_picker_bottom_sheet.dart';
 import 'package:chattrix_ui/features/chat/presentation/widgets/edit_message_dialog.dart';

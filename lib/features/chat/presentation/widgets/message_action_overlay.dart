@@ -1,7 +1,6 @@
 import 'package:chattrix_ui/features/chat/domain/entities/message.dart';
 import 'package:flutter/material.dart';
 
-/// Overlay that shows emoji reactions and action buttons when long-pressing a message
 class MessageActionOverlay extends StatefulWidget {
   const MessageActionOverlay({
     super.key,
@@ -84,15 +83,15 @@ class _MessageActionOverlayState extends State<MessageActionOverlay>
   }
 
   void _handleEmojiTap(String emoji) {
-    print('🎯 [MessageActionOverlay] Emoji tapped: $emoji');
+    debugPrint('🎯 [MessageActionOverlay] Emoji tapped: $emoji');
     widget.onReaction(emoji);
     _close();
   }
 
   void _handleAction(VoidCallback? action, String actionName) async {
-    print('🎯 [MessageActionOverlay] Action tapped: $actionName');
+    debugPrint('🎯 [MessageActionOverlay] Action tapped: $actionName');
     if (action != null) {
-      print('✅ [MessageActionOverlay] Executing $actionName action');
+      debugPrint('✅ [MessageActionOverlay] Executing $actionName action');
       // Close overlay first
       await _controller.reverse();
       if (mounted) {
@@ -102,7 +101,7 @@ class _MessageActionOverlayState extends State<MessageActionOverlay>
       await Future.delayed(const Duration(milliseconds: 100));
       action();
     } else {
-      print('❌ [MessageActionOverlay] $actionName action is null!');
+      debugPrint('❌ [MessageActionOverlay] $actionName action is null!');
     }
   }
 

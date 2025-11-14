@@ -17,8 +17,6 @@ class SettingsSectionWidget extends HookConsumerWidget {
     final isMuted = useState(false);
     final isBlocked = useState(false);
     final notificationsEnabled = useState(true);
-    final textTheme = Theme.of(context).textTheme;
-    final colors = Theme.of(context).colorScheme;
 
     final isGroup = conversation.type.toUpperCase() == 'GROUP';
 

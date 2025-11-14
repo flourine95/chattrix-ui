@@ -6,6 +6,8 @@ class AppInputField extends HookWidget {
   final String? hintText;
   final bool isPassword;
   final TextEditingController? controller;
+  final TextInputType? keyboardType;
+  final String? Function(String?)? validator;
 
   const AppInputField({
     super.key,
@@ -13,6 +15,8 @@ class AppInputField extends HookWidget {
     this.hintText,
     this.isPassword = false,
     this.controller,
+    this.keyboardType,
+    this.validator,
   });
 
   @override
@@ -22,6 +26,8 @@ class AppInputField extends HookWidget {
     return TextFormField(
       controller: controller,
       obscureText: obscureText.value,
+      keyboardType: keyboardType,
+      validator: validator,
       decoration: InputDecoration(
         labelText: labelText,
         hintText: hintText,

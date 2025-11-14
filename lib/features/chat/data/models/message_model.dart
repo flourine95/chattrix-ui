@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:chattrix_ui/features/chat/data/models/message_sender_model.dart';
 import 'package:chattrix_ui/features/chat/domain/entities/message.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'message_model.freezed.dart';
@@ -17,19 +18,15 @@ abstract class MessageModel with _$MessageModel {
     required String createdAt,
     required String conversationId,
     required MessageSenderModel sender,
-    // Rich media fields
     String? mediaUrl,
     String? thumbnailUrl,
     String? fileName,
     int? fileSize,
     int? duration,
-    // Location fields
     double? latitude,
     double? longitude,
     String? locationName,
-    // Reply/Thread fields
     int? replyToMessageId,
-    // Reactions and mentions (JSON strings)
     String? reactions,
     String? mentions,
   }) = _MessageModel;
@@ -37,9 +34,7 @@ abstract class MessageModel with _$MessageModel {
   factory MessageModel.fromJson(Map<String, dynamic> json) =>
       _$MessageModelFromJson(json);
 
-  // Maps backend API response variations into our model
   factory MessageModel.fromApi(Map<String, dynamic> json) {
-    // Build sender from nested object or flat senderId/senderUsername fields
     final senderJson = (json['sender'] is Map<String, dynamic>)
         ? json['sender'] as Map<String, dynamic>
         : <String, dynamic>{
@@ -63,19 +58,15 @@ abstract class MessageModel with _$MessageModel {
       conversationId: (json['conversationId'] ?? json['conversation_id'] ?? '')
           .toString(),
       sender: MessageSenderModel.fromApi(senderJson),
-      // Rich media fields
       mediaUrl: json['mediaUrl']?.toString(),
       thumbnailUrl: json['thumbnailUrl']?.toString(),
       fileName: json['fileName']?.toString(),
       fileSize: json['fileSize'] != null ? (json['fileSize'] as num).toInt() : null,
       duration: json['duration'] != null ? (json['duration'] as num).toInt() : null,
-      // Location fields
       latitude: json['latitude'] != null ? (json['latitude'] as num).toDouble() : null,
       longitude: json['longitude'] != null ? (json['longitude'] as num).toDouble() : null,
       locationName: json['locationName']?.toString(),
-      // Reply/Thread fields
       replyToMessageId: json['replyToMessageId'] != null ? (json['replyToMessageId'] as num).toInt() : null,
-      // Reactions and mentions
       reactions: _convertReactionsToJson(json['reactions']),
       mentions: _convertMentionsToJson(json['mentions']),
     );
@@ -89,10 +80,9 @@ abstract class MessageModel with _$MessageModel {
     if (reactions is String) return reactions;
     if (reactions is Map) {
       try {
-        // Convert Map to JSON string
         return jsonEncode(reactions);
       } catch (e) {
-        print('Error converting reactions to JSON: $e');
+        debugPrint('Error converting reactions to JSON: $e');
         return null;
       }
     }
@@ -110,7 +100,7 @@ abstract class MessageModel with _$MessageModel {
         // Convert List to JSON string
         return jsonEncode(mentions);
       } catch (e) {
-        print('Error converting mentions to JSON: $e');
+        debugPrint('Error converting mentions to JSON: $e');
         return null;
       }
     }

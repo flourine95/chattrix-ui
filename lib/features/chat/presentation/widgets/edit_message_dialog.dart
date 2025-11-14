@@ -13,7 +13,6 @@ class EditMessageDialog extends HookWidget {
   @override
   Widget build(BuildContext context) {
     final controller = useTextEditingController(text: initialContent);
-    final theme = Theme.of(context);
 
     return AlertDialog(
       title: const Text('Edit Message'),

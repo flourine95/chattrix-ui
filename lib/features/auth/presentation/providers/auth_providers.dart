@@ -169,7 +169,9 @@ class AuthNotifier extends Notifier<AuthState> {
           }
           return message;
         },
+        badRequest: (message, errorCode) => message,
         unauthorized: (message, errorCode) => message,
+        forbidden: (message, errorCode) => message,
         notFound: (message, errorCode) => message,
         conflict: (message, errorCode) => message,
         rateLimitExceeded: (message) =>

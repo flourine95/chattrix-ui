@@ -29,7 +29,7 @@ class MessageSearchWidget extends HookConsumerWidget {
 
     // Debounce search
     useEffect(() {
-      final timer = Future.delayed(const Duration(milliseconds: 300), () {
+      Future.delayed(const Duration(milliseconds: 300), () {
         searchQuery.value = searchController.text;
       });
       return () {};
@@ -89,7 +89,7 @@ class MessageSearchWidget extends HookConsumerWidget {
                   // Message type filter
                   Expanded(
                     child: DropdownButtonFormField<String>(
-                      value: selectedMessageType.value,
+                      initialValue: selectedMessageType.value,
                       decoration: InputDecoration(
                         labelText: 'Loại tin nhắn',
                         border: OutlineInputBorder(

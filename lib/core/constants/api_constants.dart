@@ -81,9 +81,32 @@ class ApiConstants {
   static String messageEditHistory(String messageId) =>
       '$messagesBase/$messageId/edit-history';
 
-  // WebSocket endpoint
+  // Friend Request API endpoints
+  static const String friendRequestsBase = '$apiVersion/friend-requests';
+  static const String sendFriendRequest = '$friendRequestsBase/send';
+  static const String receivedFriendRequests = '$friendRequestsBase/received';
+  static const String sentFriendRequests = '$friendRequestsBase/sent';
+
+  static String acceptFriendRequest(int requestId) =>
+      '$friendRequestsBase/$requestId/accept';
+
+  static String rejectFriendRequest(int requestId) =>
+      '$friendRequestsBase/$requestId/reject';
+
+  static String cancelFriendRequest(int requestId) =>
+      '$friendRequestsBase/$requestId/cancel';
+
+  // Contact API endpoints
+  static const String contactsBase = '$apiVersion/contacts';
+
+  static String contactById(int contactId) => '$contactsBase/$contactId';
+
+  static String updateContactNickname(int contactId) =>
+      '$contactsBase/$contactId/nickname';
+
+  static String deleteContact(int contactId) => '$contactsBase/$contactId';
+
   static String get wsBaseUrl {
-    // WebSocket base URL: ws://host:port/chattrix-api
     if (kIsWeb) {
       return 'ws://$localhostHost:$port/chattrix-api';
     } else {

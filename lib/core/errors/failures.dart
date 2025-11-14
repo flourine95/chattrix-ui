@@ -14,10 +14,20 @@ abstract class Failure with _$Failure {
     List<ValidationError>? errors,
   }) = ValidationFailure;
 
+  const factory Failure.badRequest({
+    required String message,
+    String? errorCode,
+  }) = BadRequestFailure;
+
   const factory Failure.unauthorized({
     required String message,
     String? errorCode,
   }) = UnauthorizedFailure;
+
+  const factory Failure.forbidden({
+    required String message,
+    String? errorCode,
+  }) = ForbiddenFailure;
 
   const factory Failure.notFound({required String message, String? errorCode}) =
       NotFoundFailure;
