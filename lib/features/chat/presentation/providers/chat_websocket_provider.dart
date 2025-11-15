@@ -1,4 +1,5 @@
 import 'package:chattrix_ui/core/constants/api_constants.dart';
+import 'package:chattrix_ui/core/constants/app_constants.dart';
 import 'package:chattrix_ui/features/auth/presentation/providers/auth_providers.dart';
 import 'package:chattrix_ui/features/chat/data/services/chat_websocket_service.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -57,7 +58,7 @@ class WebSocketConnectionNotifier extends Notifier<WebSocketConnectionState> {
       // Get access token from secure storage
       final secureStorage = ref.read(secureStorageProvider);
       final accessToken = await secureStorage.read(
-        key: ApiConstants.accessTokenKey,
+        key: AppConstants.accessTokenKey,
       );
 
       if (accessToken == null) {
@@ -78,7 +79,7 @@ class WebSocketConnectionNotifier extends Notifier<WebSocketConnectionState> {
 
           // Get fresh token from storage (might have been refreshed)
           final freshToken = await secureStorage.read(
-            key: ApiConstants.accessTokenKey,
+            key: AppConstants.accessTokenKey,
           );
           if (freshToken != null && freshToken != accessToken) {
             await wsService.disconnect(); // Stop auto-reconnect with old token

@@ -125,11 +125,4 @@ class ApiConstants {
 
   static String chatWebSocketWithToken(String token) =>
       '$chatWebSocket?token=$token';
-
-  static const String contentTypeJson = 'application/json';
-  static const String authorization = 'Authorization';
-  static const String bearer = 'Bearer';
-
-  static const String accessTokenKey = 'access_token';
-  static const String refreshTokenKey = 'refresh_token';
 }
