@@ -66,8 +66,7 @@ class ChatWebSocketService {
       _lastAccessToken = accessToken;
       _isManualDisconnect = false;
 
-      final wsUrl =
-          '${ApiConstants.wsBaseUrl}/${ApiConstants.chatWebSocket}?token=$accessToken';
+      final wsUrl = ApiConstants.chatWebSocketWithToken(accessToken);
 
       _channel = WebSocketChannel.connect(Uri.parse(wsUrl));
 

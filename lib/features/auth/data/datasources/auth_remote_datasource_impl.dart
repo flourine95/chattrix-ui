@@ -19,7 +19,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   }) async {
     try {
       final response = await dio.post(
-        '${ApiConstants.baseUrl}/${ApiConstants.register}',
+        ApiConstants.register,
         data: {
           'username': username,
           'email': email,
@@ -38,7 +38,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   Future<void> verifyEmail({required String email, required String otp}) async {
     try {
       final response = await dio.post(
-        '${ApiConstants.baseUrl}/${ApiConstants.verifyEmail}',
+        ApiConstants.verifyEmail,
         data: {'email': email, 'otp': otp},
       );
 
@@ -52,7 +52,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   Future<void> resendVerification({required String email}) async {
     try {
       final response = await dio.post(
-        '${ApiConstants.baseUrl}/${ApiConstants.resendVerification}',
+        ApiConstants.resendVerification,
         data: {'email': email},
       );
 
@@ -69,7 +69,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   }) async {
     try {
       final response = await dio.post(
-        '${ApiConstants.baseUrl}/${ApiConstants.login}',
+        ApiConstants.login,
         data: {'usernameOrEmail': usernameOrEmail, 'password': password},
       );
 
@@ -86,7 +86,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       // Không cần truyền accessToken vào header thủ công
       // AuthDioClient sẽ tự động thêm từ secure storage
       final response = await dio.get(
-        '${ApiConstants.baseUrl}/${ApiConstants.me}',
+        ApiConstants.me,
       );
 
       final data = _handleResponse(response);
@@ -100,7 +100,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   Future<AuthTokensModel> refreshToken(String refreshToken) async {
     try {
       final response = await dio.post(
-        '${ApiConstants.baseUrl}/${ApiConstants.refresh}',
+        ApiConstants.refresh,
         data: {'refreshToken': refreshToken},
       );
 
@@ -120,7 +120,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     try {
       // Bỏ Authorization header - để AuthDioClient tự động thêm
       final response = await dio.put(
-        '${ApiConstants.baseUrl}/${ApiConstants.changePassword}',
+        ApiConstants.changePassword,
         data: {'currentPassword': currentPassword, 'newPassword': newPassword},
       );
 
@@ -134,7 +134,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   Future<void> forgotPassword({required String email}) async {
     try {
       final response = await dio.post(
-        '${ApiConstants.baseUrl}/${ApiConstants.forgotPassword}',
+        ApiConstants.forgotPassword,
         data: {'email': email},
       );
 
@@ -152,7 +152,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   }) async {
     try {
       final response = await dio.post(
-        '${ApiConstants.baseUrl}/${ApiConstants.resetPassword}',
+        ApiConstants.resetPassword,
         data: {'email': email, 'otp': otp, 'newPassword': newPassword},
       );
 
@@ -167,7 +167,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     try {
       // Bỏ Authorization header - để AuthDioClient tự động thêm
       final response = await dio.post(
-        '${ApiConstants.baseUrl}/${ApiConstants.logout}',
+        ApiConstants.logout,
       );
 
       _handleResponse(response);
@@ -181,7 +181,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     try {
       // Bỏ Authorization header - để AuthDioClient tự động thêm
       final response = await dio.post(
-        '${ApiConstants.baseUrl}/${ApiConstants.logoutAll}',
+        ApiConstants.logoutAll,
       );
 
       _handleResponse(response);

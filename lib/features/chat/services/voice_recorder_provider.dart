@@ -1,5 +1,6 @@
-import 'package:chattrix_ui/core/services/voice_recorder_service.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+
+import 'voice_recorder_service.dart';
 
 part 'voice_recorder_provider.g.dart';
 

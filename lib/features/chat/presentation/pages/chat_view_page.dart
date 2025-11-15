@@ -1,8 +1,6 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:chattrix_ui/core/services/cloudinary_provider.dart';
-import 'package:chattrix_ui/core/services/media_picker_provider.dart';
 import 'package:chattrix_ui/features/auth/presentation/providers/auth_providers.dart';
 import 'package:chattrix_ui/features/chat/domain/entities/message.dart';
 import 'package:chattrix_ui/features/chat/presentation/providers/chat_providers.dart';
@@ -13,6 +11,8 @@ import 'package:chattrix_ui/features/chat/presentation/widgets/message_bubble.da
 import 'package:chattrix_ui/features/chat/presentation/widgets/message_reactions.dart';
 import 'package:chattrix_ui/features/chat/presentation/widgets/reply_message_preview.dart';
 import 'package:chattrix_ui/features/chat/presentation/widgets/voice_recorder_widget.dart';
+import 'package:chattrix_ui/features/chat/services/cloudinary_provider.dart';
+import 'package:chattrix_ui/features/chat/services/media_picker_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -376,10 +376,12 @@ class ChatViewPage extends HookConsumerWidget {
                       ),
                       itemCount: messages.length,
                       // Performance optimizations
-                      addAutomaticKeepAlives: true, // Keep state of items
-                      addRepaintBoundaries:
-                          true, // Already added in MessageBubble
-                      cacheExtent: 500, // Cache items 500px outside viewport
+                      addAutomaticKeepAlives: true,
+                      // Keep state of items
+                      addRepaintBoundaries: true,
+                      // Already added in MessageBubble
+                      cacheExtent: 500,
+                      // Cache items 500px outside viewport
                       itemBuilder: (context, index) {
                         final m = messages[index];
                         final isMe = m.sender.id == me?.id;

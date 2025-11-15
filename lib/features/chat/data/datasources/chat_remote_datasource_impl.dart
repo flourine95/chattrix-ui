@@ -21,7 +21,7 @@ class ChatRemoteDatasourceImpl implements ChatRemoteDatasource {
   }) async {
     try {
       final response = await dio.post(
-        '${ApiConstants.baseUrl}/${ApiConstants.conversationsBase}',
+        ApiConstants.conversations,
         data: {
           if (name != null) 'name': name,
           'type': type,
@@ -46,7 +46,7 @@ class ChatRemoteDatasourceImpl implements ChatRemoteDatasource {
   Future<List<ConversationModel>> getConversations() async {
     try {
       final response = await dio.get(
-        '${ApiConstants.baseUrl}/${ApiConstants.conversationsBase}',
+        ApiConstants.conversations,
       );
 
       if (response.statusCode == 200) {
@@ -70,7 +70,7 @@ class ChatRemoteDatasourceImpl implements ChatRemoteDatasource {
   Future<ConversationModel> getConversation(String conversationId) async {
     try {
       final response = await dio.get(
-        '${ApiConstants.baseUrl}/${ApiConstants.conversationById(conversationId)}',
+        ApiConstants.conversationById(conversationId),
       );
 
       if (response.statusCode == 200) {
@@ -95,7 +95,7 @@ class ChatRemoteDatasourceImpl implements ChatRemoteDatasource {
   }) async {
     try {
       final url =
-          '${ApiConstants.baseUrl}/${ApiConstants.messagesInConversation(conversationId)}';
+          ApiConstants.messagesInConversation(conversationId);
 
       final response = await dio.get(
         url,
@@ -131,7 +131,7 @@ class ChatRemoteDatasourceImpl implements ChatRemoteDatasource {
   Future<List<UserModel>> getOnlineUsers() async {
     try {
       final response = await dio.get(
-        '${ApiConstants.baseUrl}/${ApiConstants.onlineUsers}',
+        ApiConstants.onlineUsers,
       );
 
       if (response.statusCode == 200) {
@@ -153,7 +153,7 @@ class ChatRemoteDatasourceImpl implements ChatRemoteDatasource {
   ) async {
     try {
       final response = await dio.get(
-        '${ApiConstants.baseUrl}/${ApiConstants.onlineUsersInConversation(conversationId)}',
+        ApiConstants.onlineUsersInConversation(conversationId),
       );
 
       if (response.statusCode == 200) {
@@ -177,7 +177,7 @@ class ChatRemoteDatasourceImpl implements ChatRemoteDatasource {
   Future<UserStatusModel> getUserStatus(String userId) async {
     try {
       final response = await dio.get(
-        '${ApiConstants.baseUrl}/${ApiConstants.userStatus(userId)}',
+        ApiConstants.userStatus(userId),
       );
 
       if (response.statusCode == 200) {
@@ -226,8 +226,7 @@ class ChatRemoteDatasourceImpl implements ChatRemoteDatasource {
         if (mentions != null) 'mentions': mentions,
       };
 
-      final url =
-          '${ApiConstants.baseUrl}/${ApiConstants.messagesInConversation(conversationId)}';
+      final url = ApiConstants.messagesInConversation(conversationId);
 
       final response = await dio.post(url, data: data);
 
@@ -252,7 +251,7 @@ class ChatRemoteDatasourceImpl implements ChatRemoteDatasource {
     int limit = 20,
   }) async {
     try {
-      final url = '${ApiConstants.baseUrl}/${ApiConstants.searchUsers}';
+      final url = ApiConstants.searchUsers;
 
       final response = await dio.get(
         url,
@@ -286,8 +285,7 @@ class ChatRemoteDatasourceImpl implements ChatRemoteDatasource {
     required String emoji,
   }) async {
     try {
-      final url =
-          '${ApiConstants.baseUrl}/${ApiConstants.messageReactions(messageId)}';
+      final url = ApiConstants.messageReactions(messageId);
 
       final response = await dio.post(
         url,
@@ -311,8 +309,7 @@ class ChatRemoteDatasourceImpl implements ChatRemoteDatasource {
   @override
   Future<Map<String, dynamic>> getReactions(String messageId) async {
     try {
-      final url =
-          '${ApiConstants.baseUrl}/${ApiConstants.messageReactions(messageId)}';
+      final url = ApiConstants.messageReactions(messageId);
 
       final response = await dio.get(url);
 
@@ -336,8 +333,7 @@ class ChatRemoteDatasourceImpl implements ChatRemoteDatasource {
     required String content,
   }) async {
     try {
-      final url =
-          '${ApiConstants.baseUrl}/${ApiConstants.messageEdit(messageId)}';
+      final url = ApiConstants.messageEdit(messageId);
 
       final response = await dio.put(
         url,
@@ -362,8 +358,7 @@ class ChatRemoteDatasourceImpl implements ChatRemoteDatasource {
   @override
   Future<void> deleteMessage(String messageId) async {
     try {
-      final url =
-          '${ApiConstants.baseUrl}/${ApiConstants.messageDelete(messageId)}';
+      final url = ApiConstants.messageDelete(messageId);
 
       final response = await dio.delete(url);
 

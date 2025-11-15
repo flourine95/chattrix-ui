@@ -17,7 +17,7 @@ class ContactRemoteDataSourceImpl implements ContactRemoteDataSource {
   }) async {
     try {
       final response = await dio.post(
-        '${ApiConstants.baseUrl}/${ApiConstants.sendFriendRequest}',
+        ApiConstants.sendFriendRequest,
         data: {
           'receiverUserId': receiverUserId,
           if (nickname != null) 'nickname': nickname,
@@ -35,7 +35,7 @@ class ContactRemoteDataSourceImpl implements ContactRemoteDataSource {
   Future<List<FriendRequestModel>> getReceivedFriendRequests() async {
     try {
       final response = await dio.get(
-        '${ApiConstants.baseUrl}/${ApiConstants.receivedFriendRequests}',
+        ApiConstants.receivedFriendRequests,
       );
 
       final data = _handleResponse(response);
@@ -52,7 +52,7 @@ class ContactRemoteDataSourceImpl implements ContactRemoteDataSource {
   Future<List<FriendRequestModel>> getSentFriendRequests() async {
     try {
       final response = await dio.get(
-        '${ApiConstants.baseUrl}/${ApiConstants.sentFriendRequests}',
+        ApiConstants.sendFriendRequest,
       );
 
       final data = _handleResponse(response);
@@ -69,7 +69,7 @@ class ContactRemoteDataSourceImpl implements ContactRemoteDataSource {
   Future<void> acceptFriendRequest({required int friendRequestId}) async {
     try {
       final response = await dio.post(
-        '${ApiConstants.baseUrl}/${ApiConstants.acceptFriendRequest(friendRequestId)}',
+        ApiConstants.acceptFriendRequest(friendRequestId),
       );
 
       _handleResponse(response);
@@ -82,7 +82,7 @@ class ContactRemoteDataSourceImpl implements ContactRemoteDataSource {
   Future<void> rejectFriendRequest({required int friendRequestId}) async {
     try {
       final response = await dio.post(
-        '${ApiConstants.baseUrl}/${ApiConstants.rejectFriendRequest(friendRequestId)}',
+        ApiConstants.rejectFriendRequest(friendRequestId),
       );
 
       _handleResponse(response);
@@ -95,7 +95,7 @@ class ContactRemoteDataSourceImpl implements ContactRemoteDataSource {
   Future<void> cancelFriendRequest({required int friendRequestId}) async {
     try {
       final response = await dio.delete(
-        '${ApiConstants.baseUrl}/${ApiConstants.cancelFriendRequest(friendRequestId)}',
+        ApiConstants.cancelFriendRequest(friendRequestId)
       );
 
       _handleResponse(response);
@@ -108,7 +108,7 @@ class ContactRemoteDataSourceImpl implements ContactRemoteDataSource {
   Future<List<ContactModel>> getContacts() async {
     try {
       final response = await dio.get(
-        '${ApiConstants.baseUrl}/${ApiConstants.contactsBase}',
+        ApiConstants.contacts
       );
 
       final data = _handleResponse(response);
@@ -123,7 +123,7 @@ class ContactRemoteDataSourceImpl implements ContactRemoteDataSource {
   Future<ContactModel> getContactById(int contactId) async {
     try {
       final response = await dio.get(
-        '${ApiConstants.baseUrl}/${ApiConstants.contactById(contactId)}',
+        ApiConstants.contactById(contactId)
       );
 
       final data = _handleResponse(response);
@@ -140,7 +140,7 @@ class ContactRemoteDataSourceImpl implements ContactRemoteDataSource {
   }) async {
     try {
       final response = await dio.put(
-        '${ApiConstants.baseUrl}/${ApiConstants.updateContactNickname(contactId)}',
+        ApiConstants.updateContactNickname(contactId),
         data: {'nickname': nickname},
       );
 
@@ -154,7 +154,7 @@ class ContactRemoteDataSourceImpl implements ContactRemoteDataSource {
   Future<void> deleteContact({required int contactId}) async {
     try {
       final response = await dio.delete(
-        '${ApiConstants.baseUrl}/${ApiConstants.deleteContact(contactId)}',
+        ApiConstants.deleteContact(contactId),
       );
 
       _handleResponse(response);

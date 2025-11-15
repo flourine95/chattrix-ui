@@ -1,6 +1,6 @@
-import 'package:chattrix_ui/core/constants/api_constants.dart';
 import 'package:chattrix_ui/core/errors/failures.dart';
-import 'package:chattrix_ui/core/network/auth_http_client.dart';
+import 'package:chattrix_ui/core/network/auth_interceptor.dart';
+import 'package:chattrix_ui/core/network/dio_client.dart';
 import 'package:chattrix_ui/features/auth/data/datasources/auth_local_datasource_impl.dart';
 import 'package:chattrix_ui/features/auth/data/datasources/auth_remote_datasource_impl.dart';
 import 'package:chattrix_ui/features/auth/data/repositories/auth_repository_impl.dart';
@@ -26,24 +26,18 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 // Providers for dependencies
-final dioProvider = Provider<Dio>((ref) {
-  final dio = Dio(
-    BaseOptions(
-      baseUrl: ApiConstants.baseUrl,
-      connectTimeout: const Duration(seconds: 30),
-      receiveTimeout: const Duration(seconds: 30),
-      contentType: ApiConstants.contentTypeJson,
-    ),
-  );
-
-  // Setup interceptors với AuthDioClient
-  AuthDioClient(dio: dio, secureStorage: ref.watch(secureStorageProvider));
-
-  return dio;
-});
-
 final secureStorageProvider = Provider<FlutterSecureStorage>((ref) {
   return const FlutterSecureStorage();
+});
+
+final dioProvider = Provider<Dio>((ref) {
+  final dio = DioClient.createDio();
+  final secureStorage = ref.watch(secureStorageProvider);
+
+  // Add auth interceptor
+  dio.interceptors.add(AuthInterceptor(dio: dio, secureStorage: secureStorage));
+
+  return dio;
 });
 
 // Data source providers

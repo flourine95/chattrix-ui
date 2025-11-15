@@ -1,12 +1,12 @@
 import 'dart:async';
 import 'dart:io';
-import 'package:chattrix_ui/core/services/voice_recorder_provider.dart';
-import 'package:chattrix_ui/core/services/voice_recorder_service.dart';
+
+import 'package:chattrix_ui/features/chat/services/voice_recorder_provider.dart';
+import 'package:chattrix_ui/features/chat/services/voice_recorder_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-/// Widget for recording voice messages
 class VoiceRecorderWidget extends HookConsumerWidget {
   const VoiceRecorderWidget({
     super.key,
@@ -66,7 +66,9 @@ class VoiceRecorderWidget extends HookConsumerWidget {
                 width: 12,
                 height: 12,
                 decoration: BoxDecoration(
-                  color: isPaused.value ? colors.error.withValues(alpha: 0.5) : colors.error,
+                  color: isPaused.value
+                      ? colors.error.withValues(alpha: 0.5)
+                      : colors.error,
                   shape: BoxShape.circle,
                 ),
               ),
@@ -202,10 +204,7 @@ class _RecorderButton extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 4),
-        Text(
-          label,
-          style: textTheme.labelSmall,
-        ),
+        Text(label, style: textTheme.labelSmall),
       ],
     );
   }
@@ -213,9 +212,7 @@ class _RecorderButton extends StatelessWidget {
 
 /// Simplified waveform visualizer
 class _WaveformVisualizer extends StatefulWidget {
-  const _WaveformVisualizer({
-    required this.isRecording,
-  });
+  const _WaveformVisualizer({required this.isRecording});
 
   final bool isRecording;
 
@@ -271,7 +268,7 @@ class _WaveformVisualizerState extends State<_WaveformVisualizer>
           children: List.generate(20, (index) {
             final progress = (_controller.value + index / 20) % 1.0;
             final height = 20 + (30 * (0.5 + 0.5 * (progress * 2 - 1).abs()));
-            
+
             return Container(
               width: 3,
               height: height,

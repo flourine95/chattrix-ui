@@ -2,7 +2,7 @@ import 'package:chattrix_ui/core/widgets/app_input_field.dart';
 import 'package:chattrix_ui/core/widgets/primary_button.dart';
 import 'package:chattrix_ui/features/contacts/presentation/providers/contact_providers.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 class SendFriendRequestPage extends ConsumerStatefulWidget {
   const SendFriendRequestPage({super.key});
@@ -33,13 +33,15 @@ class _SendFriendRequestPageState extends ConsumerState<SendFriendRequestPage> {
     final receiverUserId = int.tryParse(_userIdController.text);
     if (receiverUserId == null) {
       setState(() => _isLoading = false);
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Invalid user ID')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Invalid user ID')));
       return;
     }
 
-    final success = await ref.read(contactProvider.notifier).sendFriendRequest(
+    final success = await ref
+        .read(contactProvider.notifier)
+        .sendFriendRequest(
           receiverUserId: receiverUserId,
           nickname: _nicknameController.text.isEmpty
               ? null
@@ -56,9 +58,9 @@ class _SendFriendRequestPageState extends ConsumerState<SendFriendRequestPage> {
     } else if (context.mounted) {
       final errorMessage =
           ref.read(contactProvider).errorMessage ?? 'Failed to send request';
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(errorMessage)),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(errorMessage)));
     }
   }
 
@@ -67,9 +69,7 @@ class _SendFriendRequestPageState extends ConsumerState<SendFriendRequestPage> {
     final textTheme = Theme.of(context).textTheme;
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Add Friend', style: textTheme.titleLarge),
-      ),
+      appBar: AppBar(title: Text('Add Friend', style: textTheme.titleLarge)),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Form(

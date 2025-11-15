@@ -1,120 +1,130 @@
 import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class ApiConstants {
-  static const String localhostHost = 'localhost';
-  static const String lanIpAddress = '10.0.2.2';
+  static String get _host => dotenv.env['API_HOST'] ?? 'localhost';
 
-  static const String port = '8080';
-  static const String apiPrefix = '/chattrix-api/api';
+  static String get _port => dotenv.env['API_PORT'] ?? '8080';
 
-  static const String localhostBaseUrl =
-      'http://$localhostHost:$port$apiPrefix';
-  static const String lanBaseUrl = 'http://$lanIpAddress:$port$apiPrefix';
+  static String get _apiPath => dotenv.env['API_PATH'] ?? '/chattrix-api/api';
 
-  static String get baseUrl {
-    if (kIsWeb) {
-      return localhostBaseUrl;
-    } else {
-      return lanBaseUrl;
-    }
+  static String get _wsPath => dotenv.env['WS_PATH'] ?? '/chattrix-api';
+
+  static const String _androidEmulatorHost = '10.0.2.2';
+
+  static String get _baseUrl {
+    final host = kIsWeb ? _host : _androidEmulatorHost;
+    return 'http://$host:$_port$_apiPath';
   }
 
-  static const String apiVersion = 'v1';
+  static String get _wsBaseUrl {
+    final host = kIsWeb ? _host : _androidEmulatorHost;
+    return 'ws://$host:$_port$_wsPath';
+  }
 
-  static const String authBase = '$apiVersion/auth';
-  static const String register = '$authBase/register';
-  static const String verifyEmail = '$authBase/verify-email';
-  static const String resendVerification = '$authBase/resend-verification';
-  static const String login = '$authBase/login';
-  static const String me = '$authBase/me';
-  static const String refresh = '$authBase/refresh';
-  static const String changePassword = '$authBase/change-password';
-  static const String forgotPassword = '$authBase/forgot-password';
-  static const String resetPassword = '$authBase/reset-password';
-  static const String logout = '$authBase/logout';
-  static const String logoutAll = '$authBase/logout-all';
+  static const String _v1 = 'v1';
 
-  // Chat API endpoints
-  static const String conversationsBase = '$apiVersion/conversations';
+  // Auth endpoints
+  static String get register => '$_baseUrl/$_v1/auth/register';
 
-  static String conversationById(String id) => '$conversationsBase/$id';
+  static String get verifyEmail => '$_baseUrl/$_v1/auth/verify-email';
+
+  static String get resendVerification =>
+      '$_baseUrl/$_v1/auth/resend-verification';
+
+  static String get login => '$_baseUrl/$_v1/auth/login';
+
+  static String get me => '$_baseUrl/$_v1/auth/me';
+
+  static String get refresh => '$_baseUrl/$_v1/auth/refresh';
+
+  static String get changePassword => '$_baseUrl/$_v1/auth/change-password';
+
+  static String get forgotPassword => '$_baseUrl/$_v1/auth/forgot-password';
+
+  static String get resetPassword => '$_baseUrl/$_v1/auth/reset-password';
+
+  static String get logout => '$_baseUrl/$_v1/auth/logout';
+
+  static String get logoutAll => '$_baseUrl/$_v1/auth/logout-all';
+
+  // Conversation endpoints
+  static String get conversations => '$_baseUrl/$_v1/conversations';
+
+  static String conversationById(String id) =>
+      '$_baseUrl/$_v1/conversations/$id';
 
   static String messagesInConversation(String conversationId) =>
-      '$conversationsBase/$conversationId/messages';
+      '$_baseUrl/$_v1/conversations/$conversationId/messages';
 
-  // User Status API endpoints
-  static const String userStatusBase = '$apiVersion/users/status';
-  static const String onlineUsers = '$userStatusBase/online';
+  // User endpoints
+  static String get searchUsers => '$_baseUrl/$_v1/users/search';
+
+  static String get onlineUsers => '$_baseUrl/$_v1/users/status/online';
 
   static String onlineUsersInConversation(String conversationId) =>
-      '$userStatusBase/online/conversation/$conversationId';
+      '$_baseUrl/$_v1/users/status/online/conversation/$conversationId';
 
-  static String userStatus(String userId) => '$userStatusBase/$userId';
+  static String userStatus(String userId) =>
+      '$_baseUrl/$_v1/users/status/$userId';
 
-  // User Search API endpoints
-  static const String usersBase = '$apiVersion/users';
-  static const String searchUsers = '$usersBase/search';
-
-  // Typing API endpoints (HTTP test endpoints)
-  static const String typingBase = '$apiVersion/typing';
-  static const String typingStart = '$typingBase/start';
-  static const String typingStop = '$typingBase/stop';
-
-  static String typingStatus(String conversationId) =>
-      '$typingBase/status/$conversationId';
-
-  // Reaction API endpoints
-  static const String messagesBase = '$apiVersion/messages';
-
+  // Message endpoints
   static String messageReactions(String messageId) =>
-      '$messagesBase/$messageId/reactions';
+      '$_baseUrl/$_v1/messages/$messageId/reactions';
 
   static String deleteReaction(String messageId, String emoji) =>
-      '$messagesBase/$messageId/reactions/$emoji';
+      '$_baseUrl/$_v1/messages/$messageId/reactions/$emoji';
 
-  // Message Edit & Delete API endpoints
   static String messageEdit(String messageId) =>
-      '$messagesBase/$messageId/edit';
+      '$_baseUrl/$_v1/messages/$messageId/edit';
 
-  static String messageDelete(String messageId) => '$messagesBase/$messageId';
+  static String messageDelete(String messageId) =>
+      '$_baseUrl/$_v1/messages/$messageId';
 
   static String messageEditHistory(String messageId) =>
-      '$messagesBase/$messageId/edit-history';
+      '$_baseUrl/$_v1/messages/$messageId/edit-history';
 
-  // Friend Request API endpoints
-  static const String friendRequestsBase = '$apiVersion/friend-requests';
-  static const String sendFriendRequest = '$friendRequestsBase/send';
-  static const String receivedFriendRequests = '$friendRequestsBase/received';
-  static const String sentFriendRequests = '$friendRequestsBase/sent';
+  // Typing endpoints
+  static String get typingStart => '$_baseUrl/$_v1/typing/start';
+
+  static String get typingStop => '$_baseUrl/$_v1/typing/stop';
+
+  static String typingStatus(String conversationId) =>
+      '$_baseUrl/$_v1/typing/status/$conversationId';
+
+  // Friend Request endpoints
+  static String get sendFriendRequest => '$_baseUrl/$_v1/friend-requests/send';
+
+  static String get receivedFriendRequests =>
+      '$_baseUrl/$_v1/friend-requests/received';
+
+  static String get sentFriendRequests => '$_baseUrl/$_v1/friend-requests/sent';
 
   static String acceptFriendRequest(int requestId) =>
-      '$friendRequestsBase/$requestId/accept';
+      '$_baseUrl/$_v1/friend-requests/$requestId/accept';
 
   static String rejectFriendRequest(int requestId) =>
-      '$friendRequestsBase/$requestId/reject';
+      '$_baseUrl/$_v1/friend-requests/$requestId/reject';
 
   static String cancelFriendRequest(int requestId) =>
-      '$friendRequestsBase/$requestId/cancel';
+      '$_baseUrl/$_v1/friend-requests/$requestId/cancel';
 
-  // Contact API endpoints
-  static const String contactsBase = '$apiVersion/contacts';
+  // Contact endpoints
+  static String get contacts => '$_baseUrl/$_v1/contacts';
 
-  static String contactById(int contactId) => '$contactsBase/$contactId';
+  static String contactById(int contactId) =>
+      '$_baseUrl/$_v1/contacts/$contactId';
 
   static String updateContactNickname(int contactId) =>
-      '$contactsBase/$contactId/nickname';
+      '$_baseUrl/$_v1/contacts/$contactId/nickname';
 
-  static String deleteContact(int contactId) => '$contactsBase/$contactId';
+  static String deleteContact(int contactId) =>
+      '$_baseUrl/$_v1/contacts/$contactId';
 
-  static String get wsBaseUrl {
-    if (kIsWeb) {
-      return 'ws://$localhostHost:$port/chattrix-api';
-    } else {
-      return 'ws://$lanIpAddress:$port/chattrix-api';
-    }
-  }
+  static String get chatWebSocket => '$_wsBaseUrl/ws/chat';
 
-  static const String chatWebSocket = 'ws/chat';
+  static String chatWebSocketWithToken(String token) =>
+      '$chatWebSocket?token=$token';
 
   static const String contentTypeJson = 'application/json';
   static const String authorization = 'Authorization';
