@@ -42,15 +42,11 @@ final dioProvider = Provider<Dio>((ref) {
 
 // Data source providers
 final authRemoteDataSourceProvider = Provider<AuthRemoteDataSource>((ref) {
-  return AuthRemoteDataSourceImpl(dio: ref.watch(dioProvider))
-      as AuthRemoteDataSource;
+  return AuthRemoteDataSourceImpl(dio: ref.watch(dioProvider)) as AuthRemoteDataSource;
 });
 
 final authLocalDataSourceProvider = Provider<AuthLocalDataSource>((ref) {
-  return AuthLocalDataSourceImpl(
-        secureStorage: ref.watch(secureStorageProvider),
-      )
-      as AuthLocalDataSource;
+  return AuthLocalDataSourceImpl(secureStorage: ref.watch(secureStorageProvider)) as AuthLocalDataSource;
 });
 
 // Repository provider
@@ -74,9 +70,7 @@ final verifyEmailUseCaseProvider = Provider<VerifyEmailUseCase>((ref) {
   return VerifyEmailUseCase(ref.watch(authRepositoryProvider));
 });
 
-final resendVerificationUseCaseProvider = Provider<ResendVerificationUseCase>((
-  ref,
-) {
+final resendVerificationUseCaseProvider = Provider<ResendVerificationUseCase>((ref) {
   return ResendVerificationUseCase(ref.watch(authRepositoryProvider));
 });
 
@@ -168,8 +162,7 @@ class AuthNotifier extends Notifier<AuthState> {
         forbidden: (message, errorCode) => message,
         notFound: (message, errorCode) => message,
         conflict: (message, errorCode) => message,
-        rateLimitExceeded: (message) =>
-            'Quá nhiều yêu cầu. Vui lòng thử lại sau.',
+        rateLimitExceeded: (message) => 'Quá nhiều yêu cầu. Vui lòng thử lại sau.',
         unknown: (message) => message,
       );
     }
@@ -178,23 +171,14 @@ class AuthNotifier extends Notifier<AuthState> {
     return 'Có lỗi xảy ra. Vui lòng thử lại.';
   }
 
-  Future<bool> login({
-    required String usernameOrEmail,
-    required String password,
-  }) async {
+  Future<bool> login({required String usernameOrEmail, required String password}) async {
     state = state.copyWith(isLoading: true, clearError: true);
 
-    final result = await ref.read(loginUseCaseProvider)(
-      usernameOrEmail: usernameOrEmail,
-      password: password,
-    );
+    final result = await ref.read(loginUseCaseProvider)(usernameOrEmail: usernameOrEmail, password: password);
 
     return result.fold(
       (failure) {
-        state = state.copyWith(
-          isLoading: false,
-          errorMessage: _getFailureMessage(failure),
-        );
+        state = state.copyWith(isLoading: false, errorMessage: _getFailureMessage(failure));
         return false;
       },
       (tokens) async {
@@ -221,10 +205,7 @@ class AuthNotifier extends Notifier<AuthState> {
 
     return result.fold(
       (failure) {
-        state = state.copyWith(
-          isLoading: false,
-          errorMessage: _getFailureMessage(failure),
-        );
+        state = state.copyWith(isLoading: false, errorMessage: _getFailureMessage(failure));
         return false;
       },
       (_) {
@@ -237,17 +218,11 @@ class AuthNotifier extends Notifier<AuthState> {
   Future<bool> verifyEmail({required String email, required String otp}) async {
     state = state.copyWith(isLoading: true, clearError: true);
 
-    final result = await ref.read(verifyEmailUseCaseProvider)(
-      email: email,
-      otp: otp,
-    );
+    final result = await ref.read(verifyEmailUseCaseProvider)(email: email, otp: otp);
 
     return result.fold(
       (failure) {
-        state = state.copyWith(
-          isLoading: false,
-          errorMessage: _getFailureMessage(failure),
-        );
+        state = state.copyWith(isLoading: false, errorMessage: _getFailureMessage(failure));
         return false;
       },
       (_) {
@@ -260,16 +235,11 @@ class AuthNotifier extends Notifier<AuthState> {
   Future<bool> resendVerification({required String email}) async {
     state = state.copyWith(isLoading: true, clearError: true);
 
-    final result = await ref.read(resendVerificationUseCaseProvider)(
-      email: email,
-    );
+    final result = await ref.read(resendVerificationUseCaseProvider)(email: email);
 
     return result.fold(
       (failure) {
-        state = state.copyWith(
-          isLoading: false,
-          errorMessage: _getFailureMessage(failure),
-        );
+        state = state.copyWith(isLoading: false, errorMessage: _getFailureMessage(failure));
         return false;
       },
       (_) {
@@ -286,10 +256,7 @@ class AuthNotifier extends Notifier<AuthState> {
 
     result.fold(
       (failure) {
-        state = state.copyWith(
-          isLoading: false,
-          errorMessage: _getFailureMessage(failure),
-        );
+        state = state.copyWith(isLoading: false, errorMessage: _getFailureMessage(failure));
       },
       (user) {
         state = state.copyWith(isLoading: false, user: user);
@@ -304,10 +271,7 @@ class AuthNotifier extends Notifier<AuthState> {
 
     return result.fold(
       (failure) {
-        state = state.copyWith(
-          isLoading: false,
-          errorMessage: _getFailureMessage(failure),
-        );
+        state = state.copyWith(isLoading: false, errorMessage: _getFailureMessage(failure));
         return false;
       },
       (_) {
@@ -317,25 +281,14 @@ class AuthNotifier extends Notifier<AuthState> {
     );
   }
 
-  Future<bool> resetPassword({
-    required String email,
-    required String otp,
-    required String newPassword,
-  }) async {
+  Future<bool> resetPassword({required String email, required String otp, required String newPassword}) async {
     state = state.copyWith(isLoading: true, clearError: true);
 
-    final result = await ref.read(resetPasswordUseCaseProvider)(
-      email: email,
-      otp: otp,
-      newPassword: newPassword,
-    );
+    final result = await ref.read(resetPasswordUseCaseProvider)(email: email, otp: otp, newPassword: newPassword);
 
     return result.fold(
       (failure) {
-        state = state.copyWith(
-          isLoading: false,
-          errorMessage: _getFailureMessage(failure),
-        );
+        state = state.copyWith(isLoading: false, errorMessage: _getFailureMessage(failure));
         return false;
       },
       (_) {
@@ -345,10 +298,7 @@ class AuthNotifier extends Notifier<AuthState> {
     );
   }
 
-  Future<bool> changePassword({
-    required String currentPassword,
-    required String newPassword,
-  }) async {
+  Future<bool> changePassword({required String currentPassword, required String newPassword}) async {
     state = state.copyWith(isLoading: true, clearError: true);
 
     final result = await ref.read(changePasswordUseCaseProvider)(
@@ -358,10 +308,7 @@ class AuthNotifier extends Notifier<AuthState> {
 
     return result.fold(
       (failure) {
-        state = state.copyWith(
-          isLoading: false,
-          errorMessage: _getFailureMessage(failure),
-        );
+        state = state.copyWith(isLoading: false, errorMessage: _getFailureMessage(failure));
         return false;
       },
       (_) {

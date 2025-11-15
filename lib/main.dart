@@ -23,8 +23,7 @@ class MyApp extends ConsumerWidget {
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
       themeMode: ThemeMode.light,
-      builder: (context, child) =>
-          ToastOverlay(child: child ?? const SizedBox.shrink()),
+      builder: (context, child) => ToastOverlay(child: child ?? const SizedBox.shrink()),
       routerConfig: AppRouter.router(ref),
     );
   }

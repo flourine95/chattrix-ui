@@ -24,12 +24,10 @@ class MessageLongPressOverlay extends StatefulWidget {
   final bool canEdit;
 
   @override
-  State<MessageLongPressOverlay> createState() =>
-      _MessageLongPressOverlayState();
+  State<MessageLongPressOverlay> createState() => _MessageLongPressOverlayState();
 }
 
-class _MessageLongPressOverlayState extends State<MessageLongPressOverlay>
-    with SingleTickerProviderStateMixin {
+class _MessageLongPressOverlayState extends State<MessageLongPressOverlay> with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
   late Animation<double> _scaleAnimation;
   late Animation<double> _fadeAnimation;
@@ -39,20 +37,11 @@ class _MessageLongPressOverlayState extends State<MessageLongPressOverlay>
   @override
   void initState() {
     super.initState();
-    _animationController = AnimationController(
-      duration: const Duration(milliseconds: 200),
-      vsync: this,
-    );
+    _animationController = AnimationController(duration: const Duration(milliseconds: 200), vsync: this);
 
-    _scaleAnimation = CurvedAnimation(
-      parent: _animationController,
-      curve: Curves.easeOutBack,
-    );
+    _scaleAnimation = CurvedAnimation(parent: _animationController, curve: Curves.easeOutBack);
 
-    _fadeAnimation = CurvedAnimation(
-      parent: _animationController,
-      curve: Curves.easeOut,
-    );
+    _fadeAnimation = CurvedAnimation(parent: _animationController, curve: Curves.easeOut);
 
     _animationController.forward();
   }
@@ -88,8 +77,7 @@ class _MessageLongPressOverlayState extends State<MessageLongPressOverlay>
 
   @override
   Widget build(BuildContext context) {
-    final RenderBox? renderBox =
-        widget.messageKey.currentContext?.findRenderObject() as RenderBox?;
+    final RenderBox? renderBox = widget.messageKey.currentContext?.findRenderObject() as RenderBox?;
 
     if (renderBox == null) {
       return const SizedBox.shrink();
@@ -137,10 +125,7 @@ class _MessageLongPressOverlayState extends State<MessageLongPressOverlay>
       child: Stack(
         children: [
           Positioned.fill(
-            child: GestureDetector(
-              onTap: _close,
-              behavior: HitTestBehavior.translucent,
-            ),
+            child: GestureDetector(onTap: _close, behavior: HitTestBehavior.translucent),
           ),
           Positioned(
             left: emojiBarLeft,
@@ -149,10 +134,7 @@ class _MessageLongPressOverlayState extends State<MessageLongPressOverlay>
               opacity: _fadeAnimation,
               child: ScaleTransition(
                 scale: _scaleAnimation,
-                child: _EmojiBar(
-                  emojis: _quickEmojis,
-                  onEmojiTap: _handleQuickReaction,
-                ),
+                child: _EmojiBar(emojis: _quickEmojis, onEmojiTap: _handleQuickReaction),
               ),
             ),
           ),
@@ -161,32 +143,18 @@ class _MessageLongPressOverlayState extends State<MessageLongPressOverlay>
             right: 0,
             bottom: 0,
             child: SlideTransition(
-              position:
-                  Tween<Offset>(
-                    begin: const Offset(0, 1),
-                    end: Offset.zero,
-                  ).animate(
-                    CurvedAnimation(
-                      parent: _animationController,
-                      curve: Curves.easeOut,
-                    ),
-                  ),
+              position: Tween<Offset>(
+                begin: const Offset(0, 1),
+                end: Offset.zero,
+              ).animate(CurvedAnimation(parent: _animationController, curve: Curves.easeOut)),
               child: _ActionBar(
-                onReply: widget.onReply != null
-                    ? () => _handleAction(widget.onReply)
-                    : null,
+                onReply: widget.onReply != null ? () => _handleAction(widget.onReply) : null,
                 onCopy: () {
                   _close();
                 },
-                onEdit: widget.canEdit && widget.onEdit != null
-                    ? () => _handleAction(widget.onEdit)
-                    : null,
-                onDelete: widget.isMe && widget.onDelete != null
-                    ? () => _handleAction(widget.onDelete)
-                    : null,
-                onAddReaction: widget.onAddReaction != null
-                    ? () => _handleAction(widget.onAddReaction)
-                    : null,
+                onEdit: widget.canEdit && widget.onEdit != null ? () => _handleAction(widget.onEdit) : null,
+                onDelete: widget.isMe && widget.onDelete != null ? () => _handleAction(widget.onDelete) : null,
+                onAddReaction: widget.onAddReaction != null ? () => _handleAction(widget.onAddReaction) : null,
               ),
             ),
           ),
@@ -211,13 +179,7 @@ class _EmojiBar extends StatelessWidget {
       decoration: BoxDecoration(
         color: colors.surface,
         borderRadius: BorderRadius.circular(25),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.2),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
+        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.2), blurRadius: 8, offset: const Offset(0, 2))],
       ),
       child: Material(
         color: Colors.transparent,
@@ -242,8 +204,7 @@ class _EmojiButton extends StatefulWidget {
   State<_EmojiButton> createState() => _EmojiButtonState();
 }
 
-class _EmojiButtonState extends State<_EmojiButton>
-    with SingleTickerProviderStateMixin {
+class _EmojiButtonState extends State<_EmojiButton> with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _scaleAnimation;
   final EmojiParser emojiParser = EmojiParser();
@@ -251,10 +212,7 @@ class _EmojiButtonState extends State<_EmojiButton>
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(
-      duration: const Duration(milliseconds: 100),
-      vsync: this,
-    );
+    _controller = AnimationController(duration: const Duration(milliseconds: 100), vsync: this);
     _scaleAnimation = Tween<double>(
       begin: 1.0,
       end: 1.3,
@@ -285,10 +243,7 @@ class _EmojiButtonState extends State<_EmojiButton>
             scale: _scaleAnimation,
             child: Text(
               emojiParser.emojify(widget.emoji),
-              style: const TextStyle(
-                fontSize: 28,
-                fontFamily: 'NotoColorEmoji',
-              ),
+              style: const TextStyle(fontSize: 28, fontFamily: 'NotoColorEmoji'),
             ),
           ),
         ),
@@ -321,38 +276,16 @@ class _ActionBar extends StatelessWidget {
 
     if (onReply != null) {
       actions.add(
-        _ActionButton(
-          icon: Icons.reply,
-          label: 'Reply',
-          onTap: onReply!,
-          textTheme: textTheme,
-          colors: colors,
-        ),
+        _ActionButton(icon: Icons.reply, label: 'Reply', onTap: onReply!, textTheme: textTheme, colors: colors),
       );
     }
 
     if (onCopy != null) {
-      actions.add(
-        _ActionButton(
-          icon: Icons.copy,
-          label: 'Copy',
-          onTap: onCopy!,
-          textTheme: textTheme,
-          colors: colors,
-        ),
-      );
+      actions.add(_ActionButton(icon: Icons.copy, label: 'Copy', onTap: onCopy!, textTheme: textTheme, colors: colors));
     }
 
     if (onEdit != null) {
-      actions.add(
-        _ActionButton(
-          icon: Icons.edit,
-          label: 'Edit',
-          onTap: onEdit!,
-          textTheme: textTheme,
-          colors: colors,
-        ),
-      );
+      actions.add(_ActionButton(icon: Icons.edit, label: 'Edit', onTap: onEdit!, textTheme: textTheme, colors: colors));
     }
 
     if (onAddReaction != null) {
@@ -386,19 +319,10 @@ class _ActionBar extends StatelessWidget {
       decoration: BoxDecoration(
         color: colors.surface,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.1),
-            blurRadius: 10,
-            offset: const Offset(0, -2),
-          ),
-        ],
+        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.1), blurRadius: 10, offset: const Offset(0, -2))],
       ),
       child: SafeArea(
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: actions,
-        ),
+        child: Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: actions),
       ),
     );
   }
@@ -437,10 +361,7 @@ class _ActionButton extends StatelessWidget {
             const SizedBox(height: 4),
             Text(
               label,
-              style: textTheme.labelSmall?.copyWith(
-                color: color,
-                fontWeight: FontWeight.w500,
-              ),
+              style: textTheme.labelSmall?.copyWith(color: color, fontWeight: FontWeight.w500),
             ),
           ],
         ),

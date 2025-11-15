@@ -4,10 +4,7 @@ import 'package:chattrix_ui/features/chat/presentation/utils/format_utils.dart';
 import 'package:flutter/material.dart';
 
 class MediaGridItem extends StatelessWidget {
-  const MediaGridItem({
-    super.key,
-    required this.message,
-  });
+  const MediaGridItem({super.key, required this.message});
 
   final Message message;
 
@@ -24,14 +21,9 @@ class MediaGridItem extends StatelessWidget {
         decoration: BoxDecoration(
           color: colors.surface,
           borderRadius: BorderRadius.circular(8),
-          border: Border.all(
-            color: colors.onSurface.withValues(alpha: 0.1),
-          ),
+          border: Border.all(color: colors.onSurface.withValues(alpha: 0.1)),
         ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(8),
-          child: _buildMediaPreview(context),
-        ),
+        child: ClipRRect(borderRadius: BorderRadius.circular(8), child: _buildMediaPreview(context)),
       ),
     );
   }
@@ -50,16 +42,11 @@ class MediaGridItem extends StatelessWidget {
               fit: BoxFit.cover,
               placeholder: (context, url) => Container(
                 color: colors.surface,
-                child: const Center(
-                  child: CircularProgressIndicator(),
-                ),
+                child: const Center(child: CircularProgressIndicator()),
               ),
               errorWidget: (context, url, error) => Container(
                 color: colors.surface,
-                child: Icon(
-                  Icons.broken_image,
-                  color: colors.onSurface.withValues(alpha: 0.3),
-                ),
+                child: Icon(Icons.broken_image, color: colors.onSurface.withValues(alpha: 0.3)),
               ),
             ),
           ],
@@ -73,37 +60,22 @@ class MediaGridItem extends StatelessWidget {
               CachedNetworkImage(
                 imageUrl: message.thumbnailUrl!,
                 fit: BoxFit.cover,
-                placeholder: (context, url) => Container(
-                  color: colors.surface,
-                ),
+                placeholder: (context, url) => Container(color: colors.surface),
                 errorWidget: (context, url, error) => Container(
                   color: colors.surface,
-                  child: Icon(
-                    Icons.videocam,
-                    color: colors.onSurface.withValues(alpha: 0.3),
-                  ),
+                  child: Icon(Icons.videocam, color: colors.onSurface.withValues(alpha: 0.3)),
                 ),
               )
             else
               Container(
                 color: colors.surface,
-                child: Icon(
-                  Icons.videocam,
-                  color: colors.onSurface.withValues(alpha: 0.3),
-                ),
+                child: Icon(Icons.videocam, color: colors.onSurface.withValues(alpha: 0.3)),
               ),
             Center(
               child: Container(
                 padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: Colors.black.withValues(alpha: 0.6),
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(
-                  Icons.play_arrow,
-                  color: Colors.white,
-                  size: 24,
-                ),
+                decoration: BoxDecoration(color: Colors.black.withValues(alpha: 0.6), shape: BoxShape.circle),
+                child: const Icon(Icons.play_arrow, color: Colors.white, size: 24),
               ),
             ),
             if (message.duration != null)
@@ -118,9 +90,7 @@ class MediaGridItem extends StatelessWidget {
                   ),
                   child: Text(
                     FormatUtils.formatDuration(message.duration!),
-                    style: textTheme.labelSmall?.copyWith(
-                      color: Colors.white,
-                    ),
+                    style: textTheme.labelSmall?.copyWith(color: Colors.white),
                   ),
                 ),
               ),
@@ -133,18 +103,12 @@ class MediaGridItem extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(
-                Icons.audiotrack,
-                color: colors.primary,
-                size: 32,
-              ),
+              Icon(Icons.audiotrack, color: colors.primary, size: 32),
               if (message.duration != null) ...[
                 const SizedBox(height: 4),
                 Text(
                   FormatUtils.formatDuration(message.duration!),
-                  style: textTheme.labelSmall?.copyWith(
-                    color: colors.primary,
-                  ),
+                  style: textTheme.labelSmall?.copyWith(color: colors.primary),
                 ),
               ],
             ],
@@ -158,11 +122,7 @@ class MediaGridItem extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(
-                Icons.insert_drive_file,
-                color: colors.primary,
-                size: 32,
-              ),
+              Icon(Icons.insert_drive_file, color: colors.primary, size: 32),
               const SizedBox(height: 4),
               Text(
                 message.fileName ?? 'File',
@@ -178,10 +138,7 @@ class MediaGridItem extends StatelessWidget {
       default:
         return Container(
           color: colors.surface,
-          child: Icon(
-            Icons.attachment,
-            color: colors.onSurface.withValues(alpha: 0.3),
-          ),
+          child: Icon(Icons.attachment, color: colors.onSurface.withValues(alpha: 0.3)),
         );
     }
   }
@@ -193,14 +150,8 @@ class MediaGridItem extends StatelessWidget {
       builder: (context) => AlertDialog(
         title: const Text('Media Viewer'),
         content: Text('View ${message.type}: ${message.mediaUrl}'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Close'),
-          ),
-        ],
+        actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text('Close'))],
       ),
     );
   }
 }
-

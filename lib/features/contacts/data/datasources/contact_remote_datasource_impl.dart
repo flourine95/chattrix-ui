@@ -11,17 +11,11 @@ class ContactRemoteDataSourceImpl implements ContactRemoteDataSource {
   ContactRemoteDataSourceImpl({required this.dio});
 
   @override
-  Future<FriendRequestModel> sendFriendRequest({
-    required int receiverUserId,
-    String? nickname,
-  }) async {
+  Future<FriendRequestModel> sendFriendRequest({required int receiverUserId, String? nickname}) async {
     try {
       final response = await dio.post(
         ApiConstants.sendFriendRequest,
-        data: {
-          'receiverUserId': receiverUserId,
-          if (nickname != null) 'nickname': nickname,
-        },
+        data: {'receiverUserId': receiverUserId, if (nickname != null) 'nickname': nickname},
       );
 
       final data = _handleResponse(response);
@@ -34,15 +28,11 @@ class ContactRemoteDataSourceImpl implements ContactRemoteDataSource {
   @override
   Future<List<FriendRequestModel>> getReceivedFriendRequests() async {
     try {
-      final response = await dio.get(
-        ApiConstants.receivedFriendRequests,
-      );
+      final response = await dio.get(ApiConstants.receivedFriendRequests);
 
       final data = _handleResponse(response);
       final List<dynamic> requestsList = data as List<dynamic>;
-      return requestsList
-          .map((json) => FriendRequestModel.fromJson(json))
-          .toList();
+      return requestsList.map((json) => FriendRequestModel.fromJson(json)).toList();
     } catch (e) {
       throw _handleError(e);
     }
@@ -51,15 +41,11 @@ class ContactRemoteDataSourceImpl implements ContactRemoteDataSource {
   @override
   Future<List<FriendRequestModel>> getSentFriendRequests() async {
     try {
-      final response = await dio.get(
-        ApiConstants.sendFriendRequest,
-      );
+      final response = await dio.get(ApiConstants.sendFriendRequest);
 
       final data = _handleResponse(response);
       final List<dynamic> requestsList = data as List<dynamic>;
-      return requestsList
-          .map((json) => FriendRequestModel.fromJson(json))
-          .toList();
+      return requestsList.map((json) => FriendRequestModel.fromJson(json)).toList();
     } catch (e) {
       throw _handleError(e);
     }
@@ -68,9 +54,7 @@ class ContactRemoteDataSourceImpl implements ContactRemoteDataSource {
   @override
   Future<void> acceptFriendRequest({required int friendRequestId}) async {
     try {
-      final response = await dio.post(
-        ApiConstants.acceptFriendRequest(friendRequestId),
-      );
+      final response = await dio.post(ApiConstants.acceptFriendRequest(friendRequestId));
 
       _handleResponse(response);
     } catch (e) {
@@ -81,9 +65,7 @@ class ContactRemoteDataSourceImpl implements ContactRemoteDataSource {
   @override
   Future<void> rejectFriendRequest({required int friendRequestId}) async {
     try {
-      final response = await dio.post(
-        ApiConstants.rejectFriendRequest(friendRequestId),
-      );
+      final response = await dio.post(ApiConstants.rejectFriendRequest(friendRequestId));
 
       _handleResponse(response);
     } catch (e) {
@@ -94,9 +76,7 @@ class ContactRemoteDataSourceImpl implements ContactRemoteDataSource {
   @override
   Future<void> cancelFriendRequest({required int friendRequestId}) async {
     try {
-      final response = await dio.delete(
-        ApiConstants.cancelFriendRequest(friendRequestId)
-      );
+      final response = await dio.delete(ApiConstants.cancelFriendRequest(friendRequestId));
 
       _handleResponse(response);
     } catch (e) {
@@ -107,9 +87,7 @@ class ContactRemoteDataSourceImpl implements ContactRemoteDataSource {
   @override
   Future<List<ContactModel>> getContacts() async {
     try {
-      final response = await dio.get(
-        ApiConstants.contacts
-      );
+      final response = await dio.get(ApiConstants.contacts);
 
       final data = _handleResponse(response);
       final List<dynamic> contactsList = data as List<dynamic>;
@@ -122,9 +100,7 @@ class ContactRemoteDataSourceImpl implements ContactRemoteDataSource {
   @override
   Future<ContactModel> getContactById(int contactId) async {
     try {
-      final response = await dio.get(
-        ApiConstants.contactById(contactId)
-      );
+      final response = await dio.get(ApiConstants.contactById(contactId));
 
       final data = _handleResponse(response);
       return ContactModel.fromJson(data);
@@ -134,15 +110,9 @@ class ContactRemoteDataSourceImpl implements ContactRemoteDataSource {
   }
 
   @override
-  Future<void> updateContactNickname({
-    required int contactId,
-    required String nickname,
-  }) async {
+  Future<void> updateContactNickname({required int contactId, required String nickname}) async {
     try {
-      final response = await dio.put(
-        ApiConstants.updateContactNickname(contactId),
-        data: {'nickname': nickname},
-      );
+      final response = await dio.put(ApiConstants.updateContactNickname(contactId), data: {'nickname': nickname});
 
       _handleResponse(response);
     } catch (e) {
@@ -153,9 +123,7 @@ class ContactRemoteDataSourceImpl implements ContactRemoteDataSource {
   @override
   Future<void> deleteContact({required int contactId}) async {
     try {
-      final response = await dio.delete(
-        ApiConstants.deleteContact(contactId),
-      );
+      final response = await dio.delete(ApiConstants.deleteContact(contactId));
 
       _handleResponse(response);
     } catch (e) {
@@ -178,13 +146,10 @@ class ContactRemoteDataSourceImpl implements ContactRemoteDataSource {
     if (error is DioException) {
       if (error.response != null) {
         final statusCode = error.response!.statusCode ?? 500;
-        final message =
-            error.response!.data?['message'] ?? 'An error occurred';
+        final message = error.response!.data?['message'] ?? 'An error occurred';
         return ServerException(message: message, statusCode: statusCode);
       } else {
-        return NetworkException(
-          message: error.message ?? 'Network error occurred',
-        );
+        return NetworkException(message: error.message ?? 'Network error occurred');
       }
     }
     return ServerException(message: error.toString(), statusCode: 500);

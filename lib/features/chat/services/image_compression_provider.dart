@@ -7,4 +7,3 @@ part 'image_compression_provider.g.dart';
 ImageCompressionService imageCompressionService(Ref ref) {
   return ImageCompressionService();
 }
-

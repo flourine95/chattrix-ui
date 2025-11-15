@@ -26,10 +26,7 @@ class RegisterScreen extends HookConsumerWidget {
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(
-            Icons.arrow_back,
-            color: Theme.of(context).colorScheme.onSurface,
-          ),
+          icon: Icon(Icons.arrow_back, color: Theme.of(context).colorScheme.onSurface),
           onPressed: () => context.go(AppRouter.loginPath),
         ),
       ),
@@ -43,45 +40,27 @@ class RegisterScreen extends HookConsumerWidget {
               // Tiêu đề
               Text(
                 'Create Account',
-                style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
+                style: Theme.of(context).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 8),
               Text(
                 'Start your journey with us today',
-                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                  color: Theme.of(
-                    context,
-                  ).colorScheme.onSurface.withValues(alpha: 0.6),
-                ),
+                style: Theme.of(
+                  context,
+                ).textTheme.bodyLarge?.copyWith(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6)),
               ),
               const SizedBox(height: 40),
 
               // Form đăng ký
-              AppInputField(
-                labelText: 'Full Name',
-                controller: fullNameController,
-              ),
+              AppInputField(labelText: 'Full Name', controller: fullNameController),
               const SizedBox(height: 20),
-              AppInputField(
-                labelText: 'Username',
-                controller: usernameController,
-              ),
+              AppInputField(labelText: 'Username', controller: usernameController),
               const SizedBox(height: 20),
               AppInputField(labelText: 'Email', controller: emailController),
               const SizedBox(height: 20),
-              AppInputField(
-                labelText: 'Password',
-                isPassword: true,
-                controller: passwordController,
-              ),
+              AppInputField(labelText: 'Password', isPassword: true, controller: passwordController),
               const SizedBox(height: 20),
-              AppInputField(
-                labelText: 'Confirm Password',
-                isPassword: true,
-                controller: confirmPasswordController,
-              ),
+              AppInputField(labelText: 'Confirm Password', isPassword: true, controller: confirmPasswordController),
               const SizedBox(height: 20),
 
               // Checkbox điều khoản
@@ -106,20 +85,12 @@ class RegisterScreen extends HookConsumerWidget {
                             email.isEmpty ||
                             password.isEmpty ||
                             confirmPassword.isEmpty) {
-                          Toasts.error(
-                            context,
-                            title: 'Error',
-                            description: 'Please fill in all fields',
-                          );
+                          Toasts.error(context, title: 'Error', description: 'Please fill in all fields');
                           return;
                         }
 
                         if (!email.contains('@')) {
-                          Toasts.error(
-                            context,
-                            title: 'Error',
-                            description: 'Invalid email address',
-                          );
+                          Toasts.error(context, title: 'Error', description: 'Invalid email address');
                           return;
                         }
 
@@ -127,30 +98,20 @@ class RegisterScreen extends HookConsumerWidget {
                           Toasts.error(
                             context,
                             title: 'Error',
-                            description:
-                                'Password must be at least 6 characters long',
+                            description: 'Password must be at least 6 characters long',
                           );
                           return;
                         }
 
                         if (password != confirmPassword) {
-                          Toasts.error(
-                            context,
-                            title: 'Error',
-                            description: 'Passwords do not match',
-                          );
+                          Toasts.error(context, title: 'Error', description: 'Passwords do not match');
                           return;
                         }
 
                         // Call API
                         final success = await ref
                             .read(authNotifierProvider.notifier)
-                            .register(
-                              username: username,
-                              email: email,
-                              password: password,
-                              fullName: fullName,
-                            );
+                            .register(username: username, email: email, password: password, fullName: fullName);
 
                         if (!context.mounted) return;
 
@@ -158,14 +119,10 @@ class RegisterScreen extends HookConsumerWidget {
                           Toasts.success(
                             context,
                             title: 'Success',
-                            description:
-                                'Registration successful! Please check your email to verify your account.',
+                            description: 'Registration successful! Please check your email to verify your account.',
                           );
                           // Navigate to OTP verification screen
-                          context.push(
-                            AppRouter.otpVerificationPath,
-                            extra: {'email': email},
-                          );
+                          context.push(AppRouter.otpVerificationPath, extra: {'email': email});
                         } else {
                           final error = ref.read(authErrorProvider);
                           Toasts.error(
@@ -189,10 +146,7 @@ class RegisterScreen extends HookConsumerWidget {
     );
   }
 
-  Widget _buildTermsCheckbox(
-    BuildContext context,
-    ValueNotifier<bool> agreedToTerms,
-  ) {
+  Widget _buildTermsCheckbox(BuildContext context, ValueNotifier<bool> agreedToTerms) {
     return Row(
       children: [
         SizedBox(
@@ -211,11 +165,7 @@ class RegisterScreen extends HookConsumerWidget {
           child: Text.rich(
             TextSpan(
               text: 'I agree to the ',
-              style: TextStyle(
-                color: Theme.of(
-                  context,
-                ).colorScheme.onSurface.withValues(alpha: 0.6),
-              ),
+              style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6)),
               children: [
                 TextSpan(
                   text: 'Terms & Conditions',
@@ -240,11 +190,7 @@ class RegisterScreen extends HookConsumerWidget {
       children: [
         Text(
           "Already have an account? ",
-          style: TextStyle(
-            color: Theme.of(
-              context,
-            ).colorScheme.onSurface.withValues(alpha: 0.6),
-          ),
+          style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6)),
         ),
         TextButton(
           onPressed: () => context.go(AppRouter.loginPath),

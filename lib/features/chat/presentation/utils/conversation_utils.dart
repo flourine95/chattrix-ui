@@ -10,10 +10,7 @@ class ConversationUtils {
   /// Rules:
   /// - GROUP: Use conversation.name if available, otherwise combine participant names (max 3)
   /// - DIRECT: Use contact.nickname → contactUser.fullName → contactUser.username (priority order)
-  static String getConversationTitle(
-    Conversation conversation,
-    User? currentUser,
-  ) {
+  static String getConversationTitle(Conversation conversation, User? currentUser) {
     if (conversation.type.toUpperCase() == 'GROUP') {
       // For GROUP conversations
       if (conversation.name != null && conversation.name!.isNotEmpty) {
@@ -21,18 +18,13 @@ class ConversationUtils {
       }
 
       // Fallback: combine participant names (max 3)
-      final otherParticipants = conversation.participants
-          .where((p) => p.userId != currentUser?.id)
-          .take(3)
-          .toList();
+      final otherParticipants = conversation.participants.where((p) => p.userId != currentUser?.id).take(3).toList();
 
       if (otherParticipants.isEmpty) {
         return 'Group Chat';
       }
 
-      return otherParticipants
-          .map((p) => p.fullName.isNotEmpty ? p.fullName : p.username)
-          .join(', ');
+      return otherParticipants.map((p) => p.fullName.isNotEmpty ? p.fullName : p.username).join(', ');
     } else {
       // For DIRECT conversations
       final otherParticipant = conversation.participants.firstWhere(
@@ -41,8 +33,7 @@ class ConversationUtils {
       );
 
       // Priority: nickname → fullName → username
-      if (otherParticipant.nickname != null &&
-          otherParticipant.nickname!.isNotEmpty) {
+      if (otherParticipant.nickname != null && otherParticipant.nickname!.isNotEmpty) {
         return otherParticipant.nickname!;
       }
 
@@ -139,22 +130,15 @@ class ConversationUtils {
   }
 
   /// Get other participant in DIRECT conversation
-  static Participant? getOtherParticipant(
-    Conversation conversation,
-    User? currentUser,
-  ) {
+  static Participant? getOtherParticipant(Conversation conversation, User? currentUser) {
     if (conversation.type.toUpperCase() != 'DIRECT') {
       return null;
     }
 
     try {
-      return conversation.participants.firstWhere(
-        (p) => p.userId != currentUser?.id,
-      );
+      return conversation.participants.firstWhere((p) => p.userId != currentUser?.id);
     } catch (e) {
-      return conversation.participants.isNotEmpty
-          ? conversation.participants.first
-          : null;
+      return conversation.participants.isNotEmpty ? conversation.participants.first : null;
     }
   }
 

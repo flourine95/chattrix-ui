@@ -18,8 +18,7 @@ abstract class UserStatusUpdateModel with _$UserStatusUpdateModel {
   }) = _UserStatusUpdateModel;
 
   /// Convert from JSON
-  factory UserStatusUpdateModel.fromJson(Map<String, dynamic> json) =>
-      _$UserStatusUpdateModelFromJson(json);
+  factory UserStatusUpdateModel.fromJson(Map<String, dynamic> json) => _$UserStatusUpdateModelFromJson(json);
 
   /// Convert to entity
   UserStatusUpdate toEntity() {

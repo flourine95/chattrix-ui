@@ -147,8 +147,7 @@ class BaseBubbleContainer extends StatefulWidget {
   State<BaseBubbleContainer> createState() => _BaseBubbleContainerState();
 }
 
-class _BaseBubbleContainerState extends State<BaseBubbleContainer>
-    with AutomaticKeepAliveClientMixin {
+class _BaseBubbleContainerState extends State<BaseBubbleContainer> with AutomaticKeepAliveClientMixin {
   final GlobalKey _messageKey = GlobalKey();
   double _dragDistance = 0;
   double _initialDragDirection = 0;
@@ -181,18 +180,11 @@ class _BaseBubbleContainerState extends State<BaseBubbleContainer>
     final colors = theme.colorScheme;
     final isDark = theme.brightness == Brightness.dark;
 
-    final bg = widget.isMe
-        ? (isDark ? colors.primary : _greyLight)
-        : (isDark ? colors.surface : Colors.black);
+    final bg = widget.isMe ? (isDark ? colors.primary : _greyLight) : (isDark ? colors.surface : Colors.black);
 
     return Container(
       key: _messageKey,
-      margin: EdgeInsets.only(
-        left: widget.isMe ? 48 : 8,
-        right: widget.isMe ? 8 : 48,
-        top: 6,
-        bottom: 6,
-      ),
+      margin: EdgeInsets.only(left: widget.isMe ? 48 : 8, right: widget.isMe ? 8 : 48, top: 6, bottom: 6),
       constraints: BoxConstraints(maxWidth: widget.maxWidth),
       child: GestureDetector(
         onDoubleTap: () {
@@ -218,12 +210,10 @@ class _BaseBubbleContainerState extends State<BaseBubbleContainer>
 
             // Only allow dragging in the initial direction
             final currentDirection = details.delta.dx > 0 ? 1 : -1;
-            if (_initialDragDirection != 0 &&
-                currentDirection == _initialDragDirection) {
+            if (_initialDragDirection != 0 && currentDirection == _initialDragDirection) {
               _dragDistance += details.delta.dx;
               _dragDistance = _dragDistance.clamp(-100.0, 100.0);
-            } else if (_initialDragDirection != 0 &&
-                currentDirection != _initialDragDirection) {
+            } else if (_initialDragDirection != 0 && currentDirection != _initialDragDirection) {
               // Dragging back - cancel the swipe
               _dragDistance += details.delta.dx * 1.5;
               if ((_initialDragDirection > 0 && _dragDistance < 0) ||
@@ -239,8 +229,7 @@ class _BaseBubbleContainerState extends State<BaseBubbleContainer>
 
           // Only trigger reply if dragged in consistent direction and > threshold
           if (_dragDistance.abs() > 50 &&
-              ((_initialDragDirection > 0 && _dragDistance > 0) ||
-                  (_initialDragDirection < 0 && _dragDistance < 0))) {
+              ((_initialDragDirection > 0 && _dragDistance > 0) || (_initialDragDirection < 0 && _dragDistance < 0))) {
             _handleSwipeReply();
           }
 
@@ -288,9 +277,7 @@ class _BaseBubbleContainerState extends State<BaseBubbleContainer>
             Transform.translate(
               offset: Offset(_dragDistance * 0.5, 0),
               child: Column(
-                crossAxisAlignment: widget.isMe
-                    ? CrossAxisAlignment.end
-                    : CrossAxisAlignment.start,
+                crossAxisAlignment: widget.isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
                 children: [
                   Container(
                     decoration: BoxDecoration(
@@ -301,9 +288,7 @@ class _BaseBubbleContainerState extends State<BaseBubbleContainer>
                         bottomLeft: Radius.circular(widget.isMe ? 16 : 4),
                         bottomRight: Radius.circular(widget.isMe ? 4 : 16),
                       ),
-                      border: widget.isMe
-                          ? Border.all(color: _greyBorder)
-                          : null,
+                      border: widget.isMe ? Border.all(color: _greyBorder) : null,
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -312,10 +297,7 @@ class _BaseBubbleContainerState extends State<BaseBubbleContainer>
                         if (widget.replyToMessage != null)
                           Padding(
                             padding: const EdgeInsets.fromLTRB(12, 8, 12, 0),
-                            child: QuotedMessageWidget(
-                              replyToMessage: widget.replyToMessage!,
-                              onTap: null,
-                            ),
+                            child: QuotedMessageWidget(replyToMessage: widget.replyToMessage!, onTap: null),
                           ),
                         widget.child,
                       ],

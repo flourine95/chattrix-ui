@@ -45,12 +45,8 @@ class TextMessageBubble extends StatelessWidget {
       onDelete: onDelete,
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-        child: Text(
-          message.content,
-          style: textTheme.bodyMedium?.copyWith(color: textColor),
-        ),
+        child: Text(message.content, style: textTheme.bodyMedium?.copyWith(color: textColor)),
       ),
     );
   }
 }
-

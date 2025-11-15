@@ -34,8 +34,7 @@ class VideoMessageBubble extends StatefulWidget {
   State<VideoMessageBubble> createState() => _VideoMessageBubbleState();
 }
 
-class _VideoMessageBubbleState extends State<VideoMessageBubble>
-    with AutomaticKeepAliveClientMixin {
+class _VideoMessageBubbleState extends State<VideoMessageBubble> with AutomaticKeepAliveClientMixin {
   VideoPlayerController? _controller;
   bool _isInitialized = false;
   bool _isPlaying = false;
@@ -47,9 +46,7 @@ class _VideoMessageBubbleState extends State<VideoMessageBubble>
     if (widget.message.mediaUrl == null || _isInitialized || _controller != null) return;
 
     try {
-      _controller = VideoPlayerController.networkUrl(
-        Uri.parse(widget.message.mediaUrl!),
-      );
+      _controller = VideoPlayerController.networkUrl(Uri.parse(widget.message.mediaUrl!));
 
       await _controller!.initialize();
 
@@ -99,10 +96,8 @@ class _VideoMessageBubbleState extends State<VideoMessageBubble>
 
     Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (context) => _FullScreenVideoPlayer(
-          videoUrl: widget.message.mediaUrl!,
-          caption: widget.message.content,
-        ),
+        builder: (context) =>
+            _FullScreenVideoPlayer(videoUrl: widget.message.mediaUrl!, caption: widget.message.content),
       ),
     );
   }
@@ -137,62 +132,46 @@ class _VideoMessageBubbleState extends State<VideoMessageBubble>
                 alignment: Alignment.center,
                 children: [
                   ClipRRect(
-                    borderRadius: const BorderRadius.vertical(
-                      top: Radius.circular(16),
-                    ),
+                    borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
                     child: _isInitialized && _controller != null
-                        ? AspectRatio(
-                            aspectRatio: _controller!.value.aspectRatio,
-                            child: VideoPlayer(_controller!),
-                          )
+                        ? AspectRatio(aspectRatio: _controller!.value.aspectRatio, child: VideoPlayer(_controller!))
                         : widget.message.thumbnailUrl != null
-                            ? CachedNetworkImage(
-                                imageUrl: widget.message.thumbnailUrl!,
-                                width: 280,
-                                height: 200,
-                                fit: BoxFit.cover,
-                                memCacheWidth: 560,
-                                maxWidthDiskCache: 560,
-                                placeholder: (context, url) => Container(
-                                  width: 280,
-                                  height: 200,
-                                  color: Colors.grey.shade300,
-                                  child: const Center(
-                                    child: CircularProgressIndicator(),
-                                  ),
-                                ),
-                                errorWidget: (context, url, error) {
-                                  return Container(
-                                    width: 280,
-                                    height: 200,
-                                    color: Colors.grey.shade300,
-                                    child: const Icon(Icons.videocam, size: 48),
-                                  );
-                                },
-                              )
-                            : Container(
+                        ? CachedNetworkImage(
+                            imageUrl: widget.message.thumbnailUrl!,
+                            width: 280,
+                            height: 200,
+                            fit: BoxFit.cover,
+                            memCacheWidth: 560,
+                            maxWidthDiskCache: 560,
+                            placeholder: (context, url) => Container(
+                              width: 280,
+                              height: 200,
+                              color: Colors.grey.shade300,
+                              child: const Center(child: CircularProgressIndicator()),
+                            ),
+                            errorWidget: (context, url, error) {
+                              return Container(
                                 width: 280,
                                 height: 200,
                                 color: Colors.grey.shade300,
-                                child: const Center(
-                                  child: CircularProgressIndicator(),
-                                ),
-                              ),
+                                child: const Icon(Icons.videocam, size: 48),
+                              );
+                            },
+                          )
+                        : Container(
+                            width: 280,
+                            height: 200,
+                            color: Colors.grey.shade300,
+                            child: const Center(child: CircularProgressIndicator()),
+                          ),
                   ),
                   // Play/Pause button overlay
                   if (!_isPlaying)
                     Container(
                       width: 60,
                       height: 60,
-                      decoration: BoxDecoration(
-                        color: Colors.black.withValues(alpha: 0.6),
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(
-                        Icons.play_arrow,
-                        color: Colors.white,
-                        size: 36,
-                      ),
+                      decoration: BoxDecoration(color: Colors.black.withValues(alpha: 0.6), shape: BoxShape.circle),
+                      child: const Icon(Icons.play_arrow, color: Colors.white, size: 36),
                     ),
                   // Duration badge
                   if (widget.message.duration != null && !_isPlaying)
@@ -200,21 +179,14 @@ class _VideoMessageBubbleState extends State<VideoMessageBubble>
                       bottom: 8,
                       right: 8,
                       child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 4,
-                        ),
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                         decoration: BoxDecoration(
                           color: Colors.black.withValues(alpha: 0.7),
                           borderRadius: BorderRadius.circular(4),
                         ),
                         child: Text(
                           FormatUtils.formatDuration(widget.message.duration!),
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 12,
-                            fontWeight: FontWeight.w500,
-                          ),
+                          style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w500),
                         ),
                       ),
                     ),
@@ -242,10 +214,7 @@ class _VideoMessageBubbleState extends State<VideoMessageBubble>
           if (widget.message.content.isNotEmpty)
             Padding(
               padding: const EdgeInsets.all(12),
-              child: Text(
-                widget.message.content,
-                style: textTheme.bodyMedium?.copyWith(color: textColor),
-              ),
+              child: Text(widget.message.content, style: textTheme.bodyMedium?.copyWith(color: textColor)),
             ),
         ],
       ),
@@ -255,10 +224,7 @@ class _VideoMessageBubbleState extends State<VideoMessageBubble>
 
 /// Full screen video player
 class _FullScreenVideoPlayer extends StatefulWidget {
-  const _FullScreenVideoPlayer({
-    required this.videoUrl,
-    this.caption,
-  });
+  const _FullScreenVideoPlayer({required this.videoUrl, this.caption});
 
   final String videoUrl;
   final String? caption;
@@ -280,9 +246,7 @@ class _FullScreenVideoPlayerState extends State<_FullScreenVideoPlayer> {
 
   Future<void> _initializeVideo() async {
     try {
-      _controller = VideoPlayerController.networkUrl(
-        Uri.parse(widget.videoUrl),
-      );
+      _controller = VideoPlayerController.networkUrl(Uri.parse(widget.videoUrl));
 
       await _controller!.initialize();
 
@@ -332,10 +296,7 @@ class _FullScreenVideoPlayerState extends State<_FullScreenVideoPlayer> {
         backgroundColor: Colors.black,
         iconTheme: const IconThemeData(color: Colors.white),
         title: widget.caption != null && widget.caption!.isNotEmpty
-            ? Text(
-                widget.caption!,
-                style: const TextStyle(color: Colors.white),
-              )
+            ? Text(widget.caption!, style: const TextStyle(color: Colors.white))
             : null,
       ),
       body: Center(
@@ -345,24 +306,14 @@ class _FullScreenVideoPlayerState extends State<_FullScreenVideoPlayer> {
                 child: Stack(
                   alignment: Alignment.center,
                   children: [
-                    AspectRatio(
-                      aspectRatio: _controller!.value.aspectRatio,
-                      child: VideoPlayer(_controller!),
-                    ),
+                    AspectRatio(aspectRatio: _controller!.value.aspectRatio, child: VideoPlayer(_controller!)),
                     // Play/Pause overlay
                     if (!_isPlaying)
                       Container(
                         width: 80,
                         height: 80,
-                        decoration: BoxDecoration(
-                          color: Colors.black.withValues(alpha: 0.6),
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Icon(
-                          Icons.play_arrow,
-                          color: Colors.white,
-                          size: 48,
-                        ),
+                        decoration: BoxDecoration(color: Colors.black.withValues(alpha: 0.6), shape: BoxShape.circle),
+                        child: const Icon(Icons.play_arrow, color: Colors.white, size: 48),
                       ),
                     // Progress indicator
                     Positioned(
@@ -387,4 +338,3 @@ class _FullScreenVideoPlayerState extends State<_FullScreenVideoPlayer> {
     );
   }
 }
-

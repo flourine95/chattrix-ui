@@ -5,10 +5,7 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 class MediaGridWidget extends HookConsumerWidget {
-  const MediaGridWidget({
-    super.key,
-    required this.conversationId,
-  });
+  const MediaGridWidget({super.key, required this.conversationId});
 
   final String conversationId;
 
@@ -27,11 +24,7 @@ class MediaGridWidget extends HookConsumerWidget {
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           decoration: BoxDecoration(
             color: colors.surface,
-            border: Border(
-              bottom: BorderSide(
-                color: colors.onSurface.withValues(alpha: 0.1),
-              ),
-            ),
+            border: Border(bottom: BorderSide(color: colors.onSurface.withValues(alpha: 0.1))),
           ),
           child: SingleChildScrollView(
             scrollDirection: Axis.horizontal,
@@ -92,17 +85,11 @@ class MediaGridWidget extends HookConsumerWidget {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(
-                        Icons.photo_library_outlined,
-                        size: 64,
-                        color: colors.onSurface.withValues(alpha: 0.3),
-                      ),
+                      Icon(Icons.photo_library_outlined, size: 64, color: colors.onSurface.withValues(alpha: 0.3)),
                       const SizedBox(height: 16),
                       Text(
                         'No media yet',
-                        style: textTheme.bodyLarge?.copyWith(
-                          color: colors.onSurface.withValues(alpha: 0.6),
-                        ),
+                        style: textTheme.bodyLarge?.copyWith(color: colors.onSurface.withValues(alpha: 0.6)),
                       ),
                     ],
                   ),
@@ -124,12 +111,7 @@ class MediaGridWidget extends HookConsumerWidget {
               );
             },
             loading: () => const Center(child: CircularProgressIndicator()),
-            error: (e, st) => Center(
-              child: Text(
-                'Failed to load media',
-                style: textTheme.bodyMedium,
-              ),
-            ),
+            error: (e, st) => Center(child: Text('Failed to load media', style: textTheme.bodyMedium)),
           ),
         ),
       ],
@@ -138,12 +120,7 @@ class MediaGridWidget extends HookConsumerWidget {
 }
 
 class _MediaTypeChip extends StatelessWidget {
-  const _MediaTypeChip({
-    required this.label,
-    this.icon,
-    required this.isSelected,
-    required this.onTap,
-  });
+  const _MediaTypeChip({required this.label, this.icon, required this.isSelected, required this.onTap});
 
   final String label;
   final IconData? icon;
@@ -163,26 +140,18 @@ class _MediaTypeChip extends StatelessWidget {
         decoration: BoxDecoration(
           color: isSelected ? colors.primary : colors.surface,
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-            color: isSelected ? colors.primary : colors.onSurface.withValues(alpha: 0.2),
-          ),
+          border: Border.all(color: isSelected ? colors.primary : colors.onSurface.withValues(alpha: 0.2)),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             if (icon != null) ...[
-              Icon(
-                icon,
-                size: 16,
-                color: isSelected ? colors.onPrimary : colors.onSurface,
-              ),
+              Icon(icon, size: 16, color: isSelected ? colors.onPrimary : colors.onSurface),
               const SizedBox(width: 4),
             ],
             Text(
               label,
-              style: textTheme.labelMedium?.copyWith(
-                color: isSelected ? colors.onPrimary : colors.onSurface,
-              ),
+              style: textTheme.labelMedium?.copyWith(color: isSelected ? colors.onPrimary : colors.onSurface),
             ),
           ],
         ),
@@ -190,4 +159,3 @@ class _MediaTypeChip extends StatelessWidget {
     );
   }
 }
-

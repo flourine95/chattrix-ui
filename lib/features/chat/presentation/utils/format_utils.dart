@@ -92,9 +92,6 @@ class FormatUtils {
     final colors = theme.colorScheme;
     final isDark = theme.brightness == Brightness.dark;
 
-    return isMe
-        ? (isDark ? colors.onPrimary : Colors.black)
-        : (isDark ? colors.onSurface : Colors.white);
+    return isMe ? (isDark ? colors.onPrimary : Colors.black) : (isDark ? colors.onSurface : Colors.white);
   }
 }
-

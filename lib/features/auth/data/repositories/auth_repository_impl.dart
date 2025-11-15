@@ -11,10 +11,7 @@ class AuthRepositoryImpl implements AuthRepository {
   final AuthRemoteDataSource remoteDataSource;
   final AuthLocalDataSource localDataSource;
 
-  AuthRepositoryImpl({
-    required this.remoteDataSource,
-    required this.localDataSource,
-  });
+  AuthRepositoryImpl({required this.remoteDataSource, required this.localDataSource});
 
   @override
   Future<Either<Failure, void>> register({
@@ -24,12 +21,7 @@ class AuthRepositoryImpl implements AuthRepository {
     required String fullName,
   }) async {
     try {
-      await remoteDataSource.register(
-        username: username,
-        email: email,
-        password: password,
-        fullName: fullName,
-      );
+      await remoteDataSource.register(username: username, email: email, password: password, fullName: fullName);
       return const Right(null);
     } on ServerException catch (e) {
       return Left(_mapServerExceptionToFailure(e));
@@ -41,10 +33,7 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<Either<Failure, void>> verifyEmail({
-    required String email,
-    required String otp,
-  }) async {
+  Future<Either<Failure, void>> verifyEmail({required String email, required String otp}) async {
     try {
       await remoteDataSource.verifyEmail(email: email, otp: otp);
       return const Right(null);
@@ -58,9 +47,7 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<Either<Failure, void>> resendVerification({
-    required String email,
-  }) async {
+  Future<Either<Failure, void>> resendVerification({required String email}) async {
     try {
       await remoteDataSource.resendVerification(email: email);
       return const Right(null);
@@ -74,21 +61,12 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<Either<Failure, AuthTokens>> login({
-    required String usernameOrEmail,
-    required String password,
-  }) async {
+  Future<Either<Failure, AuthTokens>> login({required String usernameOrEmail, required String password}) async {
     try {
-      final tokensModel = await remoteDataSource.login(
-        usernameOrEmail: usernameOrEmail,
-        password: password,
-      );
+      final tokensModel = await remoteDataSource.login(usernameOrEmail: usernameOrEmail, password: password);
 
       // Save tokens to secure storage
-      await localDataSource.saveTokens(
-        accessToken: tokensModel.accessToken,
-        refreshToken: tokensModel.refreshToken,
-      );
+      await localDataSource.saveTokens(accessToken: tokensModel.accessToken, refreshToken: tokensModel.refreshToken);
 
       return Right(tokensModel.toEntity());
     } on ServerException catch (e) {
@@ -105,9 +83,7 @@ class AuthRepositoryImpl implements AuthRepository {
     try {
       // Bỏ việc check accessToken ở đây
       // Để AuthHttpClient tự động lấy từ storage và auto-refresh nếu cần
-      final userModel = await remoteDataSource.getCurrentUser(
-        '',
-      ); // Pass empty string
+      final userModel = await remoteDataSource.getCurrentUser(''); // Pass empty string
       return Right(userModel.toEntity());
     } on ServerException catch (e) {
       return Left(_mapServerExceptionToFailure(e));
@@ -129,10 +105,7 @@ class AuthRepositoryImpl implements AuthRepository {
       final tokensModel = await remoteDataSource.refreshToken(refreshToken);
 
       // Save new tokens
-      await localDataSource.saveTokens(
-        accessToken: tokensModel.accessToken,
-        refreshToken: tokensModel.refreshToken,
-      );
+      await localDataSource.saveTokens(accessToken: tokensModel.accessToken, refreshToken: tokensModel.refreshToken);
 
       return Right(tokensModel.toEntity());
     } on ServerException catch (e) {
@@ -147,10 +120,7 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<Either<Failure, void>> changePassword({
-    required String currentPassword,
-    required String newPassword,
-  }) async {
+  Future<Either<Failure, void>> changePassword({required String currentPassword, required String newPassword}) async {
     try {
       // Bỏ check accessToken - để AuthHttpClient tự xử lý
       await remoteDataSource.changePassword(
@@ -190,11 +160,7 @@ class AuthRepositoryImpl implements AuthRepository {
     required String newPassword,
   }) async {
     try {
-      await remoteDataSource.resetPassword(
-        email: email,
-        otp: otp,
-        newPassword: newPassword,
-      );
+      await remoteDataSource.resetPassword(email: email, otp: otp, newPassword: newPassword);
       return const Right(null);
     } on ServerException catch (e) {
       return Left(_mapServerExceptionToFailure(e));
@@ -259,27 +225,15 @@ class AuthRepositoryImpl implements AuthRepository {
       case 400:
         return Failure.validation(message: exception.message);
       case 401:
-        return Failure.unauthorized(
-          message: exception.message,
-          errorCode: exception.errorCode,
-        );
+        return Failure.unauthorized(message: exception.message, errorCode: exception.errorCode);
       case 404:
-        return Failure.notFound(
-          message: exception.message,
-          errorCode: exception.errorCode,
-        );
+        return Failure.notFound(message: exception.message, errorCode: exception.errorCode);
       case 409:
-        return Failure.conflict(
-          message: exception.message,
-          errorCode: exception.errorCode,
-        );
+        return Failure.conflict(message: exception.message, errorCode: exception.errorCode);
       case 429:
         return Failure.rateLimitExceeded(message: exception.message);
       default:
-        return Failure.server(
-          message: exception.message,
-          errorCode: exception.errorCode,
-        );
+        return Failure.server(message: exception.message, errorCode: exception.errorCode);
     }
   }
 }

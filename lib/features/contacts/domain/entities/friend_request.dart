@@ -21,9 +21,4 @@ abstract class FriendRequest with _$FriendRequest {
   }) = _FriendRequest;
 }
 
-enum FriendRequestStatus {
-  pending,
-  accepted,
-  rejected,
-  cancelled,
-}
+enum FriendRequestStatus { pending, accepted, rejected, cancelled }

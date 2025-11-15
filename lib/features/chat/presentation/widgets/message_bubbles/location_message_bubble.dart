@@ -74,9 +74,7 @@ class LocationMessageBubble extends StatelessWidget {
           children: [
             // Map preview
             ClipRRect(
-              borderRadius: const BorderRadius.vertical(
-                top: Radius.circular(16),
-              ),
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
               child: Stack(
                 alignment: Alignment.center,
                 children: [
@@ -85,7 +83,8 @@ class LocationMessageBubble extends StatelessWidget {
                     Builder(
                       builder: (context) {
                         final apiKey = dotenv.env['GOOGLE_MAPS_API_KEY'] ?? '';
-                        final mapUrl = 'https://maps.googleapis.com/maps/api/staticmap?'
+                        final mapUrl =
+                            'https://maps.googleapis.com/maps/api/staticmap?'
                             'center=${message.latitude},${message.longitude}'
                             '&zoom=15'
                             '&size=280x150'
@@ -103,9 +102,7 @@ class LocationMessageBubble extends StatelessWidget {
                             width: 280,
                             height: 150,
                             color: Colors.grey.shade300,
-                            child: const Center(
-                              child: CircularProgressIndicator(),
-                            ),
+                            child: const Center(child: CircularProgressIndicator()),
                           ),
                           errorWidget: (context, url, error) {
                             return Container(
@@ -115,19 +112,9 @@ class LocationMessageBubble extends StatelessWidget {
                               child: Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  const Icon(
-                                    FontAwesomeIcons.mapLocationDot,
-                                    size: 48,
-                                    color: Colors.red,
-                                  ),
+                                  const Icon(FontAwesomeIcons.mapLocationDot, size: 48, color: Colors.red),
                                   const SizedBox(height: 8),
-                                  Text(
-                                    'Map load failed',
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      color: Colors.grey.shade600,
-                                    ),
-                                  ),
+                                  Text('Map load failed', style: TextStyle(fontSize: 12, color: Colors.grey.shade600)),
                                 ],
                               ),
                             );
@@ -140,72 +127,52 @@ class LocationMessageBubble extends StatelessWidget {
                       width: 280,
                       height: 150,
                       color: Colors.grey.shade300,
-                      child: const Icon(
-                        FontAwesomeIcons.mapLocationDot,
-                        size: 48,
-                        color: Colors.red,
-                      ),
+                      child: const Icon(FontAwesomeIcons.mapLocationDot, size: 48, color: Colors.red),
                     ),
                   // Pin icon overlay
-                  const Icon(
-                    FontAwesomeIcons.locationDot,
-                    color: Colors.red,
-                    size: 36,
+                  const Icon(FontAwesomeIcons.locationDot, color: Colors.red, size: 36),
+                ],
+              ),
+            ),
+
+            // Location info
+            Padding(
+              padding: const EdgeInsets.all(12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Location name
+                  if (message.locationName != null)
+                    Text(
+                      message.locationName!,
+                      style: textTheme.bodyMedium?.copyWith(color: textColor, fontWeight: FontWeight.w500),
+                    ),
+                  const SizedBox(height: 4),
+
+                  // Coordinates
+                  Text(
+                    '${message.latitude?.toStringAsFixed(6)}, ${message.longitude?.toStringAsFixed(6)}',
+                    style: textTheme.bodySmall?.copyWith(color: textColor.withValues(alpha: 0.7)),
+                  ),
+                  const SizedBox(height: 8),
+
+                  // View on map button
+                  Row(
+                    children: [
+                      Icon(FontAwesomeIcons.mapPin, size: 14, color: textColor),
+                      const SizedBox(width: 6),
+                      Text(
+                        'View on map',
+                        style: textTheme.bodySmall?.copyWith(color: textColor, fontWeight: FontWeight.w500),
+                      ),
+                    ],
                   ),
                 ],
               ),
             ),
-          
-          // Location info
-          Padding(
-            padding: const EdgeInsets.all(12),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Location name
-                if (message.locationName != null)
-                  Text(
-                    message.locationName!,
-                    style: textTheme.bodyMedium?.copyWith(
-                      color: textColor,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                const SizedBox(height: 4),
-                
-                // Coordinates
-                Text(
-                  '${message.latitude?.toStringAsFixed(6)}, ${message.longitude?.toStringAsFixed(6)}',
-                  style: textTheme.bodySmall?.copyWith(
-                    color: textColor.withValues(alpha: 0.7),
-                  ),
-                ),
-                const SizedBox(height: 8),
-                
-                // View on map button
-                Row(
-                  children: [
-                    Icon(
-                      FontAwesomeIcons.mapPin,
-                      size: 14,
-                      color: textColor,
-                    ),
-                    const SizedBox(width: 6),
-                    Text(
-                      'View on map',
-                      style: textTheme.bodySmall?.copyWith(
-                        color: textColor,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
-    ),
     );
   }
 }

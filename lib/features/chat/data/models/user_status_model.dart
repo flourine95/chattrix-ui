@@ -8,20 +8,12 @@ part 'user_status_model.g.dart';
 abstract class UserStatusModel with _$UserStatusModel {
   const UserStatusModel._();
 
-  const factory UserStatusModel({
-    required int userId,
-    required bool isOnline,
-    required int activeSessionCount,
-  }) = _UserStatusModel;
+  const factory UserStatusModel({required int userId, required bool isOnline, required int activeSessionCount}) =
+      _UserStatusModel;
 
-  factory UserStatusModel.fromJson(Map<String, dynamic> json) =>
-      _$UserStatusModelFromJson(json);
+  factory UserStatusModel.fromJson(Map<String, dynamic> json) => _$UserStatusModelFromJson(json);
 
   UserStatus toEntity() {
-    return UserStatus(
-      userId: userId,
-      isOnline: isOnline,
-      activeSessionCount: activeSessionCount,
-    );
+    return UserStatus(userId: userId, isOnline: isOnline, activeSessionCount: activeSessionCount);
   }
 }

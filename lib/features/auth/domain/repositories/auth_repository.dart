@@ -11,26 +11,17 @@ abstract class AuthRepository {
     required String fullName,
   });
 
-  Future<Either<Failure, void>> verifyEmail({
-    required String email,
-    required String otp,
-  });
+  Future<Either<Failure, void>> verifyEmail({required String email, required String otp});
 
   Future<Either<Failure, void>> resendVerification({required String email});
 
-  Future<Either<Failure, AuthTokens>> login({
-    required String usernameOrEmail,
-    required String password,
-  });
+  Future<Either<Failure, AuthTokens>> login({required String usernameOrEmail, required String password});
 
   Future<Either<Failure, User>> getCurrentUser();
 
   Future<Either<Failure, AuthTokens>> refreshToken();
 
-  Future<Either<Failure, void>> changePassword({
-    required String currentPassword,
-    required String newPassword,
-  });
+  Future<Either<Failure, void>> changePassword({required String currentPassword, required String newPassword});
 
   Future<Either<Failure, void>> forgotPassword({required String email});
 

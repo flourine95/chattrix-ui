@@ -54,9 +54,7 @@ class _FriendRequestsPageState extends ConsumerState<FriendRequestsPage> {
     }
 
     if (state.receivedRequests.isEmpty) {
-      return const Center(
-        child: Text('No received friend requests'),
-      );
+      return const Center(child: Text('No received friend requests'));
     }
 
     return ListView.builder(
@@ -67,12 +65,8 @@ class _FriendRequestsPageState extends ConsumerState<FriendRequestsPage> {
           margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           child: ListTile(
             leading: CircleAvatar(
-              backgroundImage: request.senderAvatarUrl != null
-                  ? NetworkImage(request.senderAvatarUrl!)
-                  : null,
-              child: request.senderAvatarUrl == null
-                  ? Text(request.senderUsername[0].toUpperCase())
-                  : null,
+              backgroundImage: request.senderAvatarUrl != null ? NetworkImage(request.senderAvatarUrl!) : null,
+              child: request.senderAvatarUrl == null ? Text(request.senderUsername[0].toUpperCase()) : null,
             ),
             title: Text(request.senderFullName),
             subtitle: Text('@${request.senderUsername}'),
@@ -82,30 +76,22 @@ class _FriendRequestsPageState extends ConsumerState<FriendRequestsPage> {
                 IconButton(
                   icon: const Icon(Icons.check, color: Colors.green),
                   onPressed: () async {
-                    final success = await ref
-                        .read(contactProvider.notifier)
-                        .acceptFriendRequest(request.id);
+                    final success = await ref.read(contactProvider.notifier).acceptFriendRequest(request.id);
                     if (success && mounted) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Friend request accepted'),
-                        ),
-                      );
+                      ScaffoldMessenger.of(
+                        context,
+                      ).showSnackBar(const SnackBar(content: Text('Friend request accepted')));
                     }
                   },
                 ),
                 IconButton(
                   icon: const Icon(Icons.close, color: Colors.red),
                   onPressed: () async {
-                    final success = await ref
-                        .read(contactProvider.notifier)
-                        .rejectFriendRequest(request.id);
+                    final success = await ref.read(contactProvider.notifier).rejectFriendRequest(request.id);
                     if (success && mounted) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Friend request rejected'),
-                        ),
-                      );
+                      ScaffoldMessenger.of(
+                        context,
+                      ).showSnackBar(const SnackBar(content: Text('Friend request rejected')));
                     }
                   },
                 ),
@@ -123,9 +109,7 @@ class _FriendRequestsPageState extends ConsumerState<FriendRequestsPage> {
     }
 
     if (state.sentRequests.isEmpty) {
-      return const Center(
-        child: Text('No sent friend requests'),
-      );
+      return const Center(child: Text('No sent friend requests'));
     }
 
     return ListView.builder(
@@ -136,12 +120,8 @@ class _FriendRequestsPageState extends ConsumerState<FriendRequestsPage> {
           margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           child: ListTile(
             leading: CircleAvatar(
-              backgroundImage: request.receiverAvatarUrl != null
-                  ? NetworkImage(request.receiverAvatarUrl!)
-                  : null,
-              child: request.receiverAvatarUrl == null
-                  ? Text(request.receiverUsername[0].toUpperCase())
-                  : null,
+              backgroundImage: request.receiverAvatarUrl != null ? NetworkImage(request.receiverAvatarUrl!) : null,
+              child: request.receiverAvatarUrl == null ? Text(request.receiverUsername[0].toUpperCase()) : null,
             ),
             title: Text(request.receiverFullName),
             subtitle: Text('@${request.receiverUsername}'),
@@ -151,10 +131,7 @@ class _FriendRequestsPageState extends ConsumerState<FriendRequestsPage> {
                 Chip(
                   label: Text(
                     request.status.name.toUpperCase(),
-                    style: TextStyle(
-                      color: colorScheme.onSecondaryContainer,
-                      fontSize: 12,
-                    ),
+                    style: TextStyle(color: colorScheme.onSecondaryContainer, fontSize: 12),
                   ),
                   backgroundColor: colorScheme.secondaryContainer,
                 ),
@@ -162,15 +139,11 @@ class _FriendRequestsPageState extends ConsumerState<FriendRequestsPage> {
                 IconButton(
                   icon: const Icon(Icons.cancel, color: Colors.red),
                   onPressed: () async {
-                    final success = await ref
-                        .read(contactProvider.notifier)
-                        .cancelFriendRequest(request.id);
+                    final success = await ref.read(contactProvider.notifier).cancelFriendRequest(request.id);
                     if (success && mounted) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Friend request cancelled'),
-                        ),
-                      );
+                      ScaffoldMessenger.of(
+                        context,
+                      ).showSnackBar(const SnackBar(content: Text('Friend request cancelled')));
                     }
                   },
                 ),
@@ -182,4 +155,3 @@ class _FriendRequestsPageState extends ConsumerState<FriendRequestsPage> {
     );
   }
 }
-

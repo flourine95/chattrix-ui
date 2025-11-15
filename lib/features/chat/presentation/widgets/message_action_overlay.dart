@@ -29,41 +29,24 @@ class MessageActionOverlay extends StatefulWidget {
   State<MessageActionOverlay> createState() => _MessageActionOverlayState();
 }
 
-class _MessageActionOverlayState extends State<MessageActionOverlay>
-    with SingleTickerProviderStateMixin {
+class _MessageActionOverlayState extends State<MessageActionOverlay> with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _fadeAnimation;
   late Animation<double> _scaleAnimation;
 
-  static const List<String> _quickEmojis = [
-    '❤️',
-    '👍',
-    '😂',
-    '😮',
-    '😢',
-    '🙏',
-  ];
+  static const List<String> _quickEmojis = ['❤️', '👍', '😂', '😮', '😢', '🙏'];
 
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(
-      duration: const Duration(milliseconds: 250),
-      vsync: this,
-    );
+    _controller = AnimationController(duration: const Duration(milliseconds: 250), vsync: this);
 
-    _fadeAnimation = CurvedAnimation(
-      parent: _controller,
-      curve: Curves.easeOut,
-    );
+    _fadeAnimation = CurvedAnimation(parent: _controller, curve: Curves.easeOut);
 
     _scaleAnimation = Tween<double>(
       begin: 0.8,
       end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _controller,
-      curve: Curves.easeOutBack,
-    ));
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutBack));
 
     _controller.forward();
   }
@@ -117,9 +100,7 @@ class _MessageActionOverlayState extends State<MessageActionOverlay>
         child: Stack(
           children: [
             // Backdrop dim (no blur, just darken)
-            Container(
-              color: Colors.black.withValues(alpha: 0.5),
-            ),
+            Container(color: Colors.black.withValues(alpha: 0.5)),
 
             // Message and actions
             FadeTransition(
@@ -130,19 +111,14 @@ class _MessageActionOverlayState extends State<MessageActionOverlay>
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 40),
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: widget.isMe
-                          ? CrossAxisAlignment.end
-                          : CrossAxisAlignment.start,
+                      crossAxisAlignment: widget.isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
                       children: [
                         // Quick emoji reactions
                         ScaleTransition(
                           scale: _scaleAnimation,
                           child: Container(
                             margin: const EdgeInsets.only(bottom: 8),
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 8,
-                            ),
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                             decoration: BoxDecoration(
                               color: colors.surface,
                               borderRadius: BorderRadius.circular(24),
@@ -161,9 +137,7 @@ class _MessageActionOverlayState extends State<MessageActionOverlay>
                                   onTap: () => _handleEmojiTap(emoji),
                                   borderRadius: BorderRadius.circular(20),
                                   child: Container(
-                                    margin: const EdgeInsets.symmetric(
-                                      horizontal: 4,
-                                    ),
+                                    margin: const EdgeInsets.symmetric(horizontal: 4),
                                     padding: const EdgeInsets.all(8),
                                     decoration: BoxDecoration(
                                       color: colors.surfaceContainerHighest,
@@ -175,13 +149,7 @@ class _MessageActionOverlayState extends State<MessageActionOverlay>
                                         fontSize: 24,
                                         fontFamily: 'NotoColorEmoji',
                                         color: Colors.transparent,
-                                        shadows: [
-                                          Shadow(
-                                            offset: Offset.zero,
-                                            blurRadius: 0,
-                                            color: Color(0xFF000000),
-                                          ),
-                                        ],
+                                        shadows: [Shadow(offset: Offset.zero, blurRadius: 0, color: Color(0xFF000000))],
                                       ),
                                     ),
                                   ),
@@ -196,11 +164,7 @@ class _MessageActionOverlayState extends State<MessageActionOverlay>
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(16),
                             boxShadow: [
-                              BoxShadow(
-                                color: colors.primary.withValues(alpha: 0.3),
-                                blurRadius: 12,
-                                spreadRadius: 2,
-                              ),
+                              BoxShadow(color: colors.primary.withValues(alpha: 0.3), blurRadius: 12, spreadRadius: 2),
                             ],
                           ),
                           child: widget.messageWidget,
@@ -212,10 +176,7 @@ class _MessageActionOverlayState extends State<MessageActionOverlay>
                         ScaleTransition(
                           scale: _scaleAnimation,
                           child: Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 8,
-                              vertical: 8,
-                            ),
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
                             decoration: BoxDecoration(
                               color: colors.surface,
                               borderRadius: BorderRadius.circular(16),
@@ -247,9 +208,7 @@ class _MessageActionOverlayState extends State<MessageActionOverlay>
                                   ),
 
                                 // Edit (only for text messages from current user)
-                                if (widget.isMe &&
-                                    widget.onEdit != null &&
-                                    widget.message.type == 'TEXT')
+                                if (widget.isMe && widget.onEdit != null && widget.message.type == 'TEXT')
                                   _ActionButton(
                                     icon: Icons.edit,
                                     label: 'Edit',
@@ -283,12 +242,7 @@ class _MessageActionOverlayState extends State<MessageActionOverlay>
 
 /// Action button widget
 class _ActionButton extends StatelessWidget {
-  const _ActionButton({
-    required this.icon,
-    required this.label,
-    required this.onTap,
-    this.color,
-  });
+  const _ActionButton({required this.icon, required this.label, required this.onTap, this.color});
 
   final IconData icon;
   final String label;
@@ -313,19 +267,11 @@ class _ActionButton extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
-              icon,
-              size: 22,
-              color: buttonColor,
-            ),
+            Icon(icon, size: 22, color: buttonColor),
             const SizedBox(height: 4),
             Text(
               label,
-              style: TextStyle(
-                fontSize: 12,
-                color: buttonColor,
-                fontWeight: FontWeight.w500,
-              ),
+              style: TextStyle(fontSize: 12, color: buttonColor, fontWeight: FontWeight.w500),
             ),
           ],
         ),
@@ -368,4 +314,3 @@ Future<void> showMessageActionOverlay({
     ),
   );
 }
-

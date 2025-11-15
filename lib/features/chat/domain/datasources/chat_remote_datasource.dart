@@ -56,25 +56,16 @@ abstract class ChatRemoteDatasource {
   Future<UserStatusModel> getUserStatus(String userId);
 
   /// Search users by query
-  Future<List<SearchUserModel>> searchUsers({
-    required String query,
-    int limit = 20,
-  });
+  Future<List<SearchUserModel>> searchUsers({required String query, int limit = 20});
 
   /// Add or toggle reaction to a message
-  Future<Map<String, dynamic>> toggleReaction({
-    required String messageId,
-    required String emoji,
-  });
+  Future<Map<String, dynamic>> toggleReaction({required String messageId, required String emoji});
 
   /// Get reactions for a message
   Future<Map<String, dynamic>> getReactions(String messageId);
 
   /// Edit a message
-  Future<MessageModel> editMessage({
-    required String messageId,
-    required String content,
-  });
+  Future<MessageModel> editMessage({required String messageId, required String content});
 
   /// Delete a message
   Future<void> deleteMessage(String messageId);

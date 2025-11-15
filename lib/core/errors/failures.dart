@@ -4,39 +4,23 @@ part 'failures.freezed.dart';
 
 @freezed
 abstract class Failure with _$Failure {
-  const factory Failure.server({required String message, String? errorCode}) =
-      ServerFailure;
+  const factory Failure.server({required String message, String? errorCode}) = ServerFailure;
 
   const factory Failure.network({required String message}) = NetworkFailure;
 
-  const factory Failure.validation({
-    required String message,
-    List<ValidationError>? errors,
-  }) = ValidationFailure;
+  const factory Failure.validation({required String message, List<ValidationError>? errors}) = ValidationFailure;
 
-  const factory Failure.badRequest({
-    required String message,
-    String? errorCode,
-  }) = BadRequestFailure;
+  const factory Failure.badRequest({required String message, String? errorCode}) = BadRequestFailure;
 
-  const factory Failure.unauthorized({
-    required String message,
-    String? errorCode,
-  }) = UnauthorizedFailure;
+  const factory Failure.unauthorized({required String message, String? errorCode}) = UnauthorizedFailure;
 
-  const factory Failure.forbidden({
-    required String message,
-    String? errorCode,
-  }) = ForbiddenFailure;
+  const factory Failure.forbidden({required String message, String? errorCode}) = ForbiddenFailure;
 
-  const factory Failure.notFound({required String message, String? errorCode}) =
-      NotFoundFailure;
+  const factory Failure.notFound({required String message, String? errorCode}) = NotFoundFailure;
 
-  const factory Failure.conflict({required String message, String? errorCode}) =
-      ConflictFailure;
+  const factory Failure.conflict({required String message, String? errorCode}) = ConflictFailure;
 
-  const factory Failure.rateLimitExceeded({required String message}) =
-      RateLimitFailure;
+  const factory Failure.rateLimitExceeded({required String message}) = RateLimitFailure;
 
   const factory Failure.unknown({required String message}) = UnknownFailure;
 }

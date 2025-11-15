@@ -33,8 +33,7 @@ class AudioMessageBubble extends StatefulWidget {
   State<AudioMessageBubble> createState() => _AudioMessageBubbleState();
 }
 
-class _AudioMessageBubbleState extends State<AudioMessageBubble>
-    with AutomaticKeepAliveClientMixin {
+class _AudioMessageBubbleState extends State<AudioMessageBubble> with AutomaticKeepAliveClientMixin {
   final AudioPlayer _audioPlayer = AudioPlayer();
   bool _isPlaying = false;
   Duration _currentPosition = Duration.zero;
@@ -114,9 +113,7 @@ class _AudioMessageBubbleState extends State<AudioMessageBubble>
     } catch (e) {
       debugPrint('❌ Failed to play/pause audio: $e');
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to play audio: $e')),
-        );
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to play audio: $e')));
       }
     }
   }
@@ -131,9 +128,7 @@ class _AudioMessageBubbleState extends State<AudioMessageBubble>
     // Use actual duration if available, otherwise use message duration
     final displayDuration = _totalDuration.inSeconds > 0
         ? _totalDuration
-        : (widget.message.duration != null
-            ? Duration(seconds: widget.message.duration!)
-            : Duration.zero);
+        : (widget.message.duration != null ? Duration(seconds: widget.message.duration!) : Duration.zero);
 
     return BaseBubbleContainer(
       isMe: widget.isMe,
@@ -156,15 +151,8 @@ class _AudioMessageBubbleState extends State<AudioMessageBubble>
               child: Container(
                 width: 40,
                 height: 40,
-                decoration: BoxDecoration(
-                  color: textColor.withValues(alpha: 0.2),
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(
-                  _isPlaying ? Icons.pause : Icons.play_arrow,
-                  color: textColor,
-                  size: 24,
-                ),
+                decoration: BoxDecoration(color: textColor.withValues(alpha: 0.2), shape: BoxShape.circle),
+                child: Icon(_isPlaying ? Icons.pause : Icons.play_arrow, color: textColor, size: 24),
               ),
             ),
             const SizedBox(width: 12),
@@ -176,29 +164,24 @@ class _AudioMessageBubbleState extends State<AudioMessageBubble>
                 children: [
                   // Waveform visualization (simplified)
                   Row(
-                    children: List.generate(
-                      20,
-                      (index) {
-                        // Calculate progress for visual feedback
-                        final progress = displayDuration.inSeconds > 0
-                            ? _currentPosition.inSeconds / displayDuration.inSeconds
-                            : 0.0;
-                        final isActive = (index / 20) <= progress;
+                    children: List.generate(20, (index) {
+                      // Calculate progress for visual feedback
+                      final progress = displayDuration.inSeconds > 0
+                          ? _currentPosition.inSeconds / displayDuration.inSeconds
+                          : 0.0;
+                      final isActive = (index / 20) <= progress;
 
-                        return Expanded(
-                          child: Container(
-                            margin: const EdgeInsets.symmetric(horizontal: 1),
-                            height: (index % 3 + 1) * 8.0,
-                            decoration: BoxDecoration(
-                              color: textColor.withValues(
-                                alpha: isActive ? 0.8 : 0.3,
-                              ),
-                              borderRadius: BorderRadius.circular(2),
-                            ),
+                      return Expanded(
+                        child: Container(
+                          margin: const EdgeInsets.symmetric(horizontal: 1),
+                          height: (index % 3 + 1) * 8.0,
+                          decoration: BoxDecoration(
+                            color: textColor.withValues(alpha: isActive ? 0.8 : 0.3),
+                            borderRadius: BorderRadius.circular(2),
                           ),
-                        );
-                      },
-                    ),
+                        ),
+                      );
+                    }),
                   ),
                   const SizedBox(height: 4),
 
@@ -207,9 +190,7 @@ class _AudioMessageBubbleState extends State<AudioMessageBubble>
                     _isPlaying
                         ? '${FormatUtils.formatDuration(_currentPosition.inSeconds)} / ${FormatUtils.formatDuration(displayDuration.inSeconds)}'
                         : FormatUtils.formatDuration(displayDuration.inSeconds),
-                    style: textTheme.bodySmall?.copyWith(
-                      color: textColor.withValues(alpha: 0.7),
-                    ),
+                    style: textTheme.bodySmall?.copyWith(color: textColor.withValues(alpha: 0.7)),
                   ),
                 ],
               ),
@@ -220,4 +201,3 @@ class _AudioMessageBubbleState extends State<AudioMessageBubble>
     );
   }
 }
-

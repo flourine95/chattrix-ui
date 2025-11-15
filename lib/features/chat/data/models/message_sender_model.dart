@@ -8,14 +8,10 @@ part 'message_sender_model.g.dart';
 abstract class MessageSenderModel with _$MessageSenderModel {
   const MessageSenderModel._();
 
-  const factory MessageSenderModel({
-    required int id,
-    required String username,
-    required String fullName,
-  }) = _MessageSenderModel;
+  const factory MessageSenderModel({required int id, required String username, required String fullName}) =
+      _MessageSenderModel;
 
-  factory MessageSenderModel.fromJson(Map<String, dynamic> json) =>
-      _$MessageSenderModelFromJson(json);
+  factory MessageSenderModel.fromJson(Map<String, dynamic> json) => _$MessageSenderModelFromJson(json);
 
   factory MessageSenderModel.fromApi(Map<String, dynamic> json) {
     final rawId = json['id'] ?? json['userId'] ?? json['senderId'];

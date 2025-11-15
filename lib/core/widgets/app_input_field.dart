@@ -34,12 +34,8 @@ class AppInputField extends HookWidget {
         suffixIcon: isPassword
             ? IconButton(
                 icon: Icon(
-                  obscureText.value
-                      ? Icons.visibility_off_outlined
-                      : Icons.visibility_outlined,
-                  color: Theme.of(
-                    context,
-                  ).colorScheme.onSurface.withValues(alpha: 0.5),
+                  obscureText.value ? Icons.visibility_off_outlined : Icons.visibility_outlined,
+                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
                 ),
                 onPressed: () {
                   obscureText.value = !obscureText.value;

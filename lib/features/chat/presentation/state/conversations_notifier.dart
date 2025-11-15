@@ -7,9 +7,7 @@ part 'conversations_notifier.g.dart';
 
 @riverpod
 class ConversationsNotifier extends _$ConversationsNotifier {
-  late final _getConversationsUsecase = ref.read(
-    getConversationsUsecaseProvider,
-  );
+  late final _getConversationsUsecase = ref.read(getConversationsUsecaseProvider);
 
   @override
   FutureOr<List<Conversation>> build() async {
@@ -33,10 +31,7 @@ class ConversationsNotifier extends _$ConversationsNotifier {
 
   Future<List<Conversation>> _fetchConversations() async {
     final result = await _getConversationsUsecase();
-    return result.fold(
-      (failure) => throw Exception(failure.message),
-      (conversations) => conversations,
-    );
+    return result.fold((failure) => throw Exception(failure.message), (conversations) => conversations);
   }
 
   Future<void> refresh() async {

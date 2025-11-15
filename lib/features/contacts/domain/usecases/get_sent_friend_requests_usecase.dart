@@ -12,4 +12,3 @@ class GetSentFriendRequestsUseCase {
     return repository.getSentFriendRequests();
   }
 }
-

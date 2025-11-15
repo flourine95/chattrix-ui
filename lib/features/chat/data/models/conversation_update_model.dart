@@ -16,8 +16,7 @@ abstract class ConversationUpdateModel with _$ConversationUpdateModel {
   }) = _ConversationUpdateModel;
 
   /// Convert from JSON
-  factory ConversationUpdateModel.fromJson(Map<String, dynamic> json) =>
-      _$ConversationUpdateModelFromJson(json);
+  factory ConversationUpdateModel.fromJson(Map<String, dynamic> json) => _$ConversationUpdateModelFromJson(json);
 
   /// Convert to entity
   ConversationUpdate toEntity() {
@@ -44,8 +43,7 @@ abstract class LastMessageInfoModel with _$LastMessageInfoModel {
   }) = _LastMessageInfoModel;
 
   /// Convert from JSON
-  factory LastMessageInfoModel.fromJson(Map<String, dynamic> json) =>
-      _$LastMessageInfoModelFromJson(json);
+  factory LastMessageInfoModel.fromJson(Map<String, dynamic> json) => _$LastMessageInfoModelFromJson(json);
 
   /// Convert to entity
   LastMessageInfo toEntity() {

@@ -12,8 +12,6 @@ abstract class ApiResponse<T> with _$ApiResponse<T> {
     List<Map<String, dynamic>>? errors,
   }) = _ApiResponse<T>;
 
-  factory ApiResponse.fromJson(
-    Map<String, dynamic> json,
-    T Function(Object?) fromJsonT,
-  ) => _$ApiResponseFromJson(json, fromJsonT);
+  factory ApiResponse.fromJson(Map<String, dynamic> json, T Function(Object?) fromJsonT) =>
+      _$ApiResponseFromJson(json, fromJsonT);
 }

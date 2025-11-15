@@ -19,35 +19,22 @@ class AuthInterceptor extends QueuedInterceptor {
   }
 
   @override
-  Future<void> onRequest(
-    RequestOptions options,
-    RequestInterceptorHandler handler,
-  ) async {
-    final accessToken = await secureStorage.read(
-      key: AppConstants.accessTokenKey,
-    );
+  Future<void> onRequest(RequestOptions options, RequestInterceptorHandler handler) async {
+    final accessToken = await secureStorage.read(key: AppConstants.accessTokenKey);
 
     if (accessToken != null) {
-      options.headers[AppConstants.authorization] =
-          '${AppConstants.bearer} $accessToken';
+      options.headers[AppConstants.authorization] = '${AppConstants.bearer} $accessToken';
     }
 
     handler.next(options);
   }
 
   @override
-  Future<void> onError(
-    DioException err,
-    ErrorInterceptorHandler handler,
-  ) async {
+  Future<void> onError(DioException err, ErrorInterceptorHandler handler) async {
     if (err.response?.statusCode == 401) {
-      final isRefreshEndpoint = err.requestOptions.path.contains(
-        '/auth/refresh',
-      );
+      final isRefreshEndpoint = err.requestOptions.path.contains('/auth/refresh');
       final isLoginEndpoint = err.requestOptions.path.contains('/auth/login');
-      final isRegisterEndpoint = err.requestOptions.path.contains(
-        '/auth/register',
-      );
+      final isRegisterEndpoint = err.requestOptions.path.contains('/auth/register');
 
       if (isRefreshEndpoint || isLoginEndpoint || isRegisterEndpoint) {
         return handler.next(err);
@@ -59,8 +46,7 @@ class AuthInterceptor extends QueuedInterceptor {
 
         if (newAccessToken != null) {
           // Update request with new token
-          err.requestOptions.headers[AppConstants.authorization] =
-              '${AppConstants.bearer} $newAccessToken';
+          err.requestOptions.headers[AppConstants.authorization] = '${AppConstants.bearer} $newAccessToken';
 
           // Retry original request
           final response = await dio.fetch(err.requestOptions);
@@ -78,9 +64,7 @@ class AuthInterceptor extends QueuedInterceptor {
 
   Future<String?> _refreshAccessToken() async {
     try {
-      final refreshToken = await secureStorage.read(
-        key: AppConstants.refreshTokenKey,
-      );
+      final refreshToken = await secureStorage.read(key: AppConstants.refreshTokenKey);
 
       if (refreshToken == null) {
         await _clearTokens();
@@ -88,10 +72,7 @@ class AuthInterceptor extends QueuedInterceptor {
       }
 
       // Use separate Dio instance to avoid interceptor
-      final response = await _refreshDio.post(
-        ApiConstants.refresh,
-        data: {'refreshToken': refreshToken},
-      );
+      final response = await _refreshDio.post(ApiConstants.refresh, data: {'refreshToken': refreshToken});
 
       if (response.statusCode == 200) {
         final data = response.data['data'];
@@ -99,14 +80,8 @@ class AuthInterceptor extends QueuedInterceptor {
         final newRefreshToken = data['refreshToken'] as String;
 
         // Save new tokens
-        await secureStorage.write(
-          key: AppConstants.accessTokenKey,
-          value: newAccessToken,
-        );
-        await secureStorage.write(
-          key: AppConstants.refreshTokenKey,
-          value: newRefreshToken,
-        );
+        await secureStorage.write(key: AppConstants.accessTokenKey, value: newAccessToken);
+        await secureStorage.write(key: AppConstants.refreshTokenKey, value: newRefreshToken);
 
         return newAccessToken;
       } else {

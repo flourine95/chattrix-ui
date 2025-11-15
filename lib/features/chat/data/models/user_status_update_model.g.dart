@@ -1,5 +1,9 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
+// dart format off
+// coverage:ignore-file
+
+
 part of 'user_status_update_model.dart';
 
 // **************************************************************************

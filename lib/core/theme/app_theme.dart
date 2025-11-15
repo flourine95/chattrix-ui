@@ -20,9 +20,7 @@ class AppTheme {
     brightness: Brightness.light,
     primaryColor: _lightPrimaryColor,
     scaffoldBackgroundColor: _lightBackgroundColor,
-    textTheme: GoogleFonts.interTextTheme().apply(
-      bodyColor: _lightOnSurfaceColor,
-    ),
+    textTheme: GoogleFonts.interTextTheme().apply(bodyColor: _lightOnSurfaceColor),
     colorScheme: const ColorScheme.light(
       primary: _lightPrimaryColor,
       onPrimary: _lightOnPrimaryColor,
@@ -34,10 +32,7 @@ class AppTheme {
       backgroundColor: _lightPrimaryColor,
       foregroundColor: _lightOnPrimaryColor,
     ),
-    outlinedButtonTheme: _outlinedButtonTheme(
-      foregroundColor: _lightOnSurfaceColor,
-      borderColor: _lightBorderColor,
-    ),
+    outlinedButtonTheme: _outlinedButtonTheme(foregroundColor: _lightOnSurfaceColor, borderColor: _lightBorderColor),
     textButtonTheme: _textButtonTheme(primaryColor: _lightPrimaryColor),
   );
 
@@ -45,9 +40,7 @@ class AppTheme {
     brightness: Brightness.dark,
     primaryColor: _darkPrimaryColor,
     scaffoldBackgroundColor: _darkBackgroundColor,
-    textTheme: GoogleFonts.interTextTheme().apply(
-      bodyColor: _darkOnSurfaceColor,
-    ),
+    textTheme: GoogleFonts.interTextTheme().apply(bodyColor: _darkOnSurfaceColor),
     colorScheme: const ColorScheme.dark(
       primary: _darkPrimaryColor,
       onPrimary: _darkOnPrimaryColor,
@@ -55,20 +48,12 @@ class AppTheme {
       onSurface: _darkOnSurfaceColor,
     ),
     inputDecorationTheme: _inputDecorationTheme(borderColor: _darkBorderColor),
-    elevatedButtonTheme: _elevatedButtonTheme(
-      backgroundColor: _darkPrimaryColor,
-      foregroundColor: _darkOnPrimaryColor,
-    ),
-    outlinedButtonTheme: _outlinedButtonTheme(
-      foregroundColor: _darkOnSurfaceColor,
-      borderColor: _darkBorderColor,
-    ),
+    elevatedButtonTheme: _elevatedButtonTheme(backgroundColor: _darkPrimaryColor, foregroundColor: _darkOnPrimaryColor),
+    outlinedButtonTheme: _outlinedButtonTheme(foregroundColor: _darkOnSurfaceColor, borderColor: _darkBorderColor),
     textButtonTheme: _textButtonTheme(primaryColor: _darkPrimaryColor),
   );
 
-  static InputDecorationTheme _inputDecorationTheme({
-    required Color borderColor,
-  }) {
+  static InputDecorationTheme _inputDecorationTheme({required Color borderColor}) {
     return InputDecorationTheme(
       labelStyle: TextStyle(color: borderColor),
       floatingLabelStyle: TextStyle(color: borderColor.withValues(alpha: 0.8)),
@@ -104,10 +89,7 @@ class AppTheme {
     );
   }
 
-  static OutlinedButtonThemeData _outlinedButtonTheme({
-    required Color foregroundColor,
-    required Color borderColor,
-  }) {
+  static OutlinedButtonThemeData _outlinedButtonTheme({required Color foregroundColor, required Color borderColor}) {
     return OutlinedButtonThemeData(
       style: OutlinedButton.styleFrom(
         foregroundColor: foregroundColor,

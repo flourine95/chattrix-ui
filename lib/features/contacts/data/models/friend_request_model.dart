@@ -24,8 +24,7 @@ abstract class FriendRequestModel with _$FriendRequestModel {
     DateTime? respondedAt,
   }) = _FriendRequestModel;
 
-  factory FriendRequestModel.fromJson(Map<String, dynamic> json) =>
-      _$FriendRequestModelFromJson(json);
+  factory FriendRequestModel.fromJson(Map<String, dynamic> json) => _$FriendRequestModelFromJson(json);
 
   FriendRequest toEntity() {
     return FriendRequest(
@@ -45,4 +44,3 @@ abstract class FriendRequestModel with _$FriendRequestModel {
     );
   }
 }
-

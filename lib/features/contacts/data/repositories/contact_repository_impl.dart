@@ -12,15 +12,9 @@ class ContactRepositoryImpl implements ContactRepository {
   ContactRepositoryImpl({required this.remoteDataSource});
 
   @override
-  Future<Either<Failure, FriendRequest>> sendFriendRequest({
-    required int receiverUserId,
-    String? nickname,
-  }) async {
+  Future<Either<Failure, FriendRequest>> sendFriendRequest({required int receiverUserId, String? nickname}) async {
     try {
-      final result = await remoteDataSource.sendFriendRequest(
-        receiverUserId: receiverUserId,
-        nickname: nickname,
-      );
+      final result = await remoteDataSource.sendFriendRequest(receiverUserId: receiverUserId, nickname: nickname);
       return Right(result.toEntity());
     } on ServerException catch (e) {
       return Left(_mapServerExceptionToFailure(e));
@@ -32,8 +26,7 @@ class ContactRepositoryImpl implements ContactRepository {
   }
 
   @override
-  Future<Either<Failure, List<FriendRequest>>>
-      getReceivedFriendRequests() async {
+  Future<Either<Failure, List<FriendRequest>>> getReceivedFriendRequests() async {
     try {
       final result = await remoteDataSource.getReceivedFriendRequests();
       return Right(result.map((model) => model.toEntity()).toList());
@@ -61,12 +54,9 @@ class ContactRepositoryImpl implements ContactRepository {
   }
 
   @override
-  Future<Either<Failure, void>> acceptFriendRequest({
-    required int friendRequestId,
-  }) async {
+  Future<Either<Failure, void>> acceptFriendRequest({required int friendRequestId}) async {
     try {
-      await remoteDataSource.acceptFriendRequest(
-          friendRequestId: friendRequestId);
+      await remoteDataSource.acceptFriendRequest(friendRequestId: friendRequestId);
       return const Right(null);
     } on ServerException catch (e) {
       return Left(_mapServerExceptionToFailure(e));
@@ -78,12 +68,9 @@ class ContactRepositoryImpl implements ContactRepository {
   }
 
   @override
-  Future<Either<Failure, void>> rejectFriendRequest({
-    required int friendRequestId,
-  }) async {
+  Future<Either<Failure, void>> rejectFriendRequest({required int friendRequestId}) async {
     try {
-      await remoteDataSource.rejectFriendRequest(
-          friendRequestId: friendRequestId);
+      await remoteDataSource.rejectFriendRequest(friendRequestId: friendRequestId);
       return const Right(null);
     } on ServerException catch (e) {
       return Left(_mapServerExceptionToFailure(e));
@@ -95,12 +82,9 @@ class ContactRepositoryImpl implements ContactRepository {
   }
 
   @override
-  Future<Either<Failure, void>> cancelFriendRequest({
-    required int friendRequestId,
-  }) async {
+  Future<Either<Failure, void>> cancelFriendRequest({required int friendRequestId}) async {
     try {
-      await remoteDataSource.cancelFriendRequest(
-          friendRequestId: friendRequestId);
+      await remoteDataSource.cancelFriendRequest(friendRequestId: friendRequestId);
       return const Right(null);
     } on ServerException catch (e) {
       return Left(_mapServerExceptionToFailure(e));
@@ -140,15 +124,9 @@ class ContactRepositoryImpl implements ContactRepository {
   }
 
   @override
-  Future<Either<Failure, void>> updateContactNickname({
-    required int contactId,
-    required String nickname,
-  }) async {
+  Future<Either<Failure, void>> updateContactNickname({required int contactId, required String nickname}) async {
     try {
-      await remoteDataSource.updateContactNickname(
-        contactId: contactId,
-        nickname: nickname,
-      );
+      await remoteDataSource.updateContactNickname(contactId: contactId, nickname: nickname);
       return const Right(null);
     } on ServerException catch (e) {
       return Left(_mapServerExceptionToFailure(e));
@@ -160,9 +138,7 @@ class ContactRepositoryImpl implements ContactRepository {
   }
 
   @override
-  Future<Either<Failure, void>> deleteContact({
-    required int contactId,
-  }) async {
+  Future<Either<Failure, void>> deleteContact({required int contactId}) async {
     try {
       await remoteDataSource.deleteContact(contactId: contactId);
       return const Right(null);
@@ -196,4 +172,3 @@ class ContactRepositoryImpl implements ContactRepository {
     }
   }
 }
-

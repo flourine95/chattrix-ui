@@ -3,10 +3,7 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 
 /// Dialog for editing a message
 class EditMessageDialog extends HookWidget {
-  const EditMessageDialog({
-    super.key,
-    required this.initialContent,
-  });
+  const EditMessageDialog({super.key, required this.initialContent});
 
   final String initialContent;
 
@@ -21,16 +18,10 @@ class EditMessageDialog extends HookWidget {
         autofocus: true,
         maxLines: null,
         keyboardType: TextInputType.multiline,
-        decoration: const InputDecoration(
-          hintText: 'Enter message',
-          border: OutlineInputBorder(),
-        ),
+        decoration: const InputDecoration(hintText: 'Enter message', border: OutlineInputBorder()),
       ),
       actions: [
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Cancel'),
-        ),
+        TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Cancel')),
         FilledButton(
           onPressed: () {
             final newContent = controller.text.trim();
@@ -46,4 +37,3 @@ class EditMessageDialog extends HookWidget {
     );
   }
 }
-

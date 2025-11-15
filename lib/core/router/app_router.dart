@@ -63,20 +63,17 @@ class AppRouter {
             GoRoute(
               path: '/',
               name: 'chats',
-              pageBuilder: (context, state) =>
-                  const NoTransitionPage(child: ChatListPage()),
+              pageBuilder: (context, state) => const NoTransitionPage(child: ChatListPage()),
             ),
             GoRoute(
               path: '/contacts',
               name: 'contacts',
-              pageBuilder: (context, state) =>
-                  const NoTransitionPage(child: ContactsPage()),
+              pageBuilder: (context, state) => const NoTransitionPage(child: ContactsPage()),
             ),
             GoRoute(
               path: '/profile',
               name: 'profile',
-              pageBuilder: (context, state) =>
-                  const NoTransitionPage(child: ProfilePage()),
+              pageBuilder: (context, state) => const NoTransitionPage(child: ProfilePage()),
             ),
           ],
         ),
@@ -96,17 +93,9 @@ class AppRouter {
           },
         ),
 
-        GoRoute(
-          path: '/new-chat',
-          name: 'new-chat',
-          builder: (context, state) => const NewChatPage(),
-        ),
+        GoRoute(path: '/new-chat', name: 'new-chat', builder: (context, state) => const NewChatPage()),
 
-        GoRoute(
-          path: '/new-group',
-          name: 'new-group',
-          builder: (context, state) => const NewGroupChatPage(),
-        ),
+        GoRoute(path: '/new-group', name: 'new-group', builder: (context, state) => const NewGroupChatPage()),
 
         GoRoute(
           path: '/chat-info',
@@ -120,20 +109,17 @@ class AppRouter {
         GoRoute(
           path: loginPath,
           name: 'login',
-          builder: (BuildContext context, GoRouterState state) =>
-              const LoginScreen(),
+          builder: (BuildContext context, GoRouterState state) => const LoginScreen(),
         ),
         GoRoute(
           path: registerPath,
           name: 'register',
-          builder: (BuildContext context, GoRouterState state) =>
-              const RegisterScreen(),
+          builder: (BuildContext context, GoRouterState state) => const RegisterScreen(),
         ),
         GoRoute(
           path: forgotPasswordPath,
           name: 'forgot-password',
-          builder: (BuildContext context, GoRouterState state) =>
-              const ForgotPasswordScreen(),
+          builder: (BuildContext context, GoRouterState state) => const ForgotPasswordScreen(),
         ),
         GoRoute(
           path: otpVerificationPath,
@@ -148,10 +134,7 @@ class AppRouter {
               isPasswordReset = extraMap['isPasswordReset'] as bool? ?? false;
             }
 
-            return OtpVerificationScreen(
-              email: email,
-              isPasswordReset: isPasswordReset,
-            );
+            return OtpVerificationScreen(email: email, isPasswordReset: isPasswordReset);
           },
         ),
       ],
@@ -186,18 +169,9 @@ class _NavShell extends StatelessWidget {
           context.go(_routes[index]);
         },
         destinations: const [
-          NavigationDestination(
-            icon: FaIcon(FontAwesomeIcons.solidComments),
-            label: 'Chats',
-          ),
-          NavigationDestination(
-            icon: FaIcon(FontAwesomeIcons.addressBook),
-            label: 'Contacts',
-          ),
-          NavigationDestination(
-            icon: FaIcon(FontAwesomeIcons.user),
-            label: 'Profile',
-          ),
+          NavigationDestination(icon: FaIcon(FontAwesomeIcons.solidComments), label: 'Chats'),
+          NavigationDestination(icon: FaIcon(FontAwesomeIcons.addressBook), label: 'Contacts'),
+          NavigationDestination(icon: FaIcon(FontAwesomeIcons.user), label: 'Profile'),
         ],
       ),
     );

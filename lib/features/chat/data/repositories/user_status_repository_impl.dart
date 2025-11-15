@@ -25,21 +25,15 @@ class UserStatusRepositoryImpl implements UserStatusRepository {
   }
 
   @override
-  Future<Either<Failure, List<User>>> getOnlineUsersInConversation(
-    String conversationId,
-  ) async {
+  Future<Either<Failure, List<User>>> getOnlineUsersInConversation(String conversationId) async {
     try {
-      final models = await remoteDatasource.getOnlineUsersInConversation(
-        conversationId,
-      );
+      final models = await remoteDatasource.getOnlineUsersInConversation(conversationId);
       final entities = models.map((model) => model.toEntity()).toList();
       return Right(entities);
     } on ServerException catch (e) {
       return Left(ServerFailure(message: e.message));
     } catch (e) {
-      return Left(
-        ServerFailure(message: 'Failed to fetch online users in conversation'),
-      );
+      return Left(ServerFailure(message: 'Failed to fetch online users in conversation'));
     }
   }
 

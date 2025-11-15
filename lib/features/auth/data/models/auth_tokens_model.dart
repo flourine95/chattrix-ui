@@ -15,15 +15,9 @@ abstract class AuthTokensModel with _$AuthTokensModel {
     required int expiresIn,
   }) = _AuthTokensModel;
 
-  factory AuthTokensModel.fromJson(Map<String, dynamic> json) =>
-      _$AuthTokensModelFromJson(json);
+  factory AuthTokensModel.fromJson(Map<String, dynamic> json) => _$AuthTokensModelFromJson(json);
 
   AuthTokens toEntity() {
-    return AuthTokens(
-      accessToken: accessToken,
-      refreshToken: refreshToken,
-      tokenType: tokenType,
-      expiresIn: expiresIn,
-    );
+    return AuthTokens(accessToken: accessToken, refreshToken: refreshToken, tokenType: tokenType, expiresIn: expiresIn);
   }
 }

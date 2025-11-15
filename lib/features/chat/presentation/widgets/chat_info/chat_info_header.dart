@@ -23,22 +23,15 @@ class ChatInfoHeader extends ConsumerWidget {
     final memberCount = conversation.participants.length;
 
     // For direct chat, get other user's online status
-    final isOnline =
-        !isGroup && ConversationUtils.isUserOnline(conversation, me);
-    final lastSeen = !isGroup
-        ? ConversationUtils.getLastSeen(conversation, me)
-        : null;
-    final statusText = !isGroup
-        ? ConversationUtils.formatLastSeen(isOnline, lastSeen)
-        : null;
+    final isOnline = !isGroup && ConversationUtils.isUserOnline(conversation, me);
+    final lastSeen = !isGroup ? ConversationUtils.getLastSeen(conversation, me) : null;
+    final statusText = !isGroup ? ConversationUtils.formatLastSeen(isOnline, lastSeen) : null;
 
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         color: colors.surface,
-        border: Border(
-          bottom: BorderSide(color: colors.onSurface.withValues(alpha: 0.1)),
-        ),
+        border: Border(bottom: BorderSide(color: colors.onSurface.withValues(alpha: 0.1))),
       ),
       child: Column(
         children: [
@@ -48,9 +41,7 @@ class ChatInfoHeader extends ConsumerWidget {
             backgroundColor: colors.primary,
             child: Text(
               displayName.substring(0, 1).toUpperCase(),
-              style: textTheme.headlineMedium?.copyWith(
-                color: colors.onPrimary,
-              ),
+              style: textTheme.headlineMedium?.copyWith(color: colors.onPrimary),
             ),
           ),
           const SizedBox(height: 16),
@@ -67,17 +58,13 @@ class ChatInfoHeader extends ConsumerWidget {
           if (isGroup)
             Text(
               '$memberCount members',
-              style: textTheme.bodyMedium?.copyWith(
-                color: colors.onSurface.withValues(alpha: 0.6),
-              ),
+              style: textTheme.bodyMedium?.copyWith(color: colors.onSurface.withValues(alpha: 0.6)),
             )
           else if (statusText != null)
             Text(
               statusText,
               style: textTheme.bodyMedium?.copyWith(
-                color: isOnline
-                    ? Colors.green
-                    : colors.onSurface.withValues(alpha: 0.6),
+                color: isOnline ? Colors.green : colors.onSurface.withValues(alpha: 0.6),
               ),
             ),
 
@@ -117,11 +104,7 @@ class ChatInfoHeader extends ConsumerWidget {
 }
 
 class _QuickActionButton extends StatelessWidget {
-  const _QuickActionButton({
-    required this.icon,
-    required this.label,
-    required this.onTap,
-  });
+  const _QuickActionButton({required this.icon, required this.label, required this.onTap});
 
   final IconData icon;
   final String label;
@@ -142,10 +125,7 @@ class _QuickActionButton extends StatelessWidget {
           children: [
             Container(
               padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: colors.primary.withValues(alpha: 0.1),
-                shape: BoxShape.circle,
-              ),
+              decoration: BoxDecoration(color: colors.primary.withValues(alpha: 0.1), shape: BoxShape.circle),
               child: Icon(icon, color: colors.primary, size: 24),
             ),
             const SizedBox(height: 8),

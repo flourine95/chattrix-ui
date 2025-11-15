@@ -8,8 +8,7 @@ class SendFriendRequestPage extends ConsumerStatefulWidget {
   const SendFriendRequestPage({super.key});
 
   @override
-  ConsumerState<SendFriendRequestPage> createState() =>
-      _SendFriendRequestPageState();
+  ConsumerState<SendFriendRequestPage> createState() => _SendFriendRequestPageState();
 }
 
 class _SendFriendRequestPageState extends ConsumerState<SendFriendRequestPage> {
@@ -33,9 +32,7 @@ class _SendFriendRequestPageState extends ConsumerState<SendFriendRequestPage> {
     final receiverUserId = int.tryParse(_userIdController.text);
     if (receiverUserId == null) {
       setState(() => _isLoading = false);
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Invalid user ID')));
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Invalid user ID')));
       return;
     }
 
@@ -43,24 +40,17 @@ class _SendFriendRequestPageState extends ConsumerState<SendFriendRequestPage> {
         .read(contactProvider.notifier)
         .sendFriendRequest(
           receiverUserId: receiverUserId,
-          nickname: _nicknameController.text.isEmpty
-              ? null
-              : _nicknameController.text,
+          nickname: _nicknameController.text.isEmpty ? null : _nicknameController.text,
         );
 
     setState(() => _isLoading = false);
 
     if (success && context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Friend request sent successfully')),
-      );
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Friend request sent successfully')));
       Navigator.pop(context);
     } else if (context.mounted) {
-      final errorMessage =
-          ref.read(contactProvider).errorMessage ?? 'Failed to send request';
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(errorMessage)));
+      final errorMessage = ref.read(contactProvider).errorMessage ?? 'Failed to send request';
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(errorMessage)));
     }
   }
 
@@ -77,10 +67,7 @@ class _SendFriendRequestPageState extends ConsumerState<SendFriendRequestPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Text(
-                'Enter the user ID of the person you want to add as a friend',
-                style: textTheme.bodyMedium,
-              ),
+              Text('Enter the user ID of the person you want to add as a friend', style: textTheme.bodyMedium),
               const SizedBox(height: 24),
               AppInputField(
                 controller: _userIdController,

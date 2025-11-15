@@ -22,10 +22,7 @@ class ChatInfoPage extends HookConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => context.pop(),
-        ),
+        leading: IconButton(icon: const Icon(Icons.arrow_back), onPressed: () => context.pop()),
         title: Text('Conversation Info', style: textTheme.titleMedium),
       ),
       body: Column(
@@ -36,11 +33,7 @@ class ChatInfoPage extends HookConsumerWidget {
           // Tab bar
           Container(
             decoration: BoxDecoration(
-              border: Border(
-                bottom: BorderSide(
-                  color: colors.onSurface.withValues(alpha: 0.1),
-                ),
-              ),
+              border: Border(bottom: BorderSide(color: colors.onSurface.withValues(alpha: 0.1))),
             ),
             child: Row(
               children: [
@@ -88,8 +81,7 @@ class ChatInfoPage extends HookConsumerWidget {
                 MessageSearchWidget(conversationId: conversation.id.toString()),
 
                 // Members tab (only for groups)
-                if (conversation.type.toUpperCase() == 'GROUP')
-                  MembersListWidget(conversation: conversation),
+                if (conversation.type.toUpperCase() == 'GROUP') MembersListWidget(conversation: conversation),
               ],
             ),
           ),
@@ -100,12 +92,7 @@ class ChatInfoPage extends HookConsumerWidget {
 }
 
 class _TabButton extends StatelessWidget {
-  const _TabButton({
-    required this.label,
-    required this.icon,
-    required this.isSelected,
-    required this.onTap,
-  });
+  const _TabButton({required this.label, required this.icon, required this.isSelected, required this.onTap});
 
   final String label;
   final IconData icon;
@@ -123,30 +110,17 @@ class _TabButton extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.symmetric(vertical: 12),
           decoration: BoxDecoration(
-            border: Border(
-              bottom: BorderSide(
-                color: isSelected ? colors.primary : Colors.transparent,
-                width: 2,
-              ),
-            ),
+            border: Border(bottom: BorderSide(color: isSelected ? colors.primary : Colors.transparent, width: 2)),
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(
-                icon,
-                size: 20,
-                color: isSelected
-                    ? colors.primary
-                    : colors.onSurface.withValues(alpha: 0.6),
-              ),
+              Icon(icon, size: 20, color: isSelected ? colors.primary : colors.onSurface.withValues(alpha: 0.6)),
               const SizedBox(height: 4),
               Text(
                 label,
                 style: textTheme.labelSmall?.copyWith(
-                  color: isSelected
-                      ? colors.primary
-                      : colors.onSurface.withValues(alpha: 0.6),
+                  color: isSelected ? colors.primary : colors.onSurface.withValues(alpha: 0.6),
                   fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
                 ),
               ),

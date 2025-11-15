@@ -13,11 +13,6 @@ class RegisterUseCase {
     required String password,
     required String fullName,
   }) async {
-    return await repository.register(
-      username: username,
-      email: email,
-      password: password,
-      fullName: fullName,
-    );
+    return await repository.register(username: username, email: email, password: password, fullName: fullName);
   }
 }

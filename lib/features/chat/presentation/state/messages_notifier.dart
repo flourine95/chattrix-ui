@@ -47,15 +47,9 @@ class MessagesNotifier extends _$MessagesNotifier {
   }
 
   Future<List<Message>> _fetchMessages(String conversationId) async {
-    final result = await _getMessagesUsecase(
-      conversationId: conversationId,
-      sort: 'DESC',
-    );
+    final result = await _getMessagesUsecase(conversationId: conversationId, sort: 'DESC');
 
-    return result.fold(
-      (failure) => throw Exception(failure.message),
-      (messages) => messages,
-    );
+    return result.fold((failure) => throw Exception(failure.message), (messages) => messages);
   }
 
   Future<void> refresh() async {

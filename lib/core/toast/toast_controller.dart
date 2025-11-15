@@ -7,13 +7,7 @@ import 'package:hooks_riverpod/legacy.dart';
 import 'toast_type.dart';
 
 class ToastEntry {
-  ToastEntry({
-    required this.id,
-    required this.title,
-    this.description,
-    required this.type,
-    required this.duration,
-  });
+  ToastEntry({required this.id, required this.title, this.description, required this.type, required this.duration});
 
   final String id;
   final String title;
@@ -34,12 +28,7 @@ class ToastController extends ChangeNotifier {
 
   List<ToastEntry> get toasts => List.unmodifiable(_toasts);
 
-  String show({
-    required String title,
-    String? description,
-    ToastType type = ToastType.info,
-    Duration? duration,
-  }) {
+  String show({required String title, String? description, ToastType type = ToastType.info, Duration? duration}) {
     final entry = ToastEntry(
       id: UniqueKey().toString(),
       title: title,
@@ -112,72 +101,22 @@ class Toasts {
   }) {
     final container = ProviderScope.containerOf(context, listen: false);
     final controller = container.read(toastControllerProvider);
-    return controller.show(
-      title: title,
-      description: description,
-      type: type,
-      duration: duration,
-    );
+    return controller.show(title: title, description: description, type: type, duration: duration);
   }
 
-  static String success(
-    BuildContext context, {
-    required String title,
-    String? description,
-    Duration? duration,
-  }) => show(
-    context,
-    title: title,
-    description: description,
-    type: ToastType.success,
-    duration: duration,
-  );
+  static String success(BuildContext context, {required String title, String? description, Duration? duration}) =>
+      show(context, title: title, description: description, type: ToastType.success, duration: duration);
 
-  static String error(
-    BuildContext context, {
-    required String title,
-    String? description,
-    Duration? duration,
-  }) => show(
-    context,
-    title: title,
-    description: description,
-    type: ToastType.error,
-    duration: duration,
-  );
+  static String error(BuildContext context, {required String title, String? description, Duration? duration}) =>
+      show(context, title: title, description: description, type: ToastType.error, duration: duration);
 
-  static String warning(
-    BuildContext context, {
-    required String title,
-    String? description,
-    Duration? duration,
-  }) => show(
-    context,
-    title: title,
-    description: description,
-    type: ToastType.warning,
-    duration: duration,
-  );
+  static String warning(BuildContext context, {required String title, String? description, Duration? duration}) =>
+      show(context, title: title, description: description, type: ToastType.warning, duration: duration);
 
-  static String info(
-    BuildContext context, {
-    required String title,
-    String? description,
-    Duration? duration,
-  }) => show(
-    context,
-    title: title,
-    description: description,
-    type: ToastType.info,
-    duration: duration,
-  );
+  static String info(BuildContext context, {required String title, String? description, Duration? duration}) =>
+      show(context, title: title, description: description, type: ToastType.info, duration: duration);
 
-  static String loading(
-    BuildContext context, {
-    required String title,
-    String? description,
-    Duration? duration,
-  }) => show(
+  static String loading(BuildContext context, {required String title, String? description, Duration? duration}) => show(
     context,
     title: title,
     description: description,

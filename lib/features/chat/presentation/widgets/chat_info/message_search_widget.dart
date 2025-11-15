@@ -8,10 +8,7 @@ import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 class MessageSearchWidget extends HookConsumerWidget {
-  const MessageSearchWidget({
-    super.key,
-    required this.conversationId,
-  });
+  const MessageSearchWidget({super.key, required this.conversationId});
 
   final String conversationId;
 
@@ -42,11 +39,7 @@ class MessageSearchWidget extends HookConsumerWidget {
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
             color: colors.surface,
-            border: Border(
-              bottom: BorderSide(
-                color: colors.onSurface.withValues(alpha: 0.1),
-              ),
-            ),
+            border: Border(bottom: BorderSide(color: colors.onSurface.withValues(alpha: 0.1))),
           ),
           child: Column(
             children: [
@@ -69,15 +62,11 @@ class MessageSearchWidget extends HookConsumerWidget {
                   fillColor: colors.surface.withValues(alpha: 0.6),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(
-                      color: colors.onSurface.withValues(alpha: 0.2),
-                    ),
+                    borderSide: BorderSide(color: colors.onSurface.withValues(alpha: 0.2)),
                   ),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(
-                      color: colors.onSurface.withValues(alpha: 0.2),
-                    ),
+                    borderSide: BorderSide(color: colors.onSurface.withValues(alpha: 0.2)),
                   ),
                 ),
               ),
@@ -92,13 +81,8 @@ class MessageSearchWidget extends HookConsumerWidget {
                       initialValue: selectedMessageType.value,
                       decoration: InputDecoration(
                         labelText: 'Loại tin nhắn',
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 8,
-                        ),
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                       ),
                       items: const [
                         DropdownMenuItem(value: 'ALL', child: Text('Tất cả')),
@@ -118,14 +102,8 @@ class MessageSearchWidget extends HookConsumerWidget {
 
                   // Sort order
                   IconButton(
-                    icon: Icon(
-                      sortOrder.value == 'DESC'
-                          ? Icons.arrow_downward
-                          : Icons.arrow_upward,
-                    ),
-                    tooltip: sortOrder.value == 'DESC'
-                        ? 'Mới nhất trước'
-                        : 'Cũ nhất trước',
+                    icon: Icon(sortOrder.value == 'DESC' ? Icons.arrow_downward : Icons.arrow_upward),
+                    tooltip: sortOrder.value == 'DESC' ? 'Mới nhất trước' : 'Cũ nhất trước',
                     onPressed: () {
                       sortOrder.value = sortOrder.value == 'DESC' ? 'ASC' : 'DESC';
                     },
@@ -151,8 +129,7 @@ class MessageSearchWidget extends HookConsumerWidget {
                 }
 
                 // Filter by message type
-                if (selectedMessageType.value != null &&
-                    selectedMessageType.value != 'ALL') {
+                if (selectedMessageType.value != null && selectedMessageType.value != 'ALL') {
                   if (m.type.toUpperCase() != selectedMessageType.value) {
                     return false;
                   }
@@ -171,19 +148,11 @@ class MessageSearchWidget extends HookConsumerWidget {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(
-                        Icons.search_off,
-                        size: 64,
-                        color: colors.onSurface.withValues(alpha: 0.3),
-                      ),
+                      Icon(Icons.search_off, size: 64, color: colors.onSurface.withValues(alpha: 0.3)),
                       const SizedBox(height: 16),
                       Text(
-                        searchQuery.value.isEmpty
-                            ? 'Enter keywords to search'
-                            : 'No messages found',
-                        style: textTheme.bodyLarge?.copyWith(
-                          color: colors.onSurface.withValues(alpha: 0.6),
-                        ),
+                        searchQuery.value.isEmpty ? 'Enter keywords to search' : 'No messages found',
+                        style: textTheme.bodyLarge?.copyWith(color: colors.onSurface.withValues(alpha: 0.6)),
                       ),
                     ],
                   ),
@@ -209,12 +178,7 @@ class MessageSearchWidget extends HookConsumerWidget {
               );
             },
             loading: () => const Center(child: CircularProgressIndicator()),
-            error: (e, st) => Center(
-              child: Text(
-                'Failed to load messages',
-                style: textTheme.bodyMedium,
-              ),
-            ),
+            error: (e, st) => Center(child: Text('Failed to load messages', style: textTheme.bodyMedium)),
           ),
         ),
       ],
@@ -223,12 +187,7 @@ class MessageSearchWidget extends HookConsumerWidget {
 }
 
 class _SearchResultItem extends StatelessWidget {
-  const _SearchResultItem({
-    required this.message,
-    required this.searchQuery,
-    required this.isMe,
-    required this.onTap,
-  });
+  const _SearchResultItem({required this.message, required this.searchQuery, required this.isMe, required this.onTap});
 
   final Message message;
   final String searchQuery;
@@ -248,9 +207,7 @@ class _SearchResultItem extends StatelessWidget {
         decoration: BoxDecoration(
           color: colors.surface,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: colors.onSurface.withValues(alpha: 0.1),
-          ),
+          border: Border.all(color: colors.onSurface.withValues(alpha: 0.1)),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -261,17 +218,12 @@ class _SearchResultItem extends StatelessWidget {
                 Expanded(
                   child: Text(
                     isMe ? 'Bạn' : message.sender.fullName,
-                    style: textTheme.labelMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: colors.primary,
-                    ),
+                    style: textTheme.labelMedium?.copyWith(fontWeight: FontWeight.bold, color: colors.primary),
                   ),
                 ),
                 Text(
                   FormatUtils.formatDateTime(message.createdAt),
-                  style: textTheme.labelSmall?.copyWith(
-                    color: colors.onSurface.withValues(alpha: 0.6),
-                  ),
+                  style: textTheme.labelSmall?.copyWith(color: colors.onSurface.withValues(alpha: 0.6)),
                 ),
               ],
             ),
@@ -292,18 +244,9 @@ class _SearchResultItem extends StatelessWidget {
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(
-                      _getMessageTypeIcon(),
-                      size: 14,
-                      color: colors.primary,
-                    ),
+                    Icon(_getMessageTypeIcon(), size: 14, color: colors.primary),
                     const SizedBox(width: 4),
-                    Text(
-                      _getMessageTypeLabel(),
-                      style: textTheme.labelSmall?.copyWith(
-                        color: colors.primary,
-                      ),
-                    ),
+                    Text(_getMessageTypeLabel(), style: textTheme.labelSmall?.copyWith(color: colors.primary)),
                   ],
                 ),
               ),
@@ -319,12 +262,7 @@ class _SearchResultItem extends StatelessWidget {
     final colors = Theme.of(context).colorScheme;
 
     if (searchQuery.isEmpty) {
-      return Text(
-        message.content,
-        style: textTheme.bodyMedium,
-        maxLines: 3,
-        overflow: TextOverflow.ellipsis,
-      );
+      return Text(message.content, style: textTheme.bodyMedium, maxLines: 3, overflow: TextOverflow.ellipsis);
     }
 
     // Highlight search query in content
@@ -334,12 +272,7 @@ class _SearchResultItem extends StatelessWidget {
     final index = lowerContent.indexOf(query);
 
     if (index == -1) {
-      return Text(
-        content,
-        style: textTheme.bodyMedium,
-        maxLines: 3,
-        overflow: TextOverflow.ellipsis,
-      );
+      return Text(content, style: textTheme.bodyMedium, maxLines: 3, overflow: TextOverflow.ellipsis);
     }
 
     return RichText(
@@ -351,10 +284,7 @@ class _SearchResultItem extends StatelessWidget {
           TextSpan(text: content.substring(0, index)),
           TextSpan(
             text: content.substring(index, index + query.length),
-            style: TextStyle(
-              backgroundColor: colors.primary.withValues(alpha: 0.3),
-              fontWeight: FontWeight.bold,
-            ),
+            style: TextStyle(backgroundColor: colors.primary.withValues(alpha: 0.3), fontWeight: FontWeight.bold),
           ),
           TextSpan(text: content.substring(index + query.length)),
         ],
@@ -396,4 +326,3 @@ class _SearchResultItem extends StatelessWidget {
     }
   }
 }
-

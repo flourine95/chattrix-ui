@@ -29,8 +29,7 @@ class ApiConstants {
 
   static String get verifyEmail => '$_baseUrl/$_v1/auth/verify-email';
 
-  static String get resendVerification =>
-      '$_baseUrl/$_v1/auth/resend-verification';
+  static String get resendVerification => '$_baseUrl/$_v1/auth/resend-verification';
 
   static String get login => '$_baseUrl/$_v1/auth/login';
 
@@ -51,8 +50,7 @@ class ApiConstants {
   // Conversation endpoints
   static String get conversations => '$_baseUrl/$_v1/conversations';
 
-  static String conversationById(String id) =>
-      '$_baseUrl/$_v1/conversations/$id';
+  static String conversationById(String id) => '$_baseUrl/$_v1/conversations/$id';
 
   static String messagesInConversation(String conversationId) =>
       '$_baseUrl/$_v1/conversations/$conversationId/messages';
@@ -65,64 +63,49 @@ class ApiConstants {
   static String onlineUsersInConversation(String conversationId) =>
       '$_baseUrl/$_v1/users/status/online/conversation/$conversationId';
 
-  static String userStatus(String userId) =>
-      '$_baseUrl/$_v1/users/status/$userId';
+  static String userStatus(String userId) => '$_baseUrl/$_v1/users/status/$userId';
 
   // Message endpoints
-  static String messageReactions(String messageId) =>
-      '$_baseUrl/$_v1/messages/$messageId/reactions';
+  static String messageReactions(String messageId) => '$_baseUrl/$_v1/messages/$messageId/reactions';
 
-  static String deleteReaction(String messageId, String emoji) =>
-      '$_baseUrl/$_v1/messages/$messageId/reactions/$emoji';
+  static String deleteReaction(String messageId, String emoji) => '$_baseUrl/$_v1/messages/$messageId/reactions/$emoji';
 
-  static String messageEdit(String messageId) =>
-      '$_baseUrl/$_v1/messages/$messageId/edit';
+  static String messageEdit(String messageId) => '$_baseUrl/$_v1/messages/$messageId/edit';
 
-  static String messageDelete(String messageId) =>
-      '$_baseUrl/$_v1/messages/$messageId';
+  static String messageDelete(String messageId) => '$_baseUrl/$_v1/messages/$messageId';
 
-  static String messageEditHistory(String messageId) =>
-      '$_baseUrl/$_v1/messages/$messageId/edit-history';
+  static String messageEditHistory(String messageId) => '$_baseUrl/$_v1/messages/$messageId/edit-history';
 
   // Typing endpoints
   static String get typingStart => '$_baseUrl/$_v1/typing/start';
 
   static String get typingStop => '$_baseUrl/$_v1/typing/stop';
 
-  static String typingStatus(String conversationId) =>
-      '$_baseUrl/$_v1/typing/status/$conversationId';
+  static String typingStatus(String conversationId) => '$_baseUrl/$_v1/typing/status/$conversationId';
 
   // Friend Request endpoints
   static String get sendFriendRequest => '$_baseUrl/$_v1/friend-requests/send';
 
-  static String get receivedFriendRequests =>
-      '$_baseUrl/$_v1/friend-requests/received';
+  static String get receivedFriendRequests => '$_baseUrl/$_v1/friend-requests/received';
 
   static String get sentFriendRequests => '$_baseUrl/$_v1/friend-requests/sent';
 
-  static String acceptFriendRequest(int requestId) =>
-      '$_baseUrl/$_v1/friend-requests/$requestId/accept';
+  static String acceptFriendRequest(int requestId) => '$_baseUrl/$_v1/friend-requests/$requestId/accept';
 
-  static String rejectFriendRequest(int requestId) =>
-      '$_baseUrl/$_v1/friend-requests/$requestId/reject';
+  static String rejectFriendRequest(int requestId) => '$_baseUrl/$_v1/friend-requests/$requestId/reject';
 
-  static String cancelFriendRequest(int requestId) =>
-      '$_baseUrl/$_v1/friend-requests/$requestId/cancel';
+  static String cancelFriendRequest(int requestId) => '$_baseUrl/$_v1/friend-requests/$requestId/cancel';
 
   // Contact endpoints
   static String get contacts => '$_baseUrl/$_v1/contacts';
 
-  static String contactById(int contactId) =>
-      '$_baseUrl/$_v1/contacts/$contactId';
+  static String contactById(int contactId) => '$_baseUrl/$_v1/contacts/$contactId';
 
-  static String updateContactNickname(int contactId) =>
-      '$_baseUrl/$_v1/contacts/$contactId/nickname';
+  static String updateContactNickname(int contactId) => '$_baseUrl/$_v1/contacts/$contactId/nickname';
 
-  static String deleteContact(int contactId) =>
-      '$_baseUrl/$_v1/contacts/$contactId';
+  static String deleteContact(int contactId) => '$_baseUrl/$_v1/contacts/$contactId';
 
   static String get chatWebSocket => '$_wsBaseUrl/ws/chat';
 
-  static String chatWebSocketWithToken(String token) =>
-      '$chatWebSocket?token=$token';
+  static String chatWebSocketWithToken(String token) => '$chatWebSocket?token=$token';
 }

@@ -12,16 +12,12 @@ import 'package:chattrix_ui/features/chat/domain/usecases/toggle_reaction_usecas
 import 'package:chattrix_ui/features/chat/presentation/providers/chat_repository_provider.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-final createConversationUsecaseProvider = Provider<CreateConversationUsecase>((
-  ref,
-) {
+final createConversationUsecaseProvider = Provider<CreateConversationUsecase>((ref) {
   final repository = ref.watch(chatRepositoryProvider);
   return CreateConversationUsecase(repository);
 });
 
-final getConversationsUsecaseProvider = Provider<GetConversationsUsecase>((
-  ref,
-) {
+final getConversationsUsecaseProvider = Provider<GetConversationsUsecase>((ref) {
   final repository = ref.watch(chatRepositoryProvider);
   return GetConversationsUsecase(repository);
 });

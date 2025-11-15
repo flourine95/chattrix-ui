@@ -18,8 +18,7 @@ abstract class UserModel with _$UserModel {
     required String lastSeen,
   }) = _UserModel;
 
-  factory UserModel.fromJson(Map<String, dynamic> json) =>
-      _$UserModelFromJson(json);
+  factory UserModel.fromJson(Map<String, dynamic> json) => _$UserModelFromJson(json);
 
   User toEntity() {
     return User(

@@ -43,9 +43,7 @@ class ChatListPage extends HookConsumerWidget {
       body: conversationsAsync.when(
         data: (conversations) {
           if (conversations.isEmpty) {
-            return Center(
-              child: Text('No conversations yet', style: textTheme.bodyMedium),
-            );
+            return Center(child: Text('No conversations yet', style: textTheme.bodyMedium));
           }
           return ListView.builder(
             itemCount: conversations.length,
@@ -56,10 +54,7 @@ class ChatListPage extends HookConsumerWidget {
               final initial = title.isNotEmpty ? title.substring(0, 1) : '?';
 
               // Get last message and format it
-              final lastMessageText = ConversationUtils.formatLastMessage(
-                c.lastMessage,
-                me,
-              );
+              final lastMessageText = ConversationUtils.formatLastMessage(c.lastMessage, me);
 
               // Check if user is online (for DIRECT conversations)
               final isOnline = ConversationUtils.isUserOnline(c, me);
@@ -72,10 +67,7 @@ class ChatListPage extends HookConsumerWidget {
                 if (c.lastMessage != null) {
                   subtitle = lastMessageText;
                 } else {
-                  subtitle = ConversationUtils.formatLastSeen(
-                    isOnline,
-                    lastSeen,
-                  );
+                  subtitle = ConversationUtils.formatLastSeen(isOnline, lastSeen);
                 }
               } else {
                 // For GROUP: show last message
@@ -83,13 +75,8 @@ class ChatListPage extends HookConsumerWidget {
               }
 
               return ListTile(
-                onTap: () => context.push(
-                  '/chat/${c.id}',
-                  extra: {
-                    'name': title,
-                    'color': _avatarColor(context, index + 21),
-                  },
-                ),
+                onTap: () =>
+                    context.push('/chat/${c.id}', extra: {'name': title, 'color': _avatarColor(context, index + 21)}),
                 leading: Stack(
                   children: [
                     CircleAvatar(
@@ -114,31 +101,19 @@ class ChatListPage extends HookConsumerWidget {
                           decoration: BoxDecoration(
                             color: Colors.green,
                             shape: BoxShape.circle,
-                            border: Border.all(
-                              color: Theme.of(context).scaffoldBackgroundColor,
-                              width: 2,
-                            ),
+                            border: Border.all(color: Theme.of(context).scaffoldBackgroundColor, width: 2),
                           ),
                         ),
                       ),
                   ],
                 ),
                 title: Text(title, style: textTheme.titleMedium),
-                subtitle: Text(
-                  subtitle,
-                  style: textTheme.bodySmall,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
+                subtitle: Text(subtitle, style: textTheme.bodySmall, maxLines: 1, overflow: TextOverflow.ellipsis),
                 trailing: c.lastMessage != null
                     ? Text(
-                        ConversationUtils.formatTimeAgo(
-                          c.lastMessage!.createdAt,
-                        ),
+                        ConversationUtils.formatTimeAgo(c.lastMessage!.createdAt),
                         style: textTheme.bodySmall?.copyWith(
-                          color: Theme.of(
-                            context,
-                          ).colorScheme.onSurface.withValues(alpha: 0.6),
+                          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                         ),
                       )
                     : null,
@@ -147,12 +122,7 @@ class ChatListPage extends HookConsumerWidget {
           );
         },
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, st) => Center(
-          child: Text(
-            'Failed to load conversations',
-            style: textTheme.bodyMedium,
-          ),
-        ),
+        error: (e, st) => Center(child: Text('Failed to load conversations', style: textTheme.bodyMedium)),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => context.push('/new-chat'),

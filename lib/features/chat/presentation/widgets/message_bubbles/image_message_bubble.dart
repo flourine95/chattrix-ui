@@ -34,10 +34,7 @@ class ImageMessageBubble extends StatelessWidget {
 
     Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (context) => _FullScreenImageViewer(
-          imageUrl: message.mediaUrl!,
-          caption: message.content,
-        ),
+        builder: (context) => _FullScreenImageViewer(imageUrl: message.mediaUrl!, caption: message.content),
       ),
     );
   }
@@ -66,9 +63,7 @@ class ImageMessageBubble extends StatelessWidget {
             GestureDetector(
               onTap: () => _openFullScreenImage(context),
               child: ClipRRect(
-                borderRadius: const BorderRadius.vertical(
-                  top: Radius.circular(16),
-                ),
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
                 child: CachedNetworkImage(
                   imageUrl: message.mediaUrl!,
                   width: 280,
@@ -77,9 +72,7 @@ class ImageMessageBubble extends StatelessWidget {
                     width: 280,
                     height: 200,
                     color: Colors.grey.shade300,
-                    child: const Center(
-                      child: CircularProgressIndicator(),
-                    ),
+                    child: const Center(child: CircularProgressIndicator()),
                   ),
                   errorWidget: (context, url, error) {
                     return Container(
@@ -102,10 +95,7 @@ class ImageMessageBubble extends StatelessWidget {
           if (message.content.isNotEmpty)
             Padding(
               padding: const EdgeInsets.all(12),
-              child: Text(
-                message.content,
-                style: textTheme.bodyMedium?.copyWith(color: textColor),
-              ),
+              child: Text(message.content, style: textTheme.bodyMedium?.copyWith(color: textColor)),
             ),
         ],
       ),
@@ -115,10 +105,7 @@ class ImageMessageBubble extends StatelessWidget {
 
 /// Full screen image viewer with zoom and pan
 class _FullScreenImageViewer extends StatelessWidget {
-  const _FullScreenImageViewer({
-    required this.imageUrl,
-    this.caption,
-  });
+  const _FullScreenImageViewer({required this.imageUrl, this.caption});
 
   final String imageUrl;
   final String? caption;
@@ -131,10 +118,7 @@ class _FullScreenImageViewer extends StatelessWidget {
         backgroundColor: Colors.black,
         iconTheme: const IconThemeData(color: Colors.white),
         title: caption != null && caption!.isNotEmpty
-            ? Text(
-                caption!,
-                style: const TextStyle(color: Colors.white),
-              )
+            ? Text(caption!, style: const TextStyle(color: Colors.white))
             : null,
       ),
       body: InteractiveViewer(
@@ -144,19 +128,14 @@ class _FullScreenImageViewer extends StatelessWidget {
           child: CachedNetworkImage(
             imageUrl: imageUrl,
             fit: BoxFit.contain,
-            placeholder: (context, url) => const Center(
-              child: CircularProgressIndicator(color: Colors.white),
-            ),
+            placeholder: (context, url) => const Center(child: CircularProgressIndicator(color: Colors.white)),
             errorWidget: (context, url, error) => const Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Icon(Icons.broken_image, size: 64, color: Colors.white),
                   SizedBox(height: 16),
-                  Text(
-                    'Failed to load image',
-                    style: TextStyle(color: Colors.white),
-                  ),
+                  Text('Failed to load image', style: TextStyle(color: Colors.white)),
                 ],
               ),
             ),
@@ -166,4 +145,3 @@ class _FullScreenImageViewer extends StatelessWidget {
     );
   }
 }
-

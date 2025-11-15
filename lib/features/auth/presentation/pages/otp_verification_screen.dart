@@ -12,15 +12,10 @@ class OtpVerificationScreen extends ConsumerStatefulWidget {
   final String? email;
   final bool isPasswordReset;
 
-  const OtpVerificationScreen({
-    super.key,
-    this.email,
-    this.isPasswordReset = false,
-  });
+  const OtpVerificationScreen({super.key, this.email, this.isPasswordReset = false});
 
   @override
-  ConsumerState<OtpVerificationScreen> createState() =>
-      _OtpVerificationScreenState();
+  ConsumerState<OtpVerificationScreen> createState() => _OtpVerificationScreenState();
 }
 
 class _OtpVerificationScreenState extends ConsumerState<OtpVerificationScreen> {
@@ -58,11 +53,7 @@ class _OtpVerificationScreenState extends ConsumerState<OtpVerificationScreen> {
     final otp = _getOtpCode();
 
     if (otp.length != 6) {
-      Toasts.error(
-        context,
-        title: 'Error',
-        description: 'Please enter the full 6-digit OTP',
-      );
+      Toasts.error(context, title: 'Error', description: 'Please enter the full 6-digit OTP');
       return;
     }
 
@@ -76,20 +67,12 @@ class _OtpVerificationScreenState extends ConsumerState<OtpVerificationScreen> {
       final newPassword = _newPasswordController.text;
 
       if (newPassword.isEmpty) {
-        Toasts.error(
-          context,
-          title: 'Error',
-          description: 'Please enter a new password',
-        );
+        Toasts.error(context, title: 'Error', description: 'Please enter a new password');
         return;
       }
 
       if (newPassword.length < 6) {
-        Toasts.error(
-          context,
-          title: 'Error',
-          description: 'Password must be at least 6 characters long',
-        );
+        Toasts.error(context, title: 'Error', description: 'Password must be at least 6 characters long');
         return;
       }
 
@@ -101,42 +84,24 @@ class _OtpVerificationScreenState extends ConsumerState<OtpVerificationScreen> {
       if (!mounted) return;
 
       if (success) {
-        Toasts.success(
-          context,
-          title: 'Success',
-          description: 'Password reset successful! Please log in.',
-        );
+        Toasts.success(context, title: 'Success', description: 'Password reset successful! Please log in.');
         context.go(AppRouter.loginPath);
       } else {
         final error = ref.read(authErrorProvider);
-        Toasts.error(
-          context,
-          title: 'Password Reset Failed',
-          description: error ?? 'Invalid or expired OTP code',
-        );
+        Toasts.error(context, title: 'Password Reset Failed', description: error ?? 'Invalid or expired OTP code');
       }
     } else {
       // Normal email verification flow
-      final success = await ref
-          .read(authNotifierProvider.notifier)
-          .verifyEmail(email: _email, otp: otp);
+      final success = await ref.read(authNotifierProvider.notifier).verifyEmail(email: _email, otp: otp);
 
       if (!mounted) return;
 
       if (success) {
-        Toasts.success(
-          context,
-          title: 'Success',
-          description: 'Email verified successfully! Please log in.',
-        );
+        Toasts.success(context, title: 'Success', description: 'Email verified successfully! Please log in.');
         context.go(AppRouter.loginPath);
       } else {
         final error = ref.read(authErrorProvider);
-        Toasts.error(
-          context,
-          title: 'Verification Failed',
-          description: error ?? 'Invalid OTP code',
-        );
+        Toasts.error(context, title: 'Verification Failed', description: error ?? 'Invalid OTP code');
       }
     }
   }
@@ -150,28 +115,16 @@ class _OtpVerificationScreenState extends ConsumerState<OtpVerificationScreen> {
     // If it's a password reset, call forgot password again
     // If it's email verification, call resend verification
     final success = widget.isPasswordReset
-        ? await ref
-              .read(authNotifierProvider.notifier)
-              .forgotPassword(email: _email)
-        : await ref
-              .read(authNotifierProvider.notifier)
-              .resendVerification(email: _email);
+        ? await ref.read(authNotifierProvider.notifier).forgotPassword(email: _email)
+        : await ref.read(authNotifierProvider.notifier).resendVerification(email: _email);
 
     if (!mounted) return;
 
     if (success) {
-      Toasts.success(
-        context,
-        title: 'Success',
-        description: 'A new OTP has been sent. Please check your email.',
-      );
+      Toasts.success(context, title: 'Success', description: 'A new OTP has been sent. Please check your email.');
     } else {
       final error = ref.read(authErrorProvider);
-      Toasts.error(
-        context,
-        title: 'Resend Failed',
-        description: error ?? 'An error occurred',
-      );
+      Toasts.error(context, title: 'Resend Failed', description: error ?? 'An error occurred');
     }
   }
 
@@ -184,10 +137,7 @@ class _OtpVerificationScreenState extends ConsumerState<OtpVerificationScreen> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(
-            Icons.arrow_back,
-            color: Theme.of(context).colorScheme.onSurface,
-          ),
+          icon: Icon(Icons.arrow_back, color: Theme.of(context).colorScheme.onSurface),
           onPressed: () => context.go(AppRouter.loginPath),
         ),
       ),
@@ -201,9 +151,7 @@ class _OtpVerificationScreenState extends ConsumerState<OtpVerificationScreen> {
               // Title
               Text(
                 widget.isPasswordReset ? 'Reset Password' : 'OTP Verification',
-                style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
+                style: Theme.of(context).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 8),
@@ -211,11 +159,9 @@ class _OtpVerificationScreenState extends ConsumerState<OtpVerificationScreen> {
                 widget.isPasswordReset
                     ? 'Enter the 6-digit code sent to\n$_email\nand your new password'
                     : 'Enter the 6-digit code sent to\n$_email',
-                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                  color: Theme.of(
-                    context,
-                  ).colorScheme.onSurface.withValues(alpha: 0.6),
-                ),
+                style: Theme.of(
+                  context,
+                ).textTheme.bodyLarge?.copyWith(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6)),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 40),
@@ -226,11 +172,7 @@ class _OtpVerificationScreenState extends ConsumerState<OtpVerificationScreen> {
 
               // If it's a password reset, show the new password field
               if (widget.isPasswordReset) ...[
-                AppInputField(
-                  labelText: 'New Password',
-                  isPassword: true,
-                  controller: _newPasswordController,
-                ),
+                AppInputField(labelText: 'New Password', isPassword: true, controller: _newPasswordController),
                 const SizedBox(height: 30),
               ],
 
@@ -243,10 +185,7 @@ class _OtpVerificationScreenState extends ConsumerState<OtpVerificationScreen> {
               const SizedBox(height: 20),
 
               // Resend Code Link
-              TextButton(
-                onPressed: isLoading ? null : _resendOtp,
-                child: const Text('Resend Code'),
-              ),
+              TextButton(onPressed: isLoading ? null : _resendOtp, child: const Text('Resend Code')),
             ],
           ),
         ),
@@ -276,27 +215,16 @@ class _OtpVerificationScreenState extends ConsumerState<OtpVerificationScreen> {
               style: Theme.of(context).textTheme.headlineSmall,
               keyboardType: TextInputType.number,
               textAlign: TextAlign.center,
-              inputFormatters: [
-                LengthLimitingTextInputFormatter(1),
-                FilteringTextInputFormatter.digitsOnly,
-              ],
+              inputFormatters: [LengthLimitingTextInputFormatter(1), FilteringTextInputFormatter.digitsOnly],
               decoration: InputDecoration(
                 contentPadding: const EdgeInsets.symmetric(vertical: 12),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
-                  borderSide: BorderSide(
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.onSurface.withValues(alpha: 0.3),
-                  ),
+                  borderSide: BorderSide(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.3)),
                 ),
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
-                  borderSide: BorderSide(
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.onSurface.withValues(alpha: 0.3),
-                  ),
+                  borderSide: BorderSide(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.3)),
                 ),
               ),
             ),

@@ -1,5 +1,9 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
+// dart format off
+// coverage:ignore-file
+
+
 part of 'search_user_model.dart';
 
 // **************************************************************************

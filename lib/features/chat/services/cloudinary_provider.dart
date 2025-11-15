@@ -4,4 +4,3 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 final cloudinaryServiceProvider = Provider<CloudinaryService>((ref) {
   return CloudinaryService();
 });
-

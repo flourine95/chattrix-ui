@@ -21,10 +21,7 @@ class ForgotPasswordScreen extends HookConsumerWidget {
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(
-            Icons.arrow_back,
-            color: Theme.of(context).colorScheme.onSurface,
-          ),
+          icon: Icon(Icons.arrow_back, color: Theme.of(context).colorScheme.onSurface),
           onPressed: () => context.go(AppRouter.loginPath),
         ),
       ),
@@ -38,18 +35,14 @@ class ForgotPasswordScreen extends HookConsumerWidget {
               // Tiêu đề
               Text(
                 'Forgot Password',
-                style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
+                style: Theme.of(context).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 8),
               Text(
                 'Enter the email associated with your account and we\'ll send an email with instructions to reset your password.',
-                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                  color: Theme.of(
-                    context,
-                  ).colorScheme.onSurface.withValues(alpha: 0.6),
-                ),
+                style: Theme.of(
+                  context,
+                ).textTheme.bodyLarge?.copyWith(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6)),
               ),
               const SizedBox(height: 40),
 
@@ -66,27 +59,17 @@ class ForgotPasswordScreen extends HookConsumerWidget {
 
                   // Validate email
                   if (email.isEmpty) {
-                    Toasts.error(
-                      context,
-                      title: 'Error',
-                      description: 'Please enter your email',
-                    );
+                    Toasts.error(context, title: 'Error', description: 'Please enter your email');
                     return;
                   }
 
                   if (!email.contains('@')) {
-                    Toasts.error(
-                      context,
-                      title: 'Error',
-                      description: 'Invalid email address',
-                    );
+                    Toasts.error(context, title: 'Error', description: 'Invalid email address');
                     return;
                   }
 
                   // Call API
-                  final success = await ref
-                      .read(authNotifierProvider.notifier)
-                      .forgotPassword(email: email);
+                  final success = await ref.read(authNotifierProvider.notifier).forgotPassword(email: email);
 
                   if (!context.mounted) return;
 
@@ -94,21 +77,13 @@ class ForgotPasswordScreen extends HookConsumerWidget {
                     Toasts.success(
                       context,
                       title: 'Success',
-                      description:
-                          'A password reset email has been sent. Please check your inbox.',
+                      description: 'A password reset email has been sent. Please check your inbox.',
                     );
                     // Navigate to OTP screen for password reset
-                    context.push(
-                      AppRouter.otpVerificationPath,
-                      extra: {'email': email, 'isPasswordReset': true},
-                    );
+                    context.push(AppRouter.otpVerificationPath, extra: {'email': email, 'isPasswordReset': true});
                   } else {
                     final error = ref.read(authErrorProvider);
-                    Toasts.error(
-                      context,
-                      title: 'Failed to Send Email',
-                      description: error ?? 'An error occurred',
-                    );
+                    Toasts.error(context, title: 'Failed to Send Email', description: error ?? 'An error occurred');
                   }
                 },
               ),

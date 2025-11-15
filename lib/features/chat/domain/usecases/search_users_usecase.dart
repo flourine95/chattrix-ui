@@ -8,10 +8,7 @@ class SearchUsersUsecase {
 
   SearchUsersUsecase(this.repository);
 
-  Future<Either<Failure, List<SearchUser>>> call({
-    required String query,
-    int limit = 20,
-  }) {
+  Future<Either<Failure, List<SearchUser>>> call({required String query, int limit = 20}) {
     return repository.searchUsers(query: query, limit: limit);
   }
 }

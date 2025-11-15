@@ -11,8 +11,7 @@ class VoiceRecorderService {
   String? _currentRecordingPath;
   DateTime? _recordingStartTime;
   Timer? _durationTimer;
-  final StreamController<Duration> _durationController =
-  StreamController<Duration>.broadcast();
+  final StreamController<Duration> _durationController = StreamController<Duration>.broadcast();
 
   Stream<Duration> get durationStream => _durationController.stream;
 
@@ -43,11 +42,7 @@ class VoiceRecorderService {
       final path = '${tempDir.path}/voice_$timestamp.m4a';
 
       await _recorder.start(
-        const RecordConfig(
-          encoder: AudioEncoder.aacLc,
-          bitRate: 128000,
-          sampleRate: 44100,
-        ),
+        const RecordConfig(encoder: AudioEncoder.aacLc, bitRate: 128000, sampleRate: 44100),
         path: path,
       );
 

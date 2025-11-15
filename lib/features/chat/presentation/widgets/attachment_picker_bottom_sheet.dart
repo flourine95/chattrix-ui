@@ -32,16 +32,11 @@ class AttachmentPickerBottomSheet extends StatelessWidget {
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
-            
+
             // Title
-            Text(
-              'Send Attachment',
-              style: theme.textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
-            ),
+            Text('Send Attachment', style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
             const SizedBox(height: 20),
-            
+
             // Grid of options
             GridView.count(
               shrinkWrap: true,
@@ -108,12 +103,7 @@ class AttachmentPickerBottomSheet extends StatelessWidget {
 
 /// Individual attachment option widget
 class _AttachmentOption extends StatelessWidget {
-  const _AttachmentOption({
-    required this.icon,
-    required this.label,
-    required this.color,
-    required this.onTap,
-  });
+  const _AttachmentOption({required this.icon, required this.label, required this.color, required this.onTap});
 
   final IconData icon;
   final String label;
@@ -133,22 +123,13 @@ class _AttachmentOption extends StatelessWidget {
           Container(
             width: 60,
             height: 60,
-            decoration: BoxDecoration(
-              color: color.withValues(alpha: 0.15),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Icon(
-              icon,
-              color: color,
-              size: 28,
-            ),
+            decoration: BoxDecoration(color: color.withValues(alpha: 0.15), borderRadius: BorderRadius.circular(12)),
+            child: Icon(icon, color: color, size: 28),
           ),
           const SizedBox(height: 8),
           Text(
             label,
-            style: theme.textTheme.bodySmall?.copyWith(
-              fontWeight: FontWeight.w500,
-            ),
+            style: theme.textTheme.bodySmall?.copyWith(fontWeight: FontWeight.w500),
             textAlign: TextAlign.center,
           ),
         ],
@@ -158,12 +139,4 @@ class _AttachmentOption extends StatelessWidget {
 }
 
 /// Enum for attachment types
-enum AttachmentType {
-  camera,
-  gallery,
-  video,
-  audio,
-  document,
-  location,
-}
-
+enum AttachmentType { camera, gallery, video, audio, document, location }

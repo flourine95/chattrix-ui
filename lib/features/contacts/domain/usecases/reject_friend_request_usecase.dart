@@ -11,4 +11,3 @@ class RejectFriendRequestUseCase {
     return repository.rejectFriendRequest(friendRequestId: friendRequestId);
   }
 }
-

@@ -45,25 +45,16 @@ abstract class ChatRepository {
   });
 
   /// Search users by query
-  Future<Either<Failure, List<SearchUser>>> searchUsers({
-    required String query,
-    int limit = 20,
-  });
+  Future<Either<Failure, List<SearchUser>>> searchUsers({required String query, int limit = 20});
 
   /// Toggle reaction on a message
-  Future<Either<Failure, Map<String, dynamic>>> toggleReaction({
-    required String messageId,
-    required String emoji,
-  });
+  Future<Either<Failure, Map<String, dynamic>>> toggleReaction({required String messageId, required String emoji});
 
   /// Get reactions for a message
   Future<Either<Failure, Map<String, dynamic>>> getReactions(String messageId);
 
   /// Edit a message
-  Future<Either<Failure, Message>> editMessage({
-    required String messageId,
-    required String content,
-  });
+  Future<Either<Failure, Message>> editMessage({required String messageId, required String content});
 
   /// Delete a message
   Future<Either<Failure, void>> deleteMessage(String messageId);

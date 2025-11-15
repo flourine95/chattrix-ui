@@ -17,4 +17,3 @@ abstract class Contact with _$Contact {
     required DateTime createdAt,
   }) = _Contact;
 }
-

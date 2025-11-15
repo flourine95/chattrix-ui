@@ -21,8 +21,7 @@ abstract class ContactModel with _$ContactModel {
     required DateTime createdAt,
   }) = _ContactModel;
 
-  factory ContactModel.fromJson(Map<String, dynamic> json) =>
-      _$ContactModelFromJson(json);
+  factory ContactModel.fromJson(Map<String, dynamic> json) => _$ContactModelFromJson(json);
 
   Contact toEntity() {
     return Contact(
@@ -39,4 +38,3 @@ abstract class ContactModel with _$ContactModel {
     );
   }
 }
-

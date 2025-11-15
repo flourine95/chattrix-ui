@@ -19,11 +19,7 @@ class ChatRepositoryImpl implements ChatRepository {
     required List<String> participantIds,
   }) async {
     try {
-      final model = await remoteDatasource.createConversation(
-        name: name,
-        type: type,
-        participantIds: participantIds,
-      );
+      final model = await remoteDatasource.createConversation(name: name, type: type, participantIds: participantIds);
       return Right(model.toEntity());
     } on ServerException catch (e) {
       return Left(ServerFailure(message: e.message));
@@ -46,9 +42,7 @@ class ChatRepositoryImpl implements ChatRepository {
   }
 
   @override
-  Future<Either<Failure, Conversation>> getConversation(
-    String conversationId,
-  ) async {
+  Future<Either<Failure, Conversation>> getConversation(String conversationId) async {
     try {
       final model = await remoteDatasource.getConversation(conversationId);
       return Right(model.toEntity());
@@ -123,15 +117,9 @@ class ChatRepositoryImpl implements ChatRepository {
   }
 
   @override
-  Future<Either<Failure, List<SearchUser>>> searchUsers({
-    required String query,
-    int limit = 20,
-  }) async {
+  Future<Either<Failure, List<SearchUser>>> searchUsers({required String query, int limit = 20}) async {
     try {
-      final models = await remoteDatasource.searchUsers(
-        query: query,
-        limit: limit,
-      );
+      final models = await remoteDatasource.searchUsers(query: query, limit: limit);
       final entities = models.map((model) => model.toEntity()).toList();
       return Right(entities);
     } on ServerException catch (e) {
@@ -147,10 +135,7 @@ class ChatRepositoryImpl implements ChatRepository {
     required String emoji,
   }) async {
     try {
-      final result = await remoteDatasource.toggleReaction(
-        messageId: messageId,
-        emoji: emoji,
-      );
+      final result = await remoteDatasource.toggleReaction(messageId: messageId, emoji: emoji);
       return Right(result);
     } on ServerException catch (e) {
       return Left(ServerFailure(message: e.message));
@@ -160,9 +145,7 @@ class ChatRepositoryImpl implements ChatRepository {
   }
 
   @override
-  Future<Either<Failure, Map<String, dynamic>>> getReactions(
-    String messageId,
-  ) async {
+  Future<Either<Failure, Map<String, dynamic>>> getReactions(String messageId) async {
     try {
       final result = await remoteDatasource.getReactions(messageId);
       return Right(result);
@@ -174,15 +157,9 @@ class ChatRepositoryImpl implements ChatRepository {
   }
 
   @override
-  Future<Either<Failure, Message>> editMessage({
-    required String messageId,
-    required String content,
-  }) async {
+  Future<Either<Failure, Message>> editMessage({required String messageId, required String content}) async {
     try {
-      final model = await remoteDatasource.editMessage(
-        messageId: messageId,
-        content: content,
-      );
+      final model = await remoteDatasource.editMessage(messageId: messageId, content: content);
       return Right(model.toEntity());
     } on ServerException catch (e) {
       return Left(ServerFailure(message: e.message));

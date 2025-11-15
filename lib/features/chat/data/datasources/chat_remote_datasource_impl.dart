@@ -22,11 +22,7 @@ class ChatRemoteDatasourceImpl implements ChatRemoteDatasource {
     try {
       final response = await dio.post(
         ApiConstants.conversations,
-        data: {
-          if (name != null) 'name': name,
-          'type': type,
-          'participantIds': participantIds,
-        },
+        data: {if (name != null) 'name': name, 'type': type, 'participantIds': participantIds},
       );
 
       if (response.statusCode == 201) {
@@ -36,42 +32,31 @@ class ChatRemoteDatasourceImpl implements ChatRemoteDatasource {
 
       throw ServerException(message: 'Failed to create conversation');
     } on DioException catch (e) {
-      throw ServerException(
-        message: e.response?.data['message'] ?? 'Failed to create conversation',
-      );
+      throw ServerException(message: e.response?.data['message'] ?? 'Failed to create conversation');
     }
   }
 
   @override
   Future<List<ConversationModel>> getConversations() async {
     try {
-      final response = await dio.get(
-        ApiConstants.conversations,
-      );
+      final response = await dio.get(ApiConstants.conversations);
 
       if (response.statusCode == 200) {
         final data = response.data['data'] as List;
 
-        return data
-            .whereType<Map<String, dynamic>>()
-            .map((json) => ConversationModel.fromApi(json))
-            .toList();
+        return data.whereType<Map<String, dynamic>>().map((json) => ConversationModel.fromApi(json)).toList();
       }
 
       throw ServerException(message: 'Failed to fetch conversations');
     } on DioException catch (e) {
-      throw ServerException(
-        message: e.response?.data['message'] ?? 'Failed to fetch conversations',
-      );
+      throw ServerException(message: e.response?.data['message'] ?? 'Failed to fetch conversations');
     }
   }
 
   @override
   Future<ConversationModel> getConversation(String conversationId) async {
     try {
-      final response = await dio.get(
-        ApiConstants.conversationById(conversationId),
-      );
+      final response = await dio.get(ApiConstants.conversationById(conversationId));
 
       if (response.statusCode == 200) {
         final data = response.data['data'] as Map<String, dynamic>;
@@ -80,9 +65,7 @@ class ChatRemoteDatasourceImpl implements ChatRemoteDatasource {
 
       throw ServerException(message: 'Failed to fetch conversation');
     } on DioException catch (e) {
-      throw ServerException(
-        message: e.response?.data['message'] ?? 'Failed to fetch conversation',
-      );
+      throw ServerException(message: e.response?.data['message'] ?? 'Failed to fetch conversation');
     }
   }
 
@@ -94,21 +77,14 @@ class ChatRemoteDatasourceImpl implements ChatRemoteDatasource {
     String sort = 'DESC',
   }) async {
     try {
-      final url =
-          ApiConstants.messagesInConversation(conversationId);
+      final url = ApiConstants.messagesInConversation(conversationId);
 
-      final response = await dio.get(
-        url,
-        queryParameters: {'page': page, 'size': size, 'sort': sort},
-      );
+      final response = await dio.get(url, queryParameters: {'page': page, 'size': size, 'sort': sort});
 
       if (response.statusCode == 200) {
         final data = response.data['data'] as List;
 
-        return data
-            .whereType<Map<String, dynamic>>()
-            .map((json) => MessageModel.fromApi(json))
-            .toList();
+        return data.whereType<Map<String, dynamic>>().map((json) => MessageModel.fromApi(json)).toList();
       }
 
       throw ServerException(message: 'Failed to fetch messages');
@@ -119,9 +95,7 @@ class ChatRemoteDatasourceImpl implements ChatRemoteDatasource {
         return []; // Return empty list instead of crashing
       }
 
-      throw ServerException(
-        message: e.response?.data['message'] ?? 'Failed to fetch messages',
-      );
+      throw ServerException(message: e.response?.data['message'] ?? 'Failed to fetch messages');
     } catch (e) {
       throw ServerException(message: 'Failed to fetch messages: $e');
     }
@@ -130,9 +104,7 @@ class ChatRemoteDatasourceImpl implements ChatRemoteDatasource {
   @override
   Future<List<UserModel>> getOnlineUsers() async {
     try {
-      final response = await dio.get(
-        ApiConstants.onlineUsers,
-      );
+      final response = await dio.get(ApiConstants.onlineUsers);
 
       if (response.statusCode == 200) {
         final data = response.data['data'] as List;
@@ -141,44 +113,30 @@ class ChatRemoteDatasourceImpl implements ChatRemoteDatasource {
 
       throw ServerException(message: 'Failed to fetch online users');
     } on DioException catch (e) {
-      throw ServerException(
-        message: e.response?.data['message'] ?? 'Failed to fetch online users',
-      );
+      throw ServerException(message: e.response?.data['message'] ?? 'Failed to fetch online users');
     }
   }
 
   @override
-  Future<List<UserModel>> getOnlineUsersInConversation(
-    String conversationId,
-  ) async {
+  Future<List<UserModel>> getOnlineUsersInConversation(String conversationId) async {
     try {
-      final response = await dio.get(
-        ApiConstants.onlineUsersInConversation(conversationId),
-      );
+      final response = await dio.get(ApiConstants.onlineUsersInConversation(conversationId));
 
       if (response.statusCode == 200) {
         final data = response.data['data'] as List;
         return data.map((json) => UserModel.fromJson(json)).toList();
       }
 
-      throw ServerException(
-        message: 'Failed to fetch online users in conversation',
-      );
+      throw ServerException(message: 'Failed to fetch online users in conversation');
     } on DioException catch (e) {
-      throw ServerException(
-        message:
-            e.response?.data['message'] ??
-            'Failed to fetch online users in conversation',
-      );
+      throw ServerException(message: e.response?.data['message'] ?? 'Failed to fetch online users in conversation');
     }
   }
 
   @override
   Future<UserStatusModel> getUserStatus(String userId) async {
     try {
-      final response = await dio.get(
-        ApiConstants.userStatus(userId),
-      );
+      final response = await dio.get(ApiConstants.userStatus(userId));
 
       if (response.statusCode == 200) {
         final data = response.data['data'];
@@ -187,9 +145,7 @@ class ChatRemoteDatasourceImpl implements ChatRemoteDatasource {
 
       throw ServerException(message: 'Failed to fetch user status');
     } on DioException catch (e) {
-      throw ServerException(
-        message: e.response?.data['message'] ?? 'Failed to fetch user status',
-      );
+      throw ServerException(message: e.response?.data['message'] ?? 'Failed to fetch user status');
     }
   }
 
@@ -237,60 +193,39 @@ class ChatRemoteDatasourceImpl implements ChatRemoteDatasource {
 
       throw ServerException(message: 'Failed to send message');
     } on DioException catch (e) {
-      throw ServerException(
-        message: e.response?.data['message'] ?? 'Failed to send message',
-      );
+      throw ServerException(message: e.response?.data['message'] ?? 'Failed to send message');
     } catch (e) {
       rethrow;
     }
   }
 
   @override
-  Future<List<SearchUserModel>> searchUsers({
-    required String query,
-    int limit = 20,
-  }) async {
+  Future<List<SearchUserModel>> searchUsers({required String query, int limit = 20}) async {
     try {
       final url = ApiConstants.searchUsers;
 
-      final response = await dio.get(
-        url,
-        queryParameters: {'query': query, 'limit': limit},
-      );
-
+      final response = await dio.get(url, queryParameters: {'query': query, 'limit': limit});
 
       if (response.statusCode == 200) {
         final data = response.data['data'] as List;
 
-        return data
-            .whereType<Map<String, dynamic>>()
-            .map((json) => SearchUserModel.fromJson(json))
-            .toList();
+        return data.whereType<Map<String, dynamic>>().map((json) => SearchUserModel.fromJson(json)).toList();
       }
 
       throw ServerException(message: 'Failed to search users');
     } on DioException catch (e) {
-
-      throw ServerException(
-        message: e.response?.data['message'] ?? 'Failed to search users',
-      );
+      throw ServerException(message: e.response?.data['message'] ?? 'Failed to search users');
     } catch (e) {
       throw ServerException(message: 'Failed to search users: $e');
     }
   }
 
   @override
-  Future<Map<String, dynamic>> toggleReaction({
-    required String messageId,
-    required String emoji,
-  }) async {
+  Future<Map<String, dynamic>> toggleReaction({required String messageId, required String emoji}) async {
     try {
       final url = ApiConstants.messageReactions(messageId);
 
-      final response = await dio.post(
-        url,
-        data: {'emoji': emoji},
-      );
+      final response = await dio.post(url, data: {'emoji': emoji});
 
       if (response.statusCode == 200) {
         return response.data['data'] as Map<String, dynamic>;
@@ -298,9 +233,7 @@ class ChatRemoteDatasourceImpl implements ChatRemoteDatasource {
 
       throw ServerException(message: 'Failed to toggle reaction');
     } on DioException catch (e) {
-      throw ServerException(
-        message: e.response?.data['message'] ?? 'Failed to toggle reaction',
-      );
+      throw ServerException(message: e.response?.data['message'] ?? 'Failed to toggle reaction');
     } catch (e) {
       throw ServerException(message: 'Failed to toggle reaction: $e');
     }
@@ -319,26 +252,18 @@ class ChatRemoteDatasourceImpl implements ChatRemoteDatasource {
 
       throw ServerException(message: 'Failed to get reactions');
     } on DioException catch (e) {
-      throw ServerException(
-        message: e.response?.data['message'] ?? 'Failed to get reactions',
-      );
+      throw ServerException(message: e.response?.data['message'] ?? 'Failed to get reactions');
     } catch (e) {
       throw ServerException(message: 'Failed to get reactions: $e');
     }
   }
 
   @override
-  Future<MessageModel> editMessage({
-    required String messageId,
-    required String content,
-  }) async {
+  Future<MessageModel> editMessage({required String messageId, required String content}) async {
     try {
       final url = ApiConstants.messageEdit(messageId);
 
-      final response = await dio.put(
-        url,
-        data: {'content': content},
-      );
+      final response = await dio.put(url, data: {'content': content});
 
       if (response.statusCode == 200) {
         final data = response.data['data'] as Map<String, dynamic>;
@@ -347,9 +272,7 @@ class ChatRemoteDatasourceImpl implements ChatRemoteDatasource {
 
       throw ServerException(message: 'Failed to edit message');
     } on DioException catch (e) {
-      throw ServerException(
-        message: e.response?.data['message'] ?? 'Failed to edit message',
-      );
+      throw ServerException(message: e.response?.data['message'] ?? 'Failed to edit message');
     } catch (e) {
       throw ServerException(message: 'Failed to edit message: $e');
     }
@@ -368,9 +291,7 @@ class ChatRemoteDatasourceImpl implements ChatRemoteDatasource {
 
       throw ServerException(message: 'Failed to delete message');
     } on DioException catch (e) {
-      throw ServerException(
-        message: e.response?.data['message'] ?? 'Failed to delete message',
-      );
+      throw ServerException(message: e.response?.data['message'] ?? 'Failed to delete message');
     } catch (e) {
       throw ServerException(message: 'Failed to delete message: $e');
     }

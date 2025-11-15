@@ -28,11 +28,7 @@ class MediaPickerService {
 
   Future<List<File>> pickMultipleImagesFromGallery() async {
     try {
-      final List<XFile> images = await _imagePicker.pickMultiImage(
-        maxWidth: 1920,
-        maxHeight: 1920,
-        imageQuality: 85,
-      );
+      final List<XFile> images = await _imagePicker.pickMultiImage(maxWidth: 1920, maxHeight: 1920, imageQuality: 85);
 
       if (images.isNotEmpty) {
         return images.map((image) => File(image.path)).toList();
@@ -72,7 +68,7 @@ class MediaPickerService {
         source: ImageSource.gallery,
         maxDuration: const Duration(minutes: 5),
       );
-      
+
       if (video != null) {
         return File(video.path);
       }
@@ -105,11 +101,8 @@ class MediaPickerService {
 
   Future<File?> pickAudioFile() async {
     try {
-      final result = await FilePicker.platform.pickFiles(
-        type: FileType.audio,
-        allowMultiple: false,
-      );
-      
+      final result = await FilePicker.platform.pickFiles(type: FileType.audio, allowMultiple: false);
+
       if (result != null && result.files.isNotEmpty) {
         final path = result.files.first.path;
         if (path != null) {
@@ -129,18 +122,13 @@ class MediaPickerService {
         allowedExtensions: ['pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'txt'],
         allowMultiple: false,
       );
-      
+
       if (result != null && result.files.isNotEmpty) {
         final file = result.files.first;
         final path = file.path;
         if (path != null) {
           debugPrint('📄 Document picked: $path (${file.name})');
-          return PickedFile(
-            file: File(path),
-            name: file.name,
-            size: file.size,
-            extension: file.extension,
-          );
+          return PickedFile(file: File(path), name: file.name, size: file.size, extension: file.extension);
         }
       }
       return null;
@@ -169,15 +157,10 @@ class MediaPickerService {
       }
 
       final position = await Geolocator.getCurrentPosition(
-        locationSettings: const LocationSettings(
-          accuracy: LocationAccuracy.high,
-        ),
+        locationSettings: const LocationSettings(accuracy: LocationAccuracy.high),
       );
 
-      return LocationData(
-        latitude: position.latitude,
-        longitude: position.longitude,
-      );
+      return LocationData(latitude: position.latitude, longitude: position.longitude);
     } catch (e) {
       rethrow;
     }
@@ -190,21 +173,12 @@ class PickedFile {
   final int size;
   final String? extension;
 
-  PickedFile({
-    required this.file,
-    required this.name,
-    required this.size,
-    this.extension,
-  });
+  PickedFile({required this.file, required this.name, required this.size, this.extension});
 }
 
 class LocationData {
   final double latitude;
   final double longitude;
 
-  LocationData({
-    required this.latitude,
-    required this.longitude,
-  });
+  LocationData({required this.latitude, required this.longitude});
 }
-

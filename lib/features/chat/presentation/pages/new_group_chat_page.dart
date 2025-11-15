@@ -36,16 +36,12 @@ class NewGroupChatPage extends HookConsumerWidget {
     List<SearchUser> selectedUsers,
   ) async {
     if (groupName.trim().isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter a group name')),
-      );
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please enter a group name')));
       return;
     }
 
     if (selectedUsers.length < 2) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please select at least 2 members')),
-      );
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please select at least 2 members')));
       return;
     }
 
@@ -60,17 +56,10 @@ class NewGroupChatPage extends HookConsumerWidget {
     );
 
     // Prepare participant IDs (current user + selected users)
-    final participantIds = [
-      currentUser.id.toString(),
-      ...selectedUsers.map((u) => u.id.toString()),
-    ];
+    final participantIds = [currentUser.id.toString(), ...selectedUsers.map((u) => u.id.toString())];
 
     final createUsecase = ref.read(createConversationUsecaseProvider);
-    final result = await createUsecase(
-      name: groupName.trim(),
-      type: 'GROUP',
-      participantIds: participantIds,
-    );
+    final result = await createUsecase(name: groupName.trim(), type: 'GROUP', participantIds: participantIds);
 
     // Close loading dialog
     if (context.mounted) {
@@ -80,9 +69,7 @@ class NewGroupChatPage extends HookConsumerWidget {
     result.fold(
       (failure) {
         if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(failure.message)),
-          );
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(failure.message)));
         }
       },
       (conversation) {
@@ -95,10 +82,7 @@ class NewGroupChatPage extends HookConsumerWidget {
           context.pop();
           context.push(
             '/chat/${conversation.id}',
-            extra: {
-              'name': groupName.trim(),
-              'color': _avatarColor(context, conversation.id),
-            },
+            extra: {'name': groupName.trim(), 'color': _avatarColor(context, conversation.id)},
           );
         }
       },
@@ -166,18 +150,10 @@ class NewGroupChatPage extends HookConsumerWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text('New Group', style: textTheme.titleLarge),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => context.pop(),
-        ),
+        leading: IconButton(icon: const Icon(Icons.arrow_back), onPressed: () => context.pop()),
         actions: [
           TextButton(
-            onPressed: () => _createGroup(
-              context,
-              ref,
-              groupNameController.text,
-              selectedUsers.value,
-            ),
+            onPressed: () => _createGroup(context, ref, groupNameController.text, selectedUsers.value),
             child: Text(
               'Create',
               style: textTheme.titleMedium?.copyWith(
@@ -198,9 +174,7 @@ class NewGroupChatPage extends HookConsumerWidget {
               decoration: InputDecoration(
                 hintText: 'Group name',
                 prefixIcon: const Icon(Icons.group),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                 filled: true,
                 fillColor: Theme.of(context).colorScheme.surfaceContainerHighest,
               ),
@@ -217,9 +191,7 @@ class NewGroupChatPage extends HookConsumerWidget {
                 itemCount: selectedUsers.value.length,
                 itemBuilder: (context, index) {
                   final user = selectedUsers.value[index];
-                  final userName = user.fullName.isNotEmpty
-                      ? user.fullName
-                      : user.username;
+                  final userName = user.fullName.isNotEmpty ? user.fullName : user.username;
                   return Padding(
                     padding: const EdgeInsets.only(right: 8.0),
                     child: Chip(
@@ -227,15 +199,12 @@ class NewGroupChatPage extends HookConsumerWidget {
                         backgroundColor: _avatarColor(context, user.id),
                         child: Text(
                           userName.substring(0, 1),
-                          style: textTheme.labelSmall?.copyWith(
-                            color: Colors.white,
-                          ),
+                          style: textTheme.labelSmall?.copyWith(color: Colors.white),
                         ),
                       ),
                       label: Text(userName),
                       onDeleted: () {
-                        selectedUsers.value = List.from(selectedUsers.value)
-                          ..removeAt(index);
+                        selectedUsers.value = List.from(selectedUsers.value)..removeAt(index);
                       },
                     ),
                   );
@@ -259,9 +228,7 @@ class NewGroupChatPage extends HookConsumerWidget {
                         },
                       )
                     : null,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                 filled: true,
                 fillColor: Theme.of(context).colorScheme.surfaceContainerHighest,
               ),
@@ -281,8 +248,7 @@ class NewGroupChatPage extends HookConsumerWidget {
               searchError.value,
               (user) {
                 if (selectedUsers.value.contains(user)) {
-                  selectedUsers.value = List.from(selectedUsers.value)
-                    ..remove(user);
+                  selectedUsers.value = List.from(selectedUsers.value)..remove(user);
                 } else {
                   selectedUsers.value = [...selectedUsers.value, user];
                 }
@@ -317,10 +283,7 @@ class NewGroupChatPage extends HookConsumerWidget {
           children: [
             Icon(Icons.error_outline, size: 64, color: Colors.red[300]),
             const SizedBox(height: 16),
-            Text(
-              'Search failed',
-              style: textTheme.titleMedium?.copyWith(color: Colors.red[700]),
-            ),
+            Text('Search failed', style: textTheme.titleMedium?.copyWith(color: Colors.red[700])),
             const SizedBox(height: 8),
             Text(
               error,
@@ -340,15 +303,9 @@ class NewGroupChatPage extends HookConsumerWidget {
           children: [
             Icon(Icons.group_add, size: 64, color: Colors.grey[400]),
             const SizedBox(height: 16),
-            Text(
-              'Add members to your group',
-              style: textTheme.titleMedium?.copyWith(color: Colors.grey[600]),
-            ),
+            Text('Add members to your group', style: textTheme.titleMedium?.copyWith(color: Colors.grey[600])),
             const SizedBox(height: 8),
-            Text(
-              'Search for users to add',
-              style: textTheme.bodySmall?.copyWith(color: Colors.grey[500]),
-            ),
+            Text('Search for users to add', style: textTheme.bodySmall?.copyWith(color: Colors.grey[500])),
           ],
         ),
       );
@@ -362,15 +319,9 @@ class NewGroupChatPage extends HookConsumerWidget {
           children: [
             Icon(Icons.person_search, size: 64, color: Colors.grey[400]),
             const SizedBox(height: 16),
-            Text(
-              'No users found',
-              style: textTheme.titleMedium?.copyWith(color: Colors.grey[600]),
-            ),
+            Text('No users found', style: textTheme.titleMedium?.copyWith(color: Colors.grey[600])),
             const SizedBox(height: 8),
-            Text(
-              'Try a different search term',
-              style: textTheme.bodySmall?.copyWith(color: Colors.grey[500]),
-            ),
+            Text('Try a different search term', style: textTheme.bodySmall?.copyWith(color: Colors.grey[500])),
           ],
         ),
       );
@@ -383,14 +334,7 @@ class NewGroupChatPage extends HookConsumerWidget {
       itemBuilder: (context, index) {
         final user = results[index];
         final isSelected = selectedUsers.contains(user);
-        return _buildUserTile(
-          context,
-          ref,
-          textTheme,
-          user,
-          isSelected,
-          onUserToggle,
-        );
+        return _buildUserTile(context, ref, textTheme, user, isSelected, onUserToggle);
       },
     );
   }
@@ -411,10 +355,7 @@ class NewGroupChatPage extends HookConsumerWidget {
       onTap: () => onUserToggle(user),
       leading: CircleAvatar(
         backgroundColor: avatarColor,
-        child: Text(
-          initial,
-          style: textTheme.titleMedium?.copyWith(color: Colors.white),
-        ),
+        child: Text(initial, style: textTheme.titleMedium?.copyWith(color: Colors.white)),
       ),
       title: Row(
         children: [
@@ -428,22 +369,13 @@ class NewGroupChatPage extends HookConsumerWidget {
               ),
               child: Text(
                 'Contact',
-                style: textTheme.labelSmall?.copyWith(
-                  color: Theme.of(context).colorScheme.onPrimaryContainer,
-                ),
+                style: textTheme.labelSmall?.copyWith(color: Theme.of(context).colorScheme.onPrimaryContainer),
               ),
             ),
         ],
       ),
-      subtitle: Text(
-        '@${user.username}',
-        style: textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
-      ),
-      trailing: Checkbox(
-        value: isSelected,
-        onChanged: (_) => onUserToggle(user),
-      ),
+      subtitle: Text('@${user.username}', style: textTheme.bodySmall?.copyWith(color: Colors.grey[600])),
+      trailing: Checkbox(value: isSelected, onChanged: (_) => onUserToggle(user)),
     );
   }
 }
-

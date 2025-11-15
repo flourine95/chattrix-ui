@@ -11,4 +11,3 @@ class CancelFriendRequestUseCase {
     return repository.cancelFriendRequest(friendRequestId: friendRequestId);
   }
 }
-

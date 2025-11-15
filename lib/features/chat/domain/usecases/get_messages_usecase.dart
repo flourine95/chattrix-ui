@@ -16,11 +16,6 @@ class GetMessagesUsecase {
     int size = 50,
     String sort = 'DESC',
   }) {
-    return repository.getMessages(
-      conversationId: conversationId,
-      page: page,
-      size: size,
-      sort: sort,
-    );
+    return repository.getMessages(conversationId: conversationId, page: page, size: size, sort: sort);
   }
 }

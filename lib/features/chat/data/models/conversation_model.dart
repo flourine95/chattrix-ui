@@ -20,13 +20,10 @@ abstract class ConversationModel with _$ConversationModel {
     MessageModel? lastMessage,
   }) = _ConversationModel;
 
-  factory ConversationModel.fromJson(Map<String, dynamic> json) =>
-      _$ConversationModelFromJson(json);
+  factory ConversationModel.fromJson(Map<String, dynamic> json) => _$ConversationModelFromJson(json);
 
   factory ConversationModel.fromApi(Map<String, dynamic> json) {
-    final participantsJson = (json['participants'] as List? ?? [])
-        .whereType<Map<String, dynamic>>()
-        .toList();
+    final participantsJson = (json['participants'] as List? ?? []).whereType<Map<String, dynamic>>().toList();
 
     final lastMessageJson = json['lastMessage'];
     MessageModel? lastMessageModel;
@@ -40,9 +37,7 @@ abstract class ConversationModel with _$ConversationModel {
       type: (json['type'] ?? '').toString(),
       createdAt: (json['createdAt'] ?? json['created_at'] ?? '').toString(),
       updatedAt: (json['updatedAt'] ?? json['updated_at'] ?? '').toString(),
-      participants: participantsJson
-          .map((p) => ParticipantModel.fromApi(p))
-          .toList(),
+      participants: participantsJson.map((p) => ParticipantModel.fromApi(p)).toList(),
       lastMessage: lastMessageModel,
     );
   }

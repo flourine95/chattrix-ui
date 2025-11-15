@@ -7,11 +7,7 @@ class MentionableUser {
   final String name;
   final String? avatarUrl;
 
-  const MentionableUser({
-    required this.id,
-    required this.name,
-    this.avatarUrl,
-  });
+  const MentionableUser({required this.id, required this.name, this.avatarUrl});
 }
 
 /// Text field with mention autocomplete support
@@ -130,9 +126,7 @@ class _MentionTextFieldState extends State<MentionTextField> {
               decoration: BoxDecoration(
                 color: Theme.of(context).colorScheme.surface,
                 borderRadius: BorderRadius.circular(8),
-                border: Border.all(
-                  color: Theme.of(context).colorScheme.outlineVariant,
-                ),
+                border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
               ),
               child: ListView.builder(
                 padding: EdgeInsets.zero,
@@ -144,20 +138,12 @@ class _MentionTextFieldState extends State<MentionTextField> {
                     dense: true,
                     leading: CircleAvatar(
                       radius: 16,
-                      backgroundImage: user.avatarUrl != null
-                          ? NetworkImage(user.avatarUrl!)
-                          : null,
+                      backgroundImage: user.avatarUrl != null ? NetworkImage(user.avatarUrl!) : null,
                       child: user.avatarUrl == null
-                          ? Text(
-                              user.name[0].toUpperCase(),
-                              style: const TextStyle(fontSize: 14),
-                            )
+                          ? Text(user.name[0].toUpperCase(), style: const TextStyle(fontSize: 14))
                           : null,
                     ),
-                    title: Text(
-                      user.name,
-                      style: Theme.of(context).textTheme.bodyMedium,
-                    ),
+                    title: Text(user.name, style: Theme.of(context).textTheme.bodyMedium),
                     onTap: () => _insertMention(user),
                   );
                 },
@@ -186,9 +172,7 @@ class _MentionTextFieldState extends State<MentionTextField> {
     final newText = '${text.substring(0, _mentionStartPosition)}@${user.name} ${text.substring(cursorPosition)}';
 
     widget.controller.text = newText;
-    widget.controller.selection = TextSelection.collapsed(
-      offset: _mentionStartPosition + user.name.length + 2,
-    );
+    widget.controller.selection = TextSelection.collapsed(offset: _mentionStartPosition + user.name.length + 2);
 
     widget.onMentionAdded?.call(user);
     _removeOverlay();
@@ -233,10 +217,7 @@ class MentionText extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
-    final defaultMentionStyle = TextStyle(
-      color: colors.primary,
-      fontWeight: FontWeight.w600,
-    );
+    final defaultMentionStyle = TextStyle(color: colors.primary, fontWeight: FontWeight.w600);
 
     final spans = <InlineSpan>[];
     final regex = RegExp(r'@(\w+)');
@@ -245,31 +226,25 @@ class MentionText extends StatelessWidget {
     for (final match in regex.allMatches(text)) {
       // Add text before mention
       if (match.start > lastMatchEnd) {
-        spans.add(TextSpan(
-          text: text.substring(lastMatchEnd, match.start),
-          style: style,
-        ));
+        spans.add(TextSpan(text: text.substring(lastMatchEnd, match.start), style: style));
       }
 
       // Add mention
       final username = match.group(1)!;
-      spans.add(TextSpan(
-        text: '@$username',
-        style: mentionStyle ?? defaultMentionStyle,
-        recognizer: onMentionTap != null
-            ? (TapGestureRecognizer()..onTap = () => onMentionTap!(username))
-            : null,
-      ));
+      spans.add(
+        TextSpan(
+          text: '@$username',
+          style: mentionStyle ?? defaultMentionStyle,
+          recognizer: onMentionTap != null ? (TapGestureRecognizer()..onTap = () => onMentionTap!(username)) : null,
+        ),
+      );
 
       lastMatchEnd = match.end;
     }
 
     // Add remaining text
     if (lastMatchEnd < text.length) {
-      spans.add(TextSpan(
-        text: text.substring(lastMatchEnd),
-        style: style,
-      ));
+      spans.add(TextSpan(text: text.substring(lastMatchEnd), style: style));
     }
 
     return Text.rich(
@@ -279,4 +254,3 @@ class MentionText extends StatelessWidget {
     );
   }
 }
-

@@ -13,10 +13,6 @@ class CreateConversationUsecase {
     required String type,
     required List<String> participantIds,
   }) {
-    return repository.createConversation(
-      name: name,
-      type: type,
-      participantIds: participantIds,
-    );
+    return repository.createConversation(name: name, type: type, participantIds: participantIds);
   }
 }

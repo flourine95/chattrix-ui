@@ -4,12 +4,7 @@ import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:path_provider/path_provider.dart';
 
 class ImageCompressionService {
-  Future<File> compressImage(
-    File file, {
-    int quality = 85,
-    int maxWidth = 1920,
-    int maxHeight = 1920,
-  }) async {
+  Future<File> compressImage(File file, {int quality = 85, int maxWidth = 1920, int maxHeight = 1920}) async {
     try {
       final originalSize = await file.length();
 
@@ -53,12 +48,7 @@ class ImageCompressionService {
     final compressed = <File>[];
 
     for (final file in files) {
-      final result = await compressImage(
-        file,
-        quality: quality,
-        maxWidth: maxWidth,
-        maxHeight: maxHeight,
-      );
+      final result = await compressImage(file, quality: quality, maxWidth: maxWidth, maxHeight: maxHeight);
       compressed.add(result);
     }
 
@@ -114,12 +104,7 @@ class ImageCompressionService {
       final qualities = [85, 75, 65, 55, 45];
 
       for (final quality in qualities) {
-        final compressed = await compressImage(
-          file,
-          quality: quality,
-          maxWidth: maxWidth,
-          maxHeight: maxHeight,
-        );
+        final compressed = await compressImage(file, quality: quality, maxWidth: maxWidth, maxHeight: maxHeight);
 
         final size = await compressed.length();
 
@@ -128,12 +113,7 @@ class ImageCompressionService {
         }
       }
 
-      return await compressImage(
-        file,
-        quality: 45,
-        maxWidth: maxWidth,
-        maxHeight: maxHeight,
-      );
+      return await compressImage(file, quality: 45, maxWidth: maxWidth, maxHeight: maxHeight);
     } catch (e) {
       return file;
     }

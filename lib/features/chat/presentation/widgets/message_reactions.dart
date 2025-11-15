@@ -48,9 +48,7 @@ class MessageReactions extends StatelessWidget {
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                 decoration: BoxDecoration(
-                  color: hasReacted
-                      ? colors.primaryContainer
-                      : colors.surfaceContainerHighest,
+                  color: hasReacted ? colors.primaryContainer : colors.surfaceContainerHighest,
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
                     color: hasReacted ? colors.primary : colors.outlineVariant,
@@ -62,22 +60,15 @@ class MessageReactions extends StatelessWidget {
                   children: [
                     Text(
                       emojiParser.emojify(emoji),
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontFamily: 'NotoColorEmoji',
-                      ),
+                      style: const TextStyle(fontSize: 16, fontFamily: 'NotoColorEmoji'),
                     ),
                     const SizedBox(width: 4),
                     Text(
                       '${userIds.length}',
                       style: TextStyle(
                         fontSize: 12,
-                        fontWeight: hasReacted
-                            ? FontWeight.w600
-                            : FontWeight.normal,
-                        color: hasReacted
-                            ? colors.onPrimaryContainer
-                            : colors.onSurfaceVariant,
+                        fontWeight: hasReacted ? FontWeight.w600 : FontWeight.normal,
+                        color: hasReacted ? colors.onPrimaryContainer : colors.onSurfaceVariant,
                       ),
                     ),
                   ],
@@ -123,8 +114,7 @@ class MessageReactions extends StatelessWidget {
 
 /// Bottom sheet to pick emoji reactions
 class ReactionPickerBottomSheet extends StatelessWidget {
-  ReactionPickerBottomSheet({super.key, required this.onEmojiSelected})
-      : emojiParser = EmojiParser();
+  ReactionPickerBottomSheet({super.key, required this.onEmojiSelected}) : emojiParser = EmojiParser();
 
   final Function(String emoji) onEmojiSelected;
   final EmojiParser emojiParser;
@@ -184,10 +174,7 @@ class ReactionPickerBottomSheet extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           // Title
-          Text(
-            'React to message',
-            style: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
-          ),
+          Text('React to message', style: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600)),
           const SizedBox(height: 16),
           // Emoji grid
           GridView.builder(
@@ -215,10 +202,7 @@ class ReactionPickerBottomSheet extends StatelessWidget {
                   child: Center(
                     child: Text(
                       emojiParser.emojify(emoji),
-                      style: const TextStyle(
-                        fontSize: 24,
-                        fontFamily: 'NotoColorEmoji',
-                      ),
+                      style: const TextStyle(fontSize: 24, fontFamily: 'NotoColorEmoji'),
                     ),
                   ),
                 ),
@@ -233,15 +217,11 @@ class ReactionPickerBottomSheet extends StatelessWidget {
 }
 
 /// Show reaction picker bottom sheet
-Future<void> showReactionPicker(
-  BuildContext context,
-  Function(String emoji) onEmojiSelected,
-) {
+Future<void> showReactionPicker(BuildContext context, Function(String emoji) onEmojiSelected) {
   return showModalBottomSheet(
     context: context,
     isScrollControlled: true,
     backgroundColor: Colors.transparent,
-    builder: (context) =>
-        ReactionPickerBottomSheet(onEmojiSelected: onEmojiSelected),
+    builder: (context) => ReactionPickerBottomSheet(onEmojiSelected: onEmojiSelected),
   );
 }

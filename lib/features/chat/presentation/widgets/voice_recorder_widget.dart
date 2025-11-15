@@ -8,11 +8,7 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 class VoiceRecorderWidget extends HookConsumerWidget {
-  const VoiceRecorderWidget({
-    super.key,
-    required this.onRecordingComplete,
-    required this.onCancel,
-  });
+  const VoiceRecorderWidget({super.key, required this.onRecordingComplete, required this.onCancel});
 
   final Function(File audioFile, Duration duration) onRecordingComplete;
   final VoidCallback onCancel;
@@ -46,13 +42,7 @@ class VoiceRecorderWidget extends HookConsumerWidget {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: colors.surface,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.1),
-            blurRadius: 8,
-            offset: const Offset(0, -2),
-          ),
-        ],
+        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.1), blurRadius: 8, offset: const Offset(0, -2))],
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -66,9 +56,7 @@ class VoiceRecorderWidget extends HookConsumerWidget {
                 width: 12,
                 height: 12,
                 decoration: BoxDecoration(
-                  color: isPaused.value
-                      ? colors.error.withValues(alpha: 0.5)
-                      : colors.error,
+                  color: isPaused.value ? colors.error.withValues(alpha: 0.5) : colors.error,
                   shape: BoxShape.circle,
                 ),
               ),
@@ -85,9 +73,7 @@ class VoiceRecorderWidget extends HookConsumerWidget {
               // Status text
               Text(
                 isPaused.value ? 'Paused' : 'Recording...',
-                style: textTheme.bodyMedium?.copyWith(
-                  color: colors.onSurfaceVariant,
-                ),
+                style: textTheme.bodyMedium?.copyWith(color: colors.onSurfaceVariant),
               ),
             ],
           ),
@@ -95,15 +81,8 @@ class VoiceRecorderWidget extends HookConsumerWidget {
           // Waveform visualization (simplified)
           Container(
             height: 60,
-            decoration: BoxDecoration(
-              color: colors.surfaceContainerHighest,
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Center(
-              child: _WaveformVisualizer(
-                isRecording: isRecording.value && !isPaused.value,
-              ),
-            ),
+            decoration: BoxDecoration(color: colors.surfaceContainerHighest, borderRadius: BorderRadius.circular(8)),
+            child: Center(child: _WaveformVisualizer(isRecording: isRecording.value && !isPaused.value)),
           ),
           const SizedBox(height: 16),
           // Control buttons
@@ -156,10 +135,7 @@ class VoiceRecorderWidget extends HookConsumerWidget {
     );
   }
 
-  Future<void> _startRecording(
-    VoiceRecorderService service,
-    ValueNotifier<bool> isRecording,
-  ) async {
+  Future<void> _startRecording(VoiceRecorderService service, ValueNotifier<bool> isRecording) async {
     final path = await service.startRecording();
     if (path != null) {
       isRecording.value = true;
@@ -175,12 +151,7 @@ class VoiceRecorderWidget extends HookConsumerWidget {
 
 /// Button for recorder controls
 class _RecorderButton extends StatelessWidget {
-  const _RecorderButton({
-    required this.icon,
-    required this.label,
-    required this.color,
-    required this.onPressed,
-  });
+  const _RecorderButton({required this.icon, required this.label, required this.color, required this.onPressed});
 
   final IconData icon;
   final String label;
@@ -220,17 +191,13 @@ class _WaveformVisualizer extends StatefulWidget {
   State<_WaveformVisualizer> createState() => _WaveformVisualizerState();
 }
 
-class _WaveformVisualizerState extends State<_WaveformVisualizer>
-    with SingleTickerProviderStateMixin {
+class _WaveformVisualizerState extends State<_WaveformVisualizer> with SingleTickerProviderStateMixin {
   late AnimationController _controller;
 
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 1000),
-    )..repeat();
+    _controller = AnimationController(vsync: this, duration: const Duration(milliseconds: 1000))..repeat();
   }
 
   @override
@@ -273,10 +240,7 @@ class _WaveformVisualizerState extends State<_WaveformVisualizer>
               width: 3,
               height: height,
               margin: const EdgeInsets.symmetric(horizontal: 2),
-              decoration: BoxDecoration(
-                color: colors.primary,
-                borderRadius: BorderRadius.circular(2),
-              ),
+              decoration: BoxDecoration(color: colors.primary, borderRadius: BorderRadius.circular(2)),
             );
           }),
         );

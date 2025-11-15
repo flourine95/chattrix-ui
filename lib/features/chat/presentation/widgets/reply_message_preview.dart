@@ -3,11 +3,7 @@ import 'package:flutter/material.dart';
 
 /// Widget to show the message being replied to
 class ReplyMessagePreview extends StatelessWidget {
-  const ReplyMessagePreview({
-    super.key,
-    required this.replyToMessage,
-    required this.onCancel,
-  });
+  const ReplyMessagePreview({super.key, required this.replyToMessage, required this.onCancel});
 
   final Message replyToMessage;
   final VoidCallback onCancel;
@@ -21,9 +17,7 @@ class ReplyMessagePreview extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
         color: colors.surfaceContainerHighest,
-        border: Border(
-          top: BorderSide(color: colors.outlineVariant),
-        ),
+        border: Border(top: BorderSide(color: colors.outlineVariant)),
       ),
       child: Row(
         children: [
@@ -31,10 +25,7 @@ class ReplyMessagePreview extends StatelessWidget {
           Container(
             width: 4,
             height: 48,
-            decoration: BoxDecoration(
-              color: colors.primary,
-              borderRadius: BorderRadius.circular(2),
-            ),
+            decoration: BoxDecoration(color: colors.primary, borderRadius: BorderRadius.circular(2)),
           ),
           const SizedBox(width: 12),
           // Message preview
@@ -45,19 +36,14 @@ class ReplyMessagePreview extends StatelessWidget {
               children: [
                 Text(
                   replyToMessage.sender.fullName,
-                  style: textTheme.labelMedium?.copyWith(
-                    color: colors.primary,
-                    fontWeight: FontWeight.w600,
-                  ),
+                  style: textTheme.labelMedium?.copyWith(color: colors.primary, fontWeight: FontWeight.w600),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
                 const SizedBox(height: 4),
                 Text(
                   _getMessagePreview(),
-                  style: textTheme.bodySmall?.copyWith(
-                    color: colors.onSurfaceVariant,
-                  ),
+                  style: textTheme.bodySmall?.copyWith(color: colors.onSurfaceVariant),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -69,10 +55,7 @@ class ReplyMessagePreview extends StatelessWidget {
             icon: const Icon(Icons.close, size: 20),
             onPressed: onCancel,
             padding: EdgeInsets.zero,
-            constraints: const BoxConstraints(
-              minWidth: 32,
-              minHeight: 32,
-            ),
+            constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
           ),
         ],
       ),
@@ -103,11 +86,7 @@ class ReplyMessagePreview extends StatelessWidget {
 
 /// Widget to show quoted message inside a message bubble
 class QuotedMessageWidget extends StatelessWidget {
-  const QuotedMessageWidget({
-    super.key,
-    required this.replyToMessage,
-    required this.onTap,
-  });
+  const QuotedMessageWidget({super.key, required this.replyToMessage, required this.onTap});
 
   final Message replyToMessage;
   final VoidCallback? onTap;
@@ -125,12 +104,7 @@ class QuotedMessageWidget extends StatelessWidget {
         decoration: BoxDecoration(
           color: colors.surfaceContainerHighest.withValues(alpha: 0.5),
           borderRadius: BorderRadius.circular(8),
-          border: Border(
-            left: BorderSide(
-              color: colors.primary,
-              width: 3,
-            ),
-          ),
+          border: Border(left: BorderSide(color: colors.primary, width: 3)),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -138,19 +112,14 @@ class QuotedMessageWidget extends StatelessWidget {
           children: [
             Text(
               replyToMessage.sender.fullName,
-              style: textTheme.labelSmall?.copyWith(
-                color: colors.primary,
-                fontWeight: FontWeight.w600,
-              ),
+              style: textTheme.labelSmall?.copyWith(color: colors.primary, fontWeight: FontWeight.w600),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
             const SizedBox(height: 2),
             Text(
               _getMessagePreview(),
-              style: textTheme.bodySmall?.copyWith(
-                color: colors.onSurfaceVariant,
-              ),
+              style: textTheme.bodySmall?.copyWith(color: colors.onSurfaceVariant),
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
             ),
@@ -181,4 +150,3 @@ class QuotedMessageWidget extends StatelessWidget {
     }
   }
 }
-

@@ -7,10 +7,7 @@ class DeleteMessageUsecase {
 
   DeleteMessageUsecase({required this.repository});
 
-  Future<Either<Failure, void>> call({
-    required String messageId,
-  }) async {
+  Future<Either<Failure, void>> call({required String messageId}) async {
     return await repository.deleteMessage(messageId);
   }
 }
-

@@ -21,10 +21,7 @@ class ProfilePage extends ConsumerWidget {
           // Add refresh button
           IconButton(
             icon: const Icon(Icons.refresh),
-            onPressed: isLoading
-                ? null
-                : () =>
-                      ref.read(authNotifierProvider.notifier).loadCurrentUser(),
+            onPressed: isLoading ? null : () => ref.read(authNotifierProvider.notifier).loadCurrentUser(),
             tooltip: 'Refresh information',
           ),
         ],
@@ -48,15 +45,10 @@ class ProfilePage extends ConsumerWidget {
                             CircleAvatar(
                               radius: 50,
                               backgroundColor: colors.primary,
-                              backgroundImage: user?.avatarUrl != null
-                                  ? NetworkImage(user!.avatarUrl!)
-                                  : null,
+                              backgroundImage: user?.avatarUrl != null ? NetworkImage(user!.avatarUrl!) : null,
                               child: user?.avatarUrl == null
                                   ? Text(
-                                      user?.username
-                                              .substring(0, 1)
-                                              .toUpperCase() ??
-                                          'U',
+                                      user?.username.substring(0, 1).toUpperCase() ?? 'U',
                                       style: textTheme.headlineLarge?.copyWith(
                                         color: colors.onPrimary,
                                         fontWeight: FontWeight.bold,
@@ -75,10 +67,7 @@ class ProfilePage extends ConsumerWidget {
                                   decoration: BoxDecoration(
                                     color: Colors.green,
                                     shape: BoxShape.circle,
-                                    border: Border.all(
-                                      color: colors.surface,
-                                      width: 3,
-                                    ),
+                                    border: Border.all(color: colors.surface, width: 3),
                                   ),
                                 ),
                               ),
@@ -89,9 +78,7 @@ class ProfilePage extends ConsumerWidget {
                         // Full Name
                         Text(
                           user?.fullName ?? 'Loading...',
-                          style: textTheme.headlineMedium?.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
+                          style: textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold),
                           textAlign: TextAlign.center,
                         ),
                         const SizedBox(height: 4),
@@ -99,10 +86,7 @@ class ProfilePage extends ConsumerWidget {
                         // Username
                         Text(
                           '@${user?.username ?? 'username'}',
-                          style: textTheme.titleMedium?.copyWith(
-                            color: colors.primary,
-                            fontWeight: FontWeight.w500,
-                          ),
+                          style: textTheme.titleMedium?.copyWith(color: colors.primary, fontWeight: FontWeight.w500),
                         ),
                         const SizedBox(height: 8),
 
@@ -110,17 +94,11 @@ class ProfilePage extends ConsumerWidget {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Icon(
-                              Icons.email_outlined,
-                              size: 16,
-                              color: colors.onSurface.withValues(alpha: 0.6),
-                            ),
+                            Icon(Icons.email_outlined, size: 16, color: colors.onSurface.withValues(alpha: 0.6)),
                             const SizedBox(width: 4),
                             Text(
                               user?.email ?? 'email@example.com',
-                              style: textTheme.bodyMedium?.copyWith(
-                                color: colors.onSurface.withValues(alpha: 0.8),
-                              ),
+                              style: textTheme.bodyMedium?.copyWith(color: colors.onSurface.withValues(alpha: 0.8)),
                             ),
                           ],
                         ),
@@ -128,10 +106,7 @@ class ProfilePage extends ConsumerWidget {
 
                         // Online status
                         Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 4,
-                          ),
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                           decoration: BoxDecoration(
                             color: (user?.isOnline ?? false)
                                 ? Colors.green.withValues(alpha: 0.1)
@@ -144,19 +119,13 @@ class ProfilePage extends ConsumerWidget {
                               Icon(
                                 Icons.circle,
                                 size: 8,
-                                color: (user?.isOnline ?? false)
-                                    ? Colors.green
-                                    : Colors.grey,
+                                color: (user?.isOnline ?? false) ? Colors.green : Colors.grey,
                               ),
                               const SizedBox(width: 6),
                               Text(
-                                (user?.isOnline ?? false)
-                                    ? 'Online'
-                                    : 'Offline',
+                                (user?.isOnline ?? false) ? 'Online' : 'Offline',
                                 style: textTheme.bodySmall?.copyWith(
-                                  color: (user?.isOnline ?? false)
-                                      ? Colors.green
-                                      : Colors.grey,
+                                  color: (user?.isOnline ?? false) ? Colors.green : Colors.grey,
                                   fontWeight: FontWeight.w500,
                                 ),
                               ),
@@ -176,21 +145,13 @@ class ProfilePage extends ConsumerWidget {
                       child: Container(
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
-                          color: colors.surfaceContainerHighest.withValues(
-                            alpha: 0.3,
-                          ),
+                          color: colors.surfaceContainerHighest.withValues(alpha: 0.3),
                           borderRadius: BorderRadius.circular(8),
-                          border: Border.all(
-                            color: colors.outline.withValues(alpha: 0.2),
-                          ),
+                          border: Border.all(color: colors.outline.withValues(alpha: 0.2)),
                         ),
                         child: Row(
                           children: [
-                            Icon(
-                              Icons.fingerprint,
-                              size: 16,
-                              color: colors.onSurface.withValues(alpha: 0.6),
-                            ),
+                            Icon(Icons.fingerprint, size: 16, color: colors.onSurface.withValues(alpha: 0.6)),
                             const SizedBox(width: 8),
                             Expanded(
                               child: Column(
@@ -199,17 +160,13 @@ class ProfilePage extends ConsumerWidget {
                                   Text(
                                     'User ID',
                                     style: textTheme.labelSmall?.copyWith(
-                                      color: colors.onSurface.withValues(
-                                        alpha: 0.6,
-                                      ),
+                                      color: colors.onSurface.withValues(alpha: 0.6),
                                     ),
                                   ),
                                   const SizedBox(height: 2),
                                   Text(
                                     user.id.toString(),
-                                    style: textTheme.bodySmall?.copyWith(
-                                      fontFamily: 'monospace',
-                                    ),
+                                    style: textTheme.bodySmall?.copyWith(fontFamily: 'monospace'),
                                     overflow: TextOverflow.ellipsis,
                                   ),
                                 ],
@@ -246,15 +203,9 @@ class ProfilePage extends ConsumerWidget {
 
                   // Debug Token Screen (for testing)
                   ListTile(
-                    leading: FaIcon(
-                      FontAwesomeIcons.bug,
-                      color: colors.secondary,
-                    ),
+                    leading: FaIcon(FontAwesomeIcons.bug, color: colors.secondary),
                     title: Text('Debug Token', style: textTheme.bodyLarge),
-                    trailing: Icon(
-                      Icons.chevron_right,
-                      color: colors.secondary,
-                    ),
+                    trailing: Icon(Icons.chevron_right, color: colors.secondary),
                     onTap: () {
                       context.push('/debug-token');
                     },
@@ -263,34 +214,20 @@ class ProfilePage extends ConsumerWidget {
 
                   // Logout
                   ListTile(
-                    leading: FaIcon(
-                      FontAwesomeIcons.rightFromBracket,
-                      color: colors.error,
-                    ),
-                    title: Text(
-                      'Logout',
-                      style: textTheme.bodyLarge?.copyWith(color: colors.error),
-                    ),
+                    leading: FaIcon(FontAwesomeIcons.rightFromBracket, color: colors.error),
+                    title: Text('Logout', style: textTheme.bodyLarge?.copyWith(color: colors.error)),
                     onTap: () async {
                       // Show confirmation dialog
                       final shouldLogout = await showDialog<bool>(
                         context: context,
                         builder: (context) => AlertDialog(
                           title: const Text('Logout'),
-                          content: const Text(
-                            'Are you sure you want to log out?',
-                          ),
+                          content: const Text('Are you sure you want to log out?'),
                           actions: [
-                            TextButton(
-                              onPressed: () => Navigator.pop(context, false),
-                              child: const Text('Cancel'),
-                            ),
+                            TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
                             TextButton(
                               onPressed: () => Navigator.pop(context, true),
-                              child: Text(
-                                'Logout',
-                                style: TextStyle(color: colors.error),
-                              ),
+                              child: Text('Logout', style: TextStyle(color: colors.error)),
                             ),
                           ],
                         ),

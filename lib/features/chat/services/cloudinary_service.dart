@@ -117,9 +117,7 @@ class CloudinaryService {
   }
 
   Future<void> deleteFile(String publicId, CloudinaryResourceType resourceType) async {
-    throw UnimplementedError(
-      '⚠️ File deletion requires API secret. Implement this in your backend.',
-    );
+    throw UnimplementedError('⚠️ File deletion requires API secret. Implement this in your backend.');
   }
 }
 

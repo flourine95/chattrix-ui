@@ -21,8 +21,7 @@ abstract class SearchUserModel with _$SearchUserModel {
     int? conversationId,
   }) = _SearchUserModel;
 
-  factory SearchUserModel.fromJson(Map<String, dynamic> json) =>
-      _$SearchUserModelFromJson(json);
+  factory SearchUserModel.fromJson(Map<String, dynamic> json) => _$SearchUserModelFromJson(json);
 
   SearchUser toEntity() {
     return SearchUser(

@@ -2,12 +2,7 @@ import 'package:flutter/material.dart';
 
 /// Overlay widget to show upload progress
 class UploadProgressOverlay extends StatelessWidget {
-  const UploadProgressOverlay({
-    super.key,
-    required this.progress,
-    required this.fileName,
-    this.onCancel,
-  });
+  const UploadProgressOverlay({super.key, required this.progress, required this.fileName, this.onCancel});
 
   final double progress; // 0.0 to 1.0
   final String fileName;
@@ -24,13 +19,7 @@ class UploadProgressOverlay extends StatelessWidget {
       decoration: BoxDecoration(
         color: colors.surface,
         borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.2),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
+        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.2), blurRadius: 8, offset: const Offset(0, 2))],
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -39,26 +28,16 @@ class UploadProgressOverlay extends StatelessWidget {
           // Header
           Row(
             children: [
-              Icon(
-                Icons.cloud_upload_outlined,
-                color: colors.primary,
-              ),
+              Icon(Icons.cloud_upload_outlined, color: colors.primary),
               const SizedBox(width: 12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      'Uploading',
-                      style: textTheme.titleSmall?.copyWith(
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
+                    Text('Uploading', style: textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600)),
                     Text(
                       fileName,
-                      style: textTheme.bodySmall?.copyWith(
-                        color: colors.onSurfaceVariant,
-                      ),
+                      style: textTheme.bodySmall?.copyWith(color: colors.onSurfaceVariant),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -70,10 +49,7 @@ class UploadProgressOverlay extends StatelessWidget {
                   icon: const Icon(Icons.close, size: 20),
                   onPressed: onCancel,
                   padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(
-                    minWidth: 32,
-                    minHeight: 32,
-                  ),
+                  constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
                 ),
             ],
           ),
@@ -92,9 +68,7 @@ class UploadProgressOverlay extends StatelessWidget {
           // Progress text
           Text(
             '${(progress * 100).toStringAsFixed(0)}%',
-            style: textTheme.bodySmall?.copyWith(
-              color: colors.onSurfaceVariant,
-            ),
+            style: textTheme.bodySmall?.copyWith(color: colors.onSurfaceVariant),
           ),
         ],
       ),
@@ -103,21 +77,13 @@ class UploadProgressOverlay extends StatelessWidget {
 }
 
 /// Show upload progress overlay
-OverlayEntry showUploadProgress(
-  BuildContext context, {
-  required String fileName,
-  VoidCallback? onCancel,
-}) {
+OverlayEntry showUploadProgress(BuildContext context, {required String fileName, VoidCallback? onCancel}) {
   final overlayEntry = OverlayEntry(
     builder: (context) => Positioned(
       bottom: 80,
       left: 0,
       right: 0,
-      child: UploadProgressOverlay(
-        progress: 0.0,
-        fileName: fileName,
-        onCancel: onCancel,
-      ),
+      child: UploadProgressOverlay(progress: 0.0, fileName: fileName, onCancel: onCancel),
     ),
   );
 
@@ -126,12 +92,7 @@ OverlayEntry showUploadProgress(
 }
 
 /// Update upload progress
-void updateUploadProgress(
-  OverlayEntry overlayEntry,
-  double progress,
-  String fileName,
-  VoidCallback? onCancel,
-) {
+void updateUploadProgress(OverlayEntry overlayEntry, double progress, String fileName, VoidCallback? onCancel) {
   overlayEntry.markNeedsBuild();
 }
 
@@ -140,11 +101,7 @@ class UploadProgressNotifier extends ValueNotifier<UploadProgress?> {
   UploadProgressNotifier() : super(null);
 
   void startUpload(String fileName) {
-    value = UploadProgress(
-      fileName: fileName,
-      progress: 0.0,
-      isUploading: true,
-    );
+    value = UploadProgress(fileName: fileName, progress: 0.0, isUploading: true);
   }
 
   void updateProgress(double progress) {
@@ -169,19 +126,9 @@ class UploadProgress {
   final bool isUploading;
   final String? error;
 
-  const UploadProgress({
-    required this.fileName,
-    required this.progress,
-    required this.isUploading,
-    this.error,
-  });
+  const UploadProgress({required this.fileName, required this.progress, required this.isUploading, this.error});
 
-  UploadProgress copyWith({
-    String? fileName,
-    double? progress,
-    bool? isUploading,
-    String? error,
-  }) {
+  UploadProgress copyWith({String? fileName, double? progress, bool? isUploading, String? error}) {
     return UploadProgress(
       fileName: fileName ?? this.fileName,
       progress: progress ?? this.progress,
@@ -193,11 +140,7 @@ class UploadProgress {
 
 /// Widget to show upload progress in the UI
 class UploadProgressWidget extends StatelessWidget {
-  const UploadProgressWidget({
-    super.key,
-    required this.uploadProgress,
-    this.onCancel,
-  });
+  const UploadProgressWidget({super.key, required this.uploadProgress, this.onCancel});
 
   final UploadProgress? uploadProgress;
   final VoidCallback? onCancel;
@@ -215,4 +158,3 @@ class UploadProgressWidget extends StatelessWidget {
     );
   }
 }
-

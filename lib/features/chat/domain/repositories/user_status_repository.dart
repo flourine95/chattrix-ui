@@ -8,9 +8,7 @@ abstract class UserStatusRepository {
   Future<Either<Failure, List<User>>> getOnlineUsers();
 
   /// Get online users in a conversation
-  Future<Either<Failure, List<User>>> getOnlineUsersInConversation(
-    String conversationId,
-  );
+  Future<Either<Failure, List<User>>> getOnlineUsersInConversation(String conversationId);
 
   /// Get user status
   Future<Either<Failure, UserStatus>> getUserStatus(String userId);

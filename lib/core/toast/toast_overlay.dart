@@ -4,14 +4,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'toast_controller.dart';
 import 'toast_type.dart';
 
-enum ToastPosition {
-  topLeft,
-  topCenter,
-  topRight,
-  bottomLeft,
-  bottomCenter,
-  bottomRight,
-}
+enum ToastPosition { topLeft, topCenter, topRight, bottomLeft, bottomCenter, bottomRight }
 
 class ToastOverlay extends StatelessWidget {
   const ToastOverlay({
@@ -68,9 +61,7 @@ class _ToastViewport extends ConsumerWidget {
 
     EdgeInsets paddingFor(ToastPosition pos, EdgeInsets base) {
       final lr = EdgeInsets.only(left: base.left, right: base.right);
-      if (pos == ToastPosition.topLeft ||
-          pos == ToastPosition.topCenter ||
-          pos == ToastPosition.topRight) {
+      if (pos == ToastPosition.topLeft || pos == ToastPosition.topCenter || pos == ToastPosition.topRight) {
         return lr.copyWith(top: base.top);
       } else {
         return lr.copyWith(bottom: base.bottom);
@@ -94,8 +85,7 @@ class _ToastViewport extends ConsumerWidget {
                     _ToastItem(
                       key: ValueKey(e.id),
                       entry: e,
-                      onClose: () =>
-                          ref.read(toastControllerProvider).dismiss(e.id),
+                      onClose: () => ref.read(toastControllerProvider).dismiss(e.id),
                     ),
                 ],
               ),
@@ -117,8 +107,7 @@ class _ToastItem extends StatefulWidget {
   State<_ToastItem> createState() => _ToastItemState();
 }
 
-class _ToastItemState extends State<_ToastItem>
-    with SingleTickerProviderStateMixin {
+class _ToastItemState extends State<_ToastItem> with SingleTickerProviderStateMixin {
   late final AnimationController _controller;
   late final Animation<Offset> _slide;
   late final Animation<double> _fade;
@@ -126,10 +115,7 @@ class _ToastItemState extends State<_ToastItem>
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 220),
-    );
+    _controller = AnimationController(vsync: this, duration: const Duration(milliseconds: 220));
     _slide = Tween<Offset>(
       begin: const Offset(0.08, -0.06),
       end: Offset.zero,
@@ -156,10 +142,7 @@ class _ToastItemState extends State<_ToastItem>
     final onBg = isDark ? Colors.white : Colors.black;
     final border = isDark ? const Color(0x1FFFFFFF) : const Color(0x14000000);
 
-    final iconBg = Color.alphaBlend(
-      accent.withValues(alpha: isDark ? 0.18 : 0.10),
-      bg,
-    );
+    final iconBg = Color.alphaBlend(accent.withValues(alpha: isDark ? 0.18 : 0.10), bg);
 
     return AnimatedSlide(
       duration: const Duration(milliseconds: 280),
@@ -184,9 +167,7 @@ class _ToastItemState extends State<_ToastItem>
                   ),
                   shadows: [
                     BoxShadow(
-                      color: isDark
-                          ? Colors.black.withValues(alpha: 0.5)
-                          : Colors.black.withValues(alpha: 0.06),
+                      color: isDark ? Colors.black.withValues(alpha: 0.5) : Colors.black.withValues(alpha: 0.06),
                       blurRadius: 24,
                       spreadRadius: 0,
                       offset: const Offset(0, 10),
@@ -198,10 +179,7 @@ class _ToastItemState extends State<_ToastItem>
                   child: Stack(
                     children: [
                       Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 14,
-                          vertical: 12,
-                        ),
+                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                         child: Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -211,15 +189,9 @@ class _ToastItemState extends State<_ToastItem>
                               decoration: BoxDecoration(
                                 color: iconBg,
                                 borderRadius: BorderRadius.circular(8),
-                                border: Border.all(
-                                  color: accent.withValues(alpha: 0.28),
-                                ),
+                                border: Border.all(color: accent.withValues(alpha: 0.28)),
                               ),
-                              child: Icon(
-                                toastIcon(widget.entry.type),
-                                color: accent,
-                                size: 20,
-                              ),
+                              child: Icon(toastIcon(widget.entry.type), color: accent, size: 20),
                             ),
                             const SizedBox(width: 12),
                             Expanded(
@@ -238,11 +210,10 @@ class _ToastItemState extends State<_ToastItem>
                                     const SizedBox(height: 4),
                                     Text(
                                       widget.entry.description!,
-                                      style: theme.textTheme.bodyMedium
-                                          ?.copyWith(
-                                            height: 1.25,
-                                            color: onBg.withValues(alpha: 0.8),
-                                          ),
+                                      style: theme.textTheme.bodyMedium?.copyWith(
+                                        height: 1.25,
+                                        color: onBg.withValues(alpha: 0.8),
+                                      ),
                                     ),
                                   ],
                                 ],
@@ -255,11 +226,7 @@ class _ToastItemState extends State<_ToastItem>
                               child: InkResponse(
                                 onTap: widget.onClose,
                                 radius: 18,
-                                child: Icon(
-                                  Icons.close_rounded,
-                                  size: 18,
-                                  color: onBg.withValues(alpha: 0.7),
-                                ),
+                                child: Icon(Icons.close_rounded, size: 18, color: onBg.withValues(alpha: 0.7)),
                               ),
                             ),
                           ],
@@ -289,11 +256,7 @@ class _ToastItemState extends State<_ToastItem>
 }
 
 class _ProgressBar extends StatefulWidget {
-  const _ProgressBar({
-    required this.color,
-    required this.startedAt,
-    required this.duration,
-  });
+  const _ProgressBar({required this.color, required this.startedAt, required this.duration});
 
   final Color color;
   final DateTime startedAt;
@@ -303,15 +266,13 @@ class _ProgressBar extends StatefulWidget {
   State<_ProgressBar> createState() => _ProgressBarState();
 }
 
-class _ProgressBarState extends State<_ProgressBar>
-    with SingleTickerProviderStateMixin {
+class _ProgressBarState extends State<_ProgressBar> with SingleTickerProviderStateMixin {
   late final AnimationController _controller;
 
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(vsync: this, duration: widget.duration)
-      ..forward();
+    _controller = AnimationController(vsync: this, duration: widget.duration)..forward();
   }
 
   @override

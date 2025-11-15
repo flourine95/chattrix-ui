@@ -8,14 +8,7 @@ class SendFriendRequestUseCase {
 
   SendFriendRequestUseCase(this.repository);
 
-  Future<Either<Failure, FriendRequest>> call({
-    required int receiverUserId,
-    String? nickname,
-  }) {
-    return repository.sendFriendRequest(
-      receiverUserId: receiverUserId,
-      nickname: nickname,
-    );
+  Future<Either<Failure, FriendRequest>> call({required int receiverUserId, String? nickname}) {
+    return repository.sendFriendRequest(receiverUserId: receiverUserId, nickname: nickname);
   }
 }
-

@@ -31,8 +31,7 @@ abstract class MessageModel with _$MessageModel {
     String? mentions,
   }) = _MessageModel;
 
-  factory MessageModel.fromJson(Map<String, dynamic> json) =>
-      _$MessageModelFromJson(json);
+  factory MessageModel.fromJson(Map<String, dynamic> json) => _$MessageModelFromJson(json);
 
   factory MessageModel.fromApi(Map<String, dynamic> json) {
     final senderJson = (json['sender'] is Map<String, dynamic>)
@@ -50,13 +49,8 @@ abstract class MessageModel with _$MessageModel {
       id: (json['id'] ?? json['messageId'] ?? ''),
       content: (json['content'] ?? '').toString(),
       type: (json['type'] ?? '').toString(),
-      createdAt:
-          (json['createdAt'] ??
-                  json['sentAt'] ??
-                  DateTime.now().toIso8601String())
-              .toString(),
-      conversationId: (json['conversationId'] ?? json['conversation_id'] ?? '')
-          .toString(),
+      createdAt: (json['createdAt'] ?? json['sentAt'] ?? DateTime.now().toIso8601String()).toString(),
+      conversationId: (json['conversationId'] ?? json['conversation_id'] ?? '').toString(),
       sender: MessageSenderModel.fromApi(senderJson),
       mediaUrl: json['mediaUrl']?.toString(),
       thumbnailUrl: json['thumbnailUrl']?.toString(),

@@ -22,9 +22,7 @@ final contactRemoteDataSourceProvider = Provider<ContactRemoteDataSource>((ref) 
 
 // Repository provider
 final contactRepositoryProvider = Provider<ContactRepository>((ref) {
-  return ContactRepositoryImpl(
-    remoteDataSource: ref.watch(contactRemoteDataSourceProvider),
-  );
+  return ContactRepositoryImpl(remoteDataSource: ref.watch(contactRemoteDataSourceProvider));
 });
 
 // Use case providers
@@ -124,16 +122,10 @@ class ContactNotifier extends Notifier<ContactState> {
 
     result.fold(
       (failure) {
-        state = state.copyWith(
-          isLoading: false,
-          errorMessage: _getFailureMessage(failure),
-        );
+        state = state.copyWith(isLoading: false, errorMessage: _getFailureMessage(failure));
       },
       (contacts) {
-        state = state.copyWith(
-          isLoading: false,
-          contacts: contacts,
-        );
+        state = state.copyWith(isLoading: false, contacts: contacts);
       },
     );
   }
@@ -143,14 +135,10 @@ class ContactNotifier extends Notifier<ContactState> {
 
     result.fold(
       (failure) {
-        state = state.copyWith(
-          errorMessage: _getFailureMessage(failure),
-        );
+        state = state.copyWith(errorMessage: _getFailureMessage(failure));
       },
       (requests) {
-        state = state.copyWith(
-          receivedRequests: requests,
-        );
+        state = state.copyWith(receivedRequests: requests);
       },
     );
   }
@@ -160,42 +148,26 @@ class ContactNotifier extends Notifier<ContactState> {
 
     result.fold(
       (failure) {
-        state = state.copyWith(
-          errorMessage: _getFailureMessage(failure),
-        );
+        state = state.copyWith(errorMessage: _getFailureMessage(failure));
       },
       (requests) {
-        state = state.copyWith(
-          sentRequests: requests,
-        );
+        state = state.copyWith(sentRequests: requests);
       },
     );
   }
 
-  Future<bool> sendFriendRequest({
-    required int receiverUserId,
-    String? nickname,
-  }) async {
+  Future<bool> sendFriendRequest({required int receiverUserId, String? nickname}) async {
     state = state.copyWith(isLoading: true, clearError: true);
 
-    final result = await ref.read(sendFriendRequestUseCaseProvider)(
-      receiverUserId: receiverUserId,
-      nickname: nickname,
-    );
+    final result = await ref.read(sendFriendRequestUseCaseProvider)(receiverUserId: receiverUserId, nickname: nickname);
 
     return result.fold(
       (failure) {
-        state = state.copyWith(
-          isLoading: false,
-          errorMessage: _getFailureMessage(failure),
-        );
+        state = state.copyWith(isLoading: false, errorMessage: _getFailureMessage(failure));
         return false;
       },
       (friendRequest) {
-        state = state.copyWith(
-          isLoading: false,
-          sentRequests: [...state.sentRequests, friendRequest],
-        );
+        state = state.copyWith(isLoading: false, sentRequests: [...state.sentRequests, friendRequest]);
         return true;
       },
     );
@@ -208,19 +180,14 @@ class ContactNotifier extends Notifier<ContactState> {
 
     return result.fold(
       (failure) {
-        state = state.copyWith(
-          isLoading: false,
-          errorMessage: _getFailureMessage(failure),
-        );
+        state = state.copyWith(isLoading: false, errorMessage: _getFailureMessage(failure));
         return false;
       },
       (_) {
         // Remove from received requests and reload contacts
         state = state.copyWith(
           isLoading: false,
-          receivedRequests: state.receivedRequests
-              .where((request) => request.id != requestId)
-              .toList(),
+          receivedRequests: state.receivedRequests.where((request) => request.id != requestId).toList(),
         );
         loadContacts();
         return true;
@@ -235,19 +202,14 @@ class ContactNotifier extends Notifier<ContactState> {
 
     return result.fold(
       (failure) {
-        state = state.copyWith(
-          isLoading: false,
-          errorMessage: _getFailureMessage(failure),
-        );
+        state = state.copyWith(isLoading: false, errorMessage: _getFailureMessage(failure));
         return false;
       },
       (_) {
         // Remove from received requests
         state = state.copyWith(
           isLoading: false,
-          receivedRequests: state.receivedRequests
-              .where((request) => request.id != requestId)
-              .toList(),
+          receivedRequests: state.receivedRequests.where((request) => request.id != requestId).toList(),
         );
         return true;
       },
@@ -261,19 +223,14 @@ class ContactNotifier extends Notifier<ContactState> {
 
     return result.fold(
       (failure) {
-        state = state.copyWith(
-          isLoading: false,
-          errorMessage: _getFailureMessage(failure),
-        );
+        state = state.copyWith(isLoading: false, errorMessage: _getFailureMessage(failure));
         return false;
       },
       (_) {
         // Remove from sent requests
         state = state.copyWith(
           isLoading: false,
-          sentRequests: state.sentRequests
-              .where((request) => request.id != requestId)
-              .toList(),
+          sentRequests: state.sentRequests.where((request) => request.id != requestId).toList(),
         );
         return true;
       },
@@ -285,4 +242,3 @@ class ContactNotifier extends Notifier<ContactState> {
 final contactProvider = NotifierProvider<ContactNotifier, ContactState>(() {
   return ContactNotifier();
 });
-

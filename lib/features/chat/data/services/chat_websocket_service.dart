@@ -39,8 +39,7 @@ class ChatWebSocketService {
   final _messageController = StreamController<Message>.broadcast();
   final _typingController = StreamController<TypingIndicator>.broadcast();
   final _userStatusController = StreamController<UserStatusUpdate>.broadcast();
-  final _conversationUpdateController =
-      StreamController<ConversationUpdate>.broadcast();
+  final _conversationUpdateController = StreamController<ConversationUpdate>.broadcast();
   final _connectionController = StreamController<bool>.broadcast();
 
   Stream<Message> get messageStream => _messageController.stream;
@@ -49,8 +48,7 @@ class ChatWebSocketService {
 
   Stream<UserStatusUpdate> get userStatusStream => _userStatusController.stream;
 
-  Stream<ConversationUpdate> get conversationUpdateStream =>
-      _conversationUpdateController.stream;
+  Stream<ConversationUpdate> get conversationUpdateStream => _conversationUpdateController.stream;
 
   Stream<bool> get connectionStream => _connectionController.stream;
 
@@ -151,11 +149,7 @@ class ChatWebSocketService {
   }
 
   /// Send a chat message
-  void sendMessage(
-    String conversationId,
-    String content, {
-    int? replyToMessageId,
-  }) {
+  void sendMessage(String conversationId, String content, {int? replyToMessageId}) {
     if (_channel == null) {
       return;
     }

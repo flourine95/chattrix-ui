@@ -5,10 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 class SettingsSectionWidget extends HookConsumerWidget {
-  const SettingsSectionWidget({
-    super.key,
-    required this.conversation,
-  });
+  const SettingsSectionWidget({super.key, required this.conversation});
 
   final Conversation conversation;
 
@@ -85,9 +82,7 @@ class SettingsSectionWidget extends HookConsumerWidget {
         _SettingsSwitchTile(
           icon: Icons.volume_off_outlined,
           title: 'Mute',
-          subtitle: isMuted.value
-              ? 'Conversation is muted'
-              : 'Mute notification sounds',
+          subtitle: isMuted.value ? 'Conversation is muted' : 'Mute notification sounds',
           value: isMuted.value,
           onChanged: (value) {
             isMuted.value = value;
@@ -104,9 +99,7 @@ class SettingsSectionWidget extends HookConsumerWidget {
           _SettingsSwitchTile(
             icon: Icons.block_outlined,
             title: 'Block',
-            subtitle: isBlocked.value
-                ? 'User is blocked'
-                : 'Block messages and calls',
+            subtitle: isBlocked.value ? 'User is blocked' : 'Block messages and calls',
             value: isBlocked.value,
             onChanged: (value) {
               isBlocked.value = value;
@@ -167,13 +160,7 @@ class SettingsSectionWidget extends HookConsumerWidget {
             const SizedBox(height: 16),
             Wrap(
               spacing: 12,
-              children: [
-                Colors.blue,
-                Colors.green,
-                Colors.red,
-                Colors.purple,
-                Colors.orange,
-              ].map((color) {
+              children: [Colors.blue, Colors.green, Colors.red, Colors.purple, Colors.orange].map((color) {
                 return InkWell(
                   onTap: () {
                     // TODO: Update theme color
@@ -182,10 +169,7 @@ class SettingsSectionWidget extends HookConsumerWidget {
                   child: Container(
                     width: 50,
                     height: 50,
-                    decoration: BoxDecoration(
-                      color: color,
-                      shape: BoxShape.circle,
-                    ),
+                    decoration: BoxDecoration(color: color, shape: BoxShape.circle),
                   ),
                 );
               }).toList(),
@@ -204,15 +188,10 @@ class SettingsSectionWidget extends HookConsumerWidget {
         title: const Text('Set Nickname'),
         content: TextField(
           controller: controller,
-          decoration: const InputDecoration(
-            hintText: 'Enter nickname...',
-          ),
+          decoration: const InputDecoration(hintText: 'Enter nickname...'),
         ),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
           TextButton(
             onPressed: () {
               // TODO: Update nickname
@@ -233,15 +212,10 @@ class SettingsSectionWidget extends HookConsumerWidget {
         title: const Text('Rename Group'),
         content: TextField(
           controller: controller,
-          decoration: const InputDecoration(
-            hintText: 'Enter group name...',
-          ),
+          decoration: const InputDecoration(hintText: 'Enter group name...'),
         ),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
           TextButton(
             onPressed: () {
               // TODO: Update group name
@@ -266,18 +240,13 @@ class SettingsSectionWidget extends HookConsumerWidget {
           'They will not be notified that you blocked them.',
         ),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
           TextButton(
             onPressed: () {
               // TODO: Block user
               Navigator.pop(context);
             },
-            style: TextButton.styleFrom(
-              foregroundColor: Colors.red,
-            ),
+            style: TextButton.styleFrom(foregroundColor: Colors.red),
             child: const Text('Block'),
           ),
         ],
@@ -330,19 +299,14 @@ class SettingsSectionWidget extends HookConsumerWidget {
           'You will not be able to see new messages.',
         ),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
           TextButton(
             onPressed: () {
               // TODO: Leave group
               Navigator.pop(context);
               context.pop(); // Go back to conversations list
             },
-            style: TextButton.styleFrom(
-              foregroundColor: Colors.red,
-            ),
+            style: TextButton.styleFrom(foregroundColor: Colors.red),
             child: const Text('Leave'),
           ),
         ],
@@ -360,19 +324,14 @@ class SettingsSectionWidget extends HookConsumerWidget {
           'All message history will be permanently deleted.',
         ),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
           TextButton(
             onPressed: () {
               // TODO: Delete conversation
               Navigator.pop(context);
               context.pop(); // Go back to conversations list
             },
-            style: TextButton.styleFrom(
-              foregroundColor: Colors.red,
-            ),
+            style: TextButton.styleFrom(foregroundColor: Colors.red),
             child: const Text('Delete'),
           ),
         ],
@@ -382,10 +341,7 @@ class SettingsSectionWidget extends HookConsumerWidget {
 }
 
 class _SectionHeader extends StatelessWidget {
-  const _SectionHeader({
-    required this.title,
-    this.isDestructive = false,
-  });
+  const _SectionHeader({required this.title, this.isDestructive = false});
 
   final String title;
   final bool isDestructive;
@@ -396,10 +352,7 @@ class _SectionHeader extends StatelessWidget {
 
     return Text(
       title.toUpperCase(),
-      style: textTheme.labelMedium?.copyWith(
-        fontWeight: FontWeight.bold,
-        color: isDestructive ? Colors.red : null,
-      ),
+      style: textTheme.labelMedium?.copyWith(fontWeight: FontWeight.bold, color: isDestructive ? Colors.red : null),
     );
   }
 }
@@ -425,22 +378,9 @@ class _SettingsTile extends StatelessWidget {
     final colors = Theme.of(context).colorScheme;
 
     return ListTile(
-      leading: Icon(
-        icon,
-        color: isDestructive ? Colors.red : colors.primary,
-      ),
-      title: Text(
-        title,
-        style: textTheme.bodyLarge?.copyWith(
-          color: isDestructive ? Colors.red : null,
-        ),
-      ),
-      subtitle: subtitle != null
-          ? Text(
-              subtitle!,
-              style: textTheme.bodySmall,
-            )
-          : null,
+      leading: Icon(icon, color: isDestructive ? Colors.red : colors.primary),
+      title: Text(title, style: textTheme.bodyLarge?.copyWith(color: isDestructive ? Colors.red : null)),
+      subtitle: subtitle != null ? Text(subtitle!, style: textTheme.bodySmall) : null,
       trailing: const Icon(Icons.chevron_right),
       onTap: onTap,
     );
@@ -470,22 +410,9 @@ class _SettingsSwitchTile extends StatelessWidget {
     final colors = Theme.of(context).colorScheme;
 
     return SwitchListTile(
-      secondary: Icon(
-        icon,
-        color: isDestructive && value ? Colors.red : colors.primary,
-      ),
-      title: Text(
-        title,
-        style: textTheme.bodyLarge?.copyWith(
-          color: isDestructive && value ? Colors.red : null,
-        ),
-      ),
-      subtitle: subtitle != null
-          ? Text(
-              subtitle!,
-              style: textTheme.bodySmall,
-            )
-          : null,
+      secondary: Icon(icon, color: isDestructive && value ? Colors.red : colors.primary),
+      title: Text(title, style: textTheme.bodyLarge?.copyWith(color: isDestructive && value ? Colors.red : null)),
+      subtitle: subtitle != null ? Text(subtitle!, style: textTheme.bodySmall) : null,
       value: value,
       onChanged: onChanged,
     );

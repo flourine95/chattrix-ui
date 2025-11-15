@@ -15,11 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$MessageModel {
 
- int get id; String get content; String get type; String get createdAt; String get conversationId; MessageSenderModel get sender;// Rich media fields
- String? get mediaUrl; String? get thumbnailUrl; String? get fileName; int? get fileSize; int? get duration;// Location fields
- double? get latitude; double? get longitude; String? get locationName;// Reply/Thread fields
- int? get replyToMessageId;// Reactions and mentions (JSON strings)
- String? get reactions; String? get mentions;
+ int get id; String get content; String get type; String get createdAt; String get conversationId; MessageSenderModel get sender; String? get mediaUrl; String? get thumbnailUrl; String? get fileName; int? get fileSize; int? get duration; double? get latitude; double? get longitude; String? get locationName; int? get replyToMessageId; String? get reactions; String? get mentions;
 /// Create a copy of MessageModel
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -247,19 +243,15 @@ class _MessageModel extends MessageModel {
 @override final  String createdAt;
 @override final  String conversationId;
 @override final  MessageSenderModel sender;
-// Rich media fields
 @override final  String? mediaUrl;
 @override final  String? thumbnailUrl;
 @override final  String? fileName;
 @override final  int? fileSize;
 @override final  int? duration;
-// Location fields
 @override final  double? latitude;
 @override final  double? longitude;
 @override final  String? locationName;
-// Reply/Thread fields
 @override final  int? replyToMessageId;
-// Reactions and mentions (JSON strings)
 @override final  String? reactions;
 @override final  String? mentions;
 

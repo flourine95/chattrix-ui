@@ -13,10 +13,7 @@ abstract class AuthRemoteDataSource {
 
   Future<void> resendVerification({required String email});
 
-  Future<AuthTokensModel> login({
-    required String usernameOrEmail,
-    required String password,
-  });
+  Future<AuthTokensModel> login({required String usernameOrEmail, required String password});
 
   Future<UserModel> getCurrentUser(String accessToken);
 
@@ -30,11 +27,7 @@ abstract class AuthRemoteDataSource {
 
   Future<void> forgotPassword({required String email});
 
-  Future<void> resetPassword({
-    required String email,
-    required String otp,
-    required String newPassword,
-  });
+  Future<void> resetPassword({required String email, required String otp, required String newPassword});
 
   Future<void> logout(String accessToken);
 

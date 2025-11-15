@@ -9,14 +9,11 @@ part 'typing_indicator_model.g.dart';
 abstract class TypingIndicatorModel with _$TypingIndicatorModel {
   const TypingIndicatorModel._();
 
-  const factory TypingIndicatorModel({
-    required String conversationId,
-    required List<TypingUserModel> typingUsers,
-  }) = _TypingIndicatorModel;
+  const factory TypingIndicatorModel({required String conversationId, required List<TypingUserModel> typingUsers}) =
+      _TypingIndicatorModel;
 
   /// Convert from JSON
-  factory TypingIndicatorModel.fromJson(Map<String, dynamic> json) =>
-      _$TypingIndicatorModelFromJson(json);
+  factory TypingIndicatorModel.fromJson(Map<String, dynamic> json) => _$TypingIndicatorModelFromJson(json);
 
   /// Convert to entity
   TypingIndicator toEntity() {
@@ -32,15 +29,11 @@ abstract class TypingIndicatorModel with _$TypingIndicatorModel {
 abstract class TypingUserModel with _$TypingUserModel {
   const TypingUserModel._();
 
-  const factory TypingUserModel({
-    required String id,
-    required String username,
-    required String fullName,
-  }) = _TypingUserModel;
+  const factory TypingUserModel({required String id, required String username, required String fullName}) =
+      _TypingUserModel;
 
   /// Convert from JSON
-  factory TypingUserModel.fromJson(Map<String, dynamic> json) =>
-      _$TypingUserModelFromJson(json);
+  factory TypingUserModel.fromJson(Map<String, dynamic> json) => _$TypingUserModelFromJson(json);
 
   /// Convert to entity
   TypingUser toEntity() {

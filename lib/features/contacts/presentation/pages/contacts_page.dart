@@ -39,12 +39,7 @@ class _ContactsPageState extends ConsumerState<ContactsPage> {
                 IconButton(
                   icon: const Icon(Icons.person_add),
                   onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const FriendRequestsPage(),
-                      ),
-                    );
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => const FriendRequestsPage()));
                   },
                 ),
                 Positioned(
@@ -52,21 +47,11 @@ class _ContactsPageState extends ConsumerState<ContactsPage> {
                   top: 8,
                   child: Container(
                     padding: const EdgeInsets.all(4),
-                    decoration: BoxDecoration(
-                      color: Colors.red,
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    constraints: const BoxConstraints(
-                      minWidth: 16,
-                      minHeight: 16,
-                    ),
+                    decoration: BoxDecoration(color: Colors.red, borderRadius: BorderRadius.circular(10)),
+                    constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
                     child: Text(
                       '${state.receivedRequests.length}',
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 10,
-                        fontWeight: FontWeight.bold,
-                      ),
+                      style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
                       textAlign: TextAlign.center,
                     ),
                   ),
@@ -77,12 +62,7 @@ class _ContactsPageState extends ConsumerState<ContactsPage> {
             IconButton(
               icon: const Icon(Icons.person_add),
               onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const FriendRequestsPage(),
-                  ),
-                );
+                Navigator.push(context, MaterialPageRoute(builder: (context) => const FriendRequestsPage()));
               },
             ),
         ],
@@ -94,12 +74,7 @@ class _ContactsPageState extends ConsumerState<ContactsPage> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(
-                    'Error: ${state.errorMessage}',
-                    style: textTheme.bodyMedium?.copyWith(
-                      color: colorScheme.error,
-                    ),
-                  ),
+                  Text('Error: ${state.errorMessage}', style: textTheme.bodyMedium?.copyWith(color: colorScheme.error)),
                   const SizedBox(height: 16),
                   ElevatedButton(
                     onPressed: () {
@@ -115,24 +90,13 @@ class _ContactsPageState extends ConsumerState<ContactsPage> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(
-                    Icons.people_outline,
-                    size: 64,
-                    color: colorScheme.outline,
-                  ),
+                  Icon(Icons.people_outline, size: 64, color: colorScheme.outline),
                   const SizedBox(height: 16),
-                  Text(
-                    'No contacts yet',
-                    style: textTheme.titleMedium?.copyWith(
-                      color: colorScheme.outline,
-                    ),
-                  ),
+                  Text('No contacts yet', style: textTheme.titleMedium?.copyWith(color: colorScheme.outline)),
                   const SizedBox(height: 8),
                   Text(
                     'Add friends to start chatting',
-                    style: textTheme.bodySmall?.copyWith(
-                      color: colorScheme.outline,
-                    ),
+                    style: textTheme.bodySmall?.copyWith(color: colorScheme.outline),
                   ),
                 ],
               ),
@@ -148,42 +112,24 @@ class _ContactsPageState extends ConsumerState<ContactsPage> {
                   final contact = state.contacts[index];
                   return ListTile(
                     leading: CircleAvatar(
-                      backgroundImage: contact.avatarUrl != null
-                          ? NetworkImage(contact.avatarUrl!)
-                          : null,
-                      child: contact.avatarUrl == null
-                          ? Text(contact.fullName.substring(0, 1))
-                          : null,
+                      backgroundImage: contact.avatarUrl != null ? NetworkImage(contact.avatarUrl!) : null,
+                      child: contact.avatarUrl == null ? Text(contact.fullName.substring(0, 1)) : null,
                     ),
-                    title: Text(
-                      contact.nickname ?? contact.fullName,
-                      style: textTheme.titleMedium,
-                    ),
+                    title: Text(contact.nickname ?? contact.fullName, style: textTheme.titleMedium),
                     subtitle: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          '@${contact.username}',
-                          style: textTheme.bodySmall,
-                        ),
+                        Text('@${contact.username}', style: textTheme.bodySmall),
                         if (contact.isOnline)
                           Row(
                             children: [
                               Container(
                                 width: 8,
                                 height: 8,
-                                decoration: BoxDecoration(
-                                  color: Colors.green,
-                                  shape: BoxShape.circle,
-                                ),
+                                decoration: BoxDecoration(color: Colors.green, shape: BoxShape.circle),
                               ),
                               const SizedBox(width: 4),
-                              Text(
-                                'Online',
-                                style: textTheme.bodySmall?.copyWith(
-                                  color: Colors.green,
-                                ),
-                              ),
+                              Text('Online', style: textTheme.bodySmall?.copyWith(color: Colors.green)),
                             ],
                           ),
                       ],
@@ -200,12 +146,7 @@ class _ContactsPageState extends ConsumerState<ContactsPage> {
             ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => const SendFriendRequestPage(),
-            ),
-          );
+          Navigator.push(context, MaterialPageRoute(builder: (context) => const SendFriendRequestPage()));
         },
         child: const Icon(Icons.person_add),
       ),

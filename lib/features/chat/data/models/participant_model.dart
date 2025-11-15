@@ -19,8 +19,7 @@ abstract class ParticipantModel with _$ParticipantModel {
     String? lastSeen,
   }) = _ParticipantModel;
 
-  factory ParticipantModel.fromJson(Map<String, dynamic> json) =>
-      _$ParticipantModelFromJson(json);
+  factory ParticipantModel.fromJson(Map<String, dynamic> json) => _$ParticipantModelFromJson(json);
 
   factory ParticipantModel.fromApi(Map<String, dynamic> json) {
     final isOnline = json['isOnline'] as bool?;

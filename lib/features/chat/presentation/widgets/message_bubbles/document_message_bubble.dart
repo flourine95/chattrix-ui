@@ -63,16 +63,12 @@ class DocumentMessageBubble extends StatelessWidget {
         await launchUrl(uri, mode: LaunchMode.externalApplication);
       } else {
         if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Cannot open document')),
-          );
+          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Cannot open document')));
         }
       }
     } catch (e) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to open document: $e')),
-        );
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to open document: $e')));
       }
     }
   }
@@ -108,11 +104,7 @@ class DocumentMessageBubble extends StatelessWidget {
                   color: textColor.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: Icon(
-                  _getFileIcon(message.fileName),
-                  color: textColor,
-                  size: 24,
-                ),
+                child: Icon(_getFileIcon(message.fileName), color: textColor, size: 24),
               ),
               const SizedBox(width: 12),
 
@@ -124,10 +116,7 @@ class DocumentMessageBubble extends StatelessWidget {
                     // File name
                     Text(
                       message.fileName ?? 'Document',
-                      style: textTheme.bodyMedium?.copyWith(
-                        color: textColor,
-                        fontWeight: FontWeight.w500,
-                      ),
+                      style: textTheme.bodyMedium?.copyWith(color: textColor, fontWeight: FontWeight.w500),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -137,20 +126,14 @@ class DocumentMessageBubble extends StatelessWidget {
                     if (message.fileSize != null)
                       Text(
                         FormatUtils.formatFileSize(message.fileSize!),
-                        style: textTheme.bodySmall?.copyWith(
-                          color: textColor.withValues(alpha: 0.7),
-                        ),
+                        style: textTheme.bodySmall?.copyWith(color: textColor.withValues(alpha: 0.7)),
                       ),
                   ],
                 ),
               ),
 
               // Download icon
-              Icon(
-                Icons.download,
-                color: textColor,
-                size: 20,
-              ),
+              Icon(Icons.download, color: textColor, size: 20),
             ],
           ),
         ),
@@ -158,4 +141,3 @@ class DocumentMessageBubble extends StatelessWidget {
     );
   }
 }
-

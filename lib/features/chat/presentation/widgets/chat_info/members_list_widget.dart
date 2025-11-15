@@ -7,10 +7,7 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 class MembersListWidget extends HookConsumerWidget {
-  const MembersListWidget({
-    super.key,
-    required this.conversation,
-  });
+  const MembersListWidget({super.key, required this.conversation});
 
   final Conversation conversation;
 
@@ -36,11 +33,7 @@ class MembersListWidget extends HookConsumerWidget {
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
             color: colors.surface,
-            border: Border(
-              bottom: BorderSide(
-                color: colors.onSurface.withValues(alpha: 0.1),
-              ),
-            ),
+            border: Border(bottom: BorderSide(color: colors.onSurface.withValues(alpha: 0.1))),
           ),
           child: Column(
             children: [
@@ -64,9 +57,7 @@ class MembersListWidget extends HookConsumerWidget {
                   fillColor: colors.surface.withValues(alpha: 0.6),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(
-                      color: colors.onSurface.withValues(alpha: 0.2),
-                    ),
+                    borderSide: BorderSide(color: colors.onSurface.withValues(alpha: 0.2)),
                   ),
                 ),
               ),
@@ -96,18 +87,15 @@ class MembersListWidget extends HookConsumerWidget {
               final filteredMembers = conversation.participants.where((p) {
                 if (searchQuery.value.isEmpty) return true;
                 final query = searchQuery.value.toLowerCase();
-                return p.fullName.toLowerCase().contains(query) ||
-                    p.username.toLowerCase().contains(query);
+                return p.fullName.toLowerCase().contains(query) || p.username.toLowerCase().contains(query);
               }).toList();
 
               // Sort: Admins first, then by name
               filteredMembers.sort((a, b) {
-                if (a.role.toUpperCase() == 'ADMIN' &&
-                    b.role.toUpperCase() != 'ADMIN') {
+                if (a.role.toUpperCase() == 'ADMIN' && b.role.toUpperCase() != 'ADMIN') {
                   return -1;
                 }
-                if (a.role.toUpperCase() != 'ADMIN' &&
-                    b.role.toUpperCase() == 'ADMIN') {
+                if (a.role.toUpperCase() != 'ADMIN' && b.role.toUpperCase() == 'ADMIN') {
                   return 1;
                 }
                 return a.fullName.compareTo(b.fullName);
@@ -118,17 +106,11 @@ class MembersListWidget extends HookConsumerWidget {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(
-                        Icons.people_outline,
-                        size: 64,
-                        color: colors.onSurface.withValues(alpha: 0.3),
-                      ),
+                      Icon(Icons.people_outline, size: 64, color: colors.onSurface.withValues(alpha: 0.3)),
                       const SizedBox(height: 16),
                       Text(
                         'No members found',
-                        style: textTheme.bodyLarge?.copyWith(
-                          color: colors.onSurface.withValues(alpha: 0.6),
-                        ),
+                        style: textTheme.bodyLarge?.copyWith(color: colors.onSurface.withValues(alpha: 0.6)),
                       ),
                     ],
                   ),
@@ -153,11 +135,7 @@ class MembersListWidget extends HookConsumerWidget {
                     },
                     onManage: isAdmin && !isMe
                         ? () {
-                            _showMemberManagementDialog(
-                              context,
-                              member,
-                              isMemberAdmin,
-                            );
+                            _showMemberManagementDialog(context, member, isMemberAdmin);
                           }
                         : null,
                   );
@@ -177,21 +155,12 @@ class MembersListWidget extends HookConsumerWidget {
       builder: (context) => AlertDialog(
         title: const Text('Add Member'),
         content: const Text('Feature in development'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Close'),
-          ),
-        ],
+        actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text('Close'))],
       ),
     );
   }
 
-  void _showMemberManagementDialog(
-    BuildContext context,
-    Participant member,
-    bool isAdmin,
-  ) {
+  void _showMemberManagementDialog(BuildContext context, Participant member, bool isAdmin) {
     showModalBottomSheet(
       context: context,
       builder: (context) => Container(
@@ -201,11 +170,7 @@ class MembersListWidget extends HookConsumerWidget {
           children: [
             ListTile(
               leading: CircleAvatar(
-                child: Text(
-                  member.fullName.isNotEmpty
-                      ? member.fullName.substring(0, 1).toUpperCase()
-                      : '?',
-                ),
+                child: Text(member.fullName.isNotEmpty ? member.fullName.substring(0, 1).toUpperCase() : '?'),
               ),
               title: Text(member.fullName),
               subtitle: Text('@${member.username}'),
@@ -231,10 +196,7 @@ class MembersListWidget extends HookConsumerWidget {
               ),
             ListTile(
               leading: const Icon(Icons.person_remove, color: Colors.red),
-              title: const Text(
-                'Remove from group',
-                style: TextStyle(color: Colors.red),
-              ),
+              title: const Text('Remove from group', style: TextStyle(color: Colors.red)),
               onTap: () {
                 Navigator.pop(context);
                 _confirmRemoveMember(context, member);
@@ -251,14 +213,9 @@ class MembersListWidget extends HookConsumerWidget {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Make Admin'),
-        content: Text(
-          'Are you sure you want to make ${member.fullName} an admin?',
-        ),
+        content: Text('Are you sure you want to make ${member.fullName} an admin?'),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
           TextButton(
             onPressed: () {
               // TODO: Promote to admin
@@ -276,14 +233,9 @@ class MembersListWidget extends HookConsumerWidget {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Remove Admin'),
-        content: Text(
-          'Are you sure you want to remove admin privileges from ${member.fullName}?',
-        ),
+        content: Text('Are you sure you want to remove admin privileges from ${member.fullName}?'),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
           TextButton(
             onPressed: () {
               // TODO: Demote from admin
@@ -301,22 +253,15 @@ class MembersListWidget extends HookConsumerWidget {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Remove Member'),
-        content: Text(
-          'Are you sure you want to remove ${member.fullName} from the group?',
-        ),
+        content: Text('Are you sure you want to remove ${member.fullName} from the group?'),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
           TextButton(
             onPressed: () {
               // TODO: Remove member
               Navigator.pop(context);
             },
-            style: TextButton.styleFrom(
-              foregroundColor: Colors.red,
-            ),
+            style: TextButton.styleFrom(foregroundColor: Colors.red),
             child: const Text('Remove'),
           ),
         ],
@@ -352,9 +297,7 @@ class _MemberListItem extends StatelessWidget {
       decoration: BoxDecoration(
         color: colors.surface,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: colors.onSurface.withValues(alpha: 0.1),
-        ),
+        border: Border.all(color: colors.onSurface.withValues(alpha: 0.1)),
       ),
       child: ListTile(
         leading: Stack(
@@ -362,9 +305,7 @@ class _MemberListItem extends StatelessWidget {
             CircleAvatar(
               backgroundColor: colors.primary,
               child: Text(
-                member.fullName.isNotEmpty
-                    ? member.fullName.substring(0, 1).toUpperCase()
-                    : '?',
+                member.fullName.isNotEmpty ? member.fullName.substring(0, 1).toUpperCase() : '?',
                 style: TextStyle(color: colors.onPrimary),
               ),
             ),
@@ -378,10 +319,7 @@ class _MemberListItem extends StatelessWidget {
                   decoration: BoxDecoration(
                     color: Colors.green,
                     shape: BoxShape.circle,
-                    border: Border.all(
-                      color: colors.surface,
-                      width: 2,
-                    ),
+                    border: Border.all(color: colors.surface, width: 2),
                   ),
                 ),
               ),
@@ -389,12 +327,7 @@ class _MemberListItem extends StatelessWidget {
         ),
         title: Row(
           children: [
-            Expanded(
-              child: Text(
-                member.fullName,
-                style: textTheme.bodyLarge,
-              ),
-            ),
+            Expanded(child: Text(member.fullName, style: textTheme.bodyLarge)),
             if (isAdmin)
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -404,10 +337,7 @@ class _MemberListItem extends StatelessWidget {
                 ),
                 child: Text(
                   'Admin',
-                  style: textTheme.labelSmall?.copyWith(
-                    color: colors.primary,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: textTheme.labelSmall?.copyWith(color: colors.primary, fontWeight: FontWeight.bold),
                 ),
               ),
             if (isMe)
@@ -419,10 +349,7 @@ class _MemberListItem extends StatelessWidget {
                 ),
                 child: Text(
                   'You',
-                  style: textTheme.labelSmall?.copyWith(
-                    color: colors.secondary,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: textTheme.labelSmall?.copyWith(color: colors.secondary, fontWeight: FontWeight.bold),
                 ),
               ),
           ],
@@ -432,30 +359,17 @@ class _MemberListItem extends StatelessWidget {
           children: [
             Text('@${member.username}'),
             if (member.isOnline ?? false)
-              Text(
-                'Active now',
-                style: textTheme.labelSmall?.copyWith(
-                  color: Colors.green,
-                ),
-              )
+              Text('Active now', style: textTheme.labelSmall?.copyWith(color: Colors.green))
             else if (member.lastSeen != null)
               Text(
                 'Active ${FormatUtils.formatTimeAgo(member.lastSeen!)}',
-                style: textTheme.labelSmall?.copyWith(
-                  color: colors.onSurface.withValues(alpha: 0.6),
-                ),
+                style: textTheme.labelSmall?.copyWith(color: colors.onSurface.withValues(alpha: 0.6)),
               ),
           ],
         ),
-        trailing: canManage
-            ? IconButton(
-                icon: const Icon(Icons.more_vert),
-                onPressed: onManage,
-              )
-            : null,
+        trailing: canManage ? IconButton(icon: const Icon(Icons.more_vert), onPressed: onManage) : null,
         onTap: onTap,
       ),
     );
   }
-
 }

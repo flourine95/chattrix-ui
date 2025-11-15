@@ -29,31 +29,20 @@ class LoginScreen extends HookConsumerWidget {
               const SizedBox(height: 80),
               Text(
                 'Welcome Back',
-                style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
+                style: Theme.of(context).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 8),
               Text(
                 'Enter your credentials to continue',
-                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                  color: Theme.of(
-                    context,
-                  ).colorScheme.onSurface.withValues(alpha: 0.6),
-                ),
+                style: Theme.of(
+                  context,
+                ).textTheme.bodyLarge?.copyWith(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6)),
               ),
               const SizedBox(height: 40),
 
-              AppInputField(
-                labelText: 'Email or Username',
-                controller: emailController,
-              ),
+              AppInputField(labelText: 'Email or Username', controller: emailController),
               const SizedBox(height: 20),
-              AppInputField(
-                labelText: 'Password',
-                isPassword: true,
-                controller: passwordController,
-              ),
+              AppInputField(labelText: 'Password', isPassword: true, controller: passwordController),
               const SizedBox(height: 12),
 
               Align(
@@ -73,11 +62,7 @@ class LoginScreen extends HookConsumerWidget {
                   final password = passwordController.text;
 
                   if (email.isEmpty || password.isEmpty) {
-                    Toasts.error(
-                      context,
-                      title: 'Error',
-                      description: 'Please fill in all fields',
-                    );
+                    Toasts.error(context, title: 'Error', description: 'Please fill in all fields');
                     return;
                   }
 
@@ -88,20 +73,12 @@ class LoginScreen extends HookConsumerWidget {
                   if (!context.mounted) return;
 
                   if (success) {
-                    Toasts.success(
-                      context,
-                      title: 'Success',
-                      description: 'Login successful!',
-                    );
+                    Toasts.success(context, title: 'Success', description: 'Login successful!');
                     // The router will automatically redirect to home due to the auth guard
                     context.go('/');
                   } else {
                     final error = ref.read(authErrorProvider);
-                    Toasts.error(
-                      context,
-                      title: 'Login Failed',
-                      description: error ?? 'An error occurred',
-                    );
+                    Toasts.error(context, title: 'Login Failed', description: error ?? 'An error occurred');
                   }
                 },
               ),
@@ -110,23 +87,11 @@ class LoginScreen extends HookConsumerWidget {
               const _OrDivider(),
               const SizedBox(height: 30),
 
-              SocialLoginButton(
-                icon: FontAwesomeIcons.google,
-                text: 'Continue with Google',
-                onPressed: () {},
-              ),
+              SocialLoginButton(icon: FontAwesomeIcons.google, text: 'Continue with Google', onPressed: () {}),
               const SizedBox(height: 16),
-              SocialLoginButton(
-                icon: FontAwesomeIcons.apple,
-                text: 'Continue with Apple',
-                onPressed: () {},
-              ),
+              SocialLoginButton(icon: FontAwesomeIcons.apple, text: 'Continue with Apple', onPressed: () {}),
               const SizedBox(height: 16),
-              SocialLoginButton(
-                icon: FontAwesomeIcons.facebook,
-                text: 'Continue with Facebook',
-                onPressed: () {},
-              ),
+              SocialLoginButton(icon: FontAwesomeIcons.facebook, text: 'Continue with Facebook', onPressed: () {}),
               const SizedBox(height: 40),
 
               _buildSignUpLink(context),
@@ -144,11 +109,7 @@ class LoginScreen extends HookConsumerWidget {
       children: [
         Text(
           "Don't have an account? ",
-          style: TextStyle(
-            color: Theme.of(
-              context,
-            ).colorScheme.onSurface.withValues(alpha: 0.6),
-          ),
+          style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6)),
         ),
         TextButton(
           onPressed: () => context.go(AppRouter.registerPath),
@@ -165,22 +126,13 @@ class _OrDivider extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final dividerColor = Theme.of(
-      context,
-    ).colorScheme.onSurface.withValues(alpha: 0.2);
+    final dividerColor = Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.2);
     return Row(
       children: [
         Expanded(child: Divider(color: dividerColor)),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16.0),
-          child: Text(
-            'OR',
-            style: TextStyle(
-              color: Theme.of(
-                context,
-              ).colorScheme.onSurface.withValues(alpha: 0.6),
-            ),
-          ),
+          child: Text('OR', style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6))),
         ),
         Expanded(child: Divider(color: dividerColor)),
       ],
