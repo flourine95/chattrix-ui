@@ -3,13 +3,6 @@ import 'package:chattrix_ui/features/chat/domain/entities/user_status.dart';
 import 'package:chattrix_ui/features/chat/presentation/providers/chat_usecase_provider.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-// NOTE: conversationsProvider and messagesProvider are now in their respective Notifier files:
-// - conversations_notifier.dart
-// - messages_notifier.dart
-
-// ========== Online Users State ==========
-
-/// Provider for online users list
 final onlineUsersProvider = FutureProvider((ref) async {
   final usecase = ref.watch(getOnlineUsersUsecaseProvider);
   final result = await usecase();
@@ -20,9 +13,6 @@ final onlineUsersProvider = FutureProvider((ref) async {
   );
 });
 
-// ========== User Status State ==========
-
-/// Provider for a specific user's status
 final userStatusProvider = FutureProvider.family<UserStatus, String>((
   ref,
   userId,
@@ -36,9 +26,6 @@ final userStatusProvider = FutureProvider.family<UserStatus, String>((
   );
 });
 
-// ========== Search Users State ==========
-
-/// Provider for searching users
 final searchUsersProvider = FutureProvider.family<List<SearchUser>, String>((
   ref,
   query,
