@@ -21,4 +21,13 @@ abstract class FriendRequest with _$FriendRequest {
   }) = _FriendRequest;
 }
 
-enum FriendRequestStatus { pending, accepted, rejected, cancelled }
+enum FriendRequestStatus {
+  @JsonValue('PENDING')
+  pending,
+  @JsonValue('ACCEPTED')
+  accepted,
+  @JsonValue('REJECTED')
+  rejected,
+  @JsonValue('CANCELLED')
+  cancelled,
+}

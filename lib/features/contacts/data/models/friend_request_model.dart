@@ -10,18 +10,16 @@ abstract class FriendRequestModel with _$FriendRequestModel {
 
   const factory FriendRequestModel({
     required int id,
-    required int senderUserId,
-    required int receiverUserId,
-    required String senderUsername,
-    required String senderFullName,
-    String? senderAvatarUrl,
-    required String receiverUsername,
-    required String receiverFullName,
-    String? receiverAvatarUrl,
+    required int userId,
+    required String username,
+    required String fullName,
+    String? avatarUrl,
     String? nickname,
     required FriendRequestStatus status,
-    required DateTime createdAt,
-    DateTime? respondedAt,
+    required DateTime requestedAt,
+    DateTime? acceptedAt,
+    DateTime? rejectedAt,
+    @Default(false) bool online,
   }) = _FriendRequestModel;
 
   factory FriendRequestModel.fromJson(Map<String, dynamic> json) => _$FriendRequestModelFromJson(json);
@@ -29,18 +27,18 @@ abstract class FriendRequestModel with _$FriendRequestModel {
   FriendRequest toEntity() {
     return FriendRequest(
       id: id,
-      senderUserId: senderUserId,
-      receiverUserId: receiverUserId,
-      senderUsername: senderUsername,
-      senderFullName: senderFullName,
-      senderAvatarUrl: senderAvatarUrl,
-      receiverUsername: receiverUsername,
-      receiverFullName: receiverFullName,
-      receiverAvatarUrl: receiverAvatarUrl,
+      senderUserId: userId,
+      receiverUserId: userId,
+      senderUsername: username,
+      senderFullName: fullName,
+      senderAvatarUrl: avatarUrl,
+      receiverUsername: username,
+      receiverFullName: fullName,
+      receiverAvatarUrl: avatarUrl,
       nickname: nickname,
       status: status,
-      createdAt: createdAt,
-      respondedAt: respondedAt,
+      createdAt: requestedAt,
+      respondedAt: acceptedAt ?? rejectedAt,
     );
   }
 }

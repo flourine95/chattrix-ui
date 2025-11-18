@@ -1,0 +1,262 @@
+// GENERATED CODE - DO NOT MODIFY BY HAND
+
+// dart format off
+// coverage:ignore-file
+
+
+part of 'auth_repository_provider.dart';
+
+// **************************************************************************
+// RiverpodGenerator
+// **************************************************************************
+
+// GENERATED CODE - DO NOT MODIFY BY HAND
+// ignore_for_file: type=lint, type=warning
+/// Secure storage provider - singleton
+
+@ProviderFor(secureStorage)
+const secureStorageProvider = SecureStorageProvider._();
+
+/// Secure storage provider - singleton
+
+final class SecureStorageProvider
+    extends
+        $FunctionalProvider<
+          FlutterSecureStorage,
+          FlutterSecureStorage,
+          FlutterSecureStorage
+        >
+    with $Provider<FlutterSecureStorage> {
+  /// Secure storage provider - singleton
+  const SecureStorageProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'secureStorageProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$secureStorageHash();
+
+  @$internal
+  @override
+  $ProviderElement<FlutterSecureStorage> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  FlutterSecureStorage create(Ref ref) {
+    return secureStorage(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(FlutterSecureStorage value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<FlutterSecureStorage>(value),
+    );
+  }
+}
+
+String _$secureStorageHash() => r'a4f75721472cf77465bf47f759c90de5ca30856e';
+
+/// Dio client with auth interceptor
+
+@ProviderFor(dio)
+const dioProvider = DioProvider._();
+
+/// Dio client with auth interceptor
+
+final class DioProvider extends $FunctionalProvider<Dio, Dio, Dio>
+    with $Provider<Dio> {
+  /// Dio client with auth interceptor
+  const DioProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'dioProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$dioHash();
+
+  @$internal
+  @override
+  $ProviderElement<Dio> $createElement($ProviderPointer pointer) =>
+      $ProviderElement(pointer);
+
+  @override
+  Dio create(Ref ref) {
+    return dio(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(Dio value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<Dio>(value),
+    );
+  }
+}
+
+String _$dioHash() => r'eed9e0d6d0f7f2a58f35eb7571407c83661bd7b8';
+
+/// Auth remote data source provider
+
+@ProviderFor(authRemoteDataSource)
+const authRemoteDataSourceProvider = AuthRemoteDataSourceProvider._();
+
+/// Auth remote data source provider
+
+final class AuthRemoteDataSourceProvider
+    extends
+        $FunctionalProvider<
+          AuthRemoteDataSource,
+          AuthRemoteDataSource,
+          AuthRemoteDataSource
+        >
+    with $Provider<AuthRemoteDataSource> {
+  /// Auth remote data source provider
+  const AuthRemoteDataSourceProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'authRemoteDataSourceProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$authRemoteDataSourceHash();
+
+  @$internal
+  @override
+  $ProviderElement<AuthRemoteDataSource> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  AuthRemoteDataSource create(Ref ref) {
+    return authRemoteDataSource(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(AuthRemoteDataSource value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<AuthRemoteDataSource>(value),
+    );
+  }
+}
+
+String _$authRemoteDataSourceHash() =>
+    r'd871ee9e888536cddea0adc7dcf4ce485967c138';
+
+/// Auth local data source provider
+
+@ProviderFor(authLocalDataSource)
+const authLocalDataSourceProvider = AuthLocalDataSourceProvider._();
+
+/// Auth local data source provider
+
+final class AuthLocalDataSourceProvider
+    extends
+        $FunctionalProvider<
+          AuthLocalDataSource,
+          AuthLocalDataSource,
+          AuthLocalDataSource
+        >
+    with $Provider<AuthLocalDataSource> {
+  /// Auth local data source provider
+  const AuthLocalDataSourceProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'authLocalDataSourceProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$authLocalDataSourceHash();
+
+  @$internal
+  @override
+  $ProviderElement<AuthLocalDataSource> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  AuthLocalDataSource create(Ref ref) {
+    return authLocalDataSource(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(AuthLocalDataSource value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<AuthLocalDataSource>(value),
+    );
+  }
+}
+
+String _$authLocalDataSourceHash() =>
+    r'7c45aa1e6156d65faa96aadadafd152f4e800b9c';
+
+/// Main auth repository provider
+
+@ProviderFor(authRepository)
+const authRepositoryProvider = AuthRepositoryProvider._();
+
+/// Main auth repository provider
+
+final class AuthRepositoryProvider
+    extends $FunctionalProvider<AuthRepository, AuthRepository, AuthRepository>
+    with $Provider<AuthRepository> {
+  /// Main auth repository provider
+  const AuthRepositoryProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'authRepositoryProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$authRepositoryHash();
+
+  @$internal
+  @override
+  $ProviderElement<AuthRepository> $createElement($ProviderPointer pointer) =>
+      $ProviderElement(pointer);
+
+  @override
+  AuthRepository create(Ref ref) {
+    return authRepository(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(AuthRepository value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<AuthRepository>(value),
+    );
+  }
+}
+
+String _$authRepositoryHash() => r'ce731388241ca810f2d21165dbcff2ee5d524f01';

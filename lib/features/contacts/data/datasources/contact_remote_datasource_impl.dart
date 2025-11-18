@@ -41,7 +41,7 @@ class ContactRemoteDataSourceImpl implements ContactRemoteDataSource {
   @override
   Future<List<FriendRequestModel>> getSentFriendRequests() async {
     try {
-      final response = await dio.get(ApiConstants.sendFriendRequest);
+      final response = await dio.get(ApiConstants.sentFriendRequests);
 
       final data = _handleResponse(response);
       final List<dynamic> requestsList = data as List<dynamic>;

@@ -13,42 +13,40 @@ part of 'friend_request_model.dart';
 _FriendRequestModel _$FriendRequestModelFromJson(Map<String, dynamic> json) =>
     _FriendRequestModel(
       id: (json['id'] as num).toInt(),
-      senderUserId: (json['senderUserId'] as num).toInt(),
-      receiverUserId: (json['receiverUserId'] as num).toInt(),
-      senderUsername: json['senderUsername'] as String,
-      senderFullName: json['senderFullName'] as String,
-      senderAvatarUrl: json['senderAvatarUrl'] as String?,
-      receiverUsername: json['receiverUsername'] as String,
-      receiverFullName: json['receiverFullName'] as String,
-      receiverAvatarUrl: json['receiverAvatarUrl'] as String?,
+      userId: (json['userId'] as num).toInt(),
+      username: json['username'] as String,
+      fullName: json['fullName'] as String,
+      avatarUrl: json['avatarUrl'] as String?,
       nickname: json['nickname'] as String?,
       status: $enumDecode(_$FriendRequestStatusEnumMap, json['status']),
-      createdAt: DateTime.parse(json['createdAt'] as String),
-      respondedAt: json['respondedAt'] == null
+      requestedAt: DateTime.parse(json['requestedAt'] as String),
+      acceptedAt: json['acceptedAt'] == null
           ? null
-          : DateTime.parse(json['respondedAt'] as String),
+          : DateTime.parse(json['acceptedAt'] as String),
+      rejectedAt: json['rejectedAt'] == null
+          ? null
+          : DateTime.parse(json['rejectedAt'] as String),
+      online: json['online'] as bool? ?? false,
     );
 
 Map<String, dynamic> _$FriendRequestModelToJson(_FriendRequestModel instance) =>
     <String, dynamic>{
       'id': instance.id,
-      'senderUserId': instance.senderUserId,
-      'receiverUserId': instance.receiverUserId,
-      'senderUsername': instance.senderUsername,
-      'senderFullName': instance.senderFullName,
-      'senderAvatarUrl': instance.senderAvatarUrl,
-      'receiverUsername': instance.receiverUsername,
-      'receiverFullName': instance.receiverFullName,
-      'receiverAvatarUrl': instance.receiverAvatarUrl,
+      'userId': instance.userId,
+      'username': instance.username,
+      'fullName': instance.fullName,
+      'avatarUrl': instance.avatarUrl,
       'nickname': instance.nickname,
       'status': _$FriendRequestStatusEnumMap[instance.status]!,
-      'createdAt': instance.createdAt.toIso8601String(),
-      'respondedAt': instance.respondedAt?.toIso8601String(),
+      'requestedAt': instance.requestedAt.toIso8601String(),
+      'acceptedAt': instance.acceptedAt?.toIso8601String(),
+      'rejectedAt': instance.rejectedAt?.toIso8601String(),
+      'online': instance.online,
     };
 
 const _$FriendRequestStatusEnumMap = {
-  FriendRequestStatus.pending: 'pending',
-  FriendRequestStatus.accepted: 'accepted',
-  FriendRequestStatus.rejected: 'rejected',
-  FriendRequestStatus.cancelled: 'cancelled',
+  FriendRequestStatus.pending: 'PENDING',
+  FriendRequestStatus.accepted: 'ACCEPTED',
+  FriendRequestStatus.rejected: 'REJECTED',
+  FriendRequestStatus.cancelled: 'CANCELLED',
 };

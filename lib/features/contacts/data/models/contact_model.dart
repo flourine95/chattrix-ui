@@ -10,15 +10,15 @@ abstract class ContactModel with _$ContactModel {
 
   const factory ContactModel({
     required int id,
-    required int userId,
+    required int contactUserId,
     required String username,
-    required String email,
     required String fullName,
     String? avatarUrl,
     String? nickname,
     required bool isOnline,
     required DateTime lastSeen,
     required DateTime createdAt,
+    @Default(false) bool isFavorite,
   }) = _ContactModel;
 
   factory ContactModel.fromJson(Map<String, dynamic> json) => _$ContactModelFromJson(json);
@@ -26,9 +26,9 @@ abstract class ContactModel with _$ContactModel {
   Contact toEntity() {
     return Contact(
       id: id,
-      userId: userId,
+      userId: contactUserId,
       username: username,
-      email: email,
+      email: '', // Not provided by API
       fullName: fullName,
       avatarUrl: avatarUrl,
       nickname: nickname,
