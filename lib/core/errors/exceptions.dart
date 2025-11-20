@@ -17,3 +17,9 @@ class CacheException implements Exception {
 
   CacheException({this.message = 'Cache error'});
 }
+
+class TokenExpiredException implements Exception {
+  final String message;
+
+  TokenExpiredException({this.message = 'Token expired and refresh failed'});
+}

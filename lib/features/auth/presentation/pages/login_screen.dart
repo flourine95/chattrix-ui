@@ -78,7 +78,16 @@ class LoginScreen extends HookConsumerWidget {
                     context.go('/');
                   } else {
                     final error = ref.read(authErrorProvider);
-                    Toasts.error(context, title: 'Login Failed', description: error ?? 'An error occurred');
+
+                    // Check if error is about email not verified
+                    if (error != null && error.contains('Email not verified')) {
+                      Toasts.error(context, title: 'Email Not Verified', description: error);
+
+                      // Navigate to OTP verification screen
+                      context.push(AppRouter.otpVerificationPath, extra: email);
+                    } else {
+                      Toasts.error(context, title: 'Login Failed', description: error ?? 'An error occurred');
+                    }
                   }
                 },
               ),

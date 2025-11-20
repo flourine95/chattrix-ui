@@ -24,6 +24,7 @@ class CallRepositoryImpl implements CallRepository {
 
   // Current call state
   CallEntity? _currentCall;
+  String? _currentToken; // Store current token for refresh purposes
   final StreamController<CallEntity> _callStateController = StreamController<CallEntity>.broadcast();
   final StreamController<NetworkQuality> _networkQualityController = StreamController<NetworkQuality>.broadcast();
 
@@ -179,20 +180,31 @@ class CallRepositoryImpl implements CallRepository {
 
   /// Handle token expiration by requesting a new token
   Future<void> _handleTokenExpiration() async {
-    if (_currentCall == null) return;
+    if (_currentCall == null || _currentToken == null) return;
+
+    CallLogger.logCallEvent(
+      callId: _currentCall!.callId,
+      event: 'Handling token expiration',
+      details: {'channelId': _currentCall!.channelId},
+    );
 
     final result = await _tokenService.handleTokenExpiration(
       channelId: _currentCall!.channelId,
-      uid: _agoraService.localUid ?? 0,
+      oldToken: _currentToken!,
     );
 
     result.fold(
       (failure) {
         // Token refresh failed, end the call
+        CallLogger.logFailure(failure, context: 'Token refresh failed');
         endCall(_currentCall!.callId);
       },
-      (newToken) {
+      (tokenData) {
         // Token refreshed successfully
+        final newToken = tokenData['token'] as String;
+        _currentToken = newToken;
+
+        CallLogger.logCallEvent(callId: _currentCall!.callId, event: 'Token refreshed successfully');
         // Note: Agora SDK will automatically use the new token
       },
     );
@@ -258,65 +270,81 @@ class CallRepositoryImpl implements CallRepository {
         return Left(failure);
       }
 
-      // Generate a UID for this call (using timestamp as a simple approach)
-      final uid = DateTime.now().millisecondsSinceEpoch % 1000000;
+      // Fetch token from backend (backend generates UID from authenticated user)
+      final tokenResult = await _tokenService.fetchToken(channelId: channelId);
 
-      // Fetch token from backend
-      final tokenResult = await _tokenService.fetchToken(channelId: channelId, uid: uid);
-
-      final token = tokenResult.fold((failure) => null, (t) => t);
-
-      if (token == null) {
-        CallLogger.logTokenOperation(operation: 'fetch', success: false, error: 'Token fetch failed');
-        return tokenResult.fold((failure) {
+      return tokenResult.fold(
+        (failure) {
+          CallLogger.logTokenOperation(operation: 'fetch', success: false, error: failure.toString());
           CallLogger.logFailure(failure, context: 'createCall - token fetch');
           return Left(failure);
-        }, (_) => throw Exception('Unexpected state'));
-      }
+        },
+        (tokenData) async {
+          // Extract token and UID from response
+          final token = tokenData['token'] as String;
+          final uid = tokenData['uid'] as int;
 
-      CallLogger.logTokenOperation(operation: 'fetch', success: true);
+          // Store current token for refresh purposes
+          _currentToken = token;
 
-      // Join the Agora channel
-      await _agoraService.joinChannel(
-        token: token,
-        channelId: channelId,
-        uid: uid,
-        isVideo: callType == CallType.video,
+          CallLogger.logTokenOperation(operation: 'fetch', success: true);
+          CallLogger.logCallEvent(
+            callId: callId,
+            event: 'Token fetched',
+            details: {'uid': uid, 'channelId': channelId},
+          );
+
+          // Join the Agora channel
+          await _agoraService.joinChannel(
+            token: token,
+            channelId: channelId,
+            uid: uid,
+            isVideo: callType == CallType.video,
+          );
+
+          CallLogger.logCallEvent(
+            callId: callId,
+            event: 'Joined channel',
+            details: {'uid': uid, 'channelId': channelId},
+          );
+
+          // Create call entity
+          final call = CallEntity(
+            callId: callId,
+            channelId: channelId,
+            localUserId: uid.toString(),
+            remoteUserId: remoteUserId,
+            callType: callType,
+            status: CallStatus.initiating,
+            startTime: DateTime.now(),
+            isLocalAudioMuted: false,
+            isLocalVideoMuted: false,
+            cameraFacing: CameraFacing.front,
+          );
+
+          // Store current call
+          _currentCall = call;
+          _callStateController.add(call);
+
+          // Send call invitation through WebSocket signaling
+          _signalingService.sendCallInvitation(
+            callId: callId,
+            channelId: channelId,
+            callerId: callerId ?? uid.toString(),
+            callerName: callerName ?? 'Unknown',
+            recipientId: remoteUserId,
+            callType: callType,
+          );
+
+          CallLogger.logCallEvent(
+            callId: callId,
+            event: 'Call invitation sent',
+            details: {'recipientId': remoteUserId},
+          );
+
+          return Right(call);
+        },
       );
-
-      CallLogger.logCallEvent(callId: callId, event: 'Joined channel', details: {'uid': uid, 'channelId': channelId});
-
-      // Create call entity
-      final call = CallEntity(
-        callId: callId,
-        channelId: channelId,
-        localUserId: uid.toString(),
-        remoteUserId: remoteUserId,
-        callType: callType,
-        status: CallStatus.initiating,
-        startTime: DateTime.now(),
-        isLocalAudioMuted: false,
-        isLocalVideoMuted: false,
-        cameraFacing: CameraFacing.front,
-      );
-
-      // Store current call
-      _currentCall = call;
-      _callStateController.add(call);
-
-      // Send call invitation through WebSocket signaling
-      _signalingService.sendCallInvitation(
-        callId: callId,
-        channelId: channelId,
-        callerId: callerId ?? uid.toString(),
-        callerName: callerName ?? 'Unknown',
-        recipientId: remoteUserId,
-        callType: callType,
-      );
-
-      CallLogger.logCallEvent(callId: callId, event: 'Call invitation sent', details: {'recipientId': remoteUserId});
-
-      return Right(call);
     } catch (e, stackTrace) {
       final failure = Failure.channelJoin(message: 'Failed to create call: ${e.toString()}');
       CallLogger.logFailure(failure, context: 'createCall', stackTrace: stackTrace);
@@ -359,45 +387,45 @@ class CallRepositoryImpl implements CallRepository {
         return const Left(Failure.permission(message: 'Microphone permission is required for calls'));
       }
 
-      // Generate a UID for this call
-      final uid = DateTime.now().millisecondsSinceEpoch % 1000000;
+      // Fetch token from backend (backend generates UID from authenticated user)
+      final tokenResult = await _tokenService.fetchToken(channelId: channelId);
 
-      // Fetch token from backend
-      final tokenResult = await _tokenService.fetchToken(channelId: channelId, uid: uid);
+      return tokenResult.fold((failure) => Left(failure), (tokenData) async {
+        // Extract token and UID from response
+        final token = tokenData['token'] as String;
+        final uid = tokenData['uid'] as int;
 
-      final token = tokenResult.fold((failure) => null, (t) => t);
+        // Store current token for refresh purposes
+        _currentToken = token;
 
-      if (token == null) {
-        return tokenResult.fold((failure) => Left(failure), (_) => throw Exception('Unexpected state'));
-      }
+        // Join the Agora channel
+        await _agoraService.joinChannel(
+          token: token,
+          channelId: channelId,
+          uid: uid,
+          isVideo: callType == CallType.video,
+        );
 
-      // Join the Agora channel
-      await _agoraService.joinChannel(
-        token: token,
-        channelId: channelId,
-        uid: uid,
-        isVideo: callType == CallType.video,
-      );
+        // Create call entity
+        final call = CallEntity(
+          callId: callId,
+          channelId: channelId,
+          localUserId: uid.toString(),
+          remoteUserId: remoteUserId,
+          callType: callType,
+          status: CallStatus.connecting,
+          startTime: DateTime.now(),
+          isLocalAudioMuted: false,
+          isLocalVideoMuted: false,
+          cameraFacing: CameraFacing.front,
+        );
 
-      // Create call entity
-      final call = CallEntity(
-        callId: callId,
-        channelId: channelId,
-        localUserId: uid.toString(),
-        remoteUserId: remoteUserId,
-        callType: callType,
-        status: CallStatus.connecting,
-        startTime: DateTime.now(),
-        isLocalAudioMuted: false,
-        isLocalVideoMuted: false,
-        cameraFacing: CameraFacing.front,
-      );
+        // Store current call
+        _currentCall = call;
+        _callStateController.add(call);
 
-      // Store current call
-      _currentCall = call;
-      _callStateController.add(call);
-
-      return Right(call);
+        return Right(call);
+      });
     } catch (e) {
       return Left(Failure.channelJoin(message: 'Failed to join call: ${e.toString()}'));
     }
@@ -446,8 +474,9 @@ class CallRepositoryImpl implements CallRepository {
       // Send call ended notification through WebSocket signaling
       _signalingService.sendCallEnded(callId: callId, endedBy: _currentCall!.localUserId);
 
-      // Clear current call
+      // Clear current call and token
       _currentCall = null;
+      _currentToken = null;
 
       return const Right(null);
     } catch (e, stackTrace) {

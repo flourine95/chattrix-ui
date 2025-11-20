@@ -164,9 +164,10 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     if (response.statusCode! >= 200 && response.statusCode! < 300) {
       return response.data['data'];
     } else {
-      final message = response.data['message'] ?? 'An error occurred';
-      final errors = response.data['errors'] as List?;
-      final errorCode = errors?.isNotEmpty == true ? errors!.first['errorCode'] as String? : null;
+      // Parse error from API format: { "success": false, "error": { "code": "...", "message": "..." }, "requestId": "..." }
+      final errorData = response.data['error'];
+      final message = errorData?['message'] ?? response.data['message'] ?? 'An error occurred';
+      final errorCode = errorData?['code'] as String?;
 
       throw ServerException(message: message, errorCode: errorCode, statusCode: response.statusCode);
     }
@@ -185,9 +186,10 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
 
       // Handle response errors
       if (error.response != null) {
-        final message = error.response?.data['message'] ?? 'An error occurred';
-        final errors = error.response?.data['errors'] as List?;
-        final errorCode = errors?.isNotEmpty == true ? errors!.first['errorCode'] as String? : null;
+        // Parse error from API format: { "success": false, "error": { "code": "...", "message": "..." }, "requestId": "..." }
+        final errorData = error.response?.data['error'];
+        final message = errorData?['message'] ?? error.response?.data['message'] ?? 'An error occurred';
+        final errorCode = errorData?['code'] as String?;
 
         return ServerException(message: message, errorCode: errorCode, statusCode: error.response?.statusCode);
       }

@@ -21,6 +21,7 @@ class MyApp extends ConsumerWidget {
     return MaterialApp.router(
       title: 'Chattrix',
       debugShowCheckedModeBanner: false,
+      showPerformanceOverlay: false, // Set to true to enable performance overlay in debug mode
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
       themeMode: ThemeMode.light,

@@ -64,6 +64,58 @@ final class SecureStorageProvider
 
 String _$secureStorageHash() => r'a4f75721472cf77465bf47f759c90de5ca30856e';
 
+/// Token cache service provider - singleton
+
+@ProviderFor(tokenCacheService)
+const tokenCacheServiceProvider = TokenCacheServiceProvider._();
+
+/// Token cache service provider - singleton
+
+final class TokenCacheServiceProvider
+    extends
+        $FunctionalProvider<
+          TokenCacheService,
+          TokenCacheService,
+          TokenCacheService
+        >
+    with $Provider<TokenCacheService> {
+  /// Token cache service provider - singleton
+  const TokenCacheServiceProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'tokenCacheServiceProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$tokenCacheServiceHash();
+
+  @$internal
+  @override
+  $ProviderElement<TokenCacheService> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  TokenCacheService create(Ref ref) {
+    return tokenCacheService(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(TokenCacheService value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<TokenCacheService>(value),
+    );
+  }
+}
+
+String _$tokenCacheServiceHash() => r'0844c649caa85f7e7a9d0552e4465d3218b1ddcf';
+
 /// Dio client with auth interceptor
 
 @ProviderFor(dio)
@@ -107,7 +159,7 @@ final class DioProvider extends $FunctionalProvider<Dio, Dio, Dio>
   }
 }
 
-String _$dioHash() => r'eed9e0d6d0f7f2a58f35eb7571407c83661bd7b8';
+String _$dioHash() => r'cbc0bf6b3ef12516d3df9356dbb0ad8b1cdfc490';
 
 /// Auth remote data source provider
 
@@ -213,7 +265,7 @@ final class AuthLocalDataSourceProvider
 }
 
 String _$authLocalDataSourceHash() =>
-    r'7c45aa1e6156d65faa96aadadafd152f4e800b9c';
+    r'490075e382a30e88b06d8f6b22754220578b0772';
 
 /// Main auth repository provider
 

@@ -2,10 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:chattrix_ui/core/constants/api_constants.dart';
-import 'package:chattrix_ui/features/chat/data/models/conversation_update_model.dart';
-import 'package:chattrix_ui/features/chat/data/models/message_model.dart';
-import 'package:chattrix_ui/features/chat/data/models/typing_indicator_model.dart';
-import 'package:chattrix_ui/features/chat/data/models/user_status_update_model.dart';
+import 'package:chattrix_ui/core/services/json_parsing_service.dart';
 import 'package:chattrix_ui/features/chat/domain/entities/conversation_update.dart';
 import 'package:chattrix_ui/features/chat/domain/entities/message.dart';
 import 'package:chattrix_ui/features/chat/domain/entities/typing_indicator.dart';
@@ -202,19 +199,24 @@ class ChatWebSocketService {
   }
 
   /// Handle incoming WebSocket messages
-  void _handleMessage(dynamic message) {
+  Future<void> _handleMessage(dynamic message) async {
     try {
-      final data = jsonDecode(message as String) as Map<String, dynamic>;
+      final messageString = message as String;
+
+      // First, decode just the wrapper to get the type
+      // This is a lightweight operation that won't block the main thread
+      final data = jsonDecode(messageString) as Map<String, dynamic>;
 
       final type = data['type'] as String?;
       if (type == null) {
         // Server might be sending message directly without wrapper
-        final messageModel = MessageModel.fromApi(data);
-        _messageController.add(messageModel.toEntity());
+        // Parse in background isolate
+        final messageEntity = await JsonParsingService.parseMessage(messageString);
+        _messageController.add(messageEntity);
         return;
       }
 
-      final payload = data['payload'] as Map<String, dynamic>?;
+      final payload = data['payload'];
       if (payload == null) {
         return;
       }
@@ -222,25 +224,32 @@ class ChatWebSocketService {
       // Emit raw message for custom handlers (like call signaling)
       _rawMessageController.add(data);
 
+      // Convert payload to JSON string for background parsing
+      final payloadString = jsonEncode(payload);
+
       switch (type) {
         case ChatWebSocketResponse.chatMessage:
-          final messageModel = MessageModel.fromApi(payload);
-          _messageController.add(messageModel.toEntity());
+          // Parse message in background isolate
+          final messageEntity = await JsonParsingService.parseMessage(payloadString);
+          _messageController.add(messageEntity);
           break;
 
         case ChatWebSocketResponse.typingIndicator:
-          final indicatorModel = TypingIndicatorModel.fromJson(payload);
-          _typingController.add(indicatorModel.toEntity());
+          // Parse typing indicator in background isolate
+          final indicatorEntity = await JsonParsingService.parseTypingIndicator(payloadString);
+          _typingController.add(indicatorEntity);
           break;
 
         case ChatWebSocketResponse.userStatus:
-          final statusModel = UserStatusUpdateModel.fromJson(payload);
-          _userStatusController.add(statusModel.toEntity());
+          // Parse user status in background isolate
+          final statusEntity = await JsonParsingService.parseUserStatusUpdate(payloadString);
+          _userStatusController.add(statusEntity);
           break;
 
         case ChatWebSocketResponse.conversationUpdate:
-          final updateModel = ConversationUpdateModel.fromJson(payload);
-          _conversationUpdateController.add(updateModel.toEntity());
+          // Parse conversation update in background isolate
+          final updateEntity = await JsonParsingService.parseConversationUpdate(payloadString);
+          _conversationUpdateController.add(updateEntity);
           break;
 
         case ChatWebSocketResponse.heartbeatAck:
@@ -257,7 +266,8 @@ class ChatWebSocketService {
           break;
       }
     } catch (e) {
-      // Silently handle error
+      // Silently handle parsing errors
+      // The error could be from jsonDecode (malformed JSON) or from background parsing
     }
   }
 

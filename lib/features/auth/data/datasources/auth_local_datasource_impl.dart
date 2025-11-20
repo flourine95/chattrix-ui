@@ -1,31 +1,28 @@
-import 'package:chattrix_ui/core/constants/app_constants.dart';
+import 'package:chattrix_ui/core/services/token_cache_service.dart';
 import 'package:chattrix_ui/features/auth/domain/datasources/auth_local_datasource.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class AuthLocalDataSourceImpl implements AuthLocalDataSource {
-  final FlutterSecureStorage secureStorage;
+  final TokenCacheService tokenCacheService;
 
-  AuthLocalDataSourceImpl({required this.secureStorage});
+  AuthLocalDataSourceImpl({required this.tokenCacheService});
 
   @override
   Future<void> saveTokens({required String accessToken, required String refreshToken}) async {
-    await secureStorage.write(key: AppConstants.accessTokenKey, value: accessToken);
-    await secureStorage.write(key: AppConstants.refreshTokenKey, value: refreshToken);
+    await tokenCacheService.setTokens(accessToken, refreshToken);
   }
 
   @override
   Future<String?> getAccessToken() async {
-    return await secureStorage.read(key: AppConstants.accessTokenKey);
+    return await tokenCacheService.getAccessToken();
   }
 
   @override
   Future<String?> getRefreshToken() async {
-    return await secureStorage.read(key: AppConstants.refreshTokenKey);
+    return await tokenCacheService.getRefreshToken();
   }
 
   @override
   Future<void> deleteTokens() async {
-    await secureStorage.delete(key: AppConstants.accessTokenKey);
-    await secureStorage.delete(key: AppConstants.refreshTokenKey);
+    await tokenCacheService.clearTokens();
   }
 }

@@ -360,6 +360,16 @@ class ChatViewPage extends HookConsumerWidget {
               Expanded(
                 child: messagesAsync.when(
                   data: (messages) {
+                    // Create a memoized lookup map for replied messages to avoid repeated searches
+                    // This caches the map and only rebuilds when messages list changes
+                    final repliedMessageMap = useMemoized(() {
+                      final map = <int, Message>{};
+                      for (final msg in messages) {
+                        map[msg.id] = msg;
+                      }
+                      return map;
+                    }, [messages]);
+
                     // API returns DESC order (newest first)
                     // Use reverse: true to show newest at bottom naturally without scroll animation
                     return ListView.builder(
@@ -368,8 +378,8 @@ class ChatViewPage extends HookConsumerWidget {
                       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                       itemCount: messages.length,
                       // Performance optimizations
-                      addAutomaticKeepAlives: true,
-                      // Keep state of items
+                      addAutomaticKeepAlives: false,
+                      // Don't keep state - let lazy loading handle it
                       addRepaintBoundaries: true,
                       // Already added in MessageBubble
                       cacheExtent: 500,
@@ -378,16 +388,8 @@ class ChatViewPage extends HookConsumerWidget {
                         final m = messages[index];
                         final isMe = m.sender.id == me?.id;
 
-                        // Find replied message if exists
-                        Message? repliedMsg;
-                        if (m.replyToMessageId != null) {
-                          try {
-                            repliedMsg = messages.firstWhere((msg) => msg.id == m.replyToMessageId);
-                          } catch (e) {
-                            // Message not found in current list
-                            repliedMsg = null;
-                          }
-                        }
+                        // Use cached lookup map instead of searching through list
+                        final repliedMsg = m.replyToMessageId != null ? repliedMessageMap[m.replyToMessageId] : null;
 
                         return Align(
                           key: ValueKey(m.id), // Add key for better performance

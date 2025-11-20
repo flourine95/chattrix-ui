@@ -109,9 +109,8 @@ class ApiConstants {
 
   static String chatWebSocketWithToken(String token) => '$chatWebSocket?token=$token';
 
-  // Agora token endpoint
-  static String get agoraToken {
-    final tokenServerUrl = dotenv.env['AGORA_TOKEN_SERVER_URL'];
-    return tokenServerUrl ?? '$_baseUrl/$_v1/agora/token';
-  }
+  // Agora token endpoints
+  static String get agoraTokenGenerate => '$_baseUrl/$_v1/agora/token/generate';
+
+  static String get agoraTokenRefresh => '$_baseUrl/$_v1/agora/token/refresh';
 }

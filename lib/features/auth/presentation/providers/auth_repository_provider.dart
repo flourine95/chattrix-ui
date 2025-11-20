@@ -1,5 +1,6 @@
 import 'package:chattrix_ui/core/network/auth_interceptor.dart';
 import 'package:chattrix_ui/core/network/dio_client.dart';
+import 'package:chattrix_ui/core/services/token_cache_service.dart';
 import 'package:chattrix_ui/features/auth/data/datasources/auth_local_datasource_impl.dart';
 import 'package:chattrix_ui/features/auth/data/datasources/auth_remote_datasource_impl.dart';
 import 'package:chattrix_ui/features/auth/data/repositories/auth_repository_impl.dart';
@@ -18,14 +19,20 @@ FlutterSecureStorage secureStorage(Ref ref) {
   return const FlutterSecureStorage();
 }
 
+/// Token cache service provider - singleton
+@Riverpod(keepAlive: true)
+TokenCacheService tokenCacheService(Ref ref) {
+  return TokenCacheService(ref.watch(secureStorageProvider));
+}
+
 /// Dio client with auth interceptor
 @Riverpod(keepAlive: true)
 Dio dio(Ref ref) {
   final dio = DioClient.createDio();
-  final secureStorage = ref.watch(secureStorageProvider);
+  final tokenCache = ref.watch(tokenCacheServiceProvider);
 
   // Add auth interceptor for automatic token management
-  dio.interceptors.add(AuthInterceptor(dio: dio, secureStorage: secureStorage));
+  dio.interceptors.add(AuthInterceptor(dio: dio, tokenCacheService: tokenCache));
 
   return dio;
 }
@@ -39,7 +46,7 @@ AuthRemoteDataSource authRemoteDataSource(Ref ref) {
 /// Auth local data source provider
 @Riverpod(keepAlive: true)
 AuthLocalDataSource authLocalDataSource(Ref ref) {
-  return AuthLocalDataSourceImpl(secureStorage: ref.watch(secureStorageProvider));
+  return AuthLocalDataSourceImpl(tokenCacheService: ref.watch(tokenCacheServiceProvider));
 }
 
 /// Main auth repository provider

@@ -1,6 +1,4 @@
 import 'package:chattrix_ui/core/errors/failures.dart';
-import 'package:chattrix_ui/core/network/auth_interceptor.dart';
-import 'package:chattrix_ui/core/network/dio_client.dart';
 import 'package:chattrix_ui/features/auth/data/datasources/auth_local_datasource_impl.dart';
 import 'package:chattrix_ui/features/auth/data/datasources/auth_remote_datasource_impl.dart';
 import 'package:chattrix_ui/features/auth/data/repositories/auth_repository_impl.dart';
@@ -20,25 +18,12 @@ import 'package:chattrix_ui/features/auth/domain/usecases/register_usecase.dart'
 import 'package:chattrix_ui/features/auth/domain/usecases/resend_verification_usecase.dart';
 import 'package:chattrix_ui/features/auth/domain/usecases/reset_password_usecase.dart';
 import 'package:chattrix_ui/features/auth/domain/usecases/verify_email_usecase.dart';
+import 'package:chattrix_ui/features/auth/presentation/providers/auth_repository_provider.dart';
 import 'package:chattrix_ui/features/chat/presentation/providers/chat_providers.dart';
-import 'package:dio/dio.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-// Providers for dependencies
-final secureStorageProvider = Provider<FlutterSecureStorage>((ref) {
-  return const FlutterSecureStorage();
-});
-
-final dioProvider = Provider<Dio>((ref) {
-  final dio = DioClient.createDio();
-  final secureStorage = ref.watch(secureStorageProvider);
-
-  // Add auth interceptor
-  dio.interceptors.add(AuthInterceptor(dio: dio, secureStorage: secureStorage));
-
-  return dio;
-});
+// Export providers from auth_repository_provider to avoid duplication
+export 'auth_repository_provider.dart' show dioProvider, secureStorageProvider, tokenCacheServiceProvider;
 
 // Data source providers
 final authRemoteDataSourceProvider = Provider<AuthRemoteDataSource>((ref) {
@@ -46,7 +31,7 @@ final authRemoteDataSourceProvider = Provider<AuthRemoteDataSource>((ref) {
 });
 
 final authLocalDataSourceProvider = Provider<AuthLocalDataSource>((ref) {
-  return AuthLocalDataSourceImpl(secureStorage: ref.watch(secureStorageProvider)) as AuthLocalDataSource;
+  return AuthLocalDataSourceImpl(tokenCacheService: ref.watch(tokenCacheServiceProvider)) as AuthLocalDataSource;
 });
 
 // Repository provider
@@ -141,6 +126,8 @@ class AuthNotifier extends Notifier<AuthState> {
   Future<void> _checkAuthStatus() async {
     final isLoggedIn = await ref.read(isLoggedInUseCaseProvider)();
     if (isLoggedIn) {
+      // Try to load current user to verify token is still valid
+      // If token is expired, this will trigger auto-logout
       await loadCurrentUser();
     }
   }
@@ -158,7 +145,13 @@ class AuthNotifier extends Notifier<AuthState> {
           return message;
         },
         badRequest: (message, errorCode) => message,
-        unauthorized: (message, errorCode) => message,
+        unauthorized: (message, errorCode) {
+          // If token is expired/invalid, auto logout
+          if (message.contains('Invalid or expired token') || message.contains('Token expired')) {
+            _handleTokenExpired();
+          }
+          return message;
+        },
         forbidden: (message, errorCode) => message,
         notFound: (message, errorCode) => message,
         conflict: (message, errorCode) => message,
@@ -166,13 +159,33 @@ class AuthNotifier extends Notifier<AuthState> {
         unknown: (message) => message,
         permission: (message) => message,
         agoraEngine: (message, code) => message,
-        tokenExpired: (message) => message,
+        tokenExpired: (message) {
+          _handleTokenExpired();
+          return message;
+        },
         channelJoin: (message) => message,
       );
     }
 
     // Fallback cho trường hợp không phải Failure object
     return 'Có lỗi xảy ra. Vui lòng thử lại.';
+  }
+
+  /// Handle token expired by clearing state and tokens
+  Future<void> _handleTokenExpired() async {
+    try {
+      // Clear tokens from cache and storage
+      final tokenCache = ref.read(tokenCacheServiceProvider);
+      await tokenCache.clearTokens();
+
+      // Clear all app state
+      await _clearAllState();
+
+      // Reset auth state
+      state = AuthState();
+    } catch (e) {
+      // Silently handle error
+    }
   }
 
   Future<bool> login({required String usernameOrEmail, required String password}) async {
@@ -260,7 +273,8 @@ class AuthNotifier extends Notifier<AuthState> {
 
     result.fold(
       (failure) {
-        state = state.copyWith(isLoading: false, errorMessage: _getFailureMessage(failure));
+        final errorMessage = _getFailureMessage(failure);
+        state = state.copyWith(isLoading: false, errorMessage: errorMessage);
       },
       (user) {
         state = state.copyWith(isLoading: false, user: user);

@@ -1,4 +1,3 @@
-import 'package:chattrix_ui/core/constants/app_constants.dart';
 import 'package:chattrix_ui/features/auth/presentation/providers/auth_providers.dart';
 import 'package:chattrix_ui/features/chat/data/services/chat_websocket_service.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -38,8 +37,8 @@ class WebSocketConnectionNotifier extends Notifier<WebSocketConnectionState> {
 
   Future<void> _initializeConnection() async {
     try {
-      final secureStorage = ref.read(secureStorageProvider);
-      final accessToken = await secureStorage.read(key: AppConstants.accessTokenKey);
+      final tokenCache = ref.read(tokenCacheServiceProvider);
+      final accessToken = await tokenCache.getAccessToken();
 
       if (accessToken == null) {
         return;
@@ -53,7 +52,7 @@ class WebSocketConnectionNotifier extends Notifier<WebSocketConnectionState> {
         if (!isConnected) {
           await Future.delayed(const Duration(seconds: 3));
 
-          final freshToken = await secureStorage.read(key: AppConstants.accessTokenKey);
+          final freshToken = await tokenCache.getAccessToken();
           if (freshToken != null && freshToken != accessToken) {
             await wsService.disconnect();
             await Future.delayed(const Duration(milliseconds: 500));

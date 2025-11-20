@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:chattrix_ui/features/chat/domain/entities/message.dart';
 import 'package:chattrix_ui/features/chat/presentation/utils/format_utils.dart';
+import 'package:chattrix_ui/features/chat/presentation/widgets/lazy_media_loader.dart';
 import 'package:chattrix_ui/features/chat/presentation/widgets/message_bubble.dart';
 import 'package:flutter/material.dart';
 
@@ -58,35 +59,44 @@ class ImageMessageBubble extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Image with caching
+          // Image with lazy loading and caching
           if (message.mediaUrl != null)
-            GestureDetector(
-              onTap: () => _openFullScreenImage(context),
-              child: ClipRRect(
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-                child: CachedNetworkImage(
-                  imageUrl: message.mediaUrl!,
-                  width: 280,
-                  fit: BoxFit.cover,
-                  placeholder: (context, url) => Container(
+            LazyMediaLoader(
+              key: ValueKey('image_${message.id}'),
+              placeholder: Container(
+                width: 280,
+                height: 200,
+                color: Colors.grey.shade300,
+                child: const Center(child: Icon(Icons.image, size: 48, color: Colors.grey)),
+              ),
+              child: GestureDetector(
+                onTap: () => _openFullScreenImage(context),
+                child: ClipRRect(
+                  borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+                  child: CachedNetworkImage(
+                    imageUrl: message.mediaUrl!,
                     width: 280,
-                    height: 200,
-                    color: Colors.grey.shade300,
-                    child: const Center(child: CircularProgressIndicator()),
-                  ),
-                  errorWidget: (context, url, error) {
-                    return Container(
+                    fit: BoxFit.cover,
+                    placeholder: (context, url) => Container(
                       width: 280,
                       height: 200,
                       color: Colors.grey.shade300,
-                      child: const Icon(Icons.broken_image, size: 48),
-                    );
-                  },
-                  // Performance optimizations
-                  memCacheWidth: 560, // 2x for retina displays
-                  maxWidthDiskCache: 560,
-                  fadeInDuration: const Duration(milliseconds: 200),
-                  fadeOutDuration: const Duration(milliseconds: 100),
+                      child: const Center(child: CircularProgressIndicator()),
+                    ),
+                    errorWidget: (context, url, error) {
+                      return Container(
+                        width: 280,
+                        height: 200,
+                        color: Colors.grey.shade300,
+                        child: const Icon(Icons.broken_image, size: 48),
+                      );
+                    },
+                    // Performance optimizations
+                    memCacheWidth: 560, // 2x for retina displays
+                    maxWidthDiskCache: 560,
+                    fadeInDuration: const Duration(milliseconds: 200),
+                    fadeOutDuration: const Duration(milliseconds: 100),
+                  ),
                 ),
               ),
             ),

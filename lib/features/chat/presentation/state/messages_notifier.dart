@@ -11,6 +11,7 @@ part 'messages_notifier.g.dart';
 class MessagesNotifier extends _$MessagesNotifier {
   late final _getMessagesUsecase = ref.read(getMessagesUsecaseProvider);
   Timer? _pollingTimer;
+  StreamSubscription<bool>? _connectionSubscription;
 
   @override
   FutureOr<List<Message>> build(String conversationId) async {
@@ -18,16 +19,32 @@ class MessagesNotifier extends _$MessagesNotifier {
 
     final wsService = ref.watch(chatWebSocketServiceProvider);
 
-    final subscription = wsService.messageStream.listen((message) {
+    // Listen to WebSocket messages for event-driven updates
+    final messageSubscription = wsService.messageStream.listen((message) {
       if (message.conversationId.toString() == conversationId.toString()) {
         refresh();
       }
     });
 
-    _startPolling();
+    // Listen to WebSocket connection state to toggle polling
+    _connectionSubscription = wsService.connectionStream.listen((isConnected) {
+      if (isConnected) {
+        // WebSocket connected - disable polling
+        _stopPolling();
+      } else {
+        // WebSocket disconnected - enable polling
+        _startPolling();
+      }
+    });
+
+    // Check initial connection state
+    if (!wsService.isConnected) {
+      _startPolling();
+    }
 
     ref.onDispose(() {
-      subscription.cancel();
+      messageSubscription.cancel();
+      _connectionSubscription?.cancel();
       _stopPolling();
     });
 
