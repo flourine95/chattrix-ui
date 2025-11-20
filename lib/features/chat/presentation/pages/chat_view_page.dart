@@ -2,6 +2,8 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:chattrix_ui/features/auth/presentation/providers/auth_providers.dart';
+import 'package:chattrix_ui/features/call/domain/entities/call_entity.dart';
+import 'package:chattrix_ui/features/call/presentation/providers/call_state_provider.dart';
 import 'package:chattrix_ui/features/chat/domain/entities/message.dart';
 import 'package:chattrix_ui/features/chat/presentation/providers/chat_providers.dart';
 import 'package:chattrix_ui/features/chat/presentation/utils/conversation_utils.dart';
@@ -290,6 +292,56 @@ class ChatViewPage extends HookConsumerWidget {
           ),
         ),
         actions: [
+          // Audio call button
+          IconButton(
+            icon: const FaIcon(FontAwesomeIcons.phone, size: 20),
+            onPressed: () {
+              // Get remote user ID from conversation
+              final remoteUserId = ConversationUtils.getOtherParticipantId(conversation, me);
+              if (remoteUserId != null) {
+                // Initiate audio call
+                ref
+                    .read(callProvider.notifier)
+                    .initiateCall(
+                      remoteUserId: remoteUserId,
+                      callType: CallType.audio,
+                      callerId: me?.id.toString(),
+                      callerName: me?.fullName,
+                    );
+                // Navigate to call screen
+                context.push(
+                  '/call/${DateTime.now().millisecondsSinceEpoch}',
+                  extra: {'remoteUserId': remoteUserId, 'callType': 'audio'},
+                );
+              }
+            },
+            tooltip: 'Audio call',
+          ),
+          // Video call button
+          IconButton(
+            icon: const FaIcon(FontAwesomeIcons.video, size: 20),
+            onPressed: () {
+              // Get remote user ID from conversation
+              final remoteUserId = ConversationUtils.getOtherParticipantId(conversation, me);
+              if (remoteUserId != null) {
+                // Initiate video call
+                ref
+                    .read(callProvider.notifier)
+                    .initiateCall(
+                      remoteUserId: remoteUserId,
+                      callType: CallType.video,
+                      callerId: me?.id.toString(),
+                      callerName: me?.fullName,
+                    );
+                // Navigate to call screen
+                context.push(
+                  '/call/${DateTime.now().millisecondsSinceEpoch}',
+                  extra: {'remoteUserId': remoteUserId, 'callType': 'video'},
+                );
+              }
+            },
+            tooltip: 'Video call',
+          ),
           IconButton(
             icon: const Icon(Icons.info_outline),
             onPressed: () {

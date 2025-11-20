@@ -26,6 +26,11 @@ class ChatWebSocketResponse {
   static const String userStatus = 'user.status';
   static const String conversationUpdate = 'conversation.update';
   static const String heartbeatAck = 'heartbeat.ack';
+
+  // Call signaling events
+  static const String callInvitation = 'call.invitation';
+  static const String callResponse = 'call.response';
+  static const String callEnded = 'call.ended';
 }
 
 class ChatWebSocketService {
@@ -42,6 +47,9 @@ class ChatWebSocketService {
   final _conversationUpdateController = StreamController<ConversationUpdate>.broadcast();
   final _connectionController = StreamController<bool>.broadcast();
 
+  // Stream controller for raw call signaling messages
+  final _rawMessageController = StreamController<Map<String, dynamic>>.broadcast();
+
   Stream<Message> get messageStream => _messageController.stream;
 
   Stream<TypingIndicator> get typingStream => _typingController.stream;
@@ -51,6 +59,9 @@ class ChatWebSocketService {
   Stream<ConversationUpdate> get conversationUpdateStream => _conversationUpdateController.stream;
 
   Stream<bool> get connectionStream => _connectionController.stream;
+
+  /// Stream of raw messages for call signaling and other custom handlers
+  Stream<Map<String, dynamic>> get rawMessageStream => _rawMessageController.stream;
 
   bool get isConnected => _channel != null;
 
@@ -208,6 +219,9 @@ class ChatWebSocketService {
         return;
       }
 
+      // Emit raw message for custom handlers (like call signaling)
+      _rawMessageController.add(data);
+
       switch (type) {
         case ChatWebSocketResponse.chatMessage:
           final messageModel = MessageModel.fromApi(payload);
@@ -232,6 +246,13 @@ class ChatWebSocketService {
         case ChatWebSocketResponse.heartbeatAck:
           break;
 
+        // Call signaling events are handled by CallSignalingService
+        case ChatWebSocketResponse.callInvitation:
+        case ChatWebSocketResponse.callResponse:
+        case ChatWebSocketResponse.callEnded:
+          // These are handled through rawMessageStream
+          break;
+
         default:
           break;
       }
@@ -249,6 +270,14 @@ class ChatWebSocketService {
     _channel!.sink.add(jsonEncode(payload));
   }
 
+  /// Send a generic message through the WebSocket
+  /// This allows other services (like CallSignalingService) to send custom messages
+  void sendGenericMessage(Map<String, dynamic> payload) {
+    if (_channel == null) return;
+
+    _channel!.sink.add(jsonEncode(payload));
+  }
+
   /// Dispose resources
   void dispose() {
     _stopHeartbeat();
@@ -259,5 +288,6 @@ class ChatWebSocketService {
     _userStatusController.close();
     _conversationUpdateController.close();
     _connectionController.close();
+    _rawMessageController.close();
   }
 }

@@ -86,7 +86,7 @@ extension FailurePatterns on Failure {
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( ServerFailure value)?  server,TResult Function( NetworkFailure value)?  network,TResult Function( ValidationFailure value)?  validation,TResult Function( BadRequestFailure value)?  badRequest,TResult Function( UnauthorizedFailure value)?  unauthorized,TResult Function( ForbiddenFailure value)?  forbidden,TResult Function( NotFoundFailure value)?  notFound,TResult Function( ConflictFailure value)?  conflict,TResult Function( RateLimitFailure value)?  rateLimitExceeded,TResult Function( UnknownFailure value)?  unknown,required TResult orElse(),}){
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( ServerFailure value)?  server,TResult Function( NetworkFailure value)?  network,TResult Function( ValidationFailure value)?  validation,TResult Function( BadRequestFailure value)?  badRequest,TResult Function( UnauthorizedFailure value)?  unauthorized,TResult Function( ForbiddenFailure value)?  forbidden,TResult Function( NotFoundFailure value)?  notFound,TResult Function( ConflictFailure value)?  conflict,TResult Function( RateLimitFailure value)?  rateLimitExceeded,TResult Function( UnknownFailure value)?  unknown,TResult Function( PermissionFailure value)?  permission,TResult Function( AgoraEngineFailure value)?  agoraEngine,TResult Function( TokenExpiredFailure value)?  tokenExpired,TResult Function( ChannelJoinFailure value)?  channelJoin,required TResult orElse(),}){
 final _that = this;
 switch (_that) {
 case ServerFailure() when server != null:
@@ -99,7 +99,11 @@ return forbidden(_that);case NotFoundFailure() when notFound != null:
 return notFound(_that);case ConflictFailure() when conflict != null:
 return conflict(_that);case RateLimitFailure() when rateLimitExceeded != null:
 return rateLimitExceeded(_that);case UnknownFailure() when unknown != null:
-return unknown(_that);case _:
+return unknown(_that);case PermissionFailure() when permission != null:
+return permission(_that);case AgoraEngineFailure() when agoraEngine != null:
+return agoraEngine(_that);case TokenExpiredFailure() when tokenExpired != null:
+return tokenExpired(_that);case ChannelJoinFailure() when channelJoin != null:
+return channelJoin(_that);case _:
   return orElse();
 
 }
@@ -117,7 +121,7 @@ return unknown(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( ServerFailure value)  server,required TResult Function( NetworkFailure value)  network,required TResult Function( ValidationFailure value)  validation,required TResult Function( BadRequestFailure value)  badRequest,required TResult Function( UnauthorizedFailure value)  unauthorized,required TResult Function( ForbiddenFailure value)  forbidden,required TResult Function( NotFoundFailure value)  notFound,required TResult Function( ConflictFailure value)  conflict,required TResult Function( RateLimitFailure value)  rateLimitExceeded,required TResult Function( UnknownFailure value)  unknown,}){
+@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( ServerFailure value)  server,required TResult Function( NetworkFailure value)  network,required TResult Function( ValidationFailure value)  validation,required TResult Function( BadRequestFailure value)  badRequest,required TResult Function( UnauthorizedFailure value)  unauthorized,required TResult Function( ForbiddenFailure value)  forbidden,required TResult Function( NotFoundFailure value)  notFound,required TResult Function( ConflictFailure value)  conflict,required TResult Function( RateLimitFailure value)  rateLimitExceeded,required TResult Function( UnknownFailure value)  unknown,required TResult Function( PermissionFailure value)  permission,required TResult Function( AgoraEngineFailure value)  agoraEngine,required TResult Function( TokenExpiredFailure value)  tokenExpired,required TResult Function( ChannelJoinFailure value)  channelJoin,}){
 final _that = this;
 switch (_that) {
 case ServerFailure():
@@ -130,7 +134,11 @@ return forbidden(_that);case NotFoundFailure():
 return notFound(_that);case ConflictFailure():
 return conflict(_that);case RateLimitFailure():
 return rateLimitExceeded(_that);case UnknownFailure():
-return unknown(_that);case _:
+return unknown(_that);case PermissionFailure():
+return permission(_that);case AgoraEngineFailure():
+return agoraEngine(_that);case TokenExpiredFailure():
+return tokenExpired(_that);case ChannelJoinFailure():
+return channelJoin(_that);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -147,7 +155,7 @@ return unknown(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( ServerFailure value)?  server,TResult? Function( NetworkFailure value)?  network,TResult? Function( ValidationFailure value)?  validation,TResult? Function( BadRequestFailure value)?  badRequest,TResult? Function( UnauthorizedFailure value)?  unauthorized,TResult? Function( ForbiddenFailure value)?  forbidden,TResult? Function( NotFoundFailure value)?  notFound,TResult? Function( ConflictFailure value)?  conflict,TResult? Function( RateLimitFailure value)?  rateLimitExceeded,TResult? Function( UnknownFailure value)?  unknown,}){
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( ServerFailure value)?  server,TResult? Function( NetworkFailure value)?  network,TResult? Function( ValidationFailure value)?  validation,TResult? Function( BadRequestFailure value)?  badRequest,TResult? Function( UnauthorizedFailure value)?  unauthorized,TResult? Function( ForbiddenFailure value)?  forbidden,TResult? Function( NotFoundFailure value)?  notFound,TResult? Function( ConflictFailure value)?  conflict,TResult? Function( RateLimitFailure value)?  rateLimitExceeded,TResult? Function( UnknownFailure value)?  unknown,TResult? Function( PermissionFailure value)?  permission,TResult? Function( AgoraEngineFailure value)?  agoraEngine,TResult? Function( TokenExpiredFailure value)?  tokenExpired,TResult? Function( ChannelJoinFailure value)?  channelJoin,}){
 final _that = this;
 switch (_that) {
 case ServerFailure() when server != null:
@@ -160,7 +168,11 @@ return forbidden(_that);case NotFoundFailure() when notFound != null:
 return notFound(_that);case ConflictFailure() when conflict != null:
 return conflict(_that);case RateLimitFailure() when rateLimitExceeded != null:
 return rateLimitExceeded(_that);case UnknownFailure() when unknown != null:
-return unknown(_that);case _:
+return unknown(_that);case PermissionFailure() when permission != null:
+return permission(_that);case AgoraEngineFailure() when agoraEngine != null:
+return agoraEngine(_that);case TokenExpiredFailure() when tokenExpired != null:
+return tokenExpired(_that);case ChannelJoinFailure() when channelJoin != null:
+return channelJoin(_that);case _:
   return null;
 
 }
@@ -177,7 +189,7 @@ return unknown(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( String message,  String? errorCode)?  server,TResult Function( String message)?  network,TResult Function( String message,  List<ValidationError>? errors)?  validation,TResult Function( String message,  String? errorCode)?  badRequest,TResult Function( String message,  String? errorCode)?  unauthorized,TResult Function( String message,  String? errorCode)?  forbidden,TResult Function( String message,  String? errorCode)?  notFound,TResult Function( String message,  String? errorCode)?  conflict,TResult Function( String message)?  rateLimitExceeded,TResult Function( String message)?  unknown,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( String message,  String? errorCode)?  server,TResult Function( String message)?  network,TResult Function( String message,  List<ValidationError>? errors)?  validation,TResult Function( String message,  String? errorCode)?  badRequest,TResult Function( String message,  String? errorCode)?  unauthorized,TResult Function( String message,  String? errorCode)?  forbidden,TResult Function( String message,  String? errorCode)?  notFound,TResult Function( String message,  String? errorCode)?  conflict,TResult Function( String message)?  rateLimitExceeded,TResult Function( String message)?  unknown,TResult Function( String message)?  permission,TResult Function( String message,  int? code)?  agoraEngine,TResult Function( String message)?  tokenExpired,TResult Function( String message)?  channelJoin,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case ServerFailure() when server != null:
 return server(_that.message,_that.errorCode);case NetworkFailure() when network != null:
@@ -189,7 +201,11 @@ return forbidden(_that.message,_that.errorCode);case NotFoundFailure() when notF
 return notFound(_that.message,_that.errorCode);case ConflictFailure() when conflict != null:
 return conflict(_that.message,_that.errorCode);case RateLimitFailure() when rateLimitExceeded != null:
 return rateLimitExceeded(_that.message);case UnknownFailure() when unknown != null:
-return unknown(_that.message);case _:
+return unknown(_that.message);case PermissionFailure() when permission != null:
+return permission(_that.message);case AgoraEngineFailure() when agoraEngine != null:
+return agoraEngine(_that.message,_that.code);case TokenExpiredFailure() when tokenExpired != null:
+return tokenExpired(_that.message);case ChannelJoinFailure() when channelJoin != null:
+return channelJoin(_that.message);case _:
   return orElse();
 
 }
@@ -207,7 +223,7 @@ return unknown(_that.message);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( String message,  String? errorCode)  server,required TResult Function( String message)  network,required TResult Function( String message,  List<ValidationError>? errors)  validation,required TResult Function( String message,  String? errorCode)  badRequest,required TResult Function( String message,  String? errorCode)  unauthorized,required TResult Function( String message,  String? errorCode)  forbidden,required TResult Function( String message,  String? errorCode)  notFound,required TResult Function( String message,  String? errorCode)  conflict,required TResult Function( String message)  rateLimitExceeded,required TResult Function( String message)  unknown,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( String message,  String? errorCode)  server,required TResult Function( String message)  network,required TResult Function( String message,  List<ValidationError>? errors)  validation,required TResult Function( String message,  String? errorCode)  badRequest,required TResult Function( String message,  String? errorCode)  unauthorized,required TResult Function( String message,  String? errorCode)  forbidden,required TResult Function( String message,  String? errorCode)  notFound,required TResult Function( String message,  String? errorCode)  conflict,required TResult Function( String message)  rateLimitExceeded,required TResult Function( String message)  unknown,required TResult Function( String message)  permission,required TResult Function( String message,  int? code)  agoraEngine,required TResult Function( String message)  tokenExpired,required TResult Function( String message)  channelJoin,}) {final _that = this;
 switch (_that) {
 case ServerFailure():
 return server(_that.message,_that.errorCode);case NetworkFailure():
@@ -219,7 +235,11 @@ return forbidden(_that.message,_that.errorCode);case NotFoundFailure():
 return notFound(_that.message,_that.errorCode);case ConflictFailure():
 return conflict(_that.message,_that.errorCode);case RateLimitFailure():
 return rateLimitExceeded(_that.message);case UnknownFailure():
-return unknown(_that.message);case _:
+return unknown(_that.message);case PermissionFailure():
+return permission(_that.message);case AgoraEngineFailure():
+return agoraEngine(_that.message,_that.code);case TokenExpiredFailure():
+return tokenExpired(_that.message);case ChannelJoinFailure():
+return channelJoin(_that.message);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -236,7 +256,7 @@ return unknown(_that.message);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( String message,  String? errorCode)?  server,TResult? Function( String message)?  network,TResult? Function( String message,  List<ValidationError>? errors)?  validation,TResult? Function( String message,  String? errorCode)?  badRequest,TResult? Function( String message,  String? errorCode)?  unauthorized,TResult? Function( String message,  String? errorCode)?  forbidden,TResult? Function( String message,  String? errorCode)?  notFound,TResult? Function( String message,  String? errorCode)?  conflict,TResult? Function( String message)?  rateLimitExceeded,TResult? Function( String message)?  unknown,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( String message,  String? errorCode)?  server,TResult? Function( String message)?  network,TResult? Function( String message,  List<ValidationError>? errors)?  validation,TResult? Function( String message,  String? errorCode)?  badRequest,TResult? Function( String message,  String? errorCode)?  unauthorized,TResult? Function( String message,  String? errorCode)?  forbidden,TResult? Function( String message,  String? errorCode)?  notFound,TResult? Function( String message,  String? errorCode)?  conflict,TResult? Function( String message)?  rateLimitExceeded,TResult? Function( String message)?  unknown,TResult? Function( String message)?  permission,TResult? Function( String message,  int? code)?  agoraEngine,TResult? Function( String message)?  tokenExpired,TResult? Function( String message)?  channelJoin,}) {final _that = this;
 switch (_that) {
 case ServerFailure() when server != null:
 return server(_that.message,_that.errorCode);case NetworkFailure() when network != null:
@@ -248,7 +268,11 @@ return forbidden(_that.message,_that.errorCode);case NotFoundFailure() when notF
 return notFound(_that.message,_that.errorCode);case ConflictFailure() when conflict != null:
 return conflict(_that.message,_that.errorCode);case RateLimitFailure() when rateLimitExceeded != null:
 return rateLimitExceeded(_that.message);case UnknownFailure() when unknown != null:
-return unknown(_that.message);case _:
+return unknown(_that.message);case PermissionFailure() when permission != null:
+return permission(_that.message);case AgoraEngineFailure() when agoraEngine != null:
+return agoraEngine(_that.message,_that.code);case TokenExpiredFailure() when tokenExpired != null:
+return tokenExpired(_that.message);case ChannelJoinFailure() when channelJoin != null:
+return channelJoin(_that.message);case _:
   return null;
 
 }
@@ -930,6 +954,272 @@ class _$UnknownFailureCopyWithImpl<$Res>
 /// with the given fields replaced by the non-null parameter values.
 @override @pragma('vm:prefer-inline') $Res call({Object? message = null,}) {
   return _then(UnknownFailure(
+message: null == message ? _self.message : message // ignore: cast_nullable_to_non_nullable
+as String,
+  ));
+}
+
+
+}
+
+/// @nodoc
+
+
+class PermissionFailure implements Failure {
+  const PermissionFailure({required this.message});
+  
+
+@override final  String message;
+
+/// Create a copy of Failure
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$PermissionFailureCopyWith<PermissionFailure> get copyWith => _$PermissionFailureCopyWithImpl<PermissionFailure>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is PermissionFailure&&(identical(other.message, message) || other.message == message));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,message);
+
+@override
+String toString() {
+  return 'Failure.permission(message: $message)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $PermissionFailureCopyWith<$Res> implements $FailureCopyWith<$Res> {
+  factory $PermissionFailureCopyWith(PermissionFailure value, $Res Function(PermissionFailure) _then) = _$PermissionFailureCopyWithImpl;
+@override @useResult
+$Res call({
+ String message
+});
+
+
+
+
+}
+/// @nodoc
+class _$PermissionFailureCopyWithImpl<$Res>
+    implements $PermissionFailureCopyWith<$Res> {
+  _$PermissionFailureCopyWithImpl(this._self, this._then);
+
+  final PermissionFailure _self;
+  final $Res Function(PermissionFailure) _then;
+
+/// Create a copy of Failure
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? message = null,}) {
+  return _then(PermissionFailure(
+message: null == message ? _self.message : message // ignore: cast_nullable_to_non_nullable
+as String,
+  ));
+}
+
+
+}
+
+/// @nodoc
+
+
+class AgoraEngineFailure implements Failure {
+  const AgoraEngineFailure({required this.message, this.code});
+  
+
+@override final  String message;
+ final  int? code;
+
+/// Create a copy of Failure
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$AgoraEngineFailureCopyWith<AgoraEngineFailure> get copyWith => _$AgoraEngineFailureCopyWithImpl<AgoraEngineFailure>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is AgoraEngineFailure&&(identical(other.message, message) || other.message == message)&&(identical(other.code, code) || other.code == code));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,message,code);
+
+@override
+String toString() {
+  return 'Failure.agoraEngine(message: $message, code: $code)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $AgoraEngineFailureCopyWith<$Res> implements $FailureCopyWith<$Res> {
+  factory $AgoraEngineFailureCopyWith(AgoraEngineFailure value, $Res Function(AgoraEngineFailure) _then) = _$AgoraEngineFailureCopyWithImpl;
+@override @useResult
+$Res call({
+ String message, int? code
+});
+
+
+
+
+}
+/// @nodoc
+class _$AgoraEngineFailureCopyWithImpl<$Res>
+    implements $AgoraEngineFailureCopyWith<$Res> {
+  _$AgoraEngineFailureCopyWithImpl(this._self, this._then);
+
+  final AgoraEngineFailure _self;
+  final $Res Function(AgoraEngineFailure) _then;
+
+/// Create a copy of Failure
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? message = null,Object? code = freezed,}) {
+  return _then(AgoraEngineFailure(
+message: null == message ? _self.message : message // ignore: cast_nullable_to_non_nullable
+as String,code: freezed == code ? _self.code : code // ignore: cast_nullable_to_non_nullable
+as int?,
+  ));
+}
+
+
+}
+
+/// @nodoc
+
+
+class TokenExpiredFailure implements Failure {
+  const TokenExpiredFailure({required this.message});
+  
+
+@override final  String message;
+
+/// Create a copy of Failure
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$TokenExpiredFailureCopyWith<TokenExpiredFailure> get copyWith => _$TokenExpiredFailureCopyWithImpl<TokenExpiredFailure>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is TokenExpiredFailure&&(identical(other.message, message) || other.message == message));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,message);
+
+@override
+String toString() {
+  return 'Failure.tokenExpired(message: $message)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $TokenExpiredFailureCopyWith<$Res> implements $FailureCopyWith<$Res> {
+  factory $TokenExpiredFailureCopyWith(TokenExpiredFailure value, $Res Function(TokenExpiredFailure) _then) = _$TokenExpiredFailureCopyWithImpl;
+@override @useResult
+$Res call({
+ String message
+});
+
+
+
+
+}
+/// @nodoc
+class _$TokenExpiredFailureCopyWithImpl<$Res>
+    implements $TokenExpiredFailureCopyWith<$Res> {
+  _$TokenExpiredFailureCopyWithImpl(this._self, this._then);
+
+  final TokenExpiredFailure _self;
+  final $Res Function(TokenExpiredFailure) _then;
+
+/// Create a copy of Failure
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? message = null,}) {
+  return _then(TokenExpiredFailure(
+message: null == message ? _self.message : message // ignore: cast_nullable_to_non_nullable
+as String,
+  ));
+}
+
+
+}
+
+/// @nodoc
+
+
+class ChannelJoinFailure implements Failure {
+  const ChannelJoinFailure({required this.message});
+  
+
+@override final  String message;
+
+/// Create a copy of Failure
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$ChannelJoinFailureCopyWith<ChannelJoinFailure> get copyWith => _$ChannelJoinFailureCopyWithImpl<ChannelJoinFailure>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ChannelJoinFailure&&(identical(other.message, message) || other.message == message));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,message);
+
+@override
+String toString() {
+  return 'Failure.channelJoin(message: $message)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $ChannelJoinFailureCopyWith<$Res> implements $FailureCopyWith<$Res> {
+  factory $ChannelJoinFailureCopyWith(ChannelJoinFailure value, $Res Function(ChannelJoinFailure) _then) = _$ChannelJoinFailureCopyWithImpl;
+@override @useResult
+$Res call({
+ String message
+});
+
+
+
+
+}
+/// @nodoc
+class _$ChannelJoinFailureCopyWithImpl<$Res>
+    implements $ChannelJoinFailureCopyWith<$Res> {
+  _$ChannelJoinFailureCopyWithImpl(this._self, this._then);
+
+  final ChannelJoinFailure _self;
+  final $Res Function(ChannelJoinFailure) _then;
+
+/// Create a copy of Failure
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? message = null,}) {
+  return _then(ChannelJoinFailure(
 message: null == message ? _self.message : message // ignore: cast_nullable_to_non_nullable
 as String,
   ));

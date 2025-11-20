@@ -6,9 +6,9 @@ class ApiConstants {
 
   static String get _port => dotenv.env['API_PORT'] ?? '8080';
 
-  static String get _apiPath => dotenv.env['API_PATH'] ?? '/chattrix-api/api';
+  static String get _apiPath => dotenv.env['API_PATH'] ?? '/api';
 
-  static String get _wsPath => dotenv.env['WS_PATH'] ?? '/chattrix-api';
+  static String get _wsPath => dotenv.env['WS_PATH'] ?? '';
 
   static const String _androidEmulatorHost = '10.0.2.2';
 
@@ -108,4 +108,10 @@ class ApiConstants {
   static String get chatWebSocket => '$_wsBaseUrl/ws/chat';
 
   static String chatWebSocketWithToken(String token) => '$chatWebSocket?token=$token';
+
+  // Agora token endpoint
+  static String get agoraToken {
+    final tokenServerUrl = dotenv.env['AGORA_TOKEN_SERVER_URL'];
+    return tokenServerUrl ?? '$_baseUrl/$_v1/agora/token';
+  }
 }

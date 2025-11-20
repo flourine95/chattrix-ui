@@ -38,6 +38,9 @@ dependencies:
   cached_network_image: ^3.4.1
   flutter_dotenv: ^6.0.0
   flutter_emoji: ^2.5.1
+  agora_rtc_engine: ^6.3.2
+  flutter_local_notifications: ^18.0.1
+  intl: ^0.19.0
 
 dev_dependencies:
   flutter_test:
@@ -50,6 +53,8 @@ dev_dependencies:
   riverpod_lint: ^3.0.3
   freezed: ^3.2.3
   json_serializable: ^6.7.1
+  faker: ^2.1.0
+  mockito: ^5.4.4
 
 flutter:
   uses-material-design: true

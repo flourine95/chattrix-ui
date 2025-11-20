@@ -5,6 +5,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'core/router/app_router.dart';
 import 'core/theme/app_theme.dart';
 import 'core/toast/toast_overlay.dart';
+import 'features/call/presentation/widgets/incoming_call_listener.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -23,7 +24,7 @@ class MyApp extends ConsumerWidget {
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
       themeMode: ThemeMode.light,
-      builder: (context, child) => ToastOverlay(child: child ?? const SizedBox.shrink()),
+      builder: (context, child) => IncomingCallListener(child: ToastOverlay(child: child ?? const SizedBox.shrink())),
       routerConfig: AppRouter.router(ref),
     );
   }

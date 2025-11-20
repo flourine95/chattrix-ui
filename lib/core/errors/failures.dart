@@ -23,6 +23,15 @@ abstract class Failure with _$Failure {
   const factory Failure.rateLimitExceeded({required String message}) = RateLimitFailure;
 
   const factory Failure.unknown({required String message}) = UnknownFailure;
+
+  // Call feature specific failures
+  const factory Failure.permission({required String message}) = PermissionFailure;
+
+  const factory Failure.agoraEngine({required String message, int? code}) = AgoraEngineFailure;
+
+  const factory Failure.tokenExpired({required String message}) = TokenExpiredFailure;
+
+  const factory Failure.channelJoin({required String message}) = ChannelJoinFailure;
 }
 
 class ValidationError {

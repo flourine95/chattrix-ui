@@ -1,4 +1,5 @@
 import 'package:chattrix_ui/features/auth/presentation/providers/auth_providers.dart';
+import 'package:chattrix_ui/features/call/presentation/providers/call_state_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
@@ -13,6 +14,7 @@ class ProfilePage extends ConsumerWidget {
     final colors = Theme.of(context).colorScheme;
     final user = ref.watch(currentUserProvider);
     final isLoading = ref.watch(isLoadingProvider);
+    final callHistoryAsync = ref.watch(callHistoryProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -186,6 +188,53 @@ class ProfilePage extends ConsumerWidget {
                     title: const Text('Edit Profile'),
                     trailing: const Icon(Icons.chevron_right),
                     onTap: () {},
+                  ),
+                  // Call History with badge
+                  ListTile(
+                    leading: const FaIcon(FontAwesomeIcons.clockRotateLeft),
+                    title: const Text('Call History'),
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        // Show badge with recent calls count
+                        callHistoryAsync.when(
+                          data: (history) {
+                            if (history.isEmpty) {
+                              return const SizedBox.shrink();
+                            }
+                            // Show count of recent calls (last 24 hours)
+                            final recentCalls = history.where((call) {
+                              final now = DateTime.now();
+                              final difference = now.difference(call.timestamp);
+                              return difference.inHours < 24;
+                            }).length;
+
+                            if (recentCalls == 0) {
+                              return const SizedBox.shrink();
+                            }
+
+                            return Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                              margin: const EdgeInsets.only(right: 8),
+                              decoration: BoxDecoration(color: colors.primary, borderRadius: BorderRadius.circular(12)),
+                              child: Text(
+                                '$recentCalls',
+                                style: textTheme.labelSmall?.copyWith(
+                                  color: colors.onPrimary,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            );
+                          },
+                          loading: () => const SizedBox.shrink(),
+                          error: (_, __) => const SizedBox.shrink(),
+                        ),
+                        const Icon(Icons.chevron_right),
+                      ],
+                    ),
+                    onTap: () {
+                      context.push('/call-history');
+                    },
                   ),
                   ListTile(
                     leading: const FaIcon(FontAwesomeIcons.bell),

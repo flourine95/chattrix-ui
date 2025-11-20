@@ -177,6 +177,10 @@ class Auth extends _$Auth {
       conflict: (message, errorCode) => ConflictException(message, errorCode),
       rateLimitExceeded: (message) => RateLimitException(message),
       unknown: (message) => UnknownException(message),
+      permission: (message) => UnknownException(message),
+      agoraEngine: (message, code) => UnknownException(message),
+      tokenExpired: (message) => UnknownException(message),
+      channelJoin: (message) => UnknownException(message),
     );
   }
 }

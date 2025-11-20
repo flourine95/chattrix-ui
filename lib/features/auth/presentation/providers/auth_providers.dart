@@ -164,6 +164,10 @@ class AuthNotifier extends Notifier<AuthState> {
         conflict: (message, errorCode) => message,
         rateLimitExceeded: (message) => 'Quá nhiều yêu cầu. Vui lòng thử lại sau.',
         unknown: (message) => message,
+        permission: (message) => message,
+        agoraEngine: (message, code) => message,
+        tokenExpired: (message) => message,
+        channelJoin: (message) => message,
       );
     }
 

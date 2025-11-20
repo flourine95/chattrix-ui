@@ -3,6 +3,11 @@ import 'package:chattrix_ui/features/auth/presentation/pages/login_screen.dart';
 import 'package:chattrix_ui/features/auth/presentation/pages/otp_verification_screen.dart';
 import 'package:chattrix_ui/features/auth/presentation/pages/register_screen.dart';
 import 'package:chattrix_ui/features/auth/presentation/providers/auth_providers.dart';
+import 'package:chattrix_ui/features/call/data/services/call_signaling_service.dart';
+import 'package:chattrix_ui/features/call/domain/entities/call_entity.dart';
+import 'package:chattrix_ui/features/call/presentation/pages/call_history_screen.dart';
+import 'package:chattrix_ui/features/call/presentation/pages/call_screen.dart';
+import 'package:chattrix_ui/features/call/presentation/pages/incoming_call_screen.dart';
 import 'package:chattrix_ui/features/chat/domain/entities/conversation.dart';
 import 'package:chattrix_ui/features/chat/presentation/pages/chat_info_page.dart';
 import 'package:chattrix_ui/features/chat/presentation/pages/chat_list_page.dart';
@@ -105,6 +110,31 @@ class AppRouter {
             return ChatInfoPage(conversation: conversation);
           },
         ),
+
+        GoRoute(
+          path: '/call/:callId',
+          name: 'call',
+          builder: (context, state) {
+            final callId = state.pathParameters['callId']!;
+            final extra = state.extra as Map<String, dynamic>?;
+            final remoteUserId = extra?['remoteUserId'] as String? ?? '';
+            final callTypeStr = extra?['callType'] as String? ?? 'video';
+            final callType = callTypeStr == 'audio' ? CallType.audio : CallType.video;
+
+            return CallScreen(callId: callId, remoteUserId: remoteUserId, callType: callType);
+          },
+        ),
+
+        GoRoute(
+          path: '/incoming-call',
+          name: 'incoming-call',
+          builder: (context, state) {
+            final invitation = state.extra as CallInvitation;
+            return IncomingCallScreen(invitation: invitation);
+          },
+        ),
+
+        GoRoute(path: '/call-history', name: 'call-history', builder: (context, state) => const CallHistoryScreen()),
 
         GoRoute(
           path: loginPath,

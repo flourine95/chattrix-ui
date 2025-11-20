@@ -1,7 +1,11 @@
+import 'package:chattrix_ui/features/call/domain/entities/call_entity.dart';
+import 'package:chattrix_ui/features/call/presentation/providers/call_state_provider.dart';
 import 'package:chattrix_ui/features/contacts/presentation/pages/friend_requests_page.dart';
 import 'package:chattrix_ui/features/contacts/presentation/pages/send_friend_request_page.dart';
 import 'package:chattrix_ui/features/contacts/presentation/providers/contact_providers.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 class ContactsPage extends ConsumerStatefulWidget {
@@ -134,11 +138,50 @@ class _ContactsPageState extends ConsumerState<ContactsPage> {
                           ),
                       ],
                     ),
-                    trailing: IconButton(
-                      icon: const Icon(Icons.chat),
-                      onPressed: () {
-                        // TODO: Navigate to chat page
-                      },
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        // Audio call button
+                        IconButton(
+                          icon: const FaIcon(FontAwesomeIcons.phone, size: 18),
+                          onPressed: () {
+                            // Initiate audio call
+                            ref
+                                .read(callProvider.notifier)
+                                .initiateCall(remoteUserId: contact.userId.toString(), callType: CallType.audio);
+                            // Navigate to call screen
+                            context.push(
+                              '/call/${DateTime.now().millisecondsSinceEpoch}',
+                              extra: {'remoteUserId': contact.userId.toString(), 'callType': 'audio'},
+                            );
+                          },
+                          tooltip: 'Audio call',
+                        ),
+                        // Video call button
+                        IconButton(
+                          icon: const FaIcon(FontAwesomeIcons.video, size: 18),
+                          onPressed: () {
+                            // Initiate video call
+                            ref
+                                .read(callProvider.notifier)
+                                .initiateCall(remoteUserId: contact.userId.toString(), callType: CallType.video);
+                            // Navigate to call screen
+                            context.push(
+                              '/call/${DateTime.now().millisecondsSinceEpoch}',
+                              extra: {'remoteUserId': contact.userId.toString(), 'callType': 'video'},
+                            );
+                          },
+                          tooltip: 'Video call',
+                        ),
+                        // Chat button
+                        IconButton(
+                          icon: const Icon(Icons.chat),
+                          onPressed: () {
+                            // TODO: Navigate to chat page
+                          },
+                          tooltip: 'Chat',
+                        ),
+                      ],
                     ),
                   );
                 },

@@ -142,6 +142,16 @@ class ConversationUtils {
     }
   }
 
+  /// Get other participant's user ID in DIRECT conversation
+  static String? getOtherParticipantId(Conversation? conversation, User? currentUser) {
+    if (conversation == null) {
+      return null;
+    }
+
+    final otherParticipant = getOtherParticipant(conversation, currentUser);
+    return otherParticipant?.userId.toString();
+  }
+
   /// Check if user is online in DIRECT conversation
   static bool isUserOnline(Conversation conversation, User? currentUser) {
     final otherParticipant = getOtherParticipant(conversation, currentUser);
