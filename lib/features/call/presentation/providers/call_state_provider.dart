@@ -73,20 +73,26 @@ class Call extends _$Call {
   }
 
   /// Initiate a call to another user
+  /// conversationId is optional - if provided, it will be used as the channel ID
+  /// This ensures both users join the same Agora channel
   Future<void> initiateCall({
     required String remoteUserId,
     required CallType callType,
     String? callerId,
     String? callerName,
+    String? conversationId, // Use conversation ID as channel ID
   }) async {
     state = const AsyncValue.loading();
 
     state = await AsyncValue.guard(() async {
       final repository = ref.read(callRepositoryProvider);
 
-      // Generate unique IDs for the call
+      // Generate unique call ID
       final callId = _generateCallId();
-      final channelId = _generateChannelId();
+
+      // Use conversation ID as channel ID if provided, otherwise generate one
+      // This ensures both users in a conversation join the same Agora channel
+      final channelId = conversationId != null ? 'channel_conv_$conversationId' : _generateChannelId();
 
       // Create the call
       final result = await repository.createCall(

@@ -1,3 +1,4 @@
+import 'package:chattrix_ui/core/errors/failures.dart';
 import 'package:chattrix_ui/features/call/presentation/providers/call_history_provider.dart';
 import 'package:chattrix_ui/features/call/presentation/widgets/call_history_item.dart';
 import 'package:flutter/material.dart';
@@ -19,27 +20,32 @@ class CallHistoryScreen extends HookConsumerWidget {
       appBar: AppBar(title: Text('Call History', style: textTheme.titleLarge)),
       body: historyState.when(
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (error, stack) => Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(Icons.error_outline, size: 64, color: colorScheme.error),
-              const SizedBox(height: 16),
-              Text('Failed to load call history', style: textTheme.titleMedium?.copyWith(color: colorScheme.error)),
-              const SizedBox(height: 8),
-              Text(
-                error.toString(),
-                textAlign: TextAlign.center,
-                style: textTheme.bodySmall?.copyWith(color: colorScheme.outline),
-              ),
-              const SizedBox(height: 24),
-              ElevatedButton(
-                onPressed: () => ref.read(callHistoryProvider.notifier).refresh(),
-                child: const Text('Retry'),
-              ),
-            ],
-          ),
-        ),
+        error: (error, stack) {
+          // Use userMessage extension for Failure types, otherwise use toString()
+          final errorMessage = error is Failure ? error.userMessage : error.toString();
+
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.error_outline, size: 64, color: colorScheme.error),
+                const SizedBox(height: 16),
+                Text('Failed to load call history', style: textTheme.titleMedium?.copyWith(color: colorScheme.error)),
+                const SizedBox(height: 8),
+                Text(
+                  errorMessage,
+                  textAlign: TextAlign.center,
+                  style: textTheme.bodySmall?.copyWith(color: colorScheme.outline),
+                ),
+                const SizedBox(height: 24),
+                ElevatedButton(
+                  onPressed: () => ref.read(callHistoryProvider.notifier).refresh(),
+                  child: const Text('Retry'),
+                ),
+              ],
+            ),
+          );
+        },
         data: (history) {
           if (history.isEmpty) {
             return Center(

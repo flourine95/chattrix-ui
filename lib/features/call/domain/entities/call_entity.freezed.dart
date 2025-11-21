@@ -14,7 +14,8 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$CallEntity {
 
- String get callId; String get channelId; String get localUserId; String get remoteUserId; CallType get callType; CallStatus get status; DateTime get startTime; DateTime? get endTime; bool get isLocalAudioMuted; bool get isLocalVideoMuted; CameraFacing get cameraFacing; NetworkQuality? get networkQuality;
+ String get callId; String get channelId; String get localUserId; String get remoteUserId; int? get remoteUid;// Agora UID of remote user (set when they join)
+ CallType get callType; CallStatus get status; DateTime get startTime; DateTime? get endTime; bool get isLocalAudioMuted; bool get isLocalVideoMuted; CameraFacing get cameraFacing; NetworkQuality? get networkQuality;
 /// Create a copy of CallEntity
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -25,16 +26,16 @@ $CallEntityCopyWith<CallEntity> get copyWith => _$CallEntityCopyWithImpl<CallEnt
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is CallEntity&&(identical(other.callId, callId) || other.callId == callId)&&(identical(other.channelId, channelId) || other.channelId == channelId)&&(identical(other.localUserId, localUserId) || other.localUserId == localUserId)&&(identical(other.remoteUserId, remoteUserId) || other.remoteUserId == remoteUserId)&&(identical(other.callType, callType) || other.callType == callType)&&(identical(other.status, status) || other.status == status)&&(identical(other.startTime, startTime) || other.startTime == startTime)&&(identical(other.endTime, endTime) || other.endTime == endTime)&&(identical(other.isLocalAudioMuted, isLocalAudioMuted) || other.isLocalAudioMuted == isLocalAudioMuted)&&(identical(other.isLocalVideoMuted, isLocalVideoMuted) || other.isLocalVideoMuted == isLocalVideoMuted)&&(identical(other.cameraFacing, cameraFacing) || other.cameraFacing == cameraFacing)&&(identical(other.networkQuality, networkQuality) || other.networkQuality == networkQuality));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is CallEntity&&(identical(other.callId, callId) || other.callId == callId)&&(identical(other.channelId, channelId) || other.channelId == channelId)&&(identical(other.localUserId, localUserId) || other.localUserId == localUserId)&&(identical(other.remoteUserId, remoteUserId) || other.remoteUserId == remoteUserId)&&(identical(other.remoteUid, remoteUid) || other.remoteUid == remoteUid)&&(identical(other.callType, callType) || other.callType == callType)&&(identical(other.status, status) || other.status == status)&&(identical(other.startTime, startTime) || other.startTime == startTime)&&(identical(other.endTime, endTime) || other.endTime == endTime)&&(identical(other.isLocalAudioMuted, isLocalAudioMuted) || other.isLocalAudioMuted == isLocalAudioMuted)&&(identical(other.isLocalVideoMuted, isLocalVideoMuted) || other.isLocalVideoMuted == isLocalVideoMuted)&&(identical(other.cameraFacing, cameraFacing) || other.cameraFacing == cameraFacing)&&(identical(other.networkQuality, networkQuality) || other.networkQuality == networkQuality));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,callId,channelId,localUserId,remoteUserId,callType,status,startTime,endTime,isLocalAudioMuted,isLocalVideoMuted,cameraFacing,networkQuality);
+int get hashCode => Object.hash(runtimeType,callId,channelId,localUserId,remoteUserId,remoteUid,callType,status,startTime,endTime,isLocalAudioMuted,isLocalVideoMuted,cameraFacing,networkQuality);
 
 @override
 String toString() {
-  return 'CallEntity(callId: $callId, channelId: $channelId, localUserId: $localUserId, remoteUserId: $remoteUserId, callType: $callType, status: $status, startTime: $startTime, endTime: $endTime, isLocalAudioMuted: $isLocalAudioMuted, isLocalVideoMuted: $isLocalVideoMuted, cameraFacing: $cameraFacing, networkQuality: $networkQuality)';
+  return 'CallEntity(callId: $callId, channelId: $channelId, localUserId: $localUserId, remoteUserId: $remoteUserId, remoteUid: $remoteUid, callType: $callType, status: $status, startTime: $startTime, endTime: $endTime, isLocalAudioMuted: $isLocalAudioMuted, isLocalVideoMuted: $isLocalVideoMuted, cameraFacing: $cameraFacing, networkQuality: $networkQuality)';
 }
 
 
@@ -45,7 +46,7 @@ abstract mixin class $CallEntityCopyWith<$Res>  {
   factory $CallEntityCopyWith(CallEntity value, $Res Function(CallEntity) _then) = _$CallEntityCopyWithImpl;
 @useResult
 $Res call({
- String callId, String channelId, String localUserId, String remoteUserId, CallType callType, CallStatus status, DateTime startTime, DateTime? endTime, bool isLocalAudioMuted, bool isLocalVideoMuted, CameraFacing cameraFacing, NetworkQuality? networkQuality
+ String callId, String channelId, String localUserId, String remoteUserId, int? remoteUid, CallType callType, CallStatus status, DateTime startTime, DateTime? endTime, bool isLocalAudioMuted, bool isLocalVideoMuted, CameraFacing cameraFacing, NetworkQuality? networkQuality
 });
 
 
@@ -62,13 +63,14 @@ class _$CallEntityCopyWithImpl<$Res>
 
 /// Create a copy of CallEntity
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? callId = null,Object? channelId = null,Object? localUserId = null,Object? remoteUserId = null,Object? callType = null,Object? status = null,Object? startTime = null,Object? endTime = freezed,Object? isLocalAudioMuted = null,Object? isLocalVideoMuted = null,Object? cameraFacing = null,Object? networkQuality = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? callId = null,Object? channelId = null,Object? localUserId = null,Object? remoteUserId = null,Object? remoteUid = freezed,Object? callType = null,Object? status = null,Object? startTime = null,Object? endTime = freezed,Object? isLocalAudioMuted = null,Object? isLocalVideoMuted = null,Object? cameraFacing = null,Object? networkQuality = freezed,}) {
   return _then(_self.copyWith(
 callId: null == callId ? _self.callId : callId // ignore: cast_nullable_to_non_nullable
 as String,channelId: null == channelId ? _self.channelId : channelId // ignore: cast_nullable_to_non_nullable
 as String,localUserId: null == localUserId ? _self.localUserId : localUserId // ignore: cast_nullable_to_non_nullable
 as String,remoteUserId: null == remoteUserId ? _self.remoteUserId : remoteUserId // ignore: cast_nullable_to_non_nullable
-as String,callType: null == callType ? _self.callType : callType // ignore: cast_nullable_to_non_nullable
+as String,remoteUid: freezed == remoteUid ? _self.remoteUid : remoteUid // ignore: cast_nullable_to_non_nullable
+as int?,callType: null == callType ? _self.callType : callType // ignore: cast_nullable_to_non_nullable
 as CallType,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
 as CallStatus,startTime: null == startTime ? _self.startTime : startTime // ignore: cast_nullable_to_non_nullable
 as DateTime,endTime: freezed == endTime ? _self.endTime : endTime // ignore: cast_nullable_to_non_nullable
@@ -161,10 +163,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String callId,  String channelId,  String localUserId,  String remoteUserId,  CallType callType,  CallStatus status,  DateTime startTime,  DateTime? endTime,  bool isLocalAudioMuted,  bool isLocalVideoMuted,  CameraFacing cameraFacing,  NetworkQuality? networkQuality)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String callId,  String channelId,  String localUserId,  String remoteUserId,  int? remoteUid,  CallType callType,  CallStatus status,  DateTime startTime,  DateTime? endTime,  bool isLocalAudioMuted,  bool isLocalVideoMuted,  CameraFacing cameraFacing,  NetworkQuality? networkQuality)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _CallEntity() when $default != null:
-return $default(_that.callId,_that.channelId,_that.localUserId,_that.remoteUserId,_that.callType,_that.status,_that.startTime,_that.endTime,_that.isLocalAudioMuted,_that.isLocalVideoMuted,_that.cameraFacing,_that.networkQuality);case _:
+return $default(_that.callId,_that.channelId,_that.localUserId,_that.remoteUserId,_that.remoteUid,_that.callType,_that.status,_that.startTime,_that.endTime,_that.isLocalAudioMuted,_that.isLocalVideoMuted,_that.cameraFacing,_that.networkQuality);case _:
   return orElse();
 
 }
@@ -182,10 +184,10 @@ return $default(_that.callId,_that.channelId,_that.localUserId,_that.remoteUserI
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String callId,  String channelId,  String localUserId,  String remoteUserId,  CallType callType,  CallStatus status,  DateTime startTime,  DateTime? endTime,  bool isLocalAudioMuted,  bool isLocalVideoMuted,  CameraFacing cameraFacing,  NetworkQuality? networkQuality)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String callId,  String channelId,  String localUserId,  String remoteUserId,  int? remoteUid,  CallType callType,  CallStatus status,  DateTime startTime,  DateTime? endTime,  bool isLocalAudioMuted,  bool isLocalVideoMuted,  CameraFacing cameraFacing,  NetworkQuality? networkQuality)  $default,) {final _that = this;
 switch (_that) {
 case _CallEntity():
-return $default(_that.callId,_that.channelId,_that.localUserId,_that.remoteUserId,_that.callType,_that.status,_that.startTime,_that.endTime,_that.isLocalAudioMuted,_that.isLocalVideoMuted,_that.cameraFacing,_that.networkQuality);case _:
+return $default(_that.callId,_that.channelId,_that.localUserId,_that.remoteUserId,_that.remoteUid,_that.callType,_that.status,_that.startTime,_that.endTime,_that.isLocalAudioMuted,_that.isLocalVideoMuted,_that.cameraFacing,_that.networkQuality);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -202,10 +204,10 @@ return $default(_that.callId,_that.channelId,_that.localUserId,_that.remoteUserI
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String callId,  String channelId,  String localUserId,  String remoteUserId,  CallType callType,  CallStatus status,  DateTime startTime,  DateTime? endTime,  bool isLocalAudioMuted,  bool isLocalVideoMuted,  CameraFacing cameraFacing,  NetworkQuality? networkQuality)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String callId,  String channelId,  String localUserId,  String remoteUserId,  int? remoteUid,  CallType callType,  CallStatus status,  DateTime startTime,  DateTime? endTime,  bool isLocalAudioMuted,  bool isLocalVideoMuted,  CameraFacing cameraFacing,  NetworkQuality? networkQuality)?  $default,) {final _that = this;
 switch (_that) {
 case _CallEntity() when $default != null:
-return $default(_that.callId,_that.channelId,_that.localUserId,_that.remoteUserId,_that.callType,_that.status,_that.startTime,_that.endTime,_that.isLocalAudioMuted,_that.isLocalVideoMuted,_that.cameraFacing,_that.networkQuality);case _:
+return $default(_that.callId,_that.channelId,_that.localUserId,_that.remoteUserId,_that.remoteUid,_that.callType,_that.status,_that.startTime,_that.endTime,_that.isLocalAudioMuted,_that.isLocalVideoMuted,_that.cameraFacing,_that.networkQuality);case _:
   return null;
 
 }
@@ -217,13 +219,15 @@ return $default(_that.callId,_that.channelId,_that.localUserId,_that.remoteUserI
 
 
 class _CallEntity implements CallEntity {
-  const _CallEntity({required this.callId, required this.channelId, required this.localUserId, required this.remoteUserId, required this.callType, required this.status, required this.startTime, this.endTime, required this.isLocalAudioMuted, required this.isLocalVideoMuted, required this.cameraFacing, this.networkQuality});
+  const _CallEntity({required this.callId, required this.channelId, required this.localUserId, required this.remoteUserId, this.remoteUid, required this.callType, required this.status, required this.startTime, this.endTime, required this.isLocalAudioMuted, required this.isLocalVideoMuted, required this.cameraFacing, this.networkQuality});
   
 
 @override final  String callId;
 @override final  String channelId;
 @override final  String localUserId;
 @override final  String remoteUserId;
+@override final  int? remoteUid;
+// Agora UID of remote user (set when they join)
 @override final  CallType callType;
 @override final  CallStatus status;
 @override final  DateTime startTime;
@@ -243,16 +247,16 @@ _$CallEntityCopyWith<_CallEntity> get copyWith => __$CallEntityCopyWithImpl<_Cal
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _CallEntity&&(identical(other.callId, callId) || other.callId == callId)&&(identical(other.channelId, channelId) || other.channelId == channelId)&&(identical(other.localUserId, localUserId) || other.localUserId == localUserId)&&(identical(other.remoteUserId, remoteUserId) || other.remoteUserId == remoteUserId)&&(identical(other.callType, callType) || other.callType == callType)&&(identical(other.status, status) || other.status == status)&&(identical(other.startTime, startTime) || other.startTime == startTime)&&(identical(other.endTime, endTime) || other.endTime == endTime)&&(identical(other.isLocalAudioMuted, isLocalAudioMuted) || other.isLocalAudioMuted == isLocalAudioMuted)&&(identical(other.isLocalVideoMuted, isLocalVideoMuted) || other.isLocalVideoMuted == isLocalVideoMuted)&&(identical(other.cameraFacing, cameraFacing) || other.cameraFacing == cameraFacing)&&(identical(other.networkQuality, networkQuality) || other.networkQuality == networkQuality));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _CallEntity&&(identical(other.callId, callId) || other.callId == callId)&&(identical(other.channelId, channelId) || other.channelId == channelId)&&(identical(other.localUserId, localUserId) || other.localUserId == localUserId)&&(identical(other.remoteUserId, remoteUserId) || other.remoteUserId == remoteUserId)&&(identical(other.remoteUid, remoteUid) || other.remoteUid == remoteUid)&&(identical(other.callType, callType) || other.callType == callType)&&(identical(other.status, status) || other.status == status)&&(identical(other.startTime, startTime) || other.startTime == startTime)&&(identical(other.endTime, endTime) || other.endTime == endTime)&&(identical(other.isLocalAudioMuted, isLocalAudioMuted) || other.isLocalAudioMuted == isLocalAudioMuted)&&(identical(other.isLocalVideoMuted, isLocalVideoMuted) || other.isLocalVideoMuted == isLocalVideoMuted)&&(identical(other.cameraFacing, cameraFacing) || other.cameraFacing == cameraFacing)&&(identical(other.networkQuality, networkQuality) || other.networkQuality == networkQuality));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,callId,channelId,localUserId,remoteUserId,callType,status,startTime,endTime,isLocalAudioMuted,isLocalVideoMuted,cameraFacing,networkQuality);
+int get hashCode => Object.hash(runtimeType,callId,channelId,localUserId,remoteUserId,remoteUid,callType,status,startTime,endTime,isLocalAudioMuted,isLocalVideoMuted,cameraFacing,networkQuality);
 
 @override
 String toString() {
-  return 'CallEntity(callId: $callId, channelId: $channelId, localUserId: $localUserId, remoteUserId: $remoteUserId, callType: $callType, status: $status, startTime: $startTime, endTime: $endTime, isLocalAudioMuted: $isLocalAudioMuted, isLocalVideoMuted: $isLocalVideoMuted, cameraFacing: $cameraFacing, networkQuality: $networkQuality)';
+  return 'CallEntity(callId: $callId, channelId: $channelId, localUserId: $localUserId, remoteUserId: $remoteUserId, remoteUid: $remoteUid, callType: $callType, status: $status, startTime: $startTime, endTime: $endTime, isLocalAudioMuted: $isLocalAudioMuted, isLocalVideoMuted: $isLocalVideoMuted, cameraFacing: $cameraFacing, networkQuality: $networkQuality)';
 }
 
 
@@ -263,7 +267,7 @@ abstract mixin class _$CallEntityCopyWith<$Res> implements $CallEntityCopyWith<$
   factory _$CallEntityCopyWith(_CallEntity value, $Res Function(_CallEntity) _then) = __$CallEntityCopyWithImpl;
 @override @useResult
 $Res call({
- String callId, String channelId, String localUserId, String remoteUserId, CallType callType, CallStatus status, DateTime startTime, DateTime? endTime, bool isLocalAudioMuted, bool isLocalVideoMuted, CameraFacing cameraFacing, NetworkQuality? networkQuality
+ String callId, String channelId, String localUserId, String remoteUserId, int? remoteUid, CallType callType, CallStatus status, DateTime startTime, DateTime? endTime, bool isLocalAudioMuted, bool isLocalVideoMuted, CameraFacing cameraFacing, NetworkQuality? networkQuality
 });
 
 
@@ -280,13 +284,14 @@ class __$CallEntityCopyWithImpl<$Res>
 
 /// Create a copy of CallEntity
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? callId = null,Object? channelId = null,Object? localUserId = null,Object? remoteUserId = null,Object? callType = null,Object? status = null,Object? startTime = null,Object? endTime = freezed,Object? isLocalAudioMuted = null,Object? isLocalVideoMuted = null,Object? cameraFacing = null,Object? networkQuality = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? callId = null,Object? channelId = null,Object? localUserId = null,Object? remoteUserId = null,Object? remoteUid = freezed,Object? callType = null,Object? status = null,Object? startTime = null,Object? endTime = freezed,Object? isLocalAudioMuted = null,Object? isLocalVideoMuted = null,Object? cameraFacing = null,Object? networkQuality = freezed,}) {
   return _then(_CallEntity(
 callId: null == callId ? _self.callId : callId // ignore: cast_nullable_to_non_nullable
 as String,channelId: null == channelId ? _self.channelId : channelId // ignore: cast_nullable_to_non_nullable
 as String,localUserId: null == localUserId ? _self.localUserId : localUserId // ignore: cast_nullable_to_non_nullable
 as String,remoteUserId: null == remoteUserId ? _self.remoteUserId : remoteUserId // ignore: cast_nullable_to_non_nullable
-as String,callType: null == callType ? _self.callType : callType // ignore: cast_nullable_to_non_nullable
+as String,remoteUid: freezed == remoteUid ? _self.remoteUid : remoteUid // ignore: cast_nullable_to_non_nullable
+as int?,callType: null == callType ? _self.callType : callType // ignore: cast_nullable_to_non_nullable
 as CallType,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
 as CallStatus,startTime: null == startTime ? _self.startTime : startTime // ignore: cast_nullable_to_non_nullable
 as DateTime,endTime: freezed == endTime ? _self.endTime : endTime // ignore: cast_nullable_to_non_nullable

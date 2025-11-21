@@ -119,7 +119,10 @@ class CallRepositoryImpl implements CallRepository {
           event: 'Remote user joined',
           details: {'remoteUid': event.remoteUid},
         );
-        _currentCall = _currentCall!.copyWith(status: CallStatus.connected);
+        _currentCall = _currentCall!.copyWith(
+          status: CallStatus.connected,
+          remoteUid: event.remoteUid, // Set remote UID when user joins
+        );
         _callStateController.add(_currentCall!);
       }
     } else if (event is UserOfflineEvent) {
@@ -235,6 +238,16 @@ class CallRepositoryImpl implements CallRepository {
         details: {'channelId': channelId, 'remoteUserId': remoteUserId, 'callType': callType.name},
       );
 
+      // If there's an active call, end it first
+      if (_currentCall != null) {
+        CallLogger.logCallEvent(
+          callId: callId,
+          event: 'Ending previous call before creating new one',
+          details: {'previousCallId': _currentCall!.callId},
+        );
+        await endCall(_currentCall!.callId);
+      }
+
       // Check if engine is initialized
       if (!_agoraService.isInitialized) {
         final initResult = await initialize();
@@ -243,9 +256,20 @@ class CallRepositoryImpl implements CallRepository {
         }
       }
 
-      // Request permissions based on call type
+      // Request microphone permission for all calls FIRST
+      final micResult = await _permissionService.requestMicrophonePermission();
+      final micGranted = micResult.fold((failure) => false, (granted) => granted);
+
+      CallLogger.logPermissionRequest(permission: 'microphone', granted: micGranted);
+
+      if (!micGranted) {
+        final failure = const Failure.permission(message: 'Microphone permission is required for calls');
+        CallLogger.logFailure(failure, context: 'createCall');
+        return Left(failure);
+      }
+
+      // Request camera permission for video calls
       if (callType == CallType.video) {
-        // Request camera permission for video calls
         final cameraResult = await _permissionService.requestCameraPermission();
         final cameraGranted = cameraResult.fold((failure) => false, (granted) => granted);
 
@@ -256,18 +280,6 @@ class CallRepositoryImpl implements CallRepository {
           CallLogger.logFailure(failure, context: 'createCall');
           return Left(failure);
         }
-      }
-
-      // Request microphone permission for all calls
-      final micResult = await _permissionService.requestMicrophonePermission();
-      final micGranted = micResult.fold((failure) => false, (granted) => granted);
-
-      CallLogger.logPermissionRequest(permission: 'microphone', granted: micGranted);
-
-      if (!micGranted) {
-        final failure = const Failure.permission(message: 'Microphone permission is required for calls');
-        CallLogger.logFailure(failure, context: 'createCall');
-        return Left(failure);
       }
 
       // Fetch token from backend (backend generates UID from authenticated user)
@@ -360,6 +372,16 @@ class CallRepositoryImpl implements CallRepository {
     required CallType callType,
   }) async {
     try {
+      // If there's an active call, end it first
+      if (_currentCall != null) {
+        CallLogger.logCallEvent(
+          callId: callId,
+          event: 'Ending previous call before joining new one',
+          details: {'previousCallId': _currentCall!.callId},
+        );
+        await endCall(_currentCall!.callId);
+      }
+
       // Check if engine is initialized
       if (!_agoraService.isInitialized) {
         final initResult = await initialize();
@@ -368,23 +390,30 @@ class CallRepositoryImpl implements CallRepository {
         }
       }
 
-      // Request permissions based on call type
-      if (callType == CallType.video) {
-        // Request camera permission for video calls
-        final cameraResult = await _permissionService.requestCameraPermission();
-        final cameraGranted = cameraResult.fold((failure) => false, (granted) => granted);
-
-        if (!cameraGranted) {
-          return const Left(Failure.permission(message: 'Camera permission is required for video calls'));
-        }
-      }
-
-      // Request microphone permission for all calls
+      // Request microphone permission for all calls FIRST
       final micResult = await _permissionService.requestMicrophonePermission();
       final micGranted = micResult.fold((failure) => false, (granted) => granted);
 
+      CallLogger.logPermissionRequest(permission: 'microphone', granted: micGranted);
+
       if (!micGranted) {
-        return const Left(Failure.permission(message: 'Microphone permission is required for calls'));
+        final failure = const Failure.permission(message: 'Microphone permission is required for calls');
+        CallLogger.logFailure(failure, context: 'joinCall');
+        return Left(failure);
+      }
+
+      // Request camera permission for video calls
+      if (callType == CallType.video) {
+        final cameraResult = await _permissionService.requestCameraPermission();
+        final cameraGranted = cameraResult.fold((failure) => false, (granted) => granted);
+
+        CallLogger.logPermissionRequest(permission: 'camera', granted: cameraGranted);
+
+        if (!cameraGranted) {
+          final failure = const Failure.permission(message: 'Camera permission is required for video calls');
+          CallLogger.logFailure(failure, context: 'joinCall');
+          return Left(failure);
+        }
       }
 
       // Fetch token from backend (backend generates UID from authenticated user)

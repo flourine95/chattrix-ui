@@ -70,10 +70,16 @@ class AgoraService {
   /// Initialize the Agora RTC Engine with app ID from environment
   Future<void> initialize(String appId) async {
     if (_isInitialized) {
+      print('[AgoraService] ℹ️ Engine already initialized, skipping reinitialization');
       return;
     }
 
     try {
+      // Log initialization start
+      print('[AgoraService] 🚀 Starting Agora engine initialization...');
+      print('[AgoraService] 🔑 App ID: ${appId.length >= 8 ? appId.substring(0, 8) : appId}...');
+      print('[AgoraService] 📡 Channel Profile: Communication (0)');
+
       // Create RTC engine
       _engine = createAgoraRtcEngine();
 
@@ -86,7 +92,9 @@ class AgoraService {
       _registerEventHandlers();
 
       _isInitialized = true;
+      print('[AgoraService] ✅ Agora engine initialized successfully');
     } catch (e) {
+      print('[AgoraService] ❌ Failed to initialize Agora engine: $e');
       _eventController.add(
         ErrorEvent(errorCode: ErrorCodeType.errFailed, message: 'Failed to initialize Agora engine: $e'),
       );
@@ -108,28 +116,41 @@ class AgoraService {
     try {
       _localUid = uid;
 
+      // Log join attempt details
+      print('[AgoraService] 🎯 Attempting to join channel...');
+      print('[AgoraService] 📺 Channel ID: $channelId');
+      print('[AgoraService] 👤 UID: $uid');
+      print('[AgoraService] 🎥 Video enabled: $isVideo');
+      print('[AgoraService] 🔐 Token (first 20 chars): ${token.length >= 20 ? token.substring(0, 20) : token}...');
+      print('[AgoraService] ⚙️ ChannelMediaOptions: {clientRoleType: Broadcaster (1)}');
+
       // Enable audio
       await _engine!.enableAudio();
+      print('[AgoraService] 🔊 Audio enabled');
 
       // Enable video if needed
       if (isVideo) {
         await _engine!.enableVideo();
         await _engine!.startPreview();
+        print('[AgoraService] 📹 Video enabled and preview started');
       } else {
         await _engine!.disableVideo();
+        print('[AgoraService] 📹 Video disabled (audio-only call)');
       }
 
       // Join the channel
+      // Note: channelProfile is already set during engine initialization
+      // and should NOT be overridden here to avoid error -17
       await _engine!.joinChannel(
         token: token,
         channelId: channelId,
         uid: uid,
-        options: const ChannelMediaOptions(
-          channelProfile: ChannelProfileType.channelProfileCommunication,
-          clientRoleType: ClientRoleType.clientRoleBroadcaster,
-        ),
+        options: const ChannelMediaOptions(clientRoleType: ClientRoleType.clientRoleBroadcaster),
       );
+
+      print('[AgoraService] ✅ Join channel request sent successfully');
     } catch (e) {
+      print('[AgoraService] ❌ Failed to join channel: $e');
       _eventController.add(
         ErrorEvent(errorCode: ErrorCodeType.errJoinChannelRejected, message: 'Failed to join channel: $e'),
       );
@@ -159,9 +180,16 @@ class AgoraService {
   void _registerEventHandlers() {
     if (_engine == null) return;
 
+    print('[AgoraService] 📋 Registering Agora event handlers...');
+
     _engine!.registerEventHandler(
       RtcEngineEventHandler(
         onJoinChannelSuccess: (RtcConnection connection, int elapsed) {
+          print('[AgoraService] ✅ Join channel SUCCESS');
+          print('[AgoraService]    └─ Channel: ${connection.channelId ?? 'unknown'}');
+          print('[AgoraService]    └─ Local UID: ${connection.localUid ?? 0}');
+          print('[AgoraService]    └─ Elapsed time: ${elapsed}ms');
+
           _eventController.add(
             JoinChannelSuccessEvent(
               channelId: connection.channelId ?? '',
@@ -171,18 +199,40 @@ class AgoraService {
           );
         },
         onUserJoined: (RtcConnection connection, int remoteUid, int elapsed) {
+          print('[AgoraService] 👥 User JOINED');
+          print('[AgoraService]    └─ Remote UID: $remoteUid');
+          print('[AgoraService]    └─ Elapsed time: ${elapsed}ms');
+
           _eventController.add(UserJoinedEvent(remoteUid: remoteUid, elapsed: elapsed));
         },
         onUserOffline: (RtcConnection connection, int remoteUid, UserOfflineReasonType reason) {
+          print('[AgoraService] 👋 User OFFLINE');
+          print('[AgoraService]    └─ Remote UID: $remoteUid');
+          print('[AgoraService]    └─ Reason: $reason');
+
           _eventController.add(UserOfflineEvent(remoteUid: remoteUid, reason: reason));
         },
         onNetworkQuality: (RtcConnection connection, int remoteUid, QualityType txQuality, QualityType rxQuality) {
+          print('[AgoraService] 📶 Network quality update');
+          print('[AgoraService]    └─ UID: $remoteUid');
+          print('[AgoraService]    └─ TX Quality: $txQuality');
+          print('[AgoraService]    └─ RX Quality: $rxQuality');
+
           _eventController.add(NetworkQualityEvent(uid: remoteUid, txQuality: txQuality, rxQuality: rxQuality));
         },
         onTokenPrivilegeWillExpire: (RtcConnection connection, String token) {
+          print('[AgoraService] ⚠️ Token privilege will expire');
+          print(
+            '[AgoraService]    └─ Token (first 20 chars): ${token.length >= 20 ? token.substring(0, 20) : token}...',
+          );
+
           _eventController.add(TokenPrivilegeWillExpireEvent(token: token));
         },
         onError: (ErrorCodeType err, String msg) {
+          print('[AgoraService] ❌ Agora ERROR event');
+          print('[AgoraService]    └─ Error code: $err');
+          print('[AgoraService]    └─ Message: $msg');
+
           _eventController.add(ErrorEvent(errorCode: err, message: msg));
         },
       ),

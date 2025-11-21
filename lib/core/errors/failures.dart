@@ -49,3 +49,25 @@ class ValidationError {
     );
   }
 }
+
+/// Extension to provide user-friendly error messages for all Failure types
+extension FailureMessage on Failure {
+  String get userMessage {
+    return when(
+      server: (message, errorCode) => 'Server error. Please try again later.',
+      network: (message) => 'Network error. Please check your internet connection.',
+      validation: (message, errors) => message,
+      badRequest: (message, errorCode) => 'Invalid request. Please check your input.',
+      unauthorized: (message, errorCode) => 'Authentication failed. Please login again.',
+      forbidden: (message, errorCode) => 'Access denied. You do not have permission to perform this action.',
+      notFound: (message, errorCode) => 'Resource not found. Please try again.',
+      conflict: (message, errorCode) => 'A conflict occurred. Please refresh and try again.',
+      rateLimitExceeded: (message) => 'Too many requests. Please wait a moment and try again.',
+      unknown: (message) => 'An unexpected error occurred. Please try again.',
+      permission: (message) => message,
+      agoraEngine: (message, code) => 'Failed to join call. Please check your connection and try again.',
+      tokenExpired: (message) => 'Session expired. Please login again.',
+      channelJoin: (message) => 'Failed to join call. Please try again.',
+    );
+  }
+}

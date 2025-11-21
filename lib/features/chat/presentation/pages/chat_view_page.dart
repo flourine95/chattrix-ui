@@ -295,24 +295,50 @@ class ChatViewPage extends HookConsumerWidget {
           // Audio call button
           IconButton(
             icon: const FaIcon(FontAwesomeIcons.phone, size: 20),
-            onPressed: () {
+            onPressed: () async {
               // Get remote user ID from conversation
               final remoteUserId = ConversationUtils.getOtherParticipantId(conversation, me);
               if (remoteUserId != null) {
-                // Initiate audio call
-                ref
-                    .read(callProvider.notifier)
-                    .initiateCall(
-                      remoteUserId: remoteUserId,
-                      callType: CallType.audio,
-                      callerId: me?.id.toString(),
-                      callerName: me?.fullName,
+                // Show loading indicator
+                if (context.mounted) {
+                  showDialog(
+                    context: context,
+                    barrierDismissible: false,
+                    builder: (ctx) => const Center(child: CircularProgressIndicator()),
+                  );
+                }
+
+                try {
+                  // Initiate audio call and wait for it to complete
+                  await ref
+                      .read(callProvider.notifier)
+                      .initiateCall(
+                        remoteUserId: remoteUserId,
+                        callType: CallType.audio,
+                        callerId: me?.id.toString(),
+                        callerName: me?.fullName,
+                        conversationId: chatId, // Use conversation ID as channel ID
+                      );
+
+                  // Close loading dialog
+                  if (context.mounted) {
+                    Navigator.of(context).pop();
+                  }
+
+                  // Navigate to call screen after call is initiated
+                  if (context.mounted) {
+                    context.push(
+                      '/call/${DateTime.now().millisecondsSinceEpoch}',
+                      extra: {'remoteUserId': remoteUserId, 'callType': 'audio'},
                     );
-                // Navigate to call screen
-                context.push(
-                  '/call/${DateTime.now().millisecondsSinceEpoch}',
-                  extra: {'remoteUserId': remoteUserId, 'callType': 'audio'},
-                );
+                  }
+                } catch (e) {
+                  // Close loading dialog
+                  if (context.mounted) {
+                    Navigator.of(context).pop();
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to start call: $e')));
+                  }
+                }
               }
             },
             tooltip: 'Audio call',
@@ -320,24 +346,50 @@ class ChatViewPage extends HookConsumerWidget {
           // Video call button
           IconButton(
             icon: const FaIcon(FontAwesomeIcons.video, size: 20),
-            onPressed: () {
+            onPressed: () async {
               // Get remote user ID from conversation
               final remoteUserId = ConversationUtils.getOtherParticipantId(conversation, me);
               if (remoteUserId != null) {
-                // Initiate video call
-                ref
-                    .read(callProvider.notifier)
-                    .initiateCall(
-                      remoteUserId: remoteUserId,
-                      callType: CallType.video,
-                      callerId: me?.id.toString(),
-                      callerName: me?.fullName,
+                // Show loading indicator
+                if (context.mounted) {
+                  showDialog(
+                    context: context,
+                    barrierDismissible: false,
+                    builder: (ctx) => const Center(child: CircularProgressIndicator()),
+                  );
+                }
+
+                try {
+                  // Initiate video call and wait for it to complete
+                  await ref
+                      .read(callProvider.notifier)
+                      .initiateCall(
+                        remoteUserId: remoteUserId,
+                        callType: CallType.video,
+                        callerId: me?.id.toString(),
+                        callerName: me?.fullName,
+                        conversationId: chatId, // Use conversation ID as channel ID
+                      );
+
+                  // Close loading dialog
+                  if (context.mounted) {
+                    Navigator.of(context).pop();
+                  }
+
+                  // Navigate to call screen after call is initiated
+                  if (context.mounted) {
+                    context.push(
+                      '/call/${DateTime.now().millisecondsSinceEpoch}',
+                      extra: {'remoteUserId': remoteUserId, 'callType': 'video'},
                     );
-                // Navigate to call screen
-                context.push(
-                  '/call/${DateTime.now().millisecondsSinceEpoch}',
-                  extra: {'remoteUserId': remoteUserId, 'callType': 'video'},
-                );
+                  }
+                } catch (e) {
+                  // Close loading dialog
+                  if (context.mounted) {
+                    Navigator.of(context).pop();
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to start call: $e')));
+                  }
+                }
               }
             },
             tooltip: 'Video call',

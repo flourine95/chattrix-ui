@@ -9,6 +9,7 @@ abstract class CallEntity with _$CallEntity {
     required String channelId,
     required String localUserId,
     required String remoteUserId,
+    int? remoteUid, // Agora UID of remote user (set when they join)
     required CallType callType,
     required CallStatus status,
     required DateTime startTime,

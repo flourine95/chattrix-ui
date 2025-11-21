@@ -61,98 +61,106 @@ class CallErrorView extends StatelessWidget {
 
   _ErrorInfo _getErrorInfo(Object error) {
     if (error is Failure) {
+      // Use the userMessage extension for user-friendly error messages
+      final userFriendlyMessage = error.userMessage;
+
       return error.when(
         server: (message, errorCode) => _ErrorInfo(
           icon: Icons.cloud_off,
           color: Colors.red,
           title: 'Server Error',
-          message: message,
+          message: userFriendlyMessage,
           canRetry: true,
         ),
         network: (message) => _ErrorInfo(
           icon: Icons.wifi_off,
           color: Colors.orange,
           title: 'Connection Error',
-          message: message,
+          message: userFriendlyMessage,
           canRetry: true,
         ),
         validation: (message, errors) => _ErrorInfo(
           icon: Icons.error_outline,
           color: Colors.red,
           title: 'Invalid Request',
-          message: message,
+          message: userFriendlyMessage,
           canRetry: false,
         ),
         badRequest: (message, errorCode) => _ErrorInfo(
           icon: Icons.error_outline,
           color: Colors.red,
           title: 'Bad Request',
-          message: message,
+          message: userFriendlyMessage,
           canRetry: false,
         ),
         unauthorized: (message, errorCode) => _ErrorInfo(
           icon: Icons.lock_outline,
           color: Colors.red,
           title: 'Unauthorized',
-          message: message,
+          message: userFriendlyMessage,
           canRetry: false,
         ),
-        forbidden: (message, errorCode) =>
-            _ErrorInfo(icon: Icons.block, color: Colors.red, title: 'Access Denied', message: message, canRetry: false),
+        forbidden: (message, errorCode) => _ErrorInfo(
+          icon: Icons.block,
+          color: Colors.red,
+          title: 'Access Denied',
+          message: userFriendlyMessage,
+          canRetry: false,
+        ),
         notFound: (message, errorCode) => _ErrorInfo(
           icon: Icons.search_off,
           color: Colors.orange,
           title: 'Not Found',
-          message: message,
+          message: userFriendlyMessage,
           canRetry: false,
         ),
         conflict: (message, errorCode) => _ErrorInfo(
           icon: Icons.warning_amber,
           color: Colors.orange,
           title: 'Conflict',
-          message: message,
+          message: userFriendlyMessage,
           canRetry: false,
         ),
         rateLimitExceeded: (message) => _ErrorInfo(
           icon: Icons.timer_off,
           color: Colors.orange,
           title: 'Too Many Requests',
-          message: message,
+          message: userFriendlyMessage,
           canRetry: true,
         ),
         unknown: (message) => _ErrorInfo(
           icon: Icons.error_outline,
           color: Colors.red,
           title: 'Unknown Error',
-          message: message,
+          message: userFriendlyMessage,
           canRetry: true,
         ),
         permission: (message) => _ErrorInfo(
           icon: Icons.block,
           color: Colors.orange,
           title: 'Permission Required',
-          message: message,
+          message: userFriendlyMessage,
           canRetry: false,
         ),
         agoraEngine: (message, code) => _ErrorInfo(
           icon: Icons.videocam_off,
           color: Colors.red,
           title: 'Call Engine Error',
-          message: code != null ? '$message (Code: $code)' : message,
+          message: userFriendlyMessage,
           canRetry: true,
         ),
         tokenExpired: (message) => _ErrorInfo(
           icon: Icons.lock_clock,
           color: Colors.orange,
           title: 'Session Expired',
-          message: message,
+          message: userFriendlyMessage,
           canRetry: true,
         ),
         channelJoin: (message) => _ErrorInfo(
           icon: Icons.phone_disabled,
           color: Colors.red,
           title: 'Failed to Join Call',
-          message: message,
+          message: userFriendlyMessage,
           canRetry: true,
         ),
       );

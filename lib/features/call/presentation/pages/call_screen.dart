@@ -76,13 +76,17 @@ class CallScreen extends HookConsumerWidget {
     final orientation = MediaQuery.of(context).orientation;
     final isLandscape = orientation == Orientation.landscape;
 
+    // Get remote UID from call entity (will be set when remote user joins)
+    final remoteUid = call.remoteUid ?? 0;
+
     return Scaffold(
       backgroundColor: Colors.black,
       body: SafeArea(
         child: Stack(
           children: [
             // Remote video view (for video calls) with fade-in animation
-            if (call.callType == CallType.video)
+            // Only show if remote user has joined (remoteUid > 0)
+            if (call.callType == CallType.video && remoteUid > 0)
               Positioned.fill(
                 child: TweenAnimationBuilder<double>(
                   tween: Tween(begin: 0.0, end: 1.0),
@@ -90,7 +94,28 @@ class CallScreen extends HookConsumerWidget {
                   builder: (context, value, child) {
                     return Opacity(opacity: value, child: child);
                   },
-                  child: const RemoteVideoView(),
+                  child: RemoteVideoView(remoteUid: remoteUid, channelId: call.channelId),
+                ),
+              ),
+
+            // Show "Waiting for remote user" message if no remote user yet
+            if (call.callType == CallType.video && remoteUid == 0)
+              Positioned.fill(
+                child: Container(
+                  color: Colors.black,
+                  child: Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(Colors.white)),
+                        const SizedBox(height: 24),
+                        Text(
+                          'Waiting for ${call.remoteUserId} to join...',
+                          style: Theme.of(context).textTheme.titleMedium?.copyWith(color: Colors.white70),
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
               ),
 
