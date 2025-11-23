@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:chattrix_ui/features/auth/presentation/providers/auth_providers.dart';
 import 'package:chattrix_ui/features/call/domain/entities/call_entity.dart';
 import 'package:chattrix_ui/features/call/presentation/providers/call_state_provider.dart';
+import 'package:chattrix_ui/features/call/presentation/providers/call_status_provider.dart';
 import 'package:chattrix_ui/features/chat/domain/entities/message.dart';
 import 'package:chattrix_ui/features/chat/presentation/providers/chat_providers.dart';
 import 'package:chattrix_ui/features/chat/presentation/utils/conversation_utils.dart';
@@ -298,6 +299,8 @@ class ChatViewPage extends HookConsumerWidget {
             onPressed: () async {
               // Get remote user ID from conversation
               final remoteUserId = ConversationUtils.getOtherParticipantId(conversation, me);
+              final calleeName = name ?? 'User $chatId';
+
               if (remoteUserId != null) {
                 // Show loading indicator
                 if (context.mounted) {
@@ -310,7 +313,7 @@ class ChatViewPage extends HookConsumerWidget {
 
                 try {
                   // Initiate audio call and wait for it to complete
-                  await ref
+                  final callId = await ref
                       .read(callProvider.notifier)
                       .initiateCall(
                         remoteUserId: remoteUserId,
@@ -325,12 +328,28 @@ class ChatViewPage extends HookConsumerWidget {
                     Navigator.of(context).pop();
                   }
 
-                  // Navigate to call screen after call is initiated
-                  if (context.mounted) {
-                    context.push(
-                      '/call/${DateTime.now().millisecondsSinceEpoch}',
-                      extra: {'remoteUserId': remoteUserId, 'callType': 'audio'},
-                    );
+                  if (callId != null) {
+                    // Get the call entity to extract channel ID
+                    final callState = ref.read(callProvider);
+                    final call = callState.value;
+
+                    if (call != null) {
+                      // Set status to waiting for response with call information
+                      ref
+                          .read(callStatusProvider.notifier)
+                          .setWaitingForResponse(
+                            calleeName: calleeName,
+                            callId: call.callId,
+                            channelId: call.channelId,
+                            remoteUserId: remoteUserId,
+                            callType: CallType.audio,
+                          );
+
+                      // Navigate to waiting screen
+                      if (context.mounted) {
+                        context.push('/waiting-call/$callId', extra: {'calleeName': calleeName, 'isVideoCall': false});
+                      }
+                    }
                   }
                 } catch (e) {
                   // Close loading dialog
@@ -349,6 +368,8 @@ class ChatViewPage extends HookConsumerWidget {
             onPressed: () async {
               // Get remote user ID from conversation
               final remoteUserId = ConversationUtils.getOtherParticipantId(conversation, me);
+              final calleeName = name ?? 'User $chatId';
+
               if (remoteUserId != null) {
                 // Show loading indicator
                 if (context.mounted) {
@@ -361,7 +382,7 @@ class ChatViewPage extends HookConsumerWidget {
 
                 try {
                   // Initiate video call and wait for it to complete
-                  await ref
+                  final callId = await ref
                       .read(callProvider.notifier)
                       .initiateCall(
                         remoteUserId: remoteUserId,
@@ -376,12 +397,28 @@ class ChatViewPage extends HookConsumerWidget {
                     Navigator.of(context).pop();
                   }
 
-                  // Navigate to call screen after call is initiated
-                  if (context.mounted) {
-                    context.push(
-                      '/call/${DateTime.now().millisecondsSinceEpoch}',
-                      extra: {'remoteUserId': remoteUserId, 'callType': 'video'},
-                    );
+                  if (callId != null) {
+                    // Get the call entity to extract channel ID
+                    final callState = ref.read(callProvider);
+                    final call = callState.value;
+
+                    if (call != null) {
+                      // Set status to waiting for response with call information
+                      ref
+                          .read(callStatusProvider.notifier)
+                          .setWaitingForResponse(
+                            calleeName: calleeName,
+                            callId: call.callId,
+                            channelId: call.channelId,
+                            remoteUserId: remoteUserId,
+                            callType: CallType.video,
+                          );
+
+                      // Navigate to waiting screen
+                      if (context.mounted) {
+                        context.push('/waiting-call/$callId', extra: {'calleeName': calleeName, 'isVideoCall': true});
+                      }
+                    }
                   }
                 } catch (e) {
                   // Close loading dialog

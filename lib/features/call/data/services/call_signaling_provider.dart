@@ -1,4 +1,3 @@
-import 'package:chattrix_ui/features/call/data/services/call_invitation_manager.dart';
 import 'package:chattrix_ui/features/call/data/services/call_signaling_service.dart';
 import 'package:chattrix_ui/features/chat/presentation/providers/chat_websocket_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -19,19 +18,4 @@ CallSignalingService callSignalingService(Ref ref) {
   });
 
   return service;
-}
-
-/// Provider for CallInvitationManager
-@riverpod
-CallInvitationManager callInvitationManager(Ref ref) {
-  final signalingService = ref.watch(callSignalingServiceProvider);
-
-  final manager = CallInvitationManager(signalingService: signalingService);
-
-  // Dispose when provider is disposed
-  ref.onDispose(() {
-    manager.dispose();
-  });
-
-  return manager;
 }

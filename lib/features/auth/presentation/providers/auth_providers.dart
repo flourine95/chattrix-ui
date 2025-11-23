@@ -163,6 +163,10 @@ class AuthNotifier extends Notifier<AuthState> {
           _handleTokenExpired();
           return message;
         },
+        webSocketNotConnected: (message) => message,
+        webSocketSendFailed: (message) => message,
+        callNotFound: (message) => message,
+        callAlreadyActive: (message) => message,
         channelJoin: (message) => message,
       );
     }

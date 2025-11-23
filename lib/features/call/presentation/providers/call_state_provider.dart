@@ -1,4 +1,6 @@
 import 'package:chattrix_ui/core/errors/failures.dart';
+import 'package:chattrix_ui/features/call/data/services/call_logger.dart';
+import 'package:chattrix_ui/features/call/data/services/call_signaling_service.dart';
 import 'package:chattrix_ui/features/call/domain/entities/call_entity.dart';
 import 'package:chattrix_ui/features/call/domain/entities/call_history_entity.dart';
 import 'package:chattrix_ui/features/call/presentation/providers/call_repository_provider.dart';
@@ -58,6 +60,10 @@ class CallHistory extends _$CallHistory {
       agoraEngine: (message, code) => AgoraEngineException(message, code),
       tokenExpired: (message) => TokenExpiredException(message),
       channelJoin: (message) => ChannelJoinException(message),
+      webSocketNotConnected: (message) => WebSocketNotConnectedException(message),
+      webSocketSendFailed: (message) => WebSocketSendFailedException(message),
+      callNotFound: (message) => CallNotFoundException(message),
+      callAlreadyActive: (message) => CallAlreadyActiveException(message),
     );
   }
 }
@@ -66,8 +72,13 @@ class CallHistory extends _$CallHistory {
 /// Manages call state with automatic loading/error handling
 @Riverpod(keepAlive: true)
 class Call extends _$Call {
+  CallSignalingService? _signalingService;
+
   @override
   Future<CallEntity?> build() async {
+    // Inject signaling service
+    _signalingService = ref.read(callSignalingServiceProvider);
+
     // Initially no active call
     return null;
   }
@@ -75,28 +86,44 @@ class Call extends _$Call {
   /// Initiate a call to another user
   /// conversationId is optional - if provided, it will be used as the channel ID
   /// This ensures both users join the same Agora channel
-  Future<void> initiateCall({
+  /// Returns the call ID if successful
+  Future<String?> initiateCall({
     required String remoteUserId,
     required CallType callType,
     String? callerId,
     String? callerName,
     String? conversationId, // Use conversation ID as channel ID
   }) async {
+    // Validate WebSocket connection before initiating call
+    if (_signalingService == null || !_signalingService!.isConnected) {
+      final error = WebSocketNotConnectedException('Cannot initiate call: WebSocket not connected');
+      CallLogger.logError('WebSocket not connected when initiating call', error: error);
+      state = AsyncValue.error(error, StackTrace.current);
+      return null;
+    }
+
     state = const AsyncValue.loading();
+
+    String? callId;
 
     state = await AsyncValue.guard(() async {
       final repository = ref.read(callRepositoryProvider);
 
       // Generate unique call ID
-      final callId = _generateCallId();
+      callId = _generateCallId();
 
       // Use conversation ID as channel ID if provided, otherwise generate one
       // This ensures both users in a conversation join the same Agora channel
       final channelId = conversationId != null ? 'channel_conv_$conversationId' : _generateChannelId();
 
-      // Create the call
+      // Log call initiation
+      CallLogger.logInfo(
+        'Initiating call: callId=$callId, channelId=$channelId, calleeId=$remoteUserId, callType=${callType.name}',
+      );
+
+      // Create the call via REST API (backend generates and stores channel ID)
       final result = await repository.createCall(
-        callId: callId,
+        callId: callId!,
         channelId: channelId,
         remoteUserId: remoteUserId,
         callType: callType,
@@ -105,8 +132,21 @@ class Call extends _$Call {
       );
 
       // Handle result
-      return result.fold((failure) => throw _mapFailureToException(failure), (call) => call);
+      // Note: Backend automatically sends WebSocket invitation to callee
+      // No need to send it manually from client
+      return result.fold(
+        (failure) {
+          CallLogger.logFailure(failure, context: 'initiateCall');
+          throw _mapFailureToException(failure);
+        },
+        (call) {
+          CallLogger.logInfo('Call initiated successfully: callId=${call.callId}');
+          return call;
+        },
+      );
     });
+
+    return callId;
   }
 
   /// Accept an incoming call
@@ -116,33 +156,98 @@ class Call extends _$Call {
     required String remoteUserId,
     required CallType callType,
   }) async {
+    CallLogger.logInfo(
+      'Accepting call: callId=$callId, channelId=$channelId, remoteUserId=$remoteUserId, callType=${callType.name}',
+    );
+
     state = const AsyncValue.loading();
 
     state = await AsyncValue.guard(() async {
       final repository = ref.read(callRepositoryProvider);
 
-      // Join the call
+      // 1. Send WebSocket accept message BEFORE joining
+      // This notifies the caller that the call was accepted
+      final sendResult = _signalingService?.sendCallAccept(callId: callId);
+
+      // Handle WebSocket send result
+      if (sendResult != null) {
+        sendResult.fold(
+          (failure) {
+            CallLogger.logFailure(failure, context: 'acceptCall - WebSocket send');
+            throw _mapFailureToException(failure);
+          },
+          (_) {
+            CallLogger.logInfo('Sent call.accept WebSocket message: callId=$callId');
+          },
+        );
+      }
+
+      // 2. Request Agora token with invitation's channel ID and join the channel
       final result = await repository.joinCall(
         callId: callId,
-        channelId: channelId,
+        channelId: channelId, // Use channel ID from invitation
         remoteUserId: remoteUserId,
         callType: callType,
       );
 
       // Handle result
-      return result.fold((failure) => throw _mapFailureToException(failure), (call) => call);
+      return result.fold(
+        (failure) {
+          CallLogger.logFailure(failure, context: 'acceptCall');
+          throw _mapFailureToException(failure);
+        },
+        (call) {
+          CallLogger.logInfo('Call accepted successfully: callId=$callId');
+          return call;
+        },
+      );
     });
   }
 
   /// Reject an incoming call
-  Future<void> rejectCall(String callId) async {
-    // For now, rejecting a call is similar to ending it
-    // In the future, we might want to send a specific rejection message
-    await endCall(callId);
+  /// This method sends a WebSocket reject message without joining Agora channel
+  Future<void> rejectCall(String callId, {String? reason}) async {
+    final rejectReason = reason ?? 'declined';
+    CallLogger.logInfo('Rejecting call: callId=$callId, reason=$rejectReason');
+
+    state = const AsyncValue.loading();
+
+    state = await AsyncValue.guard(() async {
+      // Send WebSocket reject message
+      final sendResult = _signalingService?.sendCallReject(callId: callId, reason: rejectReason);
+
+      // Handle WebSocket send result
+      if (sendResult != null) {
+        sendResult.fold(
+          (failure) {
+            CallLogger.logFailure(failure, context: 'rejectCall');
+            throw _mapFailureToException(failure);
+          },
+          (_) {
+            CallLogger.logInfo('Sent call.reject WebSocket message: callId=$callId, reason=$rejectReason');
+          },
+        );
+      }
+
+      // Do NOT call endCall() - we never joined the Agora channel
+      // Just clear the call state
+      return null;
+    });
+  }
+
+  /// Cancel an outgoing call (used for race condition handling)
+  /// This method clears the call state without sending any messages
+  void cancelOutgoingCall() {
+    CallLogger.logInfo('Cancelling outgoing call due to race condition');
+    // Simply reset the state to null
+    // This will stop any ongoing call initiation process
+    state = const AsyncValue.data(null);
   }
 
   /// End the current call
   Future<void> endCall(String callId) async {
+    CallLogger.logInfo('Ending call: callId=$callId');
+
     state = const AsyncValue.loading();
 
     state = await AsyncValue.guard(() async {
@@ -152,7 +257,16 @@ class Call extends _$Call {
       final result = await repository.endCall(callId);
 
       // Handle result
-      result.fold((failure) => throw _mapFailureToException(failure), (_) => null);
+      result.fold(
+        (failure) {
+          CallLogger.logFailure(failure, context: 'endCall');
+          throw _mapFailureToException(failure);
+        },
+        (_) {
+          CallLogger.logInfo('Call ended successfully: callId=$callId');
+          return null;
+        },
+      );
 
       // Return null to indicate no active call
       return null;
@@ -180,8 +294,11 @@ class Call extends _$Call {
   Future<void> toggleMute() async {
     final currentCall = state.value;
     if (currentCall == null) {
+      CallLogger.logWarning('Cannot toggle mute: no active call');
       return;
     }
+
+    CallLogger.logInfo('Toggling audio mute: callId=${currentCall.callId}');
 
     final repository = ref.read(callRepositoryProvider);
 
@@ -189,10 +306,12 @@ class Call extends _$Call {
 
     result.fold(
       (failure) {
+        CallLogger.logFailure(failure, context: 'toggleMute');
         // Handle error but don't change the overall state
         // Could show a toast or error message
       },
       (newMuteState) {
+        CallLogger.logInfo('Audio mute toggled: callId=${currentCall.callId}, muted=$newMuteState');
         // Update the call state with new mute status
         final updatedCall = currentCall.copyWith(isLocalAudioMuted: newMuteState);
         state = AsyncValue.data(updatedCall);
@@ -204,8 +323,11 @@ class Call extends _$Call {
   Future<void> toggleVideo() async {
     final currentCall = state.value;
     if (currentCall == null) {
+      CallLogger.logWarning('Cannot toggle video: no active call');
       return;
     }
+
+    CallLogger.logInfo('Toggling video: callId=${currentCall.callId}');
 
     final repository = ref.read(callRepositoryProvider);
 
@@ -213,10 +335,12 @@ class Call extends _$Call {
 
     result.fold(
       (failure) {
+        CallLogger.logFailure(failure, context: 'toggleVideo');
         // Handle error but don't change the overall state
         // Could show a toast or error message
       },
       (newVideoState) {
+        CallLogger.logInfo('Video toggled: callId=${currentCall.callId}, muted=$newVideoState');
         // Update the call state with new video status
         final updatedCall = currentCall.copyWith(isLocalVideoMuted: newVideoState);
         state = AsyncValue.data(updatedCall);
@@ -228,8 +352,11 @@ class Call extends _$Call {
   Future<void> switchCamera() async {
     final currentCall = state.value;
     if (currentCall == null) {
+      CallLogger.logWarning('Cannot switch camera: no active call');
       return;
     }
+
+    CallLogger.logInfo('Switching camera: callId=${currentCall.callId}');
 
     final repository = ref.read(callRepositoryProvider);
 
@@ -237,10 +364,12 @@ class Call extends _$Call {
 
     result.fold(
       (failure) {
+        CallLogger.logFailure(failure, context: 'switchCamera');
         // Handle error but don't change the overall state
         // Could show a toast or error message
       },
       (newCameraFacing) {
+        CallLogger.logInfo('Camera switched: callId=${currentCall.callId}, facing=${newCameraFacing.name}');
         // Update the call state with new camera facing
         final updatedCall = currentCall.copyWith(cameraFacing: newCameraFacing);
         state = AsyncValue.data(updatedCall);
@@ -265,6 +394,10 @@ class Call extends _$Call {
       agoraEngine: (message, code) => AgoraEngineException(message, code),
       tokenExpired: (message) => TokenExpiredException(message),
       channelJoin: (message) => ChannelJoinException(message),
+      webSocketNotConnected: (message) => WebSocketNotConnectedException(message),
+      webSocketSendFailed: (message) => WebSocketSendFailedException(message),
+      callNotFound: (message) => CallNotFoundException(message),
+      callAlreadyActive: (message) => CallAlreadyActiveException(message),
     );
   }
 }
@@ -390,6 +523,38 @@ class TokenExpiredException implements Exception {
 class ChannelJoinException implements Exception {
   final String message;
   ChannelJoinException(this.message);
+
+  @override
+  String toString() => message;
+}
+
+class WebSocketNotConnectedException implements Exception {
+  final String message;
+  WebSocketNotConnectedException(this.message);
+
+  @override
+  String toString() => message;
+}
+
+class WebSocketSendFailedException implements Exception {
+  final String message;
+  WebSocketSendFailedException(this.message);
+
+  @override
+  String toString() => message;
+}
+
+class CallNotFoundException implements Exception {
+  final String message;
+  CallNotFoundException(this.message);
+
+  @override
+  String toString() => message;
+}
+
+class CallAlreadyActiveException implements Exception {
+  final String message;
+  CallAlreadyActiveException(this.message);
 
   @override
   String toString() => message;

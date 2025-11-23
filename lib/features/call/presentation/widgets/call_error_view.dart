@@ -163,6 +163,34 @@ class CallErrorView extends StatelessWidget {
           message: userFriendlyMessage,
           canRetry: true,
         ),
+        webSocketNotConnected: (message) => _ErrorInfo(
+          icon: Icons.wifi_off,
+          color: Colors.orange,
+          title: 'Connection Lost',
+          message: userFriendlyMessage,
+          canRetry: true,
+        ),
+        webSocketSendFailed: (message) => _ErrorInfo(
+          icon: Icons.send_outlined,
+          color: Colors.red,
+          title: 'Send Failed',
+          message: userFriendlyMessage,
+          canRetry: true,
+        ),
+        callNotFound: (message) => _ErrorInfo(
+          icon: Icons.phone_missed,
+          color: Colors.orange,
+          title: 'Call Not Found',
+          message: userFriendlyMessage,
+          canRetry: false,
+        ),
+        callAlreadyActive: (message) => _ErrorInfo(
+          icon: Icons.phone_in_talk,
+          color: Colors.orange,
+          title: 'Call Already Active',
+          message: userFriendlyMessage,
+          canRetry: false,
+        ),
       );
     }
 

@@ -42,7 +42,7 @@ final class AuthProvider extends $AsyncNotifierProvider<Auth, AuthState> {
   Auth create() => Auth();
 }
 
-String _$authHash() => r'fdeee0759370f880c5c8735285f5f382f5a60ed8';
+String _$authHash() => r'8a51e5449a8da60ae43ff8c754f15317c7c9fb91';
 
 /// Main auth state notifier using AsyncNotifier
 /// Manages authentication state with automatic loading/error handling

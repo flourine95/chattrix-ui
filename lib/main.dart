@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-import 'core/config/env_validator.dart';
 import 'core/router/app_router.dart';
 import 'core/theme/app_theme.dart';
 import 'core/toast/toast_overlay.dart';
@@ -11,40 +10,6 @@ import 'features/call/presentation/widgets/incoming_call_listener.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await dotenv.load(fileName: ".env");
-
-  // Validate environment variables
-  try {
-    EnvValidator.validate();
-  } catch (e) {
-    // Log the error and show a dialog
-    print('[Main] ❌ Environment validation failed: $e');
-    runApp(
-      MaterialApp(
-        home: Scaffold(
-          body: Center(
-            child: AlertDialog(
-              title: const Text('Configuration Error'),
-              content: Text(
-                'Failed to validate environment configuration:\n\n$e\n\n'
-                'Please check your .env file and restart the app.',
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () {
-                    // Exit the app
-                    throw Exception('Environment validation failed');
-                  },
-                  child: const Text('Exit'),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-    return;
-  }
-
   runApp(ProviderScope(child: const MyApp()));
 }
 
@@ -56,7 +21,7 @@ class MyApp extends ConsumerWidget {
     return MaterialApp.router(
       title: 'Chattrix',
       debugShowCheckedModeBanner: false,
-      showPerformanceOverlay: false, // Set to true to enable performance overlay in debug mode
+      showPerformanceOverlay: false,
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
       themeMode: ThemeMode.light,

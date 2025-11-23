@@ -181,6 +181,10 @@ class Auth extends _$Auth {
       agoraEngine: (message, code) => UnknownException(message),
       tokenExpired: (message) => UnknownException(message),
       channelJoin: (message) => UnknownException(message),
+      webSocketNotConnected: (message) => UnknownException(message),
+      webSocketSendFailed: (message) => UnknownException(message),
+      callNotFound: (message) => UnknownException(message),
+      callAlreadyActive: (message) => UnknownException(message),
     );
   }
 }

@@ -1,0 +1,38 @@
+IMPORTANT: Ringtone Audio File Required
+========================================
+
+A ringtone audio file named "ringtone.mp3" must be placed in this directory for the incoming call feature to work properly.
+
+File Requirements:
+- Filename: ringtone.mp3
+- Format: MP3
+- Duration: 3-5 seconds (will loop automatically)
+- Sample Rate: 44.1 kHz or 48 kHz
+- Bit Rate: 128 kbps or higher
+- Volume: Normalized to prevent distortion
+
+Where to Get a Ringtone:
+1. Free Sound Libraries:
+   - https://freesound.org/ (search for "phone ringtone")
+   - https://www.zapsplat.com/ (free sound effects)
+   - https://mixkit.co/free-sound-effects/phone/ (royalty-free)
+
+2. Create Your Own:
+   - Use Audacity (free audio editor)
+   - Use online tone generators
+   - Record and edit your own sound
+
+3. For Testing:
+   - Any MP3 file can be used as a temporary placeholder
+   - Just rename it to "ringtone.mp3"
+
+Implementation Details:
+- The ringtone plays automatically when an incoming call screen is displayed
+- It loops continuously until the call is accepted or rejected
+- The audio player is managed by the RingtoneService class
+- Volume is set to maximum (1.0) for clear notification
+
+Next Steps:
+1. Download or create a ringtone.mp3 file
+2. Place it in this directory (chattrix-ui/assets/sounds/)
+3. The app will automatically use it for incoming calls

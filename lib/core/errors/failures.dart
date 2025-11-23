@@ -32,6 +32,16 @@ abstract class Failure with _$Failure {
   const factory Failure.tokenExpired({required String message}) = TokenExpiredFailure;
 
   const factory Failure.channelJoin({required String message}) = ChannelJoinFailure;
+
+  // WebSocket signaling failures
+  const factory Failure.webSocketNotConnected({required String message}) = WebSocketNotConnectedFailure;
+
+  const factory Failure.webSocketSendFailed({required String message}) = WebSocketSendFailure;
+
+  // Call-specific failures
+  const factory Failure.callNotFound({required String message}) = CallNotFoundFailure;
+
+  const factory Failure.callAlreadyActive({required String message}) = CallAlreadyActiveFailure;
 }
 
 class ValidationError {
@@ -68,6 +78,10 @@ extension FailureMessage on Failure {
       agoraEngine: (message, code) => 'Failed to join call. Please check your connection and try again.',
       tokenExpired: (message) => 'Session expired. Please login again.',
       channelJoin: (message) => 'Failed to join call. Please try again.',
+      webSocketNotConnected: (message) => 'Connection lost. Please check your internet connection.',
+      webSocketSendFailed: (message) => 'Failed to send message. Please try again.',
+      callNotFound: (message) => 'Call not found. It may have already ended.',
+      callAlreadyActive: (message) => 'You are already in a call.',
     );
   }
 }

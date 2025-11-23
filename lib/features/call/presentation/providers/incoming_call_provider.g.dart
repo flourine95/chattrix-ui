@@ -12,106 +12,92 @@ part of 'incoming_call_provider.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
-/// Stream provider for incoming call invitations
+/// Notifier for managing the current incoming call invitation
+/// This provider watches CallSignalingService and subscribes to callInvitationStream
 
-@ProviderFor(incomingCallInvitations)
-const incomingCallInvitationsProvider = IncomingCallInvitationsProvider._();
-
-/// Stream provider for incoming call invitations
-
-final class IncomingCallInvitationsProvider
-    extends
-        $FunctionalProvider<
-          AsyncValue<CallInvitation>,
-          CallInvitation,
-          Stream<CallInvitation>
-        >
-    with $FutureModifier<CallInvitation>, $StreamProvider<CallInvitation> {
-  /// Stream provider for incoming call invitations
-  const IncomingCallInvitationsProvider._()
-    : super(
-        from: null,
-        argument: null,
-        retry: null,
-        name: r'incomingCallInvitationsProvider',
-        isAutoDispose: true,
-        dependencies: null,
-        $allTransitiveDependencies: null,
-      );
-
-  @override
-  String debugGetCreateSourceHash() => _$incomingCallInvitationsHash();
-
-  @$internal
-  @override
-  $StreamProviderElement<CallInvitation> $createElement(
-    $ProviderPointer pointer,
-  ) => $StreamProviderElement(pointer);
-
-  @override
-  Stream<CallInvitation> create(Ref ref) {
-    return incomingCallInvitations(ref);
-  }
-}
-
-String _$incomingCallInvitationsHash() =>
-    r'bc46840f6dc6a124214685ee45bdebdb85c4d8ff';
-
-/// Stream provider for invitation timeouts
-
-@ProviderFor(invitationTimeouts)
-const invitationTimeoutsProvider = InvitationTimeoutsProvider._();
-
-/// Stream provider for invitation timeouts
-
-final class InvitationTimeoutsProvider
-    extends $FunctionalProvider<AsyncValue<String>, String, Stream<String>>
-    with $FutureModifier<String>, $StreamProvider<String> {
-  /// Stream provider for invitation timeouts
-  const InvitationTimeoutsProvider._()
-    : super(
-        from: null,
-        argument: null,
-        retry: null,
-        name: r'invitationTimeoutsProvider',
-        isAutoDispose: true,
-        dependencies: null,
-        $allTransitiveDependencies: null,
-      );
-
-  @override
-  String debugGetCreateSourceHash() => _$invitationTimeoutsHash();
-
-  @$internal
-  @override
-  $StreamProviderElement<String> $createElement($ProviderPointer pointer) =>
-      $StreamProviderElement(pointer);
-
-  @override
-  Stream<String> create(Ref ref) {
-    return invitationTimeouts(ref);
-  }
-}
-
-String _$invitationTimeoutsHash() =>
-    r'3ac20388922f262e0b97b483768704aa55d32d0d';
+@ProviderFor(IncomingCall)
+const incomingCallProvider = IncomingCallProvider._();
 
 /// Notifier for managing the current incoming call invitation
+/// This provider watches CallSignalingService and subscribes to callInvitationStream
+final class IncomingCallProvider
+    extends $NotifierProvider<IncomingCall, CallInvitationData?> {
+  /// Notifier for managing the current incoming call invitation
+  /// This provider watches CallSignalingService and subscribes to callInvitationStream
+  const IncomingCallProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'incomingCallProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
 
-@ProviderFor(CurrentIncomingCall)
+  @override
+  String debugGetCreateSourceHash() => _$incomingCallHash();
+
+  @$internal
+  @override
+  IncomingCall create() => IncomingCall();
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(CallInvitationData? value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<CallInvitationData?>(value),
+    );
+  }
+}
+
+String _$incomingCallHash() => r'9386997056b1f2caa55862aaf1ee3599e8947084';
+
+/// Notifier for managing the current incoming call invitation
+/// This provider watches CallSignalingService and subscribes to callInvitationStream
+
+abstract class _$IncomingCall extends $Notifier<CallInvitationData?> {
+  CallInvitationData? build();
+  @$mustCallSuper
+  @override
+  void runBuild() {
+    final created = build();
+    final ref = this.ref as $Ref<CallInvitationData?, CallInvitationData?>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<CallInvitationData?, CallInvitationData?>,
+              CallInvitationData?,
+              Object?,
+              Object?
+            >;
+    element.handleValue(ref, created);
+  }
+}
+
+/// Provider to access the current incoming call invitation
+
+@ProviderFor(currentIncomingCall)
 const currentIncomingCallProvider = CurrentIncomingCallProvider._();
 
-/// Notifier for managing the current incoming call invitation
+/// Provider to access the current incoming call invitation
+
 final class CurrentIncomingCallProvider
-    extends $NotifierProvider<CurrentIncomingCall, CallInvitation?> {
-  /// Notifier for managing the current incoming call invitation
+    extends
+        $FunctionalProvider<
+          CallInvitationData?,
+          CallInvitationData?,
+          CallInvitationData?
+        >
+    with $Provider<CallInvitationData?> {
+  /// Provider to access the current incoming call invitation
   const CurrentIncomingCallProvider._()
     : super(
         from: null,
         argument: null,
         retry: null,
         name: r'currentIncomingCallProvider',
-        isAutoDispose: false,
+        isAutoDispose: true,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
@@ -121,37 +107,23 @@ final class CurrentIncomingCallProvider
 
   @$internal
   @override
-  CurrentIncomingCall create() => CurrentIncomingCall();
+  $ProviderElement<CallInvitationData?> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  CallInvitationData? create(Ref ref) {
+    return currentIncomingCall(ref);
+  }
 
   /// {@macro riverpod.override_with_value}
-  Override overrideWithValue(CallInvitation? value) {
+  Override overrideWithValue(CallInvitationData? value) {
     return $ProviderOverride(
       origin: this,
-      providerOverride: $SyncValueProvider<CallInvitation?>(value),
+      providerOverride: $SyncValueProvider<CallInvitationData?>(value),
     );
   }
 }
 
 String _$currentIncomingCallHash() =>
-    r'7d4a794d76773f02992782d16fcb8548db966cc8';
-
-/// Notifier for managing the current incoming call invitation
-
-abstract class _$CurrentIncomingCall extends $Notifier<CallInvitation?> {
-  CallInvitation? build();
-  @$mustCallSuper
-  @override
-  void runBuild() {
-    final created = build();
-    final ref = this.ref as $Ref<CallInvitation?, CallInvitation?>;
-    final element =
-        ref.element
-            as $ClassProviderElement<
-              AnyNotifier<CallInvitation?, CallInvitation?>,
-              CallInvitation?,
-              Object?,
-              Object?
-            >;
-    element.handleValue(ref, created);
-  }
-}
+    r'de49239c04c9916ef371d4054de9ab87ef10ee79';

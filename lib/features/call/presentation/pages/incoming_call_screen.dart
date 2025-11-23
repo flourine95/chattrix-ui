@@ -1,14 +1,17 @@
-import 'package:chattrix_ui/features/call/data/services/call_signaling_service.dart';
+import 'package:chattrix_ui/features/call/data/models/websocket/call_invitation_data.dart';
+import 'package:chattrix_ui/features/call/data/services/ringtone_service_provider.dart';
 import 'package:chattrix_ui/features/call/domain/entities/call_entity.dart';
 import 'package:chattrix_ui/features/call/presentation/providers/call_state_provider.dart';
+import 'package:chattrix_ui/features/call/presentation/providers/call_status_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 /// Screen displayed when receiving an incoming call invitation
 class IncomingCallScreen extends HookConsumerWidget {
-  final CallInvitation invitation;
+  final CallInvitationData invitation;
 
   const IncomingCallScreen({super.key, required this.invitation});
 
@@ -16,6 +19,45 @@ class IncomingCallScreen extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final ringtoneService = ref.read(ringtoneServiceProvider);
+
+    // Track remaining time for timeout
+    final remainingSeconds = useState(60);
+
+    // Play ringtone when screen is displayed and stop when disposed
+    useEffect(() {
+      ringtoneService.playRingtone();
+
+      return () {
+        ringtoneService.stopRingtone();
+      };
+    }, []);
+
+    // Implement 60-second timeout for incoming calls
+    useEffect(() {
+      // Start countdown timer
+      final timer = Stream.periodic(const Duration(seconds: 1), (count) => 60 - count - 1).take(60).listen((seconds) {
+        remainingSeconds.value = seconds;
+
+        // Auto-dismiss after 60 seconds
+        if (seconds == 0) {
+          // Stop ringtone
+          ringtoneService.stopRingtone();
+
+          // Reject the call with timeout reason
+          ref.read(callProvider.notifier).rejectCall(invitation.callId, reason: 'timeout');
+
+          // Navigate back
+          if (context.mounted) {
+            context.pop();
+          }
+        }
+      });
+
+      return () {
+        timer.cancel();
+      };
+    }, []);
 
     return Scaffold(
       backgroundColor: colorScheme.surface,
@@ -30,7 +72,7 @@ class IncomingCallScreen extends HookConsumerWidget {
                 children: [
                   const SizedBox(height: 40),
                   Text(
-                    invitation.callType == CallType.video ? 'Incoming Video Call' : 'Incoming Audio Call',
+                    invitation.callType == 'VIDEO' ? 'Incoming Video Call' : 'Incoming Audio Call',
                     style: theme.textTheme.titleMedium?.copyWith(color: colorScheme.onSurface.withValues(alpha: 0.7)),
                   ),
                 ],
@@ -47,15 +89,36 @@ class IncomingCallScreen extends HookConsumerWidget {
                       shape: BoxShape.circle,
                       color: colorScheme.primary.withValues(alpha: 0.1),
                     ),
-                    child: Center(
-                      child: Text(
-                        _getInitials(invitation.callerName),
-                        style: theme.textTheme.displayMedium?.copyWith(
-                          color: colorScheme.primary,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
+                    child: invitation.callerAvatar != null
+                        ? ClipOval(
+                            child: Image.network(
+                              invitation.callerAvatar!,
+                              width: 120,
+                              height: 120,
+                              fit: BoxFit.cover,
+                              errorBuilder: (context, error, stackTrace) {
+                                // Fallback to initials if image fails to load
+                                return Center(
+                                  child: Text(
+                                    _getInitials(invitation.callerName),
+                                    style: theme.textTheme.displayMedium?.copyWith(
+                                      color: colorScheme.primary,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                          )
+                        : Center(
+                            child: Text(
+                              _getInitials(invitation.callerName),
+                              style: theme.textTheme.displayMedium?.copyWith(
+                                color: colorScheme.primary,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
                   ),
                   const SizedBox(height: 24),
 
@@ -74,6 +137,17 @@ class IncomingCallScreen extends HookConsumerWidget {
                   Text(
                     'Calling...',
                     style: theme.textTheme.bodyLarge?.copyWith(color: colorScheme.onSurface.withValues(alpha: 0.6)),
+                  ),
+                  const SizedBox(height: 8),
+
+                  // Timeout indicator
+                  Text(
+                    'Call will timeout in ${remainingSeconds.value}s',
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: remainingSeconds.value <= 10
+                          ? Colors.red.withValues(alpha: 0.8)
+                          : colorScheme.onSurface.withValues(alpha: 0.5),
+                    ),
                   ),
                 ],
               ),
@@ -121,8 +195,11 @@ class IncomingCallScreen extends HookConsumerWidget {
 
   /// Handle reject action
   void _handleReject(BuildContext context, WidgetRef ref) {
-    // Reject the call through the notifier
-    ref.read(callProvider.notifier).rejectCall(invitation.callId);
+    // Stop ringtone
+    ref.read(ringtoneServiceProvider).stopRingtone();
+
+    // Reject the call through the notifier with reason
+    ref.read(callProvider.notifier).rejectCall(invitation.callId, reason: 'declined');
 
     // Navigate back
     if (context.mounted) {
@@ -132,6 +209,15 @@ class IncomingCallScreen extends HookConsumerWidget {
 
   /// Handle accept action
   Future<void> _handleAccept(BuildContext context, WidgetRef ref) async {
+    // Stop ringtone
+    await ref.read(ringtoneServiceProvider).stopRingtone();
+
+    // Update status to connecting
+    ref.read(callStatusProvider.notifier).setConnectingToCall();
+
+    // Convert callType string to CallType enum
+    final callType = invitation.callType == 'VIDEO' ? CallType.video : CallType.audio;
+
     // Accept the call through the notifier
     await ref
         .read(callProvider.notifier)
@@ -139,17 +225,14 @@ class IncomingCallScreen extends HookConsumerWidget {
           callId: invitation.callId,
           channelId: invitation.channelId,
           remoteUserId: invitation.callerId,
-          callType: invitation.callType,
+          callType: callType,
         );
 
     // Navigate to call screen
     if (context.mounted) {
       context.pushReplacement(
         '/call/${invitation.callId}',
-        extra: {
-          'remoteUserId': invitation.callerId,
-          'callType': invitation.callType == CallType.video ? 'video' : 'audio',
-        },
+        extra: {'remoteUserId': invitation.callerId, 'callType': invitation.callType == 'VIDEO' ? 'video' : 'audio'},
       );
     }
   }

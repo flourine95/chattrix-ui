@@ -90,7 +90,7 @@ final class CallHistoryProvider
   CallHistory create() => CallHistory();
 }
 
-String _$callHistoryHash() => r'718a562e4b88a13896c73ebc624d4f95627e657d';
+String _$callHistoryHash() => r'477b4698baa92cfa997211cdd8b9ec8aa5da04c3';
 
 /// Call history notifier using AsyncNotifier
 /// Manages call history state with fetch and refresh capabilities
@@ -152,7 +152,7 @@ final class CallProvider extends $AsyncNotifierProvider<Call, CallEntity?> {
   Call create() => Call();
 }
 
-String _$callHash() => r'6066aaeaa9dd333ab328f276cb29de7f0ba0e262';
+String _$callHash() => r'76c7a713266cf40fdb02832cb49eb0853bec5461';
 
 /// Main call state notifier using AsyncNotifier
 /// Manages call state with automatic loading/error handling

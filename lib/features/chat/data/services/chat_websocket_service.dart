@@ -102,12 +102,16 @@ class ChatWebSocketService {
   }
 
   /// Handle disconnect and attempt reconnect
+  /// IMPORTANT: WebSocket disconnection does NOT affect Agora RTC connection
+  /// Agora media streaming continues independently during WebSocket reconnection
   void _handleDisconnect() {
     _connectionController.add(false);
     _stopHeartbeat();
     _channel = null;
 
     // Auto-reconnect if not manually disconnected
+    // Note: This reconnection is for signaling only
+    // Active Agora calls remain connected and media continues streaming
     if (!_isManualDisconnect && _lastAccessToken != null) {
       _scheduleReconnect();
     }

@@ -209,6 +209,59 @@ final class CallLocalDataSourceProvider
 String _$callLocalDataSourceHash() =>
     r'3faa21267b6bb2a89f32e10fd14f22bf9706e42d';
 
+/// Call Remote Data Source provider
+
+@ProviderFor(callRemoteDataSource)
+const callRemoteDataSourceProvider = CallRemoteDataSourceProvider._();
+
+/// Call Remote Data Source provider
+
+final class CallRemoteDataSourceProvider
+    extends
+        $FunctionalProvider<
+          CallRemoteDataSource,
+          CallRemoteDataSource,
+          CallRemoteDataSource
+        >
+    with $Provider<CallRemoteDataSource> {
+  /// Call Remote Data Source provider
+  const CallRemoteDataSourceProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'callRemoteDataSourceProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$callRemoteDataSourceHash();
+
+  @$internal
+  @override
+  $ProviderElement<CallRemoteDataSource> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  CallRemoteDataSource create(Ref ref) {
+    return callRemoteDataSource(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(CallRemoteDataSource value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<CallRemoteDataSource>(value),
+    );
+  }
+}
+
+String _$callRemoteDataSourceHash() =>
+    r'08cd1932b7ccae9c3b5d53692eaaaf0fa58bdb2a';
+
 /// Call Signaling Service provider
 
 @ProviderFor(callSignalingService)
@@ -262,59 +315,6 @@ final class CallSignalingServiceProvider
 String _$callSignalingServiceHash() =>
     r'79e03f4875740addb530ec5954ce928835a61284';
 
-/// Call Invitation Manager provider
-
-@ProviderFor(callInvitationManager)
-const callInvitationManagerProvider = CallInvitationManagerProvider._();
-
-/// Call Invitation Manager provider
-
-final class CallInvitationManagerProvider
-    extends
-        $FunctionalProvider<
-          CallInvitationManager,
-          CallInvitationManager,
-          CallInvitationManager
-        >
-    with $Provider<CallInvitationManager> {
-  /// Call Invitation Manager provider
-  const CallInvitationManagerProvider._()
-    : super(
-        from: null,
-        argument: null,
-        retry: null,
-        name: r'callInvitationManagerProvider',
-        isAutoDispose: false,
-        dependencies: null,
-        $allTransitiveDependencies: null,
-      );
-
-  @override
-  String debugGetCreateSourceHash() => _$callInvitationManagerHash();
-
-  @$internal
-  @override
-  $ProviderElement<CallInvitationManager> $createElement(
-    $ProviderPointer pointer,
-  ) => $ProviderElement(pointer);
-
-  @override
-  CallInvitationManager create(Ref ref) {
-    return callInvitationManager(ref);
-  }
-
-  /// {@macro riverpod.override_with_value}
-  Override overrideWithValue(CallInvitationManager value) {
-    return $ProviderOverride(
-      origin: this,
-      providerOverride: $SyncValueProvider<CallInvitationManager>(value),
-    );
-  }
-}
-
-String _$callInvitationManagerHash() =>
-    r'1c3300c18a48a062d7fce5c3beef158d4a6f7fd6';
-
 /// Main Call Repository provider
 
 @ProviderFor(callRepository)
@@ -359,4 +359,4 @@ final class CallRepositoryProvider
   }
 }
 
-String _$callRepositoryHash() => r'59472aebf97563af83a9494ac0c1edc5fcb45fa2';
+String _$callRepositoryHash() => r'5e342a2e856405a48d681bd5f5467217f20afca9';

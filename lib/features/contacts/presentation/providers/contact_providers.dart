@@ -116,6 +116,10 @@ class ContactNotifier extends Notifier<ContactState> {
       agoraEngine: (message, code) => message,
       tokenExpired: (message) => message,
       channelJoin: (message) => message,
+      webSocketNotConnected: (message) => message,
+      webSocketSendFailed: (message) => message,
+      callNotFound: (message) => message,
+      callAlreadyActive: (message) => message,
     );
   }
 

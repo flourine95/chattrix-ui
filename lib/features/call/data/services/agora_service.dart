@@ -67,7 +67,13 @@ class AgoraService {
   /// Get the RTC engine instance
   RtcEngine? get engine => _engine;
 
+  /// Check if currently in an active channel
+  /// This is independent of WebSocket connection state
+  bool get isInChannel => _localUid != null;
+
   /// Initialize the Agora RTC Engine with app ID from environment
+  /// IMPORTANT: Agora RTC operates independently of WebSocket connection
+  /// Media streaming continues even if WebSocket disconnects
   Future<void> initialize(String appId) async {
     if (_isInitialized) {
       print('[AgoraService] ℹ️ Engine already initialized, skipping reinitialization');
@@ -103,6 +109,9 @@ class AgoraService {
   }
 
   /// Join a channel with token authentication
+  /// IMPORTANT: Once joined, the Agora RTC connection is independent of WebSocket
+  /// Media streaming will continue even if WebSocket disconnects and reconnects
+  /// Only call signaling (accept/reject/end messages) requires WebSocket
   Future<void> joinChannel({
     required String token,
     required String channelId,

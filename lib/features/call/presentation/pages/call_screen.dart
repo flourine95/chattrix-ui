@@ -25,7 +25,7 @@ class CallScreen extends HookConsumerWidget {
 
     return callState.when(
       loading: () => _buildLoadingView(context),
-      error: (error, stack) => _buildErrorView(context, error),
+      error: (error, stack) => _buildErrorView(context, ref, error),
       data: (call) {
         if (call == null) {
           // No active call, navigate back
@@ -60,7 +60,10 @@ class CallScreen extends HookConsumerWidget {
             children: [
               const CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(Colors.white)),
               const SizedBox(height: 24),
-              Text('Connecting...', style: Theme.of(context).textTheme.titleLarge?.copyWith(color: Colors.white)),
+              Text(
+                'Connecting to call...',
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(color: Colors.white),
+              ),
             ],
           ),
         ),
@@ -68,8 +71,22 @@ class CallScreen extends HookConsumerWidget {
     );
   }
 
-  Widget _buildErrorView(BuildContext context, Object error) {
-    return CallErrorView(error: error, onDismiss: () => context.pop());
+  Widget _buildErrorView(BuildContext context, WidgetRef ref, Object error) {
+    return CallErrorView(
+      error: error,
+      onRetry: () {
+        // Retry joining the call
+        ref
+            .read(callProvider.notifier)
+            .acceptCall(
+              callId: callId,
+              channelId: '', // Will be provided by the call entity
+              remoteUserId: remoteUserId,
+              callType: callType,
+            );
+      },
+      onDismiss: () => context.pop(),
+    );
   }
 
   Widget _buildCallView(BuildContext context, WidgetRef ref, CallEntity call) {

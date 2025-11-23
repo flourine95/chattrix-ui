@@ -63,3 +63,4 @@ flutter:
   # Load .env file
   assets:
     - .env
+    - assets/sounds/

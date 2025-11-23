@@ -1,137 +1,102 @@
 import 'dart:async';
-import 'package:chattrix_ui/features/call/data/services/call_signaling_provider.dart';
+import 'package:chattrix_ui/features/call/data/services/call_logger.dart';
 import 'package:chattrix_ui/features/call/data/services/call_signaling_service.dart';
-import 'package:chattrix_ui/features/call/data/services/notification_service_provider.dart';
-import 'package:chattrix_ui/features/call/domain/entities/call_entity.dart';
-import 'package:flutter/widgets.dart';
+import 'package:chattrix_ui/features/call/data/models/websocket/call_invitation_data.dart';
+import 'package:chattrix_ui/features/call/presentation/providers/call_repository_provider.dart';
+import 'package:chattrix_ui/features/call/presentation/providers/call_state_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'incoming_call_provider.g.dart';
 
-/// Stream provider for incoming call invitations
-@riverpod
-Stream<CallInvitation> incomingCallInvitations(Ref ref) {
-  final manager = ref.watch(callInvitationManagerProvider);
-  return manager.incomingInvitationStream;
-}
-
-/// Stream provider for invitation timeouts
-@riverpod
-Stream<String> invitationTimeouts(Ref ref) {
-  final manager = ref.watch(callInvitationManagerProvider);
-  return manager.invitationTimeoutStream;
-}
-
 /// Notifier for managing the current incoming call invitation
+/// This provider watches CallSignalingService and subscribes to callInvitationStream
 @Riverpod(keepAlive: true)
-class CurrentIncomingCall extends _$CurrentIncomingCall {
-  StreamSubscription<CallInvitation>? _invitationSubscription;
-  StreamSubscription<String>? _timeoutSubscription;
+class IncomingCall extends _$IncomingCall {
+  StreamSubscription<CallInvitationData>? _invitationSubscription;
 
   @override
-  CallInvitation? build() {
-    // Listen to incoming invitations
-    _listenToInvitations();
+  CallInvitationData? build() {
+    final signalingService = ref.watch(callSignalingServiceProvider);
 
-    // Listen to timeouts
-    _listenToTimeouts();
+    // Listen to invitation stream
+    _invitationSubscription = signalingService.callInvitationStream.listen((invitation) {
+      _handleIncomingInvitation(invitation, signalingService);
+    });
 
-    // Dispose subscriptions when provider is disposed
     ref.onDispose(() {
       _invitationSubscription?.cancel();
-      _timeoutSubscription?.cancel();
     });
 
     return null;
   }
 
-  /// Check if app is in background
-  bool _isAppInBackground() {
-    final binding = WidgetsBinding.instance;
-    final currentState = binding.lifecycleState;
-
-    return currentState == AppLifecycleState.paused ||
-        currentState == AppLifecycleState.inactive ||
-        currentState == AppLifecycleState.detached;
-  }
-
-  /// Listen to incoming call invitations
-  void _listenToInvitations() {
-    final manager = ref.read(callInvitationManagerProvider);
-
-    _invitationSubscription = manager.incomingInvitationStream.listen((invitation) {
-      // Update state with new invitation
-      state = invitation;
-
-      // Show notification if app is in background
-      if (_isAppInBackground()) {
-        _showNotification(invitation);
-      }
-    });
-  }
-
-  /// Show notification for incoming call
-  Future<void> _showNotification(CallInvitation invitation) async {
-    final notificationService = ref.read(notificationServiceProvider);
-
-    // Convert CallType enum to string
-    final callTypeString = invitation.callType == CallType.video ? 'video' : 'audio';
-
-    await notificationService.showIncomingCallNotification(
-      callId: invitation.callId,
-      callerName: invitation.callerName,
-      callType: callTypeString,
+  /// Handle incoming call invitation with busy call detection and race condition handling
+  void _handleIncomingInvitation(CallInvitationData invitation, CallSignalingService signalingService) {
+    CallLogger.logInfo(
+      'Received incoming call invitation: callId=${invitation.callId}, from=${invitation.callerName}, type=${invitation.callType}',
     );
-  }
 
-  /// Listen to invitation timeouts
-  void _listenToTimeouts() {
-    final manager = ref.read(callInvitationManagerProvider);
+    // Check if there's already an active call
+    final currentCallState = ref.read(callProvider);
 
-    _timeoutSubscription = manager.invitationTimeoutStream.listen((callId) {
-      // Clear invitation if it matches the timed-out call
-      if (state?.callId == callId) {
-        // Dismiss notification on timeout
-        _dismissNotification();
-        state = null;
-      }
-    });
-  }
+    // Race condition detection: Check if user is currently initiating a call (loading state)
+    final isInitiatingCall = currentCallState.isLoading;
 
-  /// Dismiss the notification
-  Future<void> _dismissNotification() async {
-    final notificationService = ref.read(notificationServiceProvider);
-    await notificationService.dismissNotification();
+    if (isInitiatingCall) {
+      // Race condition detected: User is initiating a call while receiving an invitation
+      // Priority: Incoming call takes precedence
+      CallLogger.logInfo(
+        'Race condition detected: cancelling outgoing call to prioritize incoming call: callId=${invitation.callId}',
+      );
+
+      // Cancel the outgoing call
+      ref.read(callProvider.notifier).cancelOutgoingCall();
+
+      // Show the incoming call screen
+      state = invitation;
+      return;
+    }
+
+    // If there's an active call (not null and not in error state), auto-reject with "busy"
+    final hasActiveCall = currentCallState.hasValue && currentCallState.value != null;
+
+    if (hasActiveCall) {
+      // Automatically reject the incoming call with reason "busy"
+      CallLogger.logInfo('Auto-rejecting incoming call (busy): callId=${invitation.callId}');
+
+      final rejectResult = signalingService.sendCallReject(callId: invitation.callId, reason: 'busy');
+
+      // Log the result but don't fail the operation
+      rejectResult.fold(
+        (failure) {
+          CallLogger.logFailure(failure, context: 'Auto-reject busy call');
+          // Continue even if WebSocket send fails - the call won't be shown anyway
+        },
+        (_) {
+          CallLogger.logInfo('Successfully sent busy rejection: callId=${invitation.callId}');
+        },
+      );
+
+      // Don't update state - don't show incoming call screen
+      return;
+    }
+
+    // No active call, show the incoming call screen
+    CallLogger.logInfo('Displaying incoming call screen: callId=${invitation.callId}');
+    state = invitation;
   }
 
   /// Clear the current invitation (called when user accepts/rejects)
   void clearInvitation() {
+    if (state != null) {
+      CallLogger.logInfo('Clearing incoming call invitation: callId=${state!.callId}');
+    }
     state = null;
   }
+}
 
-  /// Accept the current invitation
-  Future<void> acceptInvitation() async {
-    if (state != null) {
-      final manager = ref.read(callInvitationManagerProvider);
-      manager.acceptInvitation(state!.callId);
-
-      // Dismiss notification when call is accepted
-      await _dismissNotification();
-
-      clearInvitation();
-    }
-  }
-
-  /// Reject the current invitation
-  Future<void> rejectInvitation() async {
-    if (state != null) {
-      final manager = ref.read(callInvitationManagerProvider);
-      manager.rejectInvitation(state!.callId);
-
-      // Dismiss notification when call is rejected
-      await _dismissNotification();
-
-      clearInvitation();
-    }
-  }
+/// Provider to access the current incoming call invitation
+@riverpod
+CallInvitationData? currentIncomingCall(Ref ref) {
+  return ref.watch(incomingCallProvider);
 }

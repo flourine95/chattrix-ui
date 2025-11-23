@@ -26,6 +26,10 @@ class CallLogger {
       agoraEngine: (msg, code) => 'Agora Engine Error$contextStr: $msg${code != null ? ' (Code: $code)' : ''}',
       tokenExpired: (msg) => 'Token Expired$contextStr: $msg',
       channelJoin: (msg) => 'Channel Join Error$contextStr: $msg',
+      webSocketNotConnected: (msg) => 'WebSocket Not Connected$contextStr: $msg',
+      webSocketSendFailed: (msg) => 'WebSocket Send Failed$contextStr: $msg',
+      callNotFound: (msg) => 'Call Not Found$contextStr: $msg',
+      callAlreadyActive: (msg) => 'Call Already Active$contextStr: $msg',
     );
 
     developer.log(

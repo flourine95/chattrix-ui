@@ -2,10 +2,11 @@ import 'dart:async';
 import 'package:agora_rtc_engine/agora_rtc_engine.dart';
 import 'package:chattrix_ui/core/errors/failures.dart';
 import 'package:chattrix_ui/features/call/data/datasources/call_local_datasource_impl.dart';
+import 'package:chattrix_ui/features/call/data/datasources/call_remote_datasource.dart';
 import 'package:chattrix_ui/features/call/data/services/agora_service.dart';
-import 'package:chattrix_ui/features/call/data/services/call_invitation_manager.dart';
 import 'package:chattrix_ui/features/call/data/services/call_logger.dart';
 import 'package:chattrix_ui/features/call/data/services/call_signaling_service.dart';
+import 'package:chattrix_ui/features/call/data/services/channel_id_validator.dart';
 import 'package:chattrix_ui/features/call/data/services/permission_service.dart';
 import 'package:chattrix_ui/features/call/data/services/token_service.dart';
 import 'package:chattrix_ui/features/call/domain/entities/call_entity.dart';
@@ -17,10 +18,10 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 class CallRepositoryImpl implements CallRepository {
   final AgoraService _agoraService;
   final CallLocalDataSourceImpl _localDataSource;
+  final CallRemoteDataSource _remoteDataSource;
   final TokenService _tokenService;
   final PermissionService _permissionService;
   final CallSignalingService _signalingService;
-  final CallInvitationManager _invitationManager;
 
   // Current call state
   CallEntity? _currentCall;
@@ -32,21 +33,21 @@ class CallRepositoryImpl implements CallRepository {
   StreamSubscription<CallEvent>? _agoraEventSubscription;
 
   // Subscription to call ended notifications
-  StreamSubscription<CallEndedNotification>? _callEndedSubscription;
+  StreamSubscription? _callEndedSubscription;
 
   CallRepositoryImpl({
     required AgoraService agoraService,
     required CallLocalDataSourceImpl localDataSource,
+    required CallRemoteDataSource remoteDataSource,
     required TokenService tokenService,
     required PermissionService permissionService,
     required CallSignalingService signalingService,
-    required CallInvitationManager invitationManager,
   }) : _agoraService = agoraService,
        _localDataSource = localDataSource,
+       _remoteDataSource = remoteDataSource,
        _tokenService = tokenService,
        _permissionService = permissionService,
-       _signalingService = signalingService,
-       _invitationManager = invitationManager {
+       _signalingService = signalingService {
     _listenToCallEndedNotifications();
   }
 
@@ -60,11 +61,9 @@ class CallRepositoryImpl implements CallRepository {
     });
   }
 
-  /// Get stream of incoming call invitations
-  Stream<CallInvitation> get incomingInvitationStream => _invitationManager.incomingInvitationStream;
-
-  /// Get stream of invitation timeouts
-  Stream<String> get invitationTimeoutStream => _invitationManager.invitationTimeoutStream;
+  /// Check if Agora connection is active
+  /// This is independent of WebSocket connection state
+  bool get isAgoraConnected => _currentCall != null && _agoraService.isInitialized;
 
   @override
   Future<Either<Failure, void>> initialize() async {
@@ -235,7 +234,7 @@ class CallRepositoryImpl implements CallRepository {
       CallLogger.logCallEvent(
         callId: callId,
         event: 'Creating call',
-        details: {'channelId': channelId, 'remoteUserId': remoteUserId, 'callType': callType.name},
+        details: {'remoteUserId': remoteUserId, 'callType': callType.name},
       );
 
       // If there's an active call, end it first
@@ -282,8 +281,52 @@ class CallRepositoryImpl implements CallRepository {
         }
       }
 
-      // Fetch token from backend (backend generates UID from authenticated user)
-      final tokenResult = await _tokenService.fetchToken(channelId: channelId);
+      // Call REST API to create call
+      // Backend will generate channel ID and send WebSocket invitation to callee
+      final apiResult = await _remoteDataSource.initiateCall(calleeId: remoteUserId, callType: callType);
+
+      // Handle API errors
+      if (apiResult.isLeft()) {
+        return apiResult.fold((failure) {
+          CallLogger.logFailure(failure, context: 'createCall - REST API');
+          return Left(failure);
+        }, (_) => throw Exception('Unexpected state'));
+      }
+
+      final apiResponse = apiResult.getOrElse(() => throw Exception('Unexpected state'));
+
+      // Extract backend-provided channel ID and call ID
+      CallLogger.logDebug('API Response: $apiResponse');
+
+      final backendChannelId = apiResponse['channelId'] as String?;
+      final backendCallId = apiResponse['callId'] as String?;
+
+      if (backendChannelId == null || backendChannelId.isEmpty) {
+        final failure = const Failure.server(
+          message: 'Backend did not return channelId',
+          errorCode: 'MISSING_CHANNEL_ID',
+        );
+        CallLogger.logFailure(failure, context: 'createCall - missing channelId');
+        return Left(failure);
+      }
+
+      if (backendCallId == null || backendCallId.isEmpty) {
+        final failure = const Failure.server(message: 'Backend did not return callId', errorCode: 'MISSING_CALL_ID');
+        CallLogger.logFailure(failure, context: 'createCall - missing callId');
+        return Left(failure);
+      }
+
+      // Validate channel ID format
+      ChannelIdValidator.validate(backendChannelId);
+
+      CallLogger.logCallEvent(
+        callId: backendCallId,
+        event: 'Call created via REST API',
+        details: {'channelId': backendChannelId, 'remoteUserId': remoteUserId},
+      );
+
+      // Fetch token from backend using the backend-provided channel ID
+      final tokenResult = await _tokenService.fetchToken(channelId: backendChannelId);
 
       return tokenResult.fold(
         (failure) {
@@ -301,29 +344,33 @@ class CallRepositoryImpl implements CallRepository {
 
           CallLogger.logTokenOperation(operation: 'fetch', success: true);
           CallLogger.logCallEvent(
-            callId: callId,
+            callId: backendCallId,
             event: 'Token fetched',
-            details: {'uid': uid, 'channelId': channelId},
+            details: {'uid': uid, 'channelId': backendChannelId},
           );
 
-          // Join the Agora channel
+          // Log Agora channel join with channelId, token (first 20 chars), and uid
+          final tokenPreview = token.length > 20 ? '${token.substring(0, 20)}...' : token;
+          CallLogger.logInfo('Joining Agora channel: channelId=$backendChannelId, token=$tokenPreview, uid=$uid');
+
+          // Join the Agora channel using backend-provided channel ID
           await _agoraService.joinChannel(
             token: token,
-            channelId: channelId,
+            channelId: backendChannelId,
             uid: uid,
             isVideo: callType == CallType.video,
           );
 
           CallLogger.logCallEvent(
-            callId: callId,
-            event: 'Joined channel',
-            details: {'uid': uid, 'channelId': channelId},
+            callId: backendCallId,
+            event: 'Joined Agora channel successfully',
+            details: {'uid': uid, 'channelId': backendChannelId},
           );
 
-          // Create call entity
+          // Create call entity using backend-provided data
           final call = CallEntity(
-            callId: callId,
-            channelId: channelId,
+            callId: backendCallId,
+            channelId: backendChannelId,
             localUserId: uid.toString(),
             remoteUserId: remoteUserId,
             callType: callType,
@@ -338,20 +385,13 @@ class CallRepositoryImpl implements CallRepository {
           _currentCall = call;
           _callStateController.add(call);
 
-          // Send call invitation through WebSocket signaling
-          _signalingService.sendCallInvitation(
-            callId: callId,
-            channelId: channelId,
-            callerId: callerId ?? uid.toString(),
-            callerName: callerName ?? 'Unknown',
-            recipientId: remoteUserId,
-            callType: callType,
-          );
+          // Note: Backend already sent WebSocket invitation to callee when REST API was called
+          // No need to send duplicate invitation from client
 
           CallLogger.logCallEvent(
-            callId: callId,
-            event: 'Call invitation sent',
-            details: {'recipientId': remoteUserId},
+            callId: backendCallId,
+            event: 'Call created successfully',
+            details: {'recipientId': remoteUserId, 'channelId': backendChannelId},
           );
 
           return Right(call);
@@ -372,6 +412,9 @@ class CallRepositoryImpl implements CallRepository {
     required CallType callType,
   }) async {
     try {
+      // Validate channel ID format
+      ChannelIdValidator.validate(channelId);
+
       // If there's an active call, end it first
       if (_currentCall != null) {
         CallLogger.logCallEvent(
@@ -427,12 +470,22 @@ class CallRepositoryImpl implements CallRepository {
         // Store current token for refresh purposes
         _currentToken = token;
 
+        // Log Agora channel join with channelId, token (first 20 chars), and uid
+        final tokenPreview = token.length > 20 ? '${token.substring(0, 20)}...' : token;
+        CallLogger.logInfo('Joining Agora channel: channelId=$channelId, token=$tokenPreview, uid=$uid');
+
         // Join the Agora channel
         await _agoraService.joinChannel(
           token: token,
           channelId: channelId,
           uid: uid,
           isVideo: callType == CallType.video,
+        );
+
+        CallLogger.logCallEvent(
+          callId: callId,
+          event: 'Joined Agora channel successfully',
+          details: {'uid': uid, 'channelId': channelId},
         );
 
         // Create call entity
@@ -475,15 +528,40 @@ class CallRepositoryImpl implements CallRepository {
       _currentCall = _currentCall!.copyWith(status: CallStatus.disconnecting, endTime: DateTime.now());
       _callStateController.add(_currentCall!);
 
-      // Leave the Agora channel
+      // Calculate call duration in seconds
+      final duration = _currentCall!.endTime?.difference(_currentCall!.startTime).inSeconds;
+
+      // Send call ended notification through WebSocket signaling BEFORE leaving channel
+      // This ensures the remote participant is notified before we cleanup
+      // Note: If WebSocket is disconnected, this will fail gracefully
+      // The Agora connection will still be properly cleaned up
+      final sendResult = _signalingService.sendCallEnded(callId: callId, durationSeconds: duration);
+
+      // Log WebSocket send result but don't fail the entire operation if it fails
+      // This ensures Agora cleanup happens even if WebSocket is disconnected
+      sendResult.fold(
+        (failure) {
+          CallLogger.logFailure(failure, context: 'endCall - WebSocket send');
+          CallLogger.logInfo('Continuing with Agora cleanup despite WebSocket send failure');
+          // Continue with cleanup even if WebSocket send fails
+        },
+        (_) {
+          CallLogger.logCallEvent(
+            callId: callId,
+            event: 'Sent call.end WebSocket message',
+            details: {'durationSeconds': duration},
+          );
+        },
+      );
+
+      // Leave the Agora channel and cleanup resources
       await _agoraService.leaveChannel();
+
+      CallLogger.logCallEvent(callId: callId, event: 'Left Agora channel');
 
       // Update call status to ended
       _currentCall = _currentCall!.copyWith(status: CallStatus.ended);
       _callStateController.add(_currentCall!);
-
-      // Calculate call duration
-      final duration = _currentCall!.endTime?.difference(_currentCall!.startTime).inSeconds;
 
       // Save call to history
       final historyEntity = CallHistoryEntity(
@@ -498,10 +576,7 @@ class CallRepositoryImpl implements CallRepository {
 
       await _localDataSource.saveCallHistory(historyEntity);
 
-      CallLogger.logCallEvent(callId: callId, event: 'Call ended', details: {'duration': '${duration}s'});
-
-      // Send call ended notification through WebSocket signaling
-      _signalingService.sendCallEnded(callId: callId, endedBy: _currentCall!.localUserId);
+      CallLogger.logCallEvent(callId: callId, event: 'Call ended successfully', details: {'duration': '${duration}s'});
 
       // Clear current call and token
       _currentCall = null;

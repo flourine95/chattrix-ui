@@ -3,11 +3,12 @@ import 'package:chattrix_ui/features/auth/presentation/pages/login_screen.dart';
 import 'package:chattrix_ui/features/auth/presentation/pages/otp_verification_screen.dart';
 import 'package:chattrix_ui/features/auth/presentation/pages/register_screen.dart';
 import 'package:chattrix_ui/features/auth/presentation/providers/auth_providers.dart';
-import 'package:chattrix_ui/features/call/data/services/call_signaling_service.dart';
+import 'package:chattrix_ui/features/call/data/models/websocket/call_invitation_data.dart';
 import 'package:chattrix_ui/features/call/domain/entities/call_entity.dart';
 import 'package:chattrix_ui/features/call/presentation/pages/call_history_screen.dart';
 import 'package:chattrix_ui/features/call/presentation/pages/call_screen.dart';
 import 'package:chattrix_ui/features/call/presentation/pages/incoming_call_screen.dart';
+import 'package:chattrix_ui/features/call/presentation/pages/waiting_call_screen.dart';
 import 'package:chattrix_ui/features/chat/domain/entities/conversation.dart';
 import 'package:chattrix_ui/features/chat/presentation/pages/chat_info_page.dart';
 import 'package:chattrix_ui/features/chat/presentation/pages/chat_list_page.dart';
@@ -129,8 +130,20 @@ class AppRouter {
           path: '/incoming-call',
           name: 'incoming-call',
           builder: (context, state) {
-            final invitation = state.extra as CallInvitation;
+            final invitation = state.extra as CallInvitationData;
             return IncomingCallScreen(invitation: invitation);
+          },
+        ),
+
+        GoRoute(
+          path: '/waiting-call/:callId',
+          name: 'waiting-call',
+          builder: (context, state) {
+            final callId = state.pathParameters['callId']!;
+            final extra = state.extra as Map<String, dynamic>?;
+            final calleeName = extra?['calleeName'] as String? ?? 'Unknown';
+            final isVideoCall = extra?['isVideoCall'] as bool? ?? true;
+            return WaitingCallScreen(callId: callId, calleeName: calleeName, isVideoCall: isVideoCall);
           },
         ),
 

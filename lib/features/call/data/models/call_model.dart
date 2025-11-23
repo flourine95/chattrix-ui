@@ -25,6 +25,30 @@ abstract class CallModel with _$CallModel {
 
   factory CallModel.fromJson(Map<String, dynamic> json) => _$CallModelFromJson(json);
 
+  /// Factory method to create CallModel from backend API response
+  /// Backend returns callerId/calleeId, we need to map to localUserId/remoteUserId
+  factory CallModel.fromApiResponse(Map<String, dynamic> json, String currentUserId) {
+    // Determine which user is local and which is remote
+    final callerId = json['callerId'] as String;
+    final calleeId = json['calleeId'] as String;
+    final isLocalUserCaller = callerId == currentUserId;
+
+    return CallModel(
+      callId: json['callId'] as String,
+      channelId: json['channelId'] as String,
+      localUserId: isLocalUserCaller ? callerId : calleeId,
+      remoteUserId: isLocalUserCaller ? calleeId : callerId,
+      callType: json['callType'] as String,
+      status: json['status'] as String,
+      startTime: json['createdAt'] as String,
+      endTime: null,
+      isLocalAudioMuted: false,
+      isLocalVideoMuted: false,
+      cameraFacing: 'front',
+      networkQuality: null,
+    );
+  }
+
   factory CallModel.fromEntity(CallEntity entity) {
     return CallModel(
       callId: entity.callId,

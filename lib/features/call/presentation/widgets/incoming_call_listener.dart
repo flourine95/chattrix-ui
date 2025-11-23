@@ -1,4 +1,3 @@
-import 'package:chattrix_ui/features/call/data/services/call_signaling_service.dart';
 import 'package:chattrix_ui/features/call/presentation/providers/incoming_call_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -51,7 +50,7 @@ class _IncomingCallListenerState extends ConsumerState<IncomingCallListener> wit
   @override
   Widget build(BuildContext context) {
     // Listen to incoming call invitations
-    ref.listen<CallInvitation?>(currentIncomingCallProvider, (previous, next) {
+    ref.listen(currentIncomingCallProvider, (previous, next) {
       if (next != null && previous?.callId != next.callId) {
         // Only navigate if app is in foreground
         // If in background, notification will be shown instead
