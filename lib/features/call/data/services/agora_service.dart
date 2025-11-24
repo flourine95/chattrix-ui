@@ -223,10 +223,10 @@ class AgoraService {
           _eventController.add(UserOfflineEvent(remoteUid: remoteUid, reason: reason));
         },
         onNetworkQuality: (RtcConnection connection, int remoteUid, QualityType txQuality, QualityType rxQuality) {
-          debugPrint('[AgoraService] 📶 Network quality update');
-          debugPrint('[AgoraService]    └─ UID: $remoteUid');
-          debugPrint('[AgoraService]    └─ TX Quality: $txQuality');
-          debugPrint('[AgoraService]    └─ RX Quality: $rxQuality');
+          // debugPrint('[AgoraService] 📶 Network quality update');
+          // debugPrint('[AgoraService]    └─ UID: $remoteUid');
+          // debugPrint('[AgoraService]    └─ TX Quality: $txQuality');
+          // debugPrint('[AgoraService]    └─ RX Quality: $rxQuality');
 
           _eventController.add(NetworkQualityEvent(uid: remoteUid, txQuality: txQuality, rxQuality: rxQuality));
         },

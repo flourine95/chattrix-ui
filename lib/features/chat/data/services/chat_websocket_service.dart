@@ -220,13 +220,18 @@ class ChatWebSocketService {
         return;
       }
 
-      final payload = data['payload'];
+      // Emit raw message for custom handlers (like call signaling)
+      // This must happen BEFORE checking payload to ensure call messages are received
+      _rawMessageController.add(data);
+
+      // Backend sends chat messages with 'payload' field
+      // Backend sends call messages with 'data' field
+      // Try 'payload' first for backward compatibility, then 'data'
+      final payload = data['payload'] ?? data['data'];
       if (payload == null) {
+        // Message has type but no payload/data - might be a control message
         return;
       }
-
-      // Emit raw message for custom handlers (like call signaling)
-      _rawMessageController.add(data);
 
       // Convert payload to JSON string for background parsing
       final payloadString = jsonEncode(payload);

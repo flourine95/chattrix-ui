@@ -39,74 +39,67 @@ class WaitingCallScreen extends HookConsumerWidget {
     return Scaffold(
       backgroundColor: colorScheme.surface,
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(24.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              // Top section - Call type indicator
-              Column(
-                children: [
-                  const SizedBox(height: 40),
-                  Text(
-                    isVideoCall ? 'Video Call' : 'Audio Call',
-                    style: theme.textTheme.titleMedium?.copyWith(color: colorScheme.onSurface.withValues(alpha: 0.7)),
-                  ),
-                ],
-              ),
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 40.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                // Top section - Call type indicator
+                Text(
+                  isVideoCall ? 'Video Call' : 'Audio Call',
+                  style: theme.textTheme.titleMedium?.copyWith(color: colorScheme.onSurface.withValues(alpha: 0.7)),
+                ),
 
-              // Middle section - Callee information and status
-              Column(
-                children: [
-                  // Avatar placeholder
-                  Container(
-                    width: 120,
-                    height: 120,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: colorScheme.primary.withValues(alpha: 0.1),
-                    ),
-                    child: Center(
-                      child: Text(
-                        _getInitials(calleeName),
-                        style: theme.textTheme.displayMedium?.copyWith(
-                          color: colorScheme.primary,
-                          fontWeight: FontWeight.bold,
+                // Middle section - Callee information and status
+                Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // Avatar placeholder
+                    Container(
+                      width: 120,
+                      height: 120,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: colorScheme.primary.withValues(alpha: 0.1),
+                      ),
+                      child: Center(
+                        child: Text(
+                          _getInitials(calleeName),
+                          style: theme.textTheme.displayMedium?.copyWith(
+                            color: colorScheme.primary,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                  const SizedBox(height: 24),
+                    const SizedBox(height: 24),
 
-                  // Callee name
-                  Text(
-                    calleeName,
-                    style: theme.textTheme.headlineMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: colorScheme.onSurface,
+                    // Callee name
+                    Text(
+                      calleeName,
+                      style: theme.textTheme.headlineMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: colorScheme.onSurface,
+                      ),
+                      textAlign: TextAlign.center,
                     ),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 16),
+                    const SizedBox(height: 16),
 
-                  // Status message with animated indicator
-                  _buildStatusMessage(context, callStatus),
-                ],
-              ),
+                    // Status message with animated indicator
+                    _buildStatusMessage(context, callStatus),
+                  ],
+                ),
 
-              // Bottom section - Cancel button
-              Column(
-                children: [
-                  _CallActionButton(
-                    icon: FontAwesomeIcons.phoneSlash,
-                    label: 'Cancel',
-                    backgroundColor: Colors.red,
-                    onPressed: () => _handleCancel(context, ref),
-                  ),
-                  const SizedBox(height: 40),
-                ],
-              ),
-            ],
+                // Bottom section - Cancel button
+                _CallActionButton(
+                  icon: FontAwesomeIcons.phoneSlash,
+                  label: 'Cancel',
+                  backgroundColor: Colors.red,
+                  onPressed: () => _handleCancel(context, ref),
+                ),
+              ],
+            ),
           ),
         ),
       ),
