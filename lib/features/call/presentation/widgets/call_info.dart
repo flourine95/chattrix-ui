@@ -24,7 +24,7 @@ class CallInfo extends HookConsumerWidget {
         gradient: LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
-          colors: [Colors.black.withOpacity(0.6), Colors.transparent],
+          colors: [Colors.black.withValues(alpha: 0.6), Colors.transparent],
         ),
       ),
       child: Column(
@@ -53,7 +53,7 @@ class CallInfo extends HookConsumerWidget {
               networkQuality.when(
                 data: (quality) => _buildNetworkQualityIndicator(quality),
                 loading: () => const SizedBox(),
-                error: (_, __) => const SizedBox(),
+                error: (_, _) => const SizedBox(),
               ),
             ],
           ),

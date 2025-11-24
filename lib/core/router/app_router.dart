@@ -1,14 +1,15 @@
+import 'package:chattrix_ui/core/router/incoming_call_router_notifier.dart';
 import 'package:chattrix_ui/features/auth/presentation/pages/forgot_password_screen.dart';
 import 'package:chattrix_ui/features/auth/presentation/pages/login_screen.dart';
 import 'package:chattrix_ui/features/auth/presentation/pages/otp_verification_screen.dart';
 import 'package:chattrix_ui/features/auth/presentation/pages/register_screen.dart';
 import 'package:chattrix_ui/features/auth/presentation/providers/auth_providers.dart';
-import 'package:chattrix_ui/features/call/data/models/websocket/call_invitation_data.dart';
 import 'package:chattrix_ui/features/call/domain/entities/call_entity.dart';
 import 'package:chattrix_ui/features/call/presentation/pages/call_history_screen.dart';
 import 'package:chattrix_ui/features/call/presentation/pages/call_screen.dart';
 import 'package:chattrix_ui/features/call/presentation/pages/incoming_call_screen.dart';
 import 'package:chattrix_ui/features/call/presentation/pages/waiting_call_screen.dart';
+import 'package:chattrix_ui/features/call/presentation/providers/incoming_call_provider.dart';
 import 'package:chattrix_ui/features/chat/domain/entities/conversation.dart';
 import 'package:chattrix_ui/features/chat/presentation/pages/chat_info_page.dart';
 import 'package:chattrix_ui/features/chat/presentation/pages/chat_list_page.dart';
@@ -41,24 +42,19 @@ class AppRouter {
   static const String otpVerificationPath = '/otp';
 
   static GoRouter router(WidgetRef ref) {
+    final incomingCallNotifier = ref.watch(incomingCallRouterNotifierProvider);
+
     return GoRouter(
       initialLocation: '/',
-      refreshListenable: ref.watch(authNotifierWrapperProvider),
+      refreshListenable: Listenable.merge([ref.watch(authNotifierWrapperProvider), incomingCallNotifier]),
       redirect: (context, state) async {
-        final isLoggedIn = await ref.read(isLoggedInUseCaseProvider)();
-        final isGoingToAuth =
-            state.matchedLocation == loginPath ||
-            state.matchedLocation == registerPath ||
-            state.matchedLocation == forgotPasswordPath ||
-            state.matchedLocation == otpVerificationPath;
+        // Handle auth redirect first
+        final authRedirect = await _handleAuthRedirect(ref, state);
+        if (authRedirect != null) return authRedirect;
 
-        if (!isLoggedIn && !isGoingToAuth) {
-          return loginPath;
-        }
-
-        if (isLoggedIn && isGoingToAuth) {
-          return '/';
-        }
+        // Handle incoming call redirect
+        final incomingCallRedirect = _handleIncomingCallRedirect(ref, state, incomingCallNotifier);
+        if (incomingCallRedirect != null) return incomingCallRedirect;
 
         return null;
       },
@@ -130,8 +126,7 @@ class AppRouter {
           path: '/incoming-call',
           name: 'incoming-call',
           builder: (context, state) {
-            final invitation = state.extra as CallInvitationData;
-            return IncomingCallScreen(invitation: invitation);
+            return const IncomingCallScreen();
           },
         ),
 
@@ -182,6 +177,43 @@ class AppRouter {
         ),
       ],
     );
+  }
+
+  /// Handle authentication redirect logic
+  static Future<String?> _handleAuthRedirect(WidgetRef ref, GoRouterState state) async {
+    final isLoggedIn = await ref.read(isLoggedInUseCaseProvider)();
+    final isGoingToAuth =
+        state.matchedLocation == loginPath ||
+        state.matchedLocation == registerPath ||
+        state.matchedLocation == forgotPasswordPath ||
+        state.matchedLocation == otpVerificationPath;
+
+    if (!isLoggedIn && !isGoingToAuth) {
+      return loginPath;
+    }
+
+    if (isLoggedIn && isGoingToAuth) {
+      return '/';
+    }
+
+    return null;
+  }
+
+  /// Handle incoming call redirect logic
+  static String? _handleIncomingCallRedirect(WidgetRef ref, GoRouterState state, IncomingCallRouterNotifier notifier) {
+    final currentInvitation = ref.read(currentIncomingCallProvider);
+    final currentLocation = state.matchedLocation;
+
+    // Only redirect if:
+    // 1. There's an incoming call
+    // 2. Not already on the incoming call screen
+    // 3. App is in foreground
+    if (currentInvitation != null && currentLocation != '/incoming-call' && notifier.isAppInForeground) {
+      debugPrint("da vao incoming");
+      return '/incoming-call';
+    }
+
+    return null;
   }
 }
 

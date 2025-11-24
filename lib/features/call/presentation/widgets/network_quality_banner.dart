@@ -67,8 +67,8 @@ class NetworkQualityBanner extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.9),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.2), blurRadius: 4, offset: const Offset(0, 2))],
+        color: color.withValues(alpha: 0.9),
+        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.2), blurRadius: 4, offset: const Offset(0, 2))],
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -79,7 +79,7 @@ class NetworkQualityBanner extends StatelessWidget {
               height: 20,
               child: CircularProgressIndicator(
                 strokeWidth: 2,
-                valueColor: AlwaysStoppedAnimation<Color>(Colors.white.withOpacity(0.9)),
+                valueColor: AlwaysStoppedAnimation<Color>(Colors.white.withValues(alpha: 0.9)),
               ),
             )
           else

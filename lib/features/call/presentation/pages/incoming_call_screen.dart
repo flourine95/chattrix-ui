@@ -3,6 +3,7 @@ import 'package:chattrix_ui/features/call/data/services/ringtone_service_provide
 import 'package:chattrix_ui/features/call/domain/entities/call_entity.dart';
 import 'package:chattrix_ui/features/call/presentation/providers/call_state_provider.dart';
 import 'package:chattrix_ui/features/call/presentation/providers/call_status_provider.dart';
+import 'package:chattrix_ui/features/call/presentation/providers/incoming_call_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -11,18 +12,36 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 /// Screen displayed when receiving an incoming call invitation
 class IncomingCallScreen extends HookConsumerWidget {
-  final CallInvitationData invitation;
-
-  const IncomingCallScreen({super.key, required this.invitation});
+  const IncomingCallScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // Get invitation from provider instead of constructor parameter
+    final invitation = ref.watch(currentIncomingCallProvider);
+
+    // If no invitation, navigate to home (safety check)
+    if (invitation == null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (context.mounted) {
+          context.go('/');
+        }
+      });
+      return const SizedBox.shrink();
+    }
+
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final ringtoneService = ref.read(ringtoneServiceProvider);
 
     // Track remaining time for timeout
     final remainingSeconds = useState(60);
+
+    // Clear invitation when screen is disposed
+    useEffect(() {
+      return () {
+        ref.read(incomingCallProvider.notifier).clearInvitation();
+      };
+    }, []);
 
     // Play ringtone when screen is displayed and stop when disposed
     useEffect(() {
@@ -47,9 +66,12 @@ class IncomingCallScreen extends HookConsumerWidget {
           // Reject the call with timeout reason
           ref.read(callProvider.notifier).rejectCall(invitation.callId, reason: 'timeout');
 
-          // Navigate back
+          // Clear invitation before navigation
+          ref.read(incomingCallProvider.notifier).clearInvitation();
+
+          // Navigate to home
           if (context.mounted) {
-            context.pop();
+            context.go('/');
           }
         }
       });
@@ -163,7 +185,7 @@ class IncomingCallScreen extends HookConsumerWidget {
                         icon: FontAwesomeIcons.phoneSlash,
                         label: 'Decline',
                         backgroundColor: Colors.red,
-                        onPressed: () => _handleReject(context, ref),
+                        onPressed: () => _handleReject(context, ref, invitation),
                       ),
 
                       // Accept button
@@ -171,7 +193,7 @@ class IncomingCallScreen extends HookConsumerWidget {
                         icon: FontAwesomeIcons.phone,
                         label: 'Accept',
                         backgroundColor: Colors.green,
-                        onPressed: () => _handleAccept(context, ref),
+                        onPressed: () => _handleAccept(context, ref, invitation),
                       ),
                     ],
                   ),
@@ -194,21 +216,24 @@ class IncomingCallScreen extends HookConsumerWidget {
   }
 
   /// Handle reject action
-  void _handleReject(BuildContext context, WidgetRef ref) {
+  void _handleReject(BuildContext context, WidgetRef ref, CallInvitationData invitation) {
     // Stop ringtone
     ref.read(ringtoneServiceProvider).stopRingtone();
 
     // Reject the call through the notifier with reason
     ref.read(callProvider.notifier).rejectCall(invitation.callId, reason: 'declined');
 
-    // Navigate back
+    // Clear invitation before navigation
+    ref.read(incomingCallProvider.notifier).clearInvitation();
+
+    // Navigate to home
     if (context.mounted) {
-      context.pop();
+      context.go('/');
     }
   }
 
   /// Handle accept action
-  Future<void> _handleAccept(BuildContext context, WidgetRef ref) async {
+  Future<void> _handleAccept(BuildContext context, WidgetRef ref, CallInvitationData invitation) async {
     // Stop ringtone
     await ref.read(ringtoneServiceProvider).stopRingtone();
 
@@ -228,9 +253,12 @@ class IncomingCallScreen extends HookConsumerWidget {
           callType: callType,
         );
 
+    // Clear invitation before navigation
+    ref.read(incomingCallProvider.notifier).clearInvitation();
+
     // Navigate to call screen
     if (context.mounted) {
-      context.pushReplacement(
+      context.go(
         '/call/${invitation.callId}',
         extra: {'remoteUserId': invitation.callerId, 'callType': invitation.callType == 'VIDEO' ? 'video' : 'audio'},
       );

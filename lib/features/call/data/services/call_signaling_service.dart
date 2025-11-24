@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:chattrix_ui/core/errors/failures.dart';
 import 'package:chattrix_ui/features/chat/data/services/chat_websocket_service.dart';
 import 'package:chattrix_ui/features/call/domain/entities/call_entity.dart';
@@ -233,26 +235,59 @@ class CallSignalingService {
   /// All other message types are ignored silently
   void handleIncomingMessage(Map<String, dynamic> data) {
     try {
+      // DEBUG: Log ALL incoming WebSocket messages to diagnose call invitation issues
+      debugPrint('🔍🔍🔍 [CALL DEBUG] ========================================');
+      debugPrint('🔍 [CALL DEBUG] Received WebSocket message:');
+      debugPrint('🔍 [CALL DEBUG] ${const JsonEncoder.withIndent('  ').convert(data)}');
+      debugPrint('🔍🔍🔍 [CALL DEBUG] ========================================');
+
       final type = data['type'] as String?;
       if (type == null) {
+        debugPrint('⚠️ [CALL DEBUG] Message has NO type field!');
         CallLogger.logDebug('Received WebSocket message with no type field, ignoring');
         return;
       }
 
+      debugPrint('🔍 [CALL DEBUG] Message type: $type');
+
       // Check if this is a call-related message type
       if (!_isCallRelatedMessage(type)) {
         // Silently ignore non-call messages (e.g., chat.message, user.status, etc.)
+        debugPrint('ℹ️ [CALL DEBUG] Not a call-related message, ignoring');
         CallLogger.logDebug('Ignoring non-call message type: $type');
         return;
       }
 
-      // Backend sends messages with 'data' field (server → client)
+      debugPrint('✅ [CALL DEBUG] This IS a call-related message!');
+
+      // Backend sends messages with 'data' field (server → client) according to FLUTTER_INTEGRATION_GUIDE.md
+      // But we also check 'payload' field for backward compatibility
       // Client sends messages with 'payload' field (client → server)
-      final messageData = data['data'] as Map<String, dynamic>?;
+      Map<String, dynamic>? messageData = data['data'] as Map<String, dynamic>?;
+
+      // If 'data' field is null, try 'payload' field
       if (messageData == null) {
-        CallLogger.logWarning('Call message type "$type" has no data field, ignoring');
+        debugPrint('⚠️ [CALL DEBUG] No "data" field found, trying "payload" field...');
+        messageData = data['payload'] as Map<String, dynamic>?;
+      }
+
+      if (messageData == null) {
+        debugPrint('❌ [CALL DEBUG] Call message has NEITHER "data" NOR "payload" field!');
+        debugPrint('❌ [CALL DEBUG] Available keys: ${data.keys.toList()}');
+        CallLogger.logWarning('Call message type "$type" has no data or payload field, ignoring');
         return;
       }
+
+      debugPrint('✅ [CALL DEBUG] Message has data/payload field, processing...');
+
+      // Normalize the message structure to always use 'data' field for processing
+      final normalizedData = {
+        'type': type,
+        'data': messageData,
+        if (data['timestamp'] != null) 'timestamp': data['timestamp'],
+      };
+
+      debugPrint('✅ [CALL DEBUG] Normalized message structure for processing');
 
       // Log the received call message
       CallLogger.logDebug('Processing call message: $type');
@@ -260,21 +295,40 @@ class CallSignalingService {
       // Filter and process only call-related messages
       switch (type) {
         case CallSignalingResponse.callInvitation:
-          final message = CallInvitationMessage.fromJson(data);
-          // Validate channel ID format
-          ChannelIdValidator.validate(message.data.channelId);
-          CallLogger.logInfo('Received call invitation: ${message.data.callId} from ${message.data.callerName}');
-          _callInvitationController.add(message.data);
+          debugPrint('🎉🎉🎉 [CALL DEBUG] Processing CALL INVITATION!');
+          try {
+            // Use normalized data structure
+            final message = CallInvitationMessage.fromJson(normalizedData);
+            debugPrint('✅ [CALL DEBUG] Parsed CallInvitationMessage successfully');
+            debugPrint('✅ [CALL DEBUG] Call ID: ${message.data.callId}');
+            debugPrint('✅ [CALL DEBUG] Caller: ${message.data.callerName}');
+            debugPrint('✅ [CALL DEBUG] Channel ID: ${message.data.channelId}');
+            debugPrint('✅ [CALL DEBUG] Call Type: ${message.data.callType}');
+
+            // Validate channel ID format
+            ChannelIdValidator.validate(message.data.channelId);
+            debugPrint('✅ [CALL DEBUG] Channel ID validated');
+
+            CallLogger.logInfo('Received call invitation: ${message.data.callId} from ${message.data.callerName}');
+
+            debugPrint('🔔 [CALL DEBUG] Adding invitation to stream controller...');
+            _callInvitationController.add(message.data);
+            debugPrint('🔔 [CALL DEBUG] Invitation added to stream! Listeners should receive it now.');
+          } catch (e, stackTrace) {
+            debugPrint('❌ [CALL DEBUG] Error processing call invitation: $e');
+            debugPrint('❌ [CALL DEBUG] Stack trace: $stackTrace');
+            rethrow;
+          }
           break;
 
         case CallSignalingResponse.callAccepted:
-          final message = CallAcceptedMessage.fromJson(data);
+          final message = CallAcceptedMessage.fromJson(normalizedData);
           CallLogger.logInfo('Call accepted: ${message.data.callId} by ${message.data.acceptedBy}');
           _callAcceptedController.add(message.data);
           break;
 
         case CallSignalingResponse.callRejected:
-          final message = CallRejectedMessage.fromJson(data);
+          final message = CallRejectedMessage.fromJson(normalizedData);
           CallLogger.logInfo(
             'Call rejected: ${message.data.callId} by ${message.data.rejectedBy}${message.data.reason != null ? ' (reason: ${message.data.reason})' : ''}',
           );
@@ -282,13 +336,13 @@ class CallSignalingService {
           break;
 
         case CallSignalingResponse.callTimeout:
-          final message = CallTimeoutMessage.fromJson(data);
+          final message = CallTimeoutMessage.fromJson(normalizedData);
           CallLogger.logInfo('Call timeout: ${message.data.callId}');
           _callTimeoutController.add(message.data);
           break;
 
         case CallSignalingResponse.callEnded:
-          final message = CallEndedMessage.fromJson(data);
+          final message = CallEndedMessage.fromJson(normalizedData);
           CallLogger.logInfo(
             'Call ended: ${message.data.callId} by ${message.data.endedBy}${message.data.durationSeconds != null ? ' (duration: ${message.data.durationSeconds}s)' : ''}',
           );
@@ -296,7 +350,7 @@ class CallSignalingService {
           break;
 
         case CallSignalingResponse.callQualityWarning:
-          final message = CallQualityWarningMessage.fromJson(data);
+          final message = CallQualityWarningMessage.fromJson(normalizedData);
           CallLogger.logInfo('Call quality warning: ${message.data.callId} - quality: ${message.data.quality}');
           _callQualityWarningController.add(message.data);
           break;

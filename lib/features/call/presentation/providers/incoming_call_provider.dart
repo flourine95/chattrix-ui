@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/foundation.dart';
 import 'package:chattrix_ui/features/call/data/services/call_logger.dart';
 import 'package:chattrix_ui/features/call/data/services/call_signaling_service.dart';
 import 'package:chattrix_ui/features/call/data/models/websocket/call_invitation_data.dart';
@@ -18,12 +19,28 @@ class IncomingCall extends _$IncomingCall {
   CallInvitationData? build() {
     final signalingService = ref.watch(callSignalingServiceProvider);
 
+    debugPrint('🎯 [INCOMING CALL PROVIDER] Initializing and subscribing to callInvitationStream...');
+
     // Listen to invitation stream
-    _invitationSubscription = signalingService.callInvitationStream.listen((invitation) {
-      _handleIncomingInvitation(invitation, signalingService);
-    });
+    _invitationSubscription = signalingService.callInvitationStream.listen(
+      (invitation) {
+        debugPrint('🔔🔔🔔 [INCOMING CALL PROVIDER] Received invitation from stream!');
+        debugPrint('🔔 [INCOMING CALL PROVIDER] Call ID: ${invitation.callId}');
+        debugPrint('🔔 [INCOMING CALL PROVIDER] Caller: ${invitation.callerName}');
+        _handleIncomingInvitation(invitation, signalingService);
+      },
+      onError: (error) {
+        debugPrint('❌ [INCOMING CALL PROVIDER] Stream error: $error');
+      },
+      onDone: () {
+        debugPrint('⚠️ [INCOMING CALL PROVIDER] Stream closed');
+      },
+    );
+
+    debugPrint('✅ [INCOMING CALL PROVIDER] Subscribed to callInvitationStream');
 
     ref.onDispose(() {
+      debugPrint('🗑️ [INCOMING CALL PROVIDER] Disposing subscription');
       _invitationSubscription?.cancel();
     });
 
@@ -32,6 +49,11 @@ class IncomingCall extends _$IncomingCall {
 
   /// Handle incoming call invitation with busy call detection and race condition handling
   void _handleIncomingInvitation(CallInvitationData invitation, CallSignalingService signalingService) {
+    debugPrint('📞📞📞 [INCOMING CALL PROVIDER] _handleIncomingInvitation called!');
+    debugPrint('📞 [INCOMING CALL PROVIDER] Call ID: ${invitation.callId}');
+    debugPrint('📞 [INCOMING CALL PROVIDER] Caller: ${invitation.callerName}');
+    debugPrint('📞 [INCOMING CALL PROVIDER] Type: ${invitation.callType}');
+
     CallLogger.logInfo(
       'Received incoming call invitation: callId=${invitation.callId}, from=${invitation.callerName}, type=${invitation.callType}',
     );

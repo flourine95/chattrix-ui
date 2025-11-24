@@ -53,3 +53,10 @@ This document defines the mandatory frameworks, libraries, and architectural rul
 | **Media Handling** | **`image_picker`**, **`record`**, **`file_picker`** | Before initiating media capture or file access, the required permission MUST be checked using **`permission_handler`**. |
 | **File Upload** | **`cloudinary_public`** | MUST be used as the service client for file uploads. Images MUST be optimized (compressed) using **`flutter_image_compress`** before upload. |
 | **Configuration** | **`flutter_dotenv`** | ALL environment-specific variables and API endpoints MUST be loaded and accessed via `.env` files. Hardcoding credentials is FORBIDDEN. |
+
+---
+
+## 5. Utilities and Debugging
+
+Area,Library/Tool,Rule
+Debugging Print,debugPrint(),"When adding temporary logs, developers MUST use debugPrint() from flutter/foundation.dart. The use of print() and debug() is FORBIDDEN."
