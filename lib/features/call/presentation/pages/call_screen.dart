@@ -21,22 +21,44 @@ class CallScreen extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    debugPrint('🖥️ [CALL SCREEN] Building CallScreen');
+    debugPrint('🖥️ [CALL SCREEN] Call ID: $callId');
+    debugPrint('🖥️ [CALL SCREEN] Remote User ID: $remoteUserId');
+    debugPrint('🖥️ [CALL SCREEN] Call Type: $callType');
+
     final callState = ref.watch(callProvider);
 
+    debugPrint('🖥️ [CALL SCREEN] Call state type: ${callState.runtimeType}');
+    callState.when(
+      loading: () => debugPrint('🖥️ [CALL SCREEN] State: LOADING'),
+      error: (error, stack) => debugPrint('🖥️ [CALL SCREEN] State: ERROR - $error'),
+      data: (call) => debugPrint('🖥️ [CALL SCREEN] State: DATA - call is ${call == null ? 'NULL' : 'NOT NULL (${call.callId})'}'),
+    );
+
     return callState.when(
-      loading: () => _buildLoadingView(context),
-      error: (error, stack) => _buildErrorView(context, ref, error),
+      loading: () {
+        debugPrint('🖥️ [CALL SCREEN] Rendering loading view');
+        return _buildLoadingView(context);
+      },
+      error: (error, stack) {
+        debugPrint('🖥️ [CALL SCREEN] Rendering error view');
+        return _buildErrorView(context, ref, error);
+      },
       data: (call) {
         if (call == null) {
+          debugPrint('❌ [CALL SCREEN] Call is NULL, navigating back');
           // No active call, navigate back
           WidgetsBinding.instance.addPostFrameCallback((_) {
             if (context.mounted) {
+              debugPrint('❌ [CALL SCREEN] Popping navigation');
               context.pop();
             }
           });
           return const SizedBox();
         }
 
+        debugPrint('✅ [CALL SCREEN] Call is active, rendering call view');
+        debugPrint('✅ [CALL SCREEN] Active call: ${call.callId}');
         return _buildCallView(context, ref, call);
       },
     );

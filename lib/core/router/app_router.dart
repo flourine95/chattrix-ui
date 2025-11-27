@@ -48,14 +48,23 @@ class AppRouter {
       initialLocation: '/',
       refreshListenable: Listenable.merge([ref.watch(authNotifierWrapperProvider), incomingCallNotifier]),
       redirect: (context, state) async {
+        debugPrint('🧭 [ROUTER] Redirect check for: ${state.matchedLocation}');
+
         // Handle auth redirect first
         final authRedirect = await _handleAuthRedirect(ref, state);
-        if (authRedirect != null) return authRedirect;
+        if (authRedirect != null) {
+          debugPrint('🧭 [ROUTER] Auth redirect to: $authRedirect');
+          return authRedirect;
+        }
 
         // Handle incoming call redirect
         final incomingCallRedirect = _handleIncomingCallRedirect(ref, state, incomingCallNotifier);
-        if (incomingCallRedirect != null) return incomingCallRedirect;
+        if (incomingCallRedirect != null) {
+          debugPrint('🧭 [ROUTER] Incoming call redirect to: $incomingCallRedirect');
+          return incomingCallRedirect;
+        }
 
+        debugPrint('🧭 [ROUTER] No redirect needed');
         return null;
       },
       routes: <RouteBase>[
@@ -181,12 +190,25 @@ class AppRouter {
 
   /// Handle authentication redirect logic
   static Future<String?> _handleAuthRedirect(WidgetRef ref, GoRouterState state) async {
+    final currentLocation = state.matchedLocation;
+
+    // CRITICAL: Never redirect away from active call screens, even for auth
+    // This prevents kicking user out of call
+    final isOnCallScreen = currentLocation.startsWith('/call/');
+    final isOnWaitingCallScreen = currentLocation.startsWith('/waiting-call/');
+    final isOnIncomingCallScreen = currentLocation == '/incoming-call';
+
+    if (isOnCallScreen || isOnWaitingCallScreen || isOnIncomingCallScreen) {
+      debugPrint('🔐 [AUTH REDIRECT] On call screen - BLOCKING auth redirect');
+      return null; // Never redirect away from call screens
+    }
+
     final isLoggedIn = await ref.read(isLoggedInUseCaseProvider)();
     final isGoingToAuth =
-        state.matchedLocation == loginPath ||
-        state.matchedLocation == registerPath ||
-        state.matchedLocation == forgotPasswordPath ||
-        state.matchedLocation == otpVerificationPath;
+        currentLocation == loginPath ||
+        currentLocation == registerPath ||
+        currentLocation == forgotPasswordPath ||
+        currentLocation == otpVerificationPath;
 
     if (!isLoggedIn && !isGoingToAuth) {
       return loginPath;
@@ -204,15 +226,33 @@ class AppRouter {
     final currentInvitation = ref.read(currentIncomingCallProvider);
     final currentLocation = state.matchedLocation;
 
-    // Only redirect if:
-    // 1. There's an incoming call
+    debugPrint('📞 [INCOMING CALL REDIRECT] Current invitation: ${currentInvitation?.callId ?? 'NULL'}');
+    debugPrint('📞 [INCOMING CALL REDIRECT] Current location: $currentLocation');
+    debugPrint('📞 [INCOMING CALL REDIRECT] Is app in foreground: ${notifier.isAppInForeground}');
+
+    // IMPORTANT: If already on call screen or waiting call screen, NEVER redirect away
+    // This prevents the bug where user gets kicked back to home after accepting call
+    final isOnCallScreen = currentLocation.startsWith('/call/');
+    final isOnWaitingCallScreen = currentLocation.startsWith('/waiting-call/');
+    final isOnIncomingCallScreen = currentLocation == '/incoming-call';
+
+    if (isOnCallScreen || isOnWaitingCallScreen) {
+      debugPrint("📞 [INCOMING CALL REDIRECT] On call/waiting screen - BLOCKING all redirects");
+      return null; // Block ANY redirect when on call screens
+    }
+
+    // Only redirect TO incoming-call if:
+    // 1. There's an incoming call invitation
     // 2. Not already on the incoming call screen
     // 3. App is in foreground
-    if (currentInvitation != null && currentLocation != '/incoming-call' && notifier.isAppInForeground) {
-      debugPrint("da vao incoming");
+    if (currentInvitation != null &&
+        !isOnIncomingCallScreen &&
+        notifier.isAppInForeground) {
+      debugPrint("📞 [INCOMING CALL REDIRECT] Redirecting to /incoming-call");
       return '/incoming-call';
     }
 
+    debugPrint("📞 [INCOMING CALL REDIRECT] No redirect needed");
     return null;
   }
 }

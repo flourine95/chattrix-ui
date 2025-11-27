@@ -51,7 +51,7 @@ final class IncomingCallProvider
   }
 }
 
-String _$incomingCallHash() => r'9386997056b1f2caa55862aaf1ee3599e8947084';
+String _$incomingCallHash() => r'1953919fbea7fbd659b811ad2ccd6ad567c1dc3d';
 
 /// Notifier for managing the current incoming call invitation
 /// This provider watches CallSignalingService and subscribes to callInvitationStream

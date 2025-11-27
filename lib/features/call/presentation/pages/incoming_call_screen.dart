@@ -1,4 +1,5 @@
 import 'package:chattrix_ui/features/call/data/models/websocket/call_invitation_data.dart';
+import 'package:chattrix_ui/features/call/data/services/call_logger.dart';
 import 'package:chattrix_ui/features/call/data/services/ringtone_service_provider.dart';
 import 'package:chattrix_ui/features/call/domain/entities/call_entity.dart';
 import 'package:chattrix_ui/features/call/presentation/providers/call_state_provider.dart';
@@ -19,13 +20,35 @@ class IncomingCallScreen extends HookConsumerWidget {
     // Get invitation from provider instead of constructor parameter
     final invitation = ref.watch(currentIncomingCallProvider);
 
+    // Track if call was accepted to prevent auto-navigate on dispose
+    final wasAccepted = useState(false);
+
     // If no invitation, navigate to home (safety check)
+    // BUT: Don't navigate if there's an active call (means invitation was cleared after accepting)
     if (invitation == null) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (context.mounted) {
-          context.go('/');
-        }
-      });
+      // Check if there's an active call - if yes, don't navigate to home
+      // This prevents the bug where clearing invitation after accept triggers unwanted navigation
+      final callState = ref.read(callProvider);
+      final hasActiveCall = callState.value != null;
+
+      debugPrint('🔍 [INCOMING CALL SCREEN] No invitation check:');
+      debugPrint('   └─ hasActiveCall: $hasActiveCall');
+      debugPrint('   └─ wasAccepted: ${wasAccepted.value}');
+      debugPrint('   └─ callState: ${callState.runtimeType}');
+      if (hasActiveCall) {
+        debugPrint('   └─ Active call ID: ${callState.value?.callId}');
+      }
+
+      if (!hasActiveCall && !wasAccepted.value) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (context.mounted) {
+            debugPrint('⚠️ [INCOMING CALL SCREEN] No invitation and no active call - navigating to home');
+            context.go('/');
+          }
+        });
+      } else {
+        debugPrint('✅ [INCOMING CALL SCREEN] No invitation but has active call or was accepted - not navigating to home');
+      }
       return const SizedBox.shrink();
     }
 
@@ -36,10 +59,20 @@ class IncomingCallScreen extends HookConsumerWidget {
     // Track remaining time for timeout
     final remainingSeconds = useState(60);
 
-    // Clear invitation when screen is disposed
+    // Clear invitation when screen is disposed ONLY if not accepted
+    // (Reject and timeout already clear invitation explicitly)
     useEffect(() {
+      // Capture the notifier reference before disposal
+      final notifier = ref.read(incomingCallProvider.notifier);
       return () {
-        ref.read(incomingCallProvider.notifier).clearInvitation();
+        // Only clear if call wasn't accepted (user backed out manually)
+        if (!wasAccepted.value) {
+          debugPrint('⚠️ [INCOMING CALL SCREEN] Disposed without accept, clearing invitation');
+          // Delay the clear to avoid modifying provider during widget disposal
+          Future.microtask(() => notifier.clearInvitation());
+        } else {
+          debugPrint('✅ [INCOMING CALL SCREEN] Disposed after accept, not clearing invitation');
+        }
       };
     }, []);
 
@@ -193,7 +226,7 @@ class IncomingCallScreen extends HookConsumerWidget {
                         icon: FontAwesomeIcons.phone,
                         label: 'Accept',
                         backgroundColor: Colors.green,
-                        onPressed: () => _handleAccept(context, ref, invitation),
+                        onPressed: () => _handleAccept(context, ref, invitation, wasAccepted),
                       ),
                     ],
                   ),
@@ -233,35 +266,92 @@ class IncomingCallScreen extends HookConsumerWidget {
   }
 
   /// Handle accept action
-  Future<void> _handleAccept(BuildContext context, WidgetRef ref, CallInvitationData invitation) async {
-    // Stop ringtone
-    await ref.read(ringtoneServiceProvider).stopRingtone();
+  Future<void> _handleAccept(
+    BuildContext context,
+    WidgetRef ref,
+    CallInvitationData invitation,
+    ValueNotifier<bool> wasAccepted,
+  ) async {
+    try {
+      debugPrint('🎯 [ACCEPT CALL] Starting accept call flow');
+      debugPrint('🎯 [ACCEPT CALL] Call ID: ${invitation.callId}');
+      debugPrint('🎯 [ACCEPT CALL] Channel ID: ${invitation.channelId}');
+      debugPrint('🎯 [ACCEPT CALL] Caller ID: ${invitation.callerId}');
 
-    // Update status to connecting
-    ref.read(callStatusProvider.notifier).setConnectingToCall();
+      // Mark as accepted to prevent auto-clear on dispose
+      wasAccepted.value = true;
+      debugPrint('✅ [ACCEPT CALL] Marked as accepted');
 
-    // Convert callType string to CallType enum
-    final callType = invitation.callType == 'VIDEO' ? CallType.video : CallType.audio;
+      // Stop ringtone
+      await ref.read(ringtoneServiceProvider).stopRingtone();
+      debugPrint('✅ [ACCEPT CALL] Ringtone stopped');
 
-    // Accept the call through the notifier
-    await ref
-        .read(callProvider.notifier)
-        .acceptCall(
-          callId: invitation.callId,
-          channelId: invitation.channelId,
-          remoteUserId: invitation.callerId,
-          callType: callType,
+      // Update status to connecting
+      ref.read(callStatusProvider.notifier).setConnectingToCall();
+      debugPrint('✅ [ACCEPT CALL] Status set to connecting');
+
+      // Convert callType string to CallType enum
+      final callType = invitation.callType == 'VIDEO' ? CallType.video : CallType.audio;
+      debugPrint('✅ [ACCEPT CALL] Call type: $callType');
+
+      // Accept the call and wait for the result
+      debugPrint('🔄 [ACCEPT CALL] Calling acceptCall...');
+      final acceptedCall = await ref
+          .read(callProvider.notifier)
+          .acceptCall(
+            callId: invitation.callId,
+            channelId: invitation.channelId,
+            remoteUserId: invitation.callerId,
+            callType: callType,
+          );
+
+      debugPrint('🔄 [ACCEPT CALL] acceptCall completed');
+      debugPrint('🔄 [ACCEPT CALL] Accepted call result: $acceptedCall');
+
+      // Verify the call was accepted successfully
+      if (acceptedCall == null) {
+        debugPrint('❌ [ACCEPT CALL] Failed to accept call - acceptedCall is null');
+        // Show error if accept failed
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Failed to accept call')));
+        }
+        return;
+      }
+
+      debugPrint('✅ [ACCEPT CALL] Call accepted successfully');
+      debugPrint('✅ [ACCEPT CALL] Call details: callId=${acceptedCall.callId}, channelId=${acceptedCall.channelId}');
+
+      // Navigate to call screen only after successful accept
+      if (context.mounted) {
+        final targetRoute = '/call/${invitation.callId}';
+        debugPrint('🚀 [ACCEPT CALL] Navigating to: $targetRoute');
+        debugPrint('🚀 [ACCEPT CALL] Extra data: remoteUserId=${invitation.callerId}, callType=${invitation.callType == 'VIDEO' ? 'video' : 'audio'}');
+
+        // CRITICAL: Clear invitation BEFORE navigation to prevent router redirect to home
+        debugPrint('🔄 [ACCEPT CALL] Clearing invitation BEFORE navigation...');
+        ref.read(incomingCallProvider.notifier).clearInvitation();
+        debugPrint('✅ [ACCEPT CALL] Invitation cleared BEFORE navigation');
+
+        // Now navigate - at this point invitation is null but wasAccepted=true
+        // so IncomingCallScreen won't auto-navigate to home on dispose
+        context.go(
+          targetRoute,
+          extra: {'remoteUserId': invitation.callerId, 'callType': invitation.callType == 'VIDEO' ? 'video' : 'audio'},
         );
 
-    // Clear invitation before navigation
-    ref.read(incomingCallProvider.notifier).clearInvitation();
+        debugPrint('✅ [ACCEPT CALL] Navigation completed');
+      } else {
+        debugPrint('❌ [ACCEPT CALL] Context not mounted, cannot navigate');
+      }
+    } catch (e, stackTrace) {
+      // Handle any errors
+      debugPrint('❌ [ACCEPT CALL] Error accepting call: $e');
+      debugPrint('❌ [ACCEPT CALL] Stack trace: $stackTrace');
+      CallLogger.logError('Error accepting call', error: e, stackTrace: stackTrace);
 
-    // Navigate to call screen
-    if (context.mounted) {
-      context.go(
-        '/call/${invitation.callId}',
-        extra: {'remoteUserId': invitation.callerId, 'callType': invitation.callType == 'VIDEO' ? 'video' : 'audio'},
-      );
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error accepting call: $e')));
+      }
     }
   }
 }

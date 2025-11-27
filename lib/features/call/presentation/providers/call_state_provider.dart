@@ -150,7 +150,8 @@ class Call extends _$Call {
   }
 
   /// Accept an incoming call
-  Future<void> acceptCall({
+  /// Returns the CallEntity if successful, null if failed
+  Future<CallEntity?> acceptCall({
     required String callId,
     required String channelId,
     required String remoteUserId,
@@ -161,6 +162,8 @@ class Call extends _$Call {
     );
 
     state = const AsyncValue.loading();
+
+    CallEntity? acceptedCall;
 
     state = await AsyncValue.guard(() async {
       final repository = ref.read(callRepositoryProvider);
@@ -198,10 +201,59 @@ class Call extends _$Call {
         },
         (call) {
           CallLogger.logInfo('Call accepted successfully: callId=$callId');
+          acceptedCall = call;
           return call;
         },
       );
     });
+
+    return acceptedCall;
+  }
+
+  /// Join call as caller (when receiving call_accepted notification)
+  /// This method joins the Agora channel WITHOUT sending call.accept WebSocket message
+  /// Returns the CallEntity if successful, null if failed
+  Future<CallEntity?> joinCallAsCaller({
+    required String callId,
+    required String channelId,
+    required String remoteUserId,
+    required CallType callType,
+  }) async {
+    CallLogger.logInfo(
+      'Joining call as caller: callId=$callId, channelId=$channelId, remoteUserId=$remoteUserId, callType=${callType.name}',
+    );
+
+    state = const AsyncValue.loading();
+
+    CallEntity? joinedCall;
+
+    state = await AsyncValue.guard(() async {
+      final repository = ref.read(callRepositoryProvider);
+
+      // Join the Agora channel directly without sending call.accept WebSocket message
+      // The callee already sent call.accept, so the caller just needs to join
+      final result = await repository.joinCall(
+        callId: callId,
+        channelId: channelId,
+        remoteUserId: remoteUserId,
+        callType: callType,
+      );
+
+      // Handle result
+      return result.fold(
+        (failure) {
+          CallLogger.logFailure(failure, context: 'joinCallAsCaller');
+          throw _mapFailureToException(failure);
+        },
+        (call) {
+          CallLogger.logInfo('Caller joined call successfully: callId=$callId');
+          joinedCall = call;
+          return call;
+        },
+      );
+    });
+
+    return joinedCall;
   }
 
   /// Reject an incoming call

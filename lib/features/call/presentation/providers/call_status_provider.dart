@@ -156,7 +156,9 @@ class CallStatusNotifier extends _$CallStatusNotifier {
     return const CallStatusInfo(status: CallStatus.idle);
   }
 
-  /// Join Agora channel when call is accepted
+  /// Join Agora channel when call is accepted (for caller only)
+  /// This method is called when the caller receives call_accepted notification
+  /// It joins the Agora channel directly without sending call.accept WebSocket message
   Future<void> _joinAgoraChannel({
     required String callId,
     required String channelId,
@@ -164,12 +166,20 @@ class CallStatusNotifier extends _$CallStatusNotifier {
     required CallType callType,
   }) async {
     try {
-      // Use acceptCall method from CallStateProvider which handles joining
-      await ref
-          .read(callProvider.notifier)
-          .acceptCall(callId: callId, channelId: channelId, remoteUserId: remoteUserId, callType: callType);
+      // Update state to loading
+      state = state.copyWith(status: CallStatus.connectingToCall);
 
-      // The call state will be updated by acceptCall method
+      // Use the new joinCallAsCaller method from CallStateProvider
+      // This joins the Agora channel without sending call.accept WebSocket message
+      final call = await ref
+          .read(callProvider.notifier)
+          .joinCallAsCaller(callId: callId, channelId: channelId, remoteUserId: remoteUserId, callType: callType);
+
+      // If join failed, update error state
+      if (call == null) {
+        state = state.copyWith(status: CallStatus.error, errorMessage: 'Failed to join call');
+      }
+
       // Status will be updated to active by the listener watching callProvider
     } catch (e) {
       state = state.copyWith(status: CallStatus.error, errorMessage: 'Failed to join call: ${e.toString()}');
