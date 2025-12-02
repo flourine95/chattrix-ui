@@ -134,20 +134,4 @@ class ApiConstants {
   static String get chatWebSocket => '$_wsBaseUrl/ws/chat';
 
   static String chatWebSocketWithToken(String token) => '$chatWebSocket?token=$token';
-
-  // Agora token endpoints
-  static String get agoraTokenGenerate => '$_baseUrl/$_v1/agora/token/generate';
-
-  static String get agoraTokenRefresh => '$_baseUrl/$_v1/agora/token/refresh';
-
-  // Call endpoints
-  static String get callsInitiate => '$_baseUrl/$_v1/calls/initiate';
-
-  static String callAccept(String callId) => '$_baseUrl/$_v1/calls/$callId/accept';
-
-  static String callReject(String callId) => '$_baseUrl/$_v1/calls/$callId/reject';
-
-  static String callEnd(String callId) => '$_baseUrl/$_v1/calls/$callId/end';
-
-  static String callStatus(String callId) => '$_baseUrl/$_v1/calls/$callId/status';
 }

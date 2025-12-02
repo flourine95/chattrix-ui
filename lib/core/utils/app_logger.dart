@@ -1,6 +1,5 @@
 import 'package:logger/logger.dart';
 
-/// Global logger instance for the app
 final appLogger = Logger(
   printer: PrettyPrinter(
     methodCount: 2,
