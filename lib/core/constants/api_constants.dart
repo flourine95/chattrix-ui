@@ -1,4 +1,4 @@
-import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:flutter/foundation.dart' show kDebugMode, kIsWeb;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class ApiConstants {
@@ -12,14 +12,40 @@ class ApiConstants {
 
   static const String _androidEmulatorHost = '10.0.2.2';
 
+  /// Determines if secure protocols (HTTPS/WSS) should be used
+  ///
+  /// Requirement 10.5: Use HTTPS for API calls and WSS for WebSocket in production
+  /// In debug mode, allows HTTP/WS for localhost development
+  /// In release mode, enforces HTTPS/WSS for security
+  static bool get _useSecureProtocol {
+    // Check if explicitly set in environment
+    final useSecure = dotenv.env['USE_SECURE_PROTOCOL'];
+    if (useSecure != null) {
+      return useSecure.toLowerCase() == 'true';
+    }
+
+    // In release mode, always use secure protocols
+    if (!kDebugMode) {
+      return true;
+    }
+
+    // In debug mode, use secure protocols for non-localhost hosts
+    final host = kIsWeb ? _host : _androidEmulatorHost;
+    final isLocalhost = host == 'localhost' || host == '127.0.0.1' || host == '10.0.2.2' || host == '0.0.0.0';
+
+    return !isLocalhost;
+  }
+
   static String get _baseUrl {
     final host = kIsWeb ? _host : _androidEmulatorHost;
-    return 'http://$host:$_port$_apiPath';
+    final protocol = _useSecureProtocol ? 'https' : 'http';
+    return '$protocol://$host:$_port$_apiPath';
   }
 
   static String get _wsBaseUrl {
     final host = kIsWeb ? _host : _androidEmulatorHost;
-    return 'ws://$host:$_port$_wsPath';
+    final protocol = _useSecureProtocol ? 'wss' : 'ws';
+    return '$protocol://$host:$_port$_wsPath';
   }
 
   static const String _v1 = 'v1';

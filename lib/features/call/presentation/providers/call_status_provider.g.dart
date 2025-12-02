@@ -49,7 +49,7 @@ final class CallStatusNotifierProvider
 }
 
 String _$callStatusNotifierHash() =>
-    r'8fce50c050e58ca1d38515ac6b88b1754782da68';
+    r'f233e1d8f2259859ed4415d174eea086efd36e5f';
 
 /// Provider that tracks call status for UI feedback
 

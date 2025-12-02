@@ -72,5 +72,20 @@
 		<string>audio</string>
 		<string>voip</string>
 	</array>
+
+	<!-- Deep linking for incoming calls -->
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLName</key>
+			<string>com.chattrix.call</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>chattrix</string>
+			</array>
+		</dict>
+	</array>
 </dict>
 </plist>

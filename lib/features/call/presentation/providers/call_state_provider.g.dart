@@ -152,7 +152,7 @@ final class CallProvider extends $AsyncNotifierProvider<Call, CallEntity?> {
   Call create() => Call();
 }
 
-String _$callHash() => r'248e9e86c3abf0654f4fc018ff4b5319eb78219e';
+String _$callHash() => r'b1014157c89bb43aa7858c727d797bb772d4874d';
 
 /// Main call state notifier using AsyncNotifier
 /// Manages call state with automatic loading/error handling

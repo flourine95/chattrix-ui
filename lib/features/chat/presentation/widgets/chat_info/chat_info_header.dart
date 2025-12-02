@@ -1,3 +1,5 @@
+import 'package:chattrix_ui/features/agora_call/domain/entities/call_entity.dart';
+import 'package:chattrix_ui/features/agora_call/presentation/utils/call_initiation_helper.dart';
 import 'package:chattrix_ui/features/auth/presentation/providers/auth_providers.dart';
 import 'package:chattrix_ui/features/chat/domain/entities/conversation.dart';
 import 'package:chattrix_ui/features/chat/presentation/utils/conversation_utils.dart';
@@ -74,25 +76,52 @@ class ChatInfoHeader extends ConsumerWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              _QuickActionButton(
-                icon: Icons.call_outlined,
-                label: 'Call',
-                onTap: () {
-                  // TODO: Implement call
-                },
-              ),
-              _QuickActionButton(
-                icon: Icons.videocam_outlined,
-                label: 'Video',
-                onTap: () {
-                  // TODO: Implement video call
-                },
-              ),
+              // Only show call buttons for direct conversations
+              if (!isGroup) ...[
+                _QuickActionButton(
+                  icon: Icons.call_outlined,
+                  label: 'Call',
+                  onTap: () {
+                    final otherUserIdStr = ConversationUtils.getOtherParticipantId(conversation, me);
+                    if (otherUserIdStr != null) {
+                      final otherUserId = int.tryParse(otherUserIdStr);
+                      if (otherUserId != null) {
+                        CallInitiationHelper.initiateCall(
+                          context: context,
+                          ref: ref,
+                          calleeId: otherUserId,
+                          calleeName: displayName,
+                          callType: CallType.audio,
+                        );
+                      }
+                    }
+                  },
+                ),
+                _QuickActionButton(
+                  icon: Icons.videocam_outlined,
+                  label: 'Video',
+                  onTap: () {
+                    final otherUserIdStr = ConversationUtils.getOtherParticipantId(conversation, me);
+                    if (otherUserIdStr != null) {
+                      final otherUserId = int.tryParse(otherUserIdStr);
+                      if (otherUserId != null) {
+                        CallInitiationHelper.initiateCall(
+                          context: context,
+                          ref: ref,
+                          calleeId: otherUserId,
+                          calleeName: displayName,
+                          callType: CallType.video,
+                        );
+                      }
+                    }
+                  },
+                ),
+              ],
               _QuickActionButton(
                 icon: Icons.notifications_outlined,
                 label: 'Mute',
                 onTap: () {
-                  // TODO: Implement mute
+                  // TODO: Implement mute notifications
                 },
               ),
             ],

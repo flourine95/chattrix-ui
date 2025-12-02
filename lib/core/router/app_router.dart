@@ -1,4 +1,10 @@
+import 'package:chattrix_ui/core/router/agora_call_router_notifier.dart';
 import 'package:chattrix_ui/core/router/incoming_call_router_notifier.dart';
+import 'package:chattrix_ui/features/agora_call/domain/entities/call_entity.dart' as agora_entity;
+import 'package:chattrix_ui/features/agora_call/presentation/pages/active_call_screen.dart';
+import 'package:chattrix_ui/features/agora_call/presentation/pages/incoming_call_screen.dart' as agora_incoming;
+import 'package:chattrix_ui/features/agora_call/presentation/pages/outgoing_call_screen.dart';
+import 'package:chattrix_ui/features/agora_call/presentation/providers/call_state_provider.dart';
 import 'package:chattrix_ui/features/auth/presentation/pages/forgot_password_screen.dart';
 import 'package:chattrix_ui/features/auth/presentation/pages/login_screen.dart';
 import 'package:chattrix_ui/features/auth/presentation/pages/otp_verification_screen.dart';
@@ -43,10 +49,15 @@ class AppRouter {
 
   static GoRouter router(WidgetRef ref) {
     final incomingCallNotifier = ref.watch(incomingCallRouterNotifierProvider);
+    final agoraCallNotifier = ref.watch(agoraCallRouterNotifierProvider);
 
     return GoRouter(
       initialLocation: '/',
-      refreshListenable: Listenable.merge([ref.watch(authNotifierWrapperProvider), incomingCallNotifier]),
+      refreshListenable: Listenable.merge([
+        ref.watch(authNotifierWrapperProvider),
+        incomingCallNotifier,
+        agoraCallNotifier,
+      ]),
       redirect: (context, state) async {
         debugPrint('🧭 [ROUTER] Redirect check for: ${state.matchedLocation}');
 
@@ -57,7 +68,14 @@ class AppRouter {
           return authRedirect;
         }
 
-        // Handle incoming call redirect
+        // Handle Agora incoming call redirect (higher priority than old call system)
+        final agoraCallRedirect = _handleAgoraIncomingCallRedirect(ref, state, agoraCallNotifier);
+        if (agoraCallRedirect != null) {
+          debugPrint('🧭 [ROUTER] Agora incoming call redirect to: $agoraCallRedirect');
+          return agoraCallRedirect;
+        }
+
+        // Handle incoming call redirect (old call system)
         final incomingCallRedirect = _handleIncomingCallRedirect(ref, state, incomingCallNotifier);
         if (incomingCallRedirect != null) {
           debugPrint('🧭 [ROUTER] Incoming call redirect to: $incomingCallRedirect');
@@ -153,6 +171,25 @@ class AppRouter {
 
         GoRoute(path: '/call-history', name: 'call-history', builder: (context, state) => const CallHistoryScreen()),
 
+        // Agora call routes
+        GoRoute(
+          path: '/agora-call/outgoing',
+          name: 'agora-outgoing-call',
+          builder: (context, state) => const OutgoingCallScreen(),
+        ),
+
+        GoRoute(
+          path: '/agora-call/incoming',
+          name: 'agora-incoming-call',
+          builder: (context, state) => const agora_incoming.IncomingCallScreen(),
+        ),
+
+        GoRoute(
+          path: '/agora-call/active',
+          name: 'agora-active-call',
+          builder: (context, state) => const ActiveCallScreen(),
+        ),
+
         GoRoute(
           path: loginPath,
           name: 'login',
@@ -197,8 +234,9 @@ class AppRouter {
     final isOnCallScreen = currentLocation.startsWith('/call/');
     final isOnWaitingCallScreen = currentLocation.startsWith('/waiting-call/');
     final isOnIncomingCallScreen = currentLocation == '/incoming-call';
+    final isOnAgoraCallScreen = currentLocation.startsWith('/agora-call/');
 
-    if (isOnCallScreen || isOnWaitingCallScreen || isOnIncomingCallScreen) {
+    if (isOnCallScreen || isOnWaitingCallScreen || isOnIncomingCallScreen || isOnAgoraCallScreen) {
       debugPrint('🔐 [AUTH REDIRECT] On call screen - BLOCKING auth redirect');
       return null; // Never redirect away from call screens
     }
@@ -218,6 +256,52 @@ class AppRouter {
       return '/';
     }
 
+    return null;
+  }
+
+  /// Handle Agora incoming call redirect logic
+  static String? _handleAgoraIncomingCallRedirect(
+    WidgetRef ref,
+    GoRouterState state,
+    AgoraCallRouterNotifier notifier,
+  ) {
+    final callState = ref.read(callStateProvider);
+    final currentLocation = state.matchedLocation;
+
+    // Extract call entity from AsyncValue using switch expression
+    final call = switch (callState) {
+      AsyncData(:final value) => value,
+      _ => null,
+    };
+
+    debugPrint('📞 [AGORA CALL REDIRECT] Current call: ${call?.id ?? 'NULL'}');
+    debugPrint('📞 [AGORA CALL REDIRECT] Call status: ${call?.status.name ?? 'NULL'}');
+    debugPrint('📞 [AGORA CALL REDIRECT] Current location: $currentLocation');
+    debugPrint('📞 [AGORA CALL REDIRECT] Is app in foreground: ${notifier.isAppInForeground}');
+
+    // IMPORTANT: If already on Agora call screens, NEVER redirect away
+    final isOnAgoraOutgoingScreen = currentLocation == '/agora-call/outgoing';
+    final isOnAgoraIncomingScreen = currentLocation == '/agora-call/incoming';
+    final isOnAgoraActiveScreen = currentLocation == '/agora-call/active';
+
+    if (isOnAgoraOutgoingScreen || isOnAgoraIncomingScreen || isOnAgoraActiveScreen) {
+      debugPrint("📞 [AGORA CALL REDIRECT] On Agora call screen - BLOCKING all redirects");
+      return null; // Block ANY redirect when on Agora call screens
+    }
+
+    // Only redirect TO agora-call/incoming if:
+    // 1. There's an incoming call (status is RINGING)
+    // 2. Not already on the incoming call screen
+    // 3. App is in foreground
+    if (call != null &&
+        call.status == agora_entity.CallStatus.ringing &&
+        !isOnAgoraIncomingScreen &&
+        notifier.isAppInForeground) {
+      debugPrint("📞 [AGORA CALL REDIRECT] Redirecting to /agora-call/incoming");
+      return '/agora-call/incoming';
+    }
+
+    debugPrint("📞 [AGORA CALL REDIRECT] No redirect needed");
     return null;
   }
 
@@ -245,9 +329,7 @@ class AppRouter {
     // 1. There's an incoming call invitation
     // 2. Not already on the incoming call screen
     // 3. App is in foreground
-    if (currentInvitation != null &&
-        !isOnIncomingCallScreen &&
-        notifier.isAppInForeground) {
+    if (currentInvitation != null && !isOnIncomingCallScreen && notifier.isAppInForeground) {
       debugPrint("📞 [INCOMING CALL REDIRECT] Redirecting to /incoming-call");
       return '/incoming-call';
     }
