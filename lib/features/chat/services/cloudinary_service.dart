@@ -1,6 +1,6 @@
 import 'dart:io';
+import 'package:chattrix_ui/core/utils/app_logger.dart';
 import 'package:cloudinary_public/cloudinary_public.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class CloudinaryService {
@@ -11,7 +11,7 @@ class CloudinaryService {
     final uploadPreset = dotenv.env['CLOUDINARY_UPLOAD_PRESET'];
 
     if (cloudName == null || uploadPreset == null) {
-      throw Exception('⚠️ Missing Cloudinary env vars. Check your .env file.');
+      throw Exception('Missing Cloudinary env vars. Check your .env file.');
     }
 
     _cloudinary = CloudinaryPublic(cloudName, uploadPreset, cache: false);
@@ -37,7 +37,7 @@ class CloudinaryService {
         bytes: response.data['bytes'],
       );
     } catch (e) {
-      debugPrint('❌ Failed to upload image: $e');
+      AppLogger.error('Failed to upload image', error: e, tag: 'Cloudinary');
       rethrow;
     }
   }
@@ -64,7 +64,7 @@ class CloudinaryService {
         bytes: response.data['bytes'],
       );
     } catch (e) {
-      debugPrint('❌ Failed to upload video: $e');
+      AppLogger.error('Failed to upload video', error: e, tag: 'Cloudinary');
       rethrow;
     }
   }
@@ -74,7 +74,7 @@ class CloudinaryService {
       final response = await _cloudinary.uploadFile(
         CloudinaryFile.fromFile(
           file.path,
-          resourceType: CloudinaryResourceType.Video, // Cloudinary dùng "video" cho audio
+          resourceType: CloudinaryResourceType.Video, // Cloudinary uses "video" for audio
           folder: 'chattrix/audio',
           publicId: fileName,
         ),
@@ -88,7 +88,7 @@ class CloudinaryService {
         bytes: response.data['bytes'],
       );
     } catch (e) {
-      debugPrint('❌ Failed to upload audio: $e');
+      AppLogger.error('Failed to upload audio', error: e, tag: 'Cloudinary');
       rethrow;
     }
   }
@@ -111,13 +111,13 @@ class CloudinaryService {
         bytes: response.data['bytes'],
       );
     } catch (e) {
-      debugPrint('❌ Failed to upload document: $e');
+      AppLogger.error('Failed to upload document', error: e, tag: 'Cloudinary');
       rethrow;
     }
   }
 
   Future<void> deleteFile(String publicId, CloudinaryResourceType resourceType) async {
-    throw UnimplementedError('⚠️ File deletion requires API secret. Implement this in your backend.');
+    throw UnimplementedError('File deletion requires API secret. Implement this in your backend.');
   }
 }
 

@@ -1,9 +1,9 @@
 import 'dart:async';
 import 'dart:io';
+import 'package:chattrix_ui/core/utils/app_logger.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:record/record.dart';
-import 'package:flutter/foundation.dart';
 
 class VoiceRecorderService {
   final AudioRecorder _recorder = AudioRecorder();
@@ -28,12 +28,12 @@ class VoiceRecorderService {
     try {
       final hasPermission = await requestPermission();
       if (!hasPermission) {
-        debugPrint('❌ Microphone permission denied.');
+        AppLogger.warning('Microphone permission denied', tag: 'VoiceRecorder');
         return null;
       }
 
       if (await _recorder.isRecording()) {
-        debugPrint('⚠️ Recorder is already active.');
+        AppLogger.warning('Recorder is already active', tag: 'VoiceRecorder');
         return null;
       }
 
@@ -50,10 +50,10 @@ class VoiceRecorderService {
       _recordingStartTime = DateTime.now();
       _startDurationTimer();
 
-      debugPrint('🎙️ Recording started → $path');
+      AppLogger.info('Recording started → $path', tag: 'VoiceRecorder');
       return path;
     } catch (e, stack) {
-      debugPrint('❌ startRecording error: $e\n$stack');
+      AppLogger.error('startRecording error', error: e, stackTrace: stack, tag: 'VoiceRecorder');
       return null;
     }
   }
@@ -61,7 +61,7 @@ class VoiceRecorderService {
   Future<File?> stopRecording() async {
     try {
       if (!await _recorder.isRecording()) {
-        debugPrint('⚠️ stopRecording called but no active recording.');
+        AppLogger.warning('stopRecording called but no active recording', tag: 'VoiceRecorder');
         return null;
       }
 
@@ -69,24 +69,24 @@ class VoiceRecorderService {
       _stopDurationTimer();
 
       if (path == null) {
-        debugPrint('⚠️ Recorder stopped but path is null.');
+        AppLogger.warning('Recorder stopped but path is null', tag: 'VoiceRecorder');
         return null;
       }
 
       final file = File(path);
       if (!await file.exists()) {
-        debugPrint('⚠️ Recorded file not found at $path.');
+        AppLogger.warning('Recorded file not found at $path', tag: 'VoiceRecorder');
         return null;
       }
 
-      debugPrint('✅ Recording saved: $path');
+      AppLogger.success('Recording saved: $path', tag: 'VoiceRecorder');
 
       _currentRecordingPath = null;
       _recordingStartTime = null;
 
       return file;
     } catch (e, stack) {
-      debugPrint('❌ stopRecording error: $e\n$stack');
+      AppLogger.error('stopRecording error', error: e, stackTrace: stack, tag: 'VoiceRecorder');
       return null;
     }
   }
@@ -103,14 +103,14 @@ class VoiceRecorderService {
         final file = File(_currentRecordingPath!);
         if (await file.exists()) {
           await file.delete();
-          debugPrint('🗑️ Recording cancelled and deleted.');
+          AppLogger.info('Recording cancelled and deleted', tag: 'VoiceRecorder');
         }
       }
 
       _currentRecordingPath = null;
       _recordingStartTime = null;
     } catch (e, stack) {
-      debugPrint('❌ cancelRecording error: $e\n$stack');
+      AppLogger.error('cancelRecording error', error: e, stackTrace: stack, tag: 'VoiceRecorder');
     }
   }
 
@@ -119,10 +119,10 @@ class VoiceRecorderService {
       if (await _recorder.isRecording()) {
         await _recorder.pause();
         _stopDurationTimer();
-        debugPrint('⏸️ Recording paused.');
+        AppLogger.debug('Recording paused', tag: 'VoiceRecorder');
       }
     } catch (e, stack) {
-      debugPrint('❌ pauseRecording error: $e\n$stack');
+      AppLogger.error('pauseRecording error', error: e, stackTrace: stack, tag: 'VoiceRecorder');
     }
   }
 
@@ -131,10 +131,10 @@ class VoiceRecorderService {
       if (await _recorder.isPaused()) {
         await _recorder.resume();
         _startDurationTimer();
-        debugPrint('▶️ Recording resumed.');
+        AppLogger.debug('Recording resumed', tag: 'VoiceRecorder');
       }
     } catch (e, stack) {
-      debugPrint('❌ resumeRecording error: $e\n$stack');
+      AppLogger.error('resumeRecording error', error: e, stackTrace: stack, tag: 'VoiceRecorder');
     }
   }
 

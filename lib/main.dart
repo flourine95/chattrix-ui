@@ -6,7 +6,7 @@ import 'core/router/app_router.dart';
 import 'core/theme/app_theme.dart';
 import 'core/toast/toast_overlay.dart';
 import 'features/call/presentation/state/call_notifier.dart';
-import 'features/chat/presentation/providers/chat_websocket_provider.dart';
+import 'features/chat/presentation/providers/chat_websocket_provider_new.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

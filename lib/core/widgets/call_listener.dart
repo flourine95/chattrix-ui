@@ -1,7 +1,8 @@
 import 'package:chattrix_ui/features/call/presentation/state/call_notifier.dart';
-import 'package:chattrix_ui/features/chat/presentation/providers/chat_websocket_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+
+import '../../features/chat/presentation/providers/chat_websocket_provider_new.dart';
 
 /// Wrapper widget that initializes call-related services
 /// Navigation is handled by router redirect based on call state

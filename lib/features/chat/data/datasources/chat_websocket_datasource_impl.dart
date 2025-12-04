@@ -34,8 +34,6 @@ class _ChatWebSocketResponse {
 class ChatWebSocketDataSourceImpl implements ChatWebSocketDataSource {
   final WebSocketConnectionManager _connectionManager;
 
-  String? _currentToken;
-
   // Stream controllers for different message types
   final _messageController = StreamController<Message>.broadcast();
   final _typingController = StreamController<TypingIndicator>.broadcast();
@@ -52,14 +50,12 @@ class ChatWebSocketDataSourceImpl implements ChatWebSocketDataSource {
 
   @override
   Future<void> connect(String accessToken) async {
-    _currentToken = accessToken;
     final url = ApiConstants.chatWebSocketWithToken(accessToken);
     await _connectionManager.connect(url);
   }
 
   @override
   Future<void> disconnect() async {
-    _currentToken = null;
     await _connectionManager.disconnect();
   }
 

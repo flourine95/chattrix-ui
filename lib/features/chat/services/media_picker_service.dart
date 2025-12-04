@@ -1,6 +1,6 @@
 import 'dart:io';
+import 'package:chattrix_ui/core/utils/app_logger.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:flutter/foundation.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -127,7 +127,7 @@ class MediaPickerService {
         final file = result.files.first;
         final path = file.path;
         if (path != null) {
-          debugPrint('📄 Document picked: $path (${file.name})');
+          AppLogger.debug('Document picked: $path (${file.name})', tag: 'MediaPicker');
           return PickedFile(file: File(path), name: file.name, size: file.size, extension: file.extension);
         }
       }
