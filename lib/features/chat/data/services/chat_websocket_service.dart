@@ -65,6 +65,7 @@ class ChatWebSocketService {
   /// Connect to WebSocket
   Future<void> connect(String accessToken) async {
     if (_channel != null) {
+      print('🔌 [WebSocket] Already connected, skipping...');
       return;
     }
 
@@ -73,10 +74,12 @@ class ChatWebSocketService {
       _isManualDisconnect = false;
 
       final wsUrl = ApiConstants.chatWebSocketWithToken(accessToken);
+      print('🔌 [WebSocket] Connecting to: $wsUrl');
 
       _channel = WebSocketChannel.connect(Uri.parse(wsUrl));
 
       _connectionController.add(true);
+      print('🔌 [WebSocket] Connection established successfully');
 
       // Start heartbeat timer
       _startHeartbeat();
@@ -87,14 +90,17 @@ class ChatWebSocketService {
           _handleMessage(message);
         },
         onError: (error, stackTrace) {
+          print('🔌 [WebSocket] Error: $error');
           _handleDisconnect();
         },
         onDone: () {
+          print('🔌 [WebSocket] Connection closed');
           _handleDisconnect();
         },
         cancelOnError: false,
       );
     } catch (e) {
+      print('🔌 [WebSocket] Connection failed: $e');
       _connectionController.add(false);
       _channel = null;
       _scheduleReconnect();
@@ -212,6 +218,10 @@ class ChatWebSocketService {
       final data = jsonDecode(messageString) as Map<String, dynamic>;
 
       final type = data['type'] as String?;
+
+      // Log incoming message
+      print('🔌 [WebSocket] Received message type: $type');
+
       if (type == null) {
         // Server might be sending message directly without wrapper
         // Parse in background isolate
@@ -222,6 +232,7 @@ class ChatWebSocketService {
 
       // Emit raw message for custom handlers (like call signaling)
       // This must happen BEFORE checking payload to ensure call messages are received
+      print('🔌 [WebSocket] Emitting raw message to handlers');
       _rawMessageController.add(data);
 
       // Backend sends chat messages with 'payload' field
@@ -230,6 +241,7 @@ class ChatWebSocketService {
       final payload = data['payload'] ?? data['data'];
       if (payload == null) {
         // Message has type but no payload/data - might be a control message
+        print('🔌 [WebSocket] Message has no payload/data');
         return;
       }
 

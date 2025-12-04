@@ -1,4 +1,6 @@
+
 import 'dart:developer' as developer;
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/scheduler.dart';
 
@@ -10,7 +12,7 @@ import 'package:flutter/scheduler.dart';
 /// - Frame timing measurements
 class PerformanceMonitor {
   static const String _tag = 'PerformanceMonitor';
-  static const int _frameThresholdMs = 16; // 60 FPS = 16.67ms per frame
+  static const int _frameThresholdMs = 0; // 60 FPS = 16.67ms per frame
 
   /// Measure and log execution time of an operation
   /// Logs a warning if execution exceeds 16ms
@@ -113,23 +115,19 @@ class PerformanceMonitor {
 
   /// Log execution time with appropriate level
   static void _logExecutionTime(String operationName, int durationMs, {Object? error}) {
+    // Nếu bạn muốn check kDebugMode thì giữ dòng này, không thì bỏ đi cũng được
     if (!kDebugMode) return;
 
-    // Only log if exceeds threshold or has error
+    // Logic lọc: Vì bạn đang test nên để > -1 để in tất cả (hoặc > 0)
     if (durationMs > _frameThresholdMs || error != null) {
       final message = error != null
           ? '$operationName took ${durationMs}ms (ERROR: $error)'
-          : '$operationName took ${durationMs}ms (exceeds 16ms threshold)';
+          : '$operationName took ${durationMs}ms'; // Bỏ đoạn text warning đi cho gọn
 
-      developer.log(
-        message,
-        name: _tag,
-        level: 900, // WARNING level
-        error: error,
-      );
+      // SỬA Ở ĐÂY: Dùng debugPrint để hiện lên Terminal
+      debugPrint('[$_tag] $message');
     }
-  }
-}
+  }}
 
 /// Internal class for observing frame timings
 class _FrameTimingObserver {

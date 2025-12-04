@@ -52,7 +52,7 @@ class ChatViewPage extends HookConsumerWidget {
     final me = ref.watch(currentUserProvider);
     final messagesAsync = ref.watch(messagesProvider(chatId));
     final wsConnection = ref.watch(webSocketConnectionProvider);
-    final wsService = ref.watch(chatWebSocketServiceProvider);
+    final wsDataSource = ref.watch(chatWebSocketDataSourceProvider);
 
     // Get conversation to show user status
     final conversationsAsync = ref.watch(conversationsProvider);
@@ -138,7 +138,7 @@ class ChatViewPage extends HookConsumerWidget {
 
       // Send via WebSocket if connected, otherwise use HTTP
       if (wsConnection.isConnected) {
-        wsService.sendMessage(chatId, text, replyToMessageId: replyId);
+        wsDataSource.sendMessage(conversationId: chatId, content: text, replyToMessageId: replyId);
         // WebSocket will broadcast the message back, triggering auto-refresh via MessagesNotifier
       } else {
         // Fallback to HTTP if WebSocket is not connected

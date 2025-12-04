@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:chattrix_ui/features/chat/domain/entities/conversation.dart';
 import 'package:chattrix_ui/features/chat/presentation/providers/chat_usecase_provider.dart';
-import 'package:chattrix_ui/features/chat/presentation/providers/chat_websocket_provider.dart';
+import 'package:chattrix_ui/features/chat/presentation/providers/chat_websocket_provider_new.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'conversations_notifier.g.dart';
@@ -17,20 +17,20 @@ class ConversationsNotifier extends _$ConversationsNotifier {
   FutureOr<List<Conversation>> build() async {
     ref.keepAlive();
 
-    final wsService = ref.watch(chatWebSocketServiceProvider);
+    final wsDataSource = ref.watch(chatWebSocketDataSourceProvider);
 
     // Listen to WebSocket conversation updates for event-driven updates
-    final conversationSub = wsService.conversationUpdateStream.listen((_) {
+    final conversationSub = wsDataSource.conversationUpdateStream.listen((_) {
       refresh();
     });
 
     // Listen to WebSocket messages for event-driven updates
-    final messageSub = wsService.messageStream.listen((_) {
+    final messageSub = wsDataSource.messageStream.listen((_) {
       refresh();
     });
 
     // Listen to WebSocket connection state to toggle polling
-    _connectionSubscription = wsService.connectionStream.listen((isConnected) {
+    _connectionSubscription = wsDataSource.connectionStream.listen((isConnected) {
       if (isConnected) {
         // WebSocket connected - disable polling
         _stopPolling();
@@ -41,7 +41,7 @@ class ConversationsNotifier extends _$ConversationsNotifier {
     });
 
     // Check initial connection state
-    if (!wsService.isConnected) {
+    if (!wsDataSource.isConnected) {
       _startPolling();
     }
 

@@ -5,6 +5,8 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'core/router/app_router.dart';
 import 'core/theme/app_theme.dart';
 import 'core/toast/toast_overlay.dart';
+import 'features/call/presentation/state/call_notifier.dart';
+import 'features/chat/presentation/providers/chat_websocket_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -17,6 +19,10 @@ class MyApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // Initialize call listener (WebSocket & call state)
+    ref.watch(webSocketConnectionProvider);
+    ref.watch(callProvider);
+
     return MaterialApp.router(
       title: 'Chattrix',
       debugShowCheckedModeBanner: false,
@@ -24,7 +30,9 @@ class MyApp extends ConsumerWidget {
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
       themeMode: ThemeMode.light,
-      builder: (context, child) => ToastOverlay(child: child ?? const SizedBox.shrink()),
+      builder: (context, child) => ToastOverlay(
+        child: child ?? const SizedBox.shrink(),
+      ),
       routerConfig: AppRouter.router(ref),
     );
   }

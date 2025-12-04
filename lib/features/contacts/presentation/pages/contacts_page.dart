@@ -1,3 +1,7 @@
+import 'package:chattrix_ui/features/auth/presentation/providers/auth_providers.dart';
+import 'package:chattrix_ui/features/call/domain/entities/call_type.dart';
+import 'package:chattrix_ui/features/call/presentation/pages/call_page.dart';
+import 'package:chattrix_ui/features/call/presentation/state/call_notifier.dart';
 import 'package:chattrix_ui/features/contacts/presentation/pages/friend_requests_page.dart';
 import 'package:chattrix_ui/features/contacts/presentation/pages/send_friend_request_page.dart';
 import 'package:chattrix_ui/features/contacts/presentation/providers/contact_providers.dart';
@@ -137,6 +141,62 @@ class _ContactsPageState extends ConsumerState<ContactsPage> {
                     trailing: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
+                        // Audio call button
+                        IconButton(
+                          icon: const Icon(Icons.call),
+                          onPressed: () {
+                            // Prevent self-calling
+                            final currentUser = ref.read(currentUserProvider);
+                            if (currentUser?.id == contact.userId) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text('Cannot call yourself'),
+                                  backgroundColor: Colors.red,
+                                  duration: Duration(seconds: 2),
+                                ),
+                              );
+                              return;
+                            }
+
+                            ref.read(callProvider.notifier).initiateCall(
+                              contact.userId, // ✅ Use userId, not id
+                              CallType.audio,
+                            );
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (_) => const CallPage()),
+                            );
+                          },
+                          tooltip: 'Audio Call',
+                        ),
+                        // Video call button
+                        IconButton(
+                          icon: const Icon(Icons.videocam),
+                          onPressed: () {
+                            // Prevent self-calling
+                            final currentUser = ref.read(currentUserProvider);
+                            if (currentUser?.id == contact.userId) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text('Cannot call yourself'),
+                                  backgroundColor: Colors.red,
+                                  duration: Duration(seconds: 2),
+                                ),
+                              );
+                              return;
+                            }
+
+                            ref.read(callProvider.notifier).initiateCall(
+                              contact.userId, // ✅ Use userId, not id
+                              CallType.video,
+                            );
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (_) => const CallPage()),
+                            );
+                          },
+                          tooltip: 'Video Call',
+                        ),
                         // Chat button
                         IconButton(
                           icon: const Icon(Icons.chat),

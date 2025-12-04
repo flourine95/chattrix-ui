@@ -13,10 +13,19 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'auth_repository_provider.g.dart';
 
-/// Secure storage provider - singleton
 @Riverpod(keepAlive: true)
 FlutterSecureStorage secureStorage(Ref ref) {
-  return const FlutterSecureStorage();
+  return const FlutterSecureStorage(
+    aOptions: AndroidOptions(),
+
+    webOptions: WebOptions(
+      dbName: 'ChattrixDB',
+    ),
+
+    wOptions: WindowsOptions(
+      useBackwardCompatibility: false,
+    ),
+  );
 }
 
 /// Token cache service provider - singleton
@@ -31,25 +40,21 @@ Dio dio(Ref ref) {
   final dio = DioClient.createDio();
   final tokenCache = ref.watch(tokenCacheServiceProvider);
 
-  // Add auth interceptor for automatic token management
   dio.interceptors.add(AuthInterceptor(dio: dio, tokenCacheService: tokenCache));
 
   return dio;
 }
 
-/// Auth remote data source provider
 @Riverpod(keepAlive: true)
 AuthRemoteDataSource authRemoteDataSource(Ref ref) {
   return AuthRemoteDataSourceImpl(dio: ref.watch(dioProvider));
 }
 
-/// Auth local data source provider
 @Riverpod(keepAlive: true)
 AuthLocalDataSource authLocalDataSource(Ref ref) {
   return AuthLocalDataSourceImpl(tokenCacheService: ref.watch(tokenCacheServiceProvider));
 }
 
-/// Main auth repository provider
 @Riverpod(keepAlive: true)
 AuthRepository authRepository(Ref ref) {
   return AuthRepositoryImpl(

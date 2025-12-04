@@ -1,4 +1,4 @@
-import 'package:flutter/foundation.dart' show kDebugMode, kIsWeb;
+import 'package:flutter/foundation.dart' show kDebugMode, kIsWeb, defaultTargetPlatform, TargetPlatform;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class ApiConstants {
@@ -11,6 +11,24 @@ class ApiConstants {
   static String get _wsPath => dotenv.env['WS_PATH'] ?? '';
 
   static const String _androidEmulatorHost = '10.0.2.2';
+
+  /// Get the appropriate host based on platform
+  /// - Web: Use API_HOST from .env
+  /// - Android Emulator: Use 10.0.2.2 (localhost from emulator perspective)
+  /// - Other platforms (iOS, Windows, Mac, Linux): Use API_HOST from .env
+  static String get _effectiveHost {
+    if (kIsWeb) {
+      return _host;
+    }
+
+    // Only use emulator host for Android
+    if (defaultTargetPlatform == TargetPlatform.android) {
+      return _androidEmulatorHost;
+    }
+
+    // For iOS, Windows, macOS, Linux: use configured host
+    return _host;
+  }
 
   /// Determines if secure protocols (HTTPS/WSS) should be used
   ///
@@ -30,22 +48,36 @@ class ApiConstants {
     }
 
     // In debug mode, use secure protocols for non-localhost hosts
-    final host = kIsWeb ? _host : _androidEmulatorHost;
+    final host = _effectiveHost;
     final isLocalhost = host == 'localhost' || host == '127.0.0.1' || host == '10.0.2.2' || host == '0.0.0.0';
 
     return !isLocalhost;
   }
 
   static String get _baseUrl {
-    final host = kIsWeb ? _host : _androidEmulatorHost;
+    final host = _effectiveHost;
     final protocol = _useSecureProtocol ? 'https' : 'http';
-    return '$protocol://$host:$_port$_apiPath';
+    final url = '$protocol://$host:$_port$_apiPath';
+
+    if (kDebugMode) {
+      print('🌐 [ApiConstants] Platform: ${defaultTargetPlatform.name}');
+      print('🌐 [ApiConstants] Effective Host: $host');
+      print('🌐 [ApiConstants] HTTP Base URL: $url');
+    }
+
+    return url;
   }
 
   static String get _wsBaseUrl {
-    final host = kIsWeb ? _host : _androidEmulatorHost;
+    final host = _effectiveHost;
     final protocol = _useSecureProtocol ? 'wss' : 'ws';
-    return '$protocol://$host:$_port$_wsPath';
+    final url = '$protocol://$host:$_port$_wsPath';
+
+    if (kDebugMode) {
+      print('🌐 [ApiConstants] WebSocket Base URL: $url');
+    }
+
+    return url;
   }
 
   static const String _v1 = 'v1';
@@ -130,6 +162,15 @@ class ApiConstants {
   static String updateContactNickname(int contactId) => '$_baseUrl/$_v1/contacts/$contactId/nickname';
 
   static String deleteContact(int contactId) => '$_baseUrl/$_v1/contacts/$contactId';
+
+  // Call endpoints
+  static String get initiateCall => '$_baseUrl/$_v1/calls/initiate';
+
+  static String acceptCall(String callId) => '$_baseUrl/$_v1/calls/$callId/accept';
+
+  static String rejectCall(String callId) => '$_baseUrl/$_v1/calls/$callId/reject';
+
+  static String endCall(String callId) => '$_baseUrl/$_v1/calls/$callId/end';
 
   static String get chatWebSocket => '$_wsBaseUrl/ws/chat';
 
