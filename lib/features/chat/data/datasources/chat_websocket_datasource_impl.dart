@@ -24,9 +24,15 @@ class _ChatWebSocketResponse {
   static const String userStatus = 'user.status';
   static const String conversationUpdate = 'conversation.update';
   static const String heartbeatAck = 'heartbeat.ack';
+
+  // Call events
+  static const String callIncoming = 'call.incoming';
   static const String callInvitation = 'call.invitation';
+  static const String callAccepted = 'call.accepted';
+  static const String callRejected = 'call.rejected';
   static const String callResponse = 'call.response';
   static const String callEnded = 'call.ended';
+  static const String callTimeout = 'call.timeout';
 }
 
 /// Implementation of ChatWebSocketDataSource
@@ -157,10 +163,14 @@ class ChatWebSocketDataSourceImpl implements ChatWebSocketDataSource {
           // Heartbeat acknowledged - no action needed
           break;
 
+        case _ChatWebSocketResponse.callIncoming:
         case _ChatWebSocketResponse.callInvitation:
+        case _ChatWebSocketResponse.callAccepted:
+        case _ChatWebSocketResponse.callRejected:
         case _ChatWebSocketResponse.callResponse:
         case _ChatWebSocketResponse.callEnded:
-          // These are handled through rawMessageStream by CallSignalingService
+        case _ChatWebSocketResponse.callTimeout:
+          // These are handled through rawMessageStream by CallWebSocketHandler
           break;
 
         default:

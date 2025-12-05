@@ -35,6 +35,8 @@ class CallState with _$CallState {
     required bool isSpeakerEnabled,
     required bool isFrontCamera,
     int? remoteUid,
+    @Default(false) bool remoteIsMuted,
+    @Default(true) bool remoteIsVideoEnabled,
   }) = _Connected;
 
   const factory CallState.ended({

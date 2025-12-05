@@ -2,6 +2,8 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:chattrix_ui/features/auth/presentation/providers/auth_providers.dart';
+import 'package:chattrix_ui/features/call/domain/entities/call_type.dart';
+import 'package:chattrix_ui/features/call/presentation/state/call_notifier.dart';
 import 'package:chattrix_ui/features/chat/domain/entities/message.dart';
 import 'package:chattrix_ui/features/chat/presentation/providers/chat_providers.dart';
 import 'package:chattrix_ui/features/chat/presentation/utils/conversation_utils.dart';
@@ -290,6 +292,42 @@ class ChatViewPage extends HookConsumerWidget {
           ),
         ),
         actions: [
+          // Voice call button
+          IconButton(
+            icon: const Icon(Icons.phone),
+            tooltip: 'Gọi thoại',
+            onPressed: () {
+              // Initiate voice call
+              if (conversation != null && conversation.type.toUpperCase() == 'DIRECT') {
+                final otherUser = ConversationUtils.getOtherUser(conversation, me);
+                if (otherUser != null) {
+                  ref.read(callProvider.notifier).initiateCall(
+                    otherUser.id,
+                    CallType.audio,
+                  );
+                  context.push('/call');
+                }
+              }
+            },
+          ),
+          // Video call button
+          IconButton(
+            icon: const Icon(Icons.videocam),
+            tooltip: 'Gọi video',
+            onPressed: () {
+              // Initiate video call
+              if (conversation != null && conversation.type.toUpperCase() == 'DIRECT') {
+                final otherUser = ConversationUtils.getOtherUser(conversation, me);
+                if (otherUser != null) {
+                  ref.read(callProvider.notifier).initiateCall(
+                    otherUser.id,
+                    CallType.video,
+                  );
+                  context.push('/call');
+                }
+              }
+            },
+          ),
           IconButton(
             icon: const Icon(Icons.info_outline),
             onPressed: () {

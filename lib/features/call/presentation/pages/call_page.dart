@@ -3,11 +3,12 @@ import 'package:chattrix_ui/features/call/domain/entities/call_type.dart';
 import 'package:chattrix_ui/features/call/presentation/providers/call_service_provider.dart';
 import 'package:chattrix_ui/features/call/presentation/state/call_notifier.dart';
 import 'package:chattrix_ui/features/call/presentation/state/call_state.dart';
-import 'package:chattrix_ui/features/call/presentation/widgets/call_control_button.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-/// Page for active call - shows video/audio call interface
+import '../widgets/call_controls_panel.dart';
+
 class CallPage extends ConsumerWidget {
   const CallPage({super.key});
 
@@ -16,385 +17,202 @@ class CallPage extends ConsumerWidget {
     final callState = ref.watch(callProvider);
 
     return Scaffold(
-      backgroundColor: Colors.black,
-      body: SafeArea(
-        child: callState.when(
-          idle: () => const Center(
-            child: Text(
-              'No active call',
-              style: TextStyle(color: Colors.white),
-            ),
-          ),
-          initiating: (calleeId, callType) => const Center(
-            child: Text(
-              'Initiating call...',
-              style: TextStyle(color: Colors.white),
-            ),
-          ),
-          ringing: (invitation) => const Center(
-            child: Text(
-              'Ringing...',
-              style: TextStyle(color: Colors.white),
-            ),
-          ),
-          connecting: (connection, callType, isOutgoing) => _buildConnectingView(
-            userName: isOutgoing
-                ? connection.callInfo.calleeName
-                : connection.callInfo.callerName,
-            userAvatar: isOutgoing
-                ? connection.callInfo.calleeAvatar
-                : connection.callInfo.callerAvatar,
-            callType: callType,
-            isOutgoing: isOutgoing,
-            ref: ref,
-          ),
-          connected: (connection, callType, isOutgoing, isMuted, isVideoEnabled,
-                  isSpeakerEnabled, isFrontCamera, remoteUid) =>
-              _buildConnectedView(
-            context,
-            ref,
-            userName: isOutgoing
-                ? connection.callInfo.calleeName
-                : connection.callInfo.callerName,
-            userAvatar: isOutgoing
-                ? connection.callInfo.calleeAvatar
-                : connection.callInfo.callerAvatar,
-            callType: callType,
-            isMuted: isMuted,
-            isVideoEnabled: isVideoEnabled,
-            isSpeakerEnabled: isSpeakerEnabled,
-            isFrontCamera: isFrontCamera,
-            remoteUid: remoteUid,
-          ),
-          ended: (reason) => const Center(
-            child: Text(
-              'Call ended',
-              style: TextStyle(color: Colors.white),
-            ),
-          ),
-          error: (message) => Center(
-            child: Text(
-              'Error: $message',
-              style: const TextStyle(color: Colors.red),
-            ),
-          ),
-        ),
+      backgroundColor: Colors.white, // Nền sáng
+      body: callState.when(
+        idle: () => const Center(child: SizedBox()),
+        initiating: (_, __) => const Center(child: CircularProgressIndicator()),
+        ringing: (_) => const Center(child: CircularProgressIndicator()),
+        connecting: (_, __, ___) => const Center(child: CircularProgressIndicator()),
+
+        // --- TRẠNG THÁI KẾT NỐI ---
+        connected:
+            (
+              connection,
+              callType,
+              isOutgoing,
+              isMuted,
+              isVideoEnabled,
+              isSpeakerEnabled,
+              isFrontCamera,
+              remoteUid,
+              remoteIsMuted,
+              remoteIsVideoEnabled,
+            ) {
+              final remoteName = isOutgoing ? connection.callInfo.calleeName : connection.callInfo.callerName;
+              final remoteAvatar = isOutgoing ? connection.callInfo.calleeAvatar : connection.callInfo.callerAvatar;
+              final isVideoCall = callType == CallType.video;
+
+              return Stack(
+                children: [
+                  // 1. LAYER HIỂN THỊ (Video hoặc Avatar)
+                  if (isVideoCall)
+                    // Nếu là video call: Hiển thị Video Remote nếu họ bật cam, Avatar nếu tắt
+                    Positioned.fill(
+                      child: remoteIsVideoEnabled
+                          ? _buildVideoContent(ref, remoteUid, remoteName, remoteAvatar)
+                          : _buildAudioContent(remoteName, remoteAvatar),
+                    )
+                  else
+                    // Nếu là Audio call: Hiển thị nền sáng + Avatar
+                    Positioned.fill(child: _buildAudioContent(remoteName, remoteAvatar)),
+
+                  // 2. LAYER HEADER (Tên + Thời gian + Mute Indicator)
+                  Positioned(
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    child: SafeArea(
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        alignment: Alignment.center,
+                        child: Column(
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  remoteName,
+                                  style: GoogleFonts.inter(
+                                    // Nếu là video call thì text trắng có shadow, audio call thì text đen
+                                    color: isVideoCall ? Colors.white : Colors.black87,
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.w600,
+                                    shadows: isVideoCall ? [const Shadow(blurRadius: 4, color: Colors.black54)] : null,
+                                  ),
+                                ),
+                                if (remoteIsMuted) ...[
+                                  const SizedBox(width: 8),
+                                  Container(
+                                    padding: const EdgeInsets.all(4),
+                                    decoration: BoxDecoration(
+                                      color: Colors.red.withOpacity(0.9),
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    child: const Icon(Icons.mic_off, size: 16, color: Colors.white),
+                                  ),
+                                ],
+                              ],
+                            ),
+                            const SizedBox(height: 4),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                              decoration: BoxDecoration(
+                                color: isVideoCall ? Colors.black26 : Colors.grey[200],
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                              child: Text(
+                                "00:00", // Cần thêm logic timer vào đây
+                                style: GoogleFonts.inter(
+                                  color: isVideoCall ? Colors.white : Colors.black54,
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  // 3. LAYER LOCAL VIDEO (Góc màn hình) - Chỉ hiện khi là Video Call và Camera CỦA MÌNH đang bật
+                  if (isVideoCall)
+                    Positioned(
+                      top: 100,
+                      right: 16,
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(16),
+                        child: SizedBox(
+                          width: 100,
+                          height: 150,
+                          child: isVideoEnabled
+                              ? const _LocalVideoPreview()
+                              : Container(
+                                  // Phản hồi khi tắt camera của mình
+                                  color: Colors.grey[300],
+                                  child: const Icon(Icons.videocam_off, color: Colors.black54),
+                                ),
+                        ),
+                      ),
+                    ),
+
+                  // 4. LAYER CONTROLS (Bottom Sheet)
+                  Positioned(bottom: 0, left: 0, right: 0, child: CallControlsPanel(callType: callType)),
+                ],
+              );
+            },
+        ended: (reason) => Center(child: Text("Ended: $reason")),
+        error: (msg) => Center(child: Text(msg)),
       ),
     );
   }
 
-  Widget _buildConnectingView({
-    required String userName,
-    String? userAvatar,
-    required CallType callType,
-    required bool isOutgoing,
-    required WidgetRef ref,
-  }) {
-    return Stack(
-      children: [
-        Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              CircleAvatar(
+  // --- Helper Widgets ---
+
+  Widget _buildAudioContent(String name, String? avatar) {
+    return Container(
+      color: Colors.white,
+      child: Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(4),
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: Colors.white,
+                boxShadow: [BoxShadow(color: Colors.grey.withOpacity(0.1), blurRadius: 30, spreadRadius: 10)],
+              ),
+              child: CircleAvatar(
                 radius: 80,
-                backgroundColor: Colors.grey[800],
-                backgroundImage:
-                    userAvatar != null ? NetworkImage(userAvatar) : null,
-                child: userAvatar == null
+                backgroundColor: Colors.grey[100],
+                backgroundImage: avatar != null ? NetworkImage(avatar) : null,
+                child: avatar == null
                     ? Text(
-                        userName.substring(0, 1).toUpperCase(),
-                        style: const TextStyle(fontSize: 64),
+                        name.isNotEmpty ? name[0] : '?',
+                        style: GoogleFonts.inter(fontSize: 60, color: Colors.black38),
                       )
                     : null,
               ),
-              const SizedBox(height: 32),
-              Text(
-                userName,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 28,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 16),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const SizedBox(
-                    width: 20,
-                    height: 20,
-                    child: CircularProgressIndicator(
-                      color: Colors.white,
-                      strokeWidth: 2,
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Text(
-                    'Connecting...',
-                    style: TextStyle(
-                      color: Colors.grey[400],
-                      fontSize: 18,
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-        // End call button
-        Positioned(
-          bottom: 60,
-          left: 0,
-          right: 0,
-          child: Center(
-            child: GestureDetector(
-              onTap: () => ref.read(callProvider.notifier).endCall(),
-              child: Container(
-                width: 70,
-                height: 70,
-                decoration: const BoxDecoration(
-                  color: Colors.red,
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(
-                  Icons.call_end,
-                  color: Colors.white,
-                  size: 32,
-                ),
-              ),
             ),
-          ),
+          ],
         ),
-      ],
+      ),
     );
   }
 
-  Widget _buildConnectedView(
-    BuildContext context,
-    WidgetRef ref, {
-    required String userName,
-    String? userAvatar,
-    required CallType callType,
-    required bool isMuted,
-    required bool isVideoEnabled,
-    required bool isSpeakerEnabled,
-    required bool isFrontCamera,
-    int? remoteUid,
-  }) {
-    final isVideoCall = callType == CallType.video;
+  Widget _buildVideoContent(WidgetRef ref, int? remoteUid, String name, String? avatar) {
     final agoraService = ref.watch(agoraServiceProvider);
 
-    return Stack(
-      children: [
-        // Remote video or avatar
-        if (isVideoCall && remoteUid != null && isVideoEnabled)
-          _buildRemoteVideo(agoraService, remoteUid)
-        else
-          _buildAvatarView(userName, userAvatar),
-
-        // Local video preview (for video calls)
-        if (isVideoCall && isVideoEnabled)
-          Positioned(
-            top: 40,
-            right: 20,
-            child: _buildLocalVideoPreview(agoraService),
-          ),
-
-        // User info overlay
-        Positioned(
-          top: 40,
-          left: 20,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                userName,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  shadows: [Shadow(blurRadius: 10, color: Colors.black)],
-                ),
-              ),
-              const SizedBox(height: 4),
-              Row(
-                children: [
-                  Icon(
-                    isVideoCall ? Icons.videocam : Icons.phone,
-                    color: Colors.grey[300],
-                    size: 16,
-                    shadows: const [Shadow(blurRadius: 10, color: Colors.black)],
-                  ),
-                  const SizedBox(width: 4),
-                  Text(
-                    isVideoCall ? 'Video Call' : 'Voice Call',
-                    style: TextStyle(
-                      color: Colors.grey[300],
-                      fontSize: 14,
-                      shadows: const [
-                        Shadow(blurRadius: 10, color: Colors.black)
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
+    // Logic: Nếu đã kết nối và có UID remote -> Hiện video
+    // (Lưu ý: Bạn cần thêm state check xem remote user có tắt cam không để hiện avatar thay thế)
+    if (remoteUid != null && agoraService.engine != null) {
+      return AgoraVideoView(
+        controller: VideoViewController.remote(
+          rtcEngine: agoraService.engine!,
+          canvas: VideoCanvas(uid: remoteUid),
+          connection: const RtcConnection(channelId: ''), // Điền channelId thực tế của bạn
         ),
+      );
+    }
 
-        // Controls at bottom
-        Positioned(
-          bottom: 40,
-          left: 0,
-          right: 0,
-          child: _buildControls(
-            ref: ref,
-            isMuted: isMuted,
-            isVideoEnabled: isVideoEnabled,
-            isSpeakerEnabled: isSpeakerEnabled,
-            isVideoCall: isVideoCall,
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildRemoteVideo(dynamic agoraService, int remoteUid) {
-    return SizedBox.expand(
-      child: agoraService.engine != null
-          ? AgoraVideoView(
-              controller: VideoViewController.remote(
-                rtcEngine: agoraService.engine!,
-                canvas: VideoCanvas(uid: remoteUid),
-                connection: const RtcConnection(channelId: ''),
-              ),
-            )
-          : const Center(child: CircularProgressIndicator()),
-    );
-  }
-
-  Widget _buildLocalVideoPreview(dynamic agoraService) {
+    // Fallback: Đang kết nối hoặc chưa có hình
     return Container(
-      width: 120,
-      height: 160,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.3), width: 2),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.5),
-            blurRadius: 15,
-            spreadRadius: 2,
-          ),
-        ],
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(10),
-        child: agoraService.engine != null
-            ? AgoraVideoView(
-                controller: VideoViewController(
-                  rtcEngine: agoraService.engine!,
-                  canvas: const VideoCanvas(uid: 0),
-                ),
-              )
-            : const Center(
-                child: CircularProgressIndicator(strokeWidth: 2),
-              ),
-      ),
-    );
-  }
-
-  Widget _buildAvatarView(String userName, String? userAvatar) {
-    return Center(
-      child: CircleAvatar(
-        radius: 80,
-        backgroundColor: Colors.grey[800],
-        backgroundImage: userAvatar != null ? NetworkImage(userAvatar) : null,
-        child: userAvatar == null
-            ? Text(
-                userName.substring(0, 1).toUpperCase(),
-                style: const TextStyle(fontSize: 64, color: Colors.white),
-              )
-            : null,
-      ),
-    );
-  }
-
-  Widget _buildControls({
-    required WidgetRef ref,
-    required bool isMuted,
-    required bool isVideoEnabled,
-    required bool isSpeakerEnabled,
-    required bool isVideoCall,
-  }) {
-    final notifier = ref.read(callProvider.notifier);
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: [
-          // Mute button
-          CallControlButton(
-            icon: isMuted ? Icons.mic_off : Icons.mic,
-            label: isMuted ? 'Unmute' : 'Mute',
-            onPressed: notifier.toggleMute,
-            isActive: isMuted,
-          ),
-
-          // Video button (only for video calls)
-          if (isVideoCall)
-            CallControlButton(
-              icon: isVideoEnabled ? Icons.videocam : Icons.videocam_off,
-              label: isVideoEnabled ? 'Stop' : 'Start',
-              onPressed: notifier.toggleVideo,
-              isActive: !isVideoEnabled,
-            ),
-
-          // End call button
-          GestureDetector(
-            onTap: notifier.endCall,
-            child: Container(
-              width: 65,
-              height: 65,
-              decoration: BoxDecoration(
-                color: Colors.red,
-                shape: BoxShape.circle,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.red.withValues(alpha: 0.5),
-                    blurRadius: 15,
-                    spreadRadius: 3,
-                  ),
-                ],
-              ),
-              child: const Icon(
-                Icons.call_end,
-                color: Colors.white,
-                size: 30,
-              ),
-            ),
-          ),
-
-          // Speaker button
-          CallControlButton(
-            icon: isSpeakerEnabled ? Icons.volume_up : Icons.volume_off,
-            label: isSpeakerEnabled ? 'Speaker' : 'Earpiece',
-            onPressed: notifier.toggleSpeaker,
-            isActive: isSpeakerEnabled,
-          ),
-
-          // Switch camera button (only for video calls)
-          if (isVideoCall)
-            CallControlButton(
-              icon: Icons.flip_camera_ios,
-              label: 'Flip',
-              onPressed: notifier.switchCamera,
-            ),
-        ],
-      ),
+      color: const Color(0xFF2C2C2E), // Nền tối khi chờ video
+      child: const Center(child: CircularProgressIndicator(color: Colors.white)),
     );
   }
 }
 
+class _LocalVideoPreview extends ConsumerWidget {
+  const _LocalVideoPreview();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final agoraService = ref.watch(agoraServiceProvider);
+    if (agoraService.engine == null) return const SizedBox();
+
+    return AgoraVideoView(
+      controller: VideoViewController(rtcEngine: agoraService.engine!, canvas: const VideoCanvas(uid: 0)),
+    );
+  }
+}

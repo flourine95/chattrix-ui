@@ -2,9 +2,9 @@ import 'package:chattrix_ui/features/call/domain/entities/call_type.dart';
 import 'package:chattrix_ui/features/call/presentation/state/call_notifier.dart';
 import 'package:chattrix_ui/features/call/presentation/state/call_state.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-/// Page displayed when initiating an outgoing call
 class OutgoingCallPage extends ConsumerWidget {
   const OutgoingCallPage({super.key});
 
@@ -13,156 +13,147 @@ class OutgoingCallPage extends ConsumerWidget {
     final callState = ref.watch(callProvider);
 
     return Scaffold(
-      backgroundColor: Colors.black,
-      body: SafeArea(
-        child: callState.when(
-          idle: () => const Center(
-            child: Text(
-              'Invalid call state',
-              style: TextStyle(color: Colors.white),
-            ),
-          ),
-          initiating: (calleeId, callType) => _buildInitiatingView(callType),
-          ringing: (invitation) => const SizedBox.shrink(),
-          connecting: (connection, callType, isOutgoing) {
-            if (isOutgoing) {
-              return _buildConnectingView(
-                connection.callInfo.calleeName,
-                connection.callInfo.calleeAvatar,
-                callType,
-                ref,
-              );
-            }
-            return const SizedBox.shrink();
-          },
-          connected: (connection, callType, isOutgoing, isMuted, isVideoEnabled,
-                  isSpeakerEnabled, isFrontCamera, remoteUid) =>
-              const SizedBox.shrink(),
-          ended: (reason) => const Center(
-            child: Text(
-              'Call ended',
-              style: TextStyle(color: Colors.white),
-            ),
-          ),
-          error: (message) => Center(
-            child: Text(
-              'Error: $message',
-              style: TextStyle(color: Colors.red),
-            ),
+      backgroundColor: Colors.white,
+      body: callState.when(
+        idle: () => const SizedBox(),
+        initiating: (_, callType) => _buildView(context, ref, "Connecting...", null, callType),
+        ringing: (_) => const SizedBox(),
+        connecting: (connection, callType, isOutgoing) {
+          if (isOutgoing) {
+            return _buildView(
+              context,
+              ref,
+              connection.callInfo.calleeName,
+              connection.callInfo.calleeAvatar,
+              callType,
+            );
+          }
+          return const SizedBox();
+        },
+        connected: (_, __, ___, ____, _____, ______, _______, ________, _________, __________) => const SizedBox(),
+        ended: (_) => const SizedBox(),
+        error: (msg) => Center(child: Text(msg)),
+      ),
+    );
+  }
+
+  Widget _buildView(
+      BuildContext context,
+      WidgetRef ref,
+      String name,
+      String? avatar,
+      CallType callType,
+      ) {
+    // 1. SizedBox.expand: Ép container chiếm toàn bộ màn hình
+    return SizedBox.expand(
+      child: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [Colors.white, Color(0xFFF5F7FA)],
           ),
         ),
-      ),
-    );
-  }
+        child: SafeArea(
+          // 2. SizedBox width infinity: Ép Column phải rộng bằng màn hình
+          child: SizedBox(
+            width: double.infinity,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center, // Căn giữa theo chiều dọc
+              crossAxisAlignment: CrossAxisAlignment.center, // QUAN TRỌNG: Căn giữa theo chiều ngang
+              children: [
+                const Spacer(flex: 1),
 
-  Widget _buildInitiatingView(CallType callType) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const CircularProgressIndicator(color: Colors.white),
-          const SizedBox(height: 24),
-          Text(
-            'Initiating ${callType == CallType.video ? 'video' : 'audio'} call...',
-            style: const TextStyle(color: Colors.white, fontSize: 18),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildConnectingView(
-    String calleeName,
-    String? calleeAvatar,
-    CallType callType,
-    WidgetRef ref,
-  ) {
-    return Stack(
-      children: [
-        // User avatar
-        Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              CircleAvatar(
-                radius: 80,
-                backgroundImage:
-                    calleeAvatar != null ? NetworkImage(calleeAvatar) : null,
-                child: calleeAvatar == null
-                    ? Text(
-                        calleeName.substring(0, 1).toUpperCase(),
-                        style: const TextStyle(fontSize: 64),
-                      )
-                    : null,
-              ),
-              const SizedBox(height: 32),
-              Text(
-                calleeName,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 28,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 16),
-              Text(
-                'Calling...',
-                style: TextStyle(
-                  color: Colors.grey[400],
-                  fontSize: 18,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    callType == CallType.video
-                        ? Icons.videocam
-                        : Icons.phone,
-                    color: Colors.grey[400],
-                    size: 20,
+                // Avatar
+                Container(
+                  padding: const EdgeInsets.all(4),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(color: Colors.blue.withOpacity(0.1), width: 1),
+                    color: Colors.white,
                   ),
-                  const SizedBox(width: 8),
-                  Text(
-                    callType == CallType.video ? 'Video Call' : 'Voice Call',
-                    style: TextStyle(
-                      color: Colors.grey[400],
-                      fontSize: 16,
+                  child: CircleAvatar(
+                    radius: 72,
+                    backgroundColor: Colors.grey[100],
+                    backgroundImage: avatar != null ? NetworkImage(avatar) : null,
+                    child: avatar == null
+                        ? Text(
+                      name.isNotEmpty ? name[0].toUpperCase() : '?',
+                      style: GoogleFonts.inter(fontSize: 60, color: Colors.black38),
+                    )
+                        : null,
+                  ),
+                ),
+                const SizedBox(height: 24),
+
+                // Name
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 32),
+                  child: Text(
+                    name,
+                    textAlign: TextAlign.center,
+                    style: GoogleFonts.inter(
+                      fontSize: 32,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black87,
                     ),
                   ),
-                ],
-              ),
-            ],
-          ),
-        ),
+                ),
+                const SizedBox(height: 12),
 
-        // Cancel button
-        Positioned(
-          bottom: 60,
-          left: 0,
-          right: 0,
-          child: Center(
-            child: GestureDetector(
-              onTap: () => ref.read(callProvider.notifier).endCall(),
-              child: Container(
-                width: 70,
-                height: 70,
-                decoration: const BoxDecoration(
-                  color: Colors.red,
-                  shape: BoxShape.circle,
+                // Status Text
+                Text(
+                  'Calling...',
+                  style: GoogleFonts.inter(
+                    fontSize: 16,
+                    color: Colors.black54,
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
-                child: const Icon(
-                  Icons.call_end,
-                  color: Colors.white,
-                  size: 32,
+
+                const Spacer(flex: 2),
+
+                // Cancel Button
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 60),
+                  child: Column(
+                    children: [
+                      GestureDetector(
+                        onTap: () => ref.read(callProvider.notifier).endCall(),
+                        child: Container(
+                          width: 72,
+                          height: 72,
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFFF3B30),
+                            shape: BoxShape.circle,
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.red.withOpacity(0.3),
+                                blurRadius: 15,
+                                offset: const Offset(0, 4),
+                              ),
+                            ],
+                          ),
+                          child: const Icon(Icons.call_end, color: Colors.white, size: 32),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      Text(
+                        "Cancel",
+                        style: GoogleFonts.inter(
+                          color: Colors.black54,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 14,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
+              ],
             ),
           ),
         ),
-      ],
+      ),
     );
   }
 }
-

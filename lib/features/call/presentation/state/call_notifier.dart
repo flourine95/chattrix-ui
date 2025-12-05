@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:agora_rtc_engine/agora_rtc_engine.dart';
 import 'package:chattrix_ui/core/errors/failures.dart';
 import 'package:chattrix_ui/core/toast/toast_controller.dart';
 import 'package:chattrix_ui/core/toast/toast_type.dart';
@@ -25,6 +26,8 @@ class CallNotifier extends _$CallNotifier {
   StreamSubscription? _callTimeoutSubscription;
   StreamSubscription? _userJoinedSubscription;
   StreamSubscription? _userOfflineSubscription;
+  StreamSubscription? _remoteVideoStateSubscription;
+  StreamSubscription? _remoteAudioStateSubscription;
 
   @override
   CallState build() {
@@ -55,6 +58,8 @@ class CallNotifier extends _$CallNotifier {
     // Listen to Agora events
     _userJoinedSubscription = agoraService.userJoinedStream.listen(_handleUserJoined);
     _userOfflineSubscription = agoraService.userOfflineStream.listen(_handleUserOffline);
+    _remoteVideoStateSubscription = agoraService.remoteVideoStateStream.listen(_handleRemoteVideoStateChanged);
+    _remoteAudioStateSubscription = agoraService.remoteAudioStateStream.listen(_handleRemoteAudioStateChanged);
 
     appLogger.i('📞 [CallNotifier] Listeners initialized successfully');
   }
@@ -67,6 +72,8 @@ class CallNotifier extends _$CallNotifier {
     _callTimeoutSubscription?.cancel();
     _userJoinedSubscription?.cancel();
     _userOfflineSubscription?.cancel();
+    _remoteVideoStateSubscription?.cancel();
+    _remoteAudioStateSubscription?.cancel();
     WakelockPlus.disable();
   }
 
@@ -90,15 +97,39 @@ class CallNotifier extends _$CallNotifier {
   }
 
   void _handleCallRejected(reject) {
-    appLogger.i('Call rejected: ${reject.callId}');
-    _endCallCleanup();
-    state = CallState.ended(reason: 'Call was rejected: ${reject.reason.name}');
+    appLogger.i('📞 [CallNotifier] Call rejected: ${reject.callId}, reason: ${reject.reason}');
+
+    // Chỉ xử lý reject khi đang ở state connecting (caller đang chờ callee)
+    state.whenOrNull(
+      connecting: (connection, callType, isOutgoing) {
+        if (connection.callInfo.id == reject.callId) {
+          appLogger.i('📞 [CallNotifier] Handling reject for matching call');
+          _endCallCleanup();
+          state = const CallState.ended(reason: 'Call was rejected');
+        }
+      },
+    );
   }
 
   void _handleCallEnded(end) {
-    appLogger.i('Call ended: ${end.callId}');
-    _endCallCleanup();
-    state = CallState.ended(reason: 'Call ended');
+    appLogger.i('📞 [CallNotifier] Call ended: ${end.callId}');
+
+    // Xử lý call ended cho cả incoming call (ringing) và active call (connecting/connected)
+    final shouldHandle = state.when(
+      idle: () => false,
+      initiating: (_, __) => false,
+      ringing: (invitation) => invitation.callId == end.callId,
+      connecting: (connection, _, __) => connection.callInfo.id == end.callId,
+      connected: (connection, _, __, ___, ____, _____, ______, _______, ________, _________) => connection.callInfo.id == end.callId,
+      ended: (_) => false,
+      error: (_) => false,
+    );
+
+    if (shouldHandle) {
+      appLogger.i('📞 [CallNotifier] Handling end for matching call');
+      _endCallCleanup();
+      state = const CallState.ended(reason: 'Call ended');
+    }
   }
 
   void _handleCallTimeout(timeout) {
@@ -121,6 +152,8 @@ class CallNotifier extends _$CallNotifier {
           isSpeakerEnabled: true,
           isFrontCamera: true,
           remoteUid: remoteUid,
+          remoteIsMuted: false,  // Assume unmuted initially
+          remoteIsVideoEnabled: callType == CallType.video,  // Assume video on for video calls
         );
         WakelockPlus.enable();
       },
@@ -130,10 +163,69 @@ class CallNotifier extends _$CallNotifier {
   void _handleUserOffline(int remoteUid) {
     appLogger.i('Remote user offline: $remoteUid');
     state.whenOrNull(
-      connected: (connection, callType, isOutgoing, isMuted, isVideoEnabled, isSpeakerEnabled, isFrontCamera, currentRemoteUid) {
+      connected: (connection, callType, isOutgoing, isMuted, isVideoEnabled, isSpeakerEnabled, isFrontCamera, currentRemoteUid, _, __) {
         if (currentRemoteUid == remoteUid) {
           _endCallCleanup();
           state = const CallState.ended(reason: 'Remote user left');
+        }
+      },
+    );
+  }
+
+  void _handleRemoteVideoStateChanged(remoteVideoState) {
+    appLogger.i('📞 [CallNotifier] Remote video state changed: uid=${remoteVideoState.uid}, state=${remoteVideoState.state}');
+
+    state.whenOrNull(
+      connected: (connection, callType, isOutgoing, isMuted, isVideoEnabled, isSpeakerEnabled, isFrontCamera, remoteUid, remoteIsMuted, remoteIsVideoEnabled) {
+        if (remoteUid == remoteVideoState.uid) {
+          // Update remote video state based on Agora state
+          final isRemoteVideoOn = remoteVideoState.state == RemoteVideoState.remoteVideoStateDecoding ||
+                                   remoteVideoState.state == RemoteVideoState.remoteVideoStateStarting;
+
+          state = CallState.connected(
+            connection: connection,
+            callType: callType,
+            isOutgoing: isOutgoing,
+            isMuted: isMuted,
+            isVideoEnabled: isVideoEnabled,
+            isSpeakerEnabled: isSpeakerEnabled,
+            isFrontCamera: isFrontCamera,
+            remoteUid: remoteUid,
+            remoteIsMuted: remoteIsMuted,
+            remoteIsVideoEnabled: isRemoteVideoOn,
+          );
+
+          appLogger.i('📞 [CallNotifier] Updated remote video state: $isRemoteVideoOn');
+        }
+      },
+    );
+  }
+
+  void _handleRemoteAudioStateChanged(remoteAudioState) {
+    appLogger.i('📞 [CallNotifier] Remote audio state changed: uid=${remoteAudioState.uid}, state=${remoteAudioState.state}');
+
+    state.whenOrNull(
+      connected: (connection, callType, isOutgoing, isMuted, isVideoEnabled, isSpeakerEnabled, isFrontCamera, remoteUid, remoteIsMuted, remoteIsVideoEnabled) {
+        if (remoteUid == remoteAudioState.uid) {
+          // Update remote audio state based on Agora state
+          // RemoteAudioState.remoteAudioStateStopped means muted or no audio
+          final isRemoteMuted = remoteAudioState.state == RemoteAudioState.remoteAudioStateStopped ||
+                                 remoteAudioState.reason == RemoteAudioStateReason.remoteAudioReasonLocalMuted;
+
+          state = CallState.connected(
+            connection: connection,
+            callType: callType,
+            isOutgoing: isOutgoing,
+            isMuted: isMuted,
+            isVideoEnabled: isVideoEnabled,
+            isSpeakerEnabled: isSpeakerEnabled,
+            isFrontCamera: isFrontCamera,
+            remoteUid: remoteUid,
+            remoteIsMuted: isRemoteMuted,
+            remoteIsVideoEnabled: remoteIsVideoEnabled,
+          );
+
+          appLogger.i('📞 [CallNotifier] Updated remote audio state: muted=$isRemoteMuted');
         }
       },
     );
@@ -303,9 +395,10 @@ class CallNotifier extends _$CallNotifier {
     String? callId;
     currentState.whenOrNull(
       connecting: (connection, _, __) => callId = connection.callInfo.id,
-      connected: (connection, _, __, ___, ____, _____, ______, _______) => callId = connection.callInfo.id,
+      connected: (connection, _, __, ___, ____, _____, ______, _______, ________, _________) => callId = connection.callInfo.id,
     );
     
+    // Nếu có callId (đang connecting hoặc connected), thông báo backend
     if (callId != null) {
       try {
         final usecase = ref.read(endCallUseCaseProvider);
@@ -313,9 +406,13 @@ class CallNotifier extends _$CallNotifier {
           callId: callId!,
           reason: CallEndReason.hangup,
         );
+        appLogger.i('📞 Call ended and notified to backend: $callId');
       } catch (e) {
         appLogger.e('Error ending call: $e');
       }
+    } else {
+      // Nếu đang initiating (chưa có callId), chỉ cần cleanup local
+      appLogger.i('📞 Cancelling call during initiation (no callId yet)');
     }
     
     _endCallCleanup();
@@ -331,7 +428,7 @@ class CallNotifier extends _$CallNotifier {
   // Call controls
   Future<void> toggleMute() async {
     state.whenOrNull(
-      connected: (connection, callType, isOutgoing, isMuted, isVideoEnabled, isSpeakerEnabled, isFrontCamera, remoteUid) async {
+      connected: (connection, callType, isOutgoing, isMuted, isVideoEnabled, isSpeakerEnabled, isFrontCamera, remoteUid, remoteIsMuted, remoteIsVideoEnabled) async {
         final agoraService = ref.read(agoraServiceProvider);
         await agoraService.toggleMute(!isMuted);
         
@@ -344,6 +441,8 @@ class CallNotifier extends _$CallNotifier {
           isSpeakerEnabled: isSpeakerEnabled,
           isFrontCamera: isFrontCamera,
           remoteUid: remoteUid,
+          remoteIsMuted: remoteIsMuted,
+          remoteIsVideoEnabled: remoteIsVideoEnabled,
         );
       },
     );
@@ -351,7 +450,7 @@ class CallNotifier extends _$CallNotifier {
 
   Future<void> toggleVideo() async {
     state.whenOrNull(
-      connected: (connection, callType, isOutgoing, isMuted, isVideoEnabled, isSpeakerEnabled, isFrontCamera, remoteUid) async {
+      connected: (connection, callType, isOutgoing, isMuted, isVideoEnabled, isSpeakerEnabled, isFrontCamera, remoteUid, remoteIsMuted, remoteIsVideoEnabled) async {
         if (callType == CallType.video) {
           final agoraService = ref.read(agoraServiceProvider);
           await agoraService.toggleVideo(!isVideoEnabled);
@@ -365,6 +464,8 @@ class CallNotifier extends _$CallNotifier {
             isSpeakerEnabled: isSpeakerEnabled,
             isFrontCamera: isFrontCamera,
             remoteUid: remoteUid,
+            remoteIsMuted: remoteIsMuted,
+            remoteIsVideoEnabled: remoteIsVideoEnabled,
           );
         }
       },
@@ -373,7 +474,7 @@ class CallNotifier extends _$CallNotifier {
 
   Future<void> toggleSpeaker() async {
     state.whenOrNull(
-      connected: (connection, callType, isOutgoing, isMuted, isVideoEnabled, isSpeakerEnabled, isFrontCamera, remoteUid) async {
+      connected: (connection, callType, isOutgoing, isMuted, isVideoEnabled, isSpeakerEnabled, isFrontCamera, remoteUid, remoteIsMuted, remoteIsVideoEnabled) async {
         final agoraService = ref.read(agoraServiceProvider);
         await agoraService.toggleSpeaker(!isSpeakerEnabled);
         
@@ -386,6 +487,8 @@ class CallNotifier extends _$CallNotifier {
           isSpeakerEnabled: !isSpeakerEnabled,
           isFrontCamera: isFrontCamera,
           remoteUid: remoteUid,
+          remoteIsMuted: remoteIsMuted,
+          remoteIsVideoEnabled: remoteIsVideoEnabled,
         );
       },
     );
@@ -393,7 +496,7 @@ class CallNotifier extends _$CallNotifier {
 
   Future<void> switchCamera() async {
     state.whenOrNull(
-      connected: (connection, callType, isOutgoing, isMuted, isVideoEnabled, isSpeakerEnabled, isFrontCamera, remoteUid) async {
+      connected: (connection, callType, isOutgoing, isMuted, isVideoEnabled, isSpeakerEnabled, isFrontCamera, remoteUid, remoteIsMuted, remoteIsVideoEnabled) async {
         if (callType == CallType.video) {
           final agoraService = ref.read(agoraServiceProvider);
           await agoraService.switchCamera();
@@ -407,6 +510,8 @@ class CallNotifier extends _$CallNotifier {
             isSpeakerEnabled: isSpeakerEnabled,
             isFrontCamera: !isFrontCamera,
             remoteUid: remoteUid,
+            remoteIsMuted: remoteIsMuted,
+            remoteIsVideoEnabled: remoteIsVideoEnabled,
           );
         }
       },

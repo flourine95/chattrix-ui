@@ -256,7 +256,7 @@ class AppRouter {
         return null;
       },
       connected: (connection, callType, isOutgoing, isMuted, isVideoEnabled,
-          isSpeakerEnabled, isFrontCamera, remoteUid) {
+          isSpeakerEnabled, isFrontCamera, remoteUid, remoteIsMuted, remoteIsVideoEnabled) {
         if (currentLocation != activeCallPath) {
           return activeCallPath;
         }
@@ -301,28 +301,36 @@ class _NavShell extends StatelessWidget {
     final location = GoRouterState.of(context).uri.toString();
     final currentIndex = _indexOfLocation(location);
 
+    // Ẩn bottom navigation khi đang ở trong chat detail, new chat, hoặc chat info
+    final shouldShowBottomNav = !location.startsWith('/chat/') &&
+                                 location != '/new-chat' &&
+                                 location != '/new-group' &&
+                                 location != '/chat-info';
+
     return Scaffold(
       body: child,
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: currentIndex,
-        onDestinationSelected: (index) {
-          context.go(_routes[index]);
-        },
-        destinations: const [
-          NavigationDestination(
-            icon: FaIcon(FontAwesomeIcons.solidComments),
-            label: 'Chats',
-          ),
-          NavigationDestination(
-            icon: FaIcon(FontAwesomeIcons.addressBook),
-            label: 'Contacts',
-          ),
-          NavigationDestination(
-            icon: FaIcon(FontAwesomeIcons.user),
-            label: 'Profile',
-          ),
-        ],
-      ),
+      bottomNavigationBar: shouldShowBottomNav
+          ? NavigationBar(
+              selectedIndex: currentIndex,
+              onDestinationSelected: (index) {
+                context.go(_routes[index]);
+              },
+              destinations: const [
+                NavigationDestination(
+                  icon: FaIcon(FontAwesomeIcons.solidComments),
+                  label: 'Chats',
+                ),
+                NavigationDestination(
+                  icon: FaIcon(FontAwesomeIcons.addressBook),
+                  label: 'Contacts',
+                ),
+                NavigationDestination(
+                  icon: FaIcon(FontAwesomeIcons.user),
+                  label: 'Profile',
+                ),
+              ],
+            )
+          : null,
     );
   }
 }

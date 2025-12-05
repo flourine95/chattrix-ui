@@ -13,11 +13,13 @@ class AgoraService {
   final _userOfflineController = StreamController<int>.broadcast();
   final _connectionStateController = StreamController<ConnectionStateType>.broadcast();
   final _remoteVideoStateController = StreamController<RemoteVideoStateInfo>.broadcast();
+  final _remoteAudioStateController = StreamController<RemoteAudioStateInfo>.broadcast();
 
   Stream<int> get userJoinedStream => _userJoinedController.stream;
   Stream<int> get userOfflineStream => _userOfflineController.stream;
   Stream<ConnectionStateType> get connectionStateStream => _connectionStateController.stream;
   Stream<RemoteVideoStateInfo> get remoteVideoStateStream => _remoteVideoStateController.stream;
+  Stream<RemoteAudioStateInfo> get remoteAudioStateStream => _remoteAudioStateController.stream;
 
   bool get isInitialized => _isInitialized;
 
@@ -63,6 +65,14 @@ class AgoraService {
           onRemoteVideoStateChanged: (RtcConnection connection, int remoteUid, RemoteVideoState state, RemoteVideoStateReason reason, int elapsed) {
             appLogger.i('Remote video state changed: uid=$remoteUid, state=$state, reason=$reason');
             _remoteVideoStateController.add(RemoteVideoStateInfo(
+              uid: remoteUid,
+              state: state,
+              reason: reason,
+            ));
+          },
+          onRemoteAudioStateChanged: (RtcConnection connection, int remoteUid, RemoteAudioState state, RemoteAudioStateReason reason, int elapsed) {
+            appLogger.i('Remote audio state changed: uid=$remoteUid, state=$state, reason=$reason');
+            _remoteAudioStateController.add(RemoteAudioStateInfo(
               uid: remoteUid,
               state: state,
               reason: reason,
@@ -181,6 +191,7 @@ class AgoraService {
       await _userOfflineController.close();
       await _connectionStateController.close();
       await _remoteVideoStateController.close();
+      await _remoteAudioStateController.close();
 
       appLogger.i('Agora service disposed');
     } catch (e) {
@@ -197,6 +208,18 @@ class RemoteVideoStateInfo {
   final RemoteVideoStateReason reason;
 
   RemoteVideoStateInfo({
+    required this.uid,
+    required this.state,
+    required this.reason,
+  });
+}
+
+class RemoteAudioStateInfo {
+  final int uid;
+  final RemoteAudioState state;
+  final RemoteAudioStateReason reason;
+
+  RemoteAudioStateInfo({
     required this.uid,
     required this.state,
     required this.reason,

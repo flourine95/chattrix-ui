@@ -1,65 +1,81 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
-class CallControlButton extends StatelessWidget {
+class ModernCallButton extends StatelessWidget {
   final IconData icon;
   final String label;
   final VoidCallback onPressed;
-  final Color? backgroundColor;
-  final Color? iconColor;
-  final bool isActive;
-  final double size;
+  final bool isActive; // Trạng thái đang kích hoạt (VD: đang Mute)
+  final Color? activeColor; // Màu khi active (VD: Màu đen hoặc trắng)
+  final Color? inactiveColor; // Màu khi bình thường
+  final bool isDestructive; // Nút tắt máy (Màu đỏ)
 
-  const CallControlButton({
+  const ModernCallButton({
     super.key,
     required this.icon,
     required this.label,
     required this.onPressed,
-    this.backgroundColor,
-    this.iconColor,
     this.isActive = false,
-    this.size = 60,
+    this.activeColor,
+    this.inactiveColor,
+    this.isDestructive = false,
   });
 
   @override
   Widget build(BuildContext context) {
-    final bgColor = backgroundColor ??
-        (isActive
-            ? Colors.white.withValues(alpha: 0.3)
-            : Colors.white.withValues(alpha: 0.2));
-    final fgColor = iconColor ?? Colors.white;
+    // Logic màu sắc:
+    // 1. Nút tắt máy: Luôn đỏ
+    // 2. Nút thường:
+    //    - Active (đang mute/tắt cam): Nền Đen/Xám đậm, Icon Trắng (để nổi bật cảnh báo)
+    //    - Inactive (bình thường): Nền Xám nhạt, Icon Đen
+
+    final backgroundColor = isDestructive
+        ? const Color(0xFFFF3B30) // Red
+        : isActive
+        ? (activeColor ?? const Color(0xFF2C2C2E)) // Dark grey when active
+        : (inactiveColor ?? const Color(0xFFF2F2F7)); // Light grey when inactive
+
+    final iconColor = isDestructive
+        ? Colors.white
+        : isActive
+        ? Colors.white
+        : Colors.black;
 
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
+        // Dùng GestureDetector + AnimatedContainer để tránh hiệu ứng ripple đen
         GestureDetector(
           onTap: onPressed,
-          child: Container(
-            width: size,
-            height: size,
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 200),
+            width: 64,
+            height: 64,
             decoration: BoxDecoration(
-              color: bgColor,
+              color: backgroundColor,
               shape: BoxShape.circle,
-              boxShadow: [
+              boxShadow: isDestructive
+                  ? [
                 BoxShadow(
-                  color: (backgroundColor ?? Colors.white)
-                      .withValues(alpha: 0.3),
+                  color: Colors.red.withOpacity(0.3),
                   blurRadius: 10,
-                  spreadRadius: 2,
-                ),
-              ],
+                  offset: const Offset(0, 4),
+                )
+              ]
+                  : [],
             ),
             child: Icon(
               icon,
-              color: fgColor,
-              size: size * 0.45,
+              color: iconColor,
+              size: 28,
             ),
           ),
         ),
         const SizedBox(height: 8),
         Text(
           label,
-          style: TextStyle(
-            color: fgColor,
+          style: GoogleFonts.inter(
+            color: Colors.black54,
             fontSize: 12,
             fontWeight: FontWeight.w500,
           ),
@@ -68,4 +84,3 @@ class CallControlButton extends StatelessWidget {
     );
   }
 }
-

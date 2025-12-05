@@ -163,4 +163,24 @@ class ConversationUtils {
     final otherParticipant = getOtherParticipant(conversation, currentUser);
     return otherParticipant?.lastSeen;
   }
+
+  /// Get other user as User entity in DIRECT conversation
+  /// Converts Participant to User for call functionality
+  static User? getOtherUser(Conversation conversation, User? currentUser) {
+    final otherParticipant = getOtherParticipant(conversation, currentUser);
+    if (otherParticipant == null) {
+      return null;
+    }
+
+    // Convert Participant to User
+    return User(
+      id: otherParticipant.userId,
+      username: otherParticipant.username,
+      email: '', // Not available in Participant
+      fullName: otherParticipant.fullName,
+      avatarUrl: null, // Not available in Participant
+      isOnline: otherParticipant.isOnline ?? false,
+      lastSeen: otherParticipant.lastSeen ?? DateTime.now(),
+    );
+  }
 }

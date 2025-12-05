@@ -12,12 +12,9 @@ part of 'auth_repository_provider.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
-/// Secure storage provider - singleton
 
 @ProviderFor(secureStorage)
 const secureStorageProvider = SecureStorageProvider._();
-
-/// Secure storage provider - singleton
 
 final class SecureStorageProvider
     extends
@@ -27,7 +24,6 @@ final class SecureStorageProvider
           FlutterSecureStorage
         >
     with $Provider<FlutterSecureStorage> {
-  /// Secure storage provider - singleton
   const SecureStorageProvider._()
     : super(
         from: null,
@@ -62,7 +58,7 @@ final class SecureStorageProvider
   }
 }
 
-String _$secureStorageHash() => r'a4f75721472cf77465bf47f759c90de5ca30856e';
+String _$secureStorageHash() => r'ccfa4120cb1853d7af43ccf2817382f435f3d459';
 
 /// Token cache service provider - singleton
 
@@ -161,12 +157,8 @@ final class DioProvider extends $FunctionalProvider<Dio, Dio, Dio>
 
 String _$dioHash() => r'cbc0bf6b3ef12516d3df9356dbb0ad8b1cdfc490';
 
-/// Auth remote data source provider
-
 @ProviderFor(authRemoteDataSource)
 const authRemoteDataSourceProvider = AuthRemoteDataSourceProvider._();
-
-/// Auth remote data source provider
 
 final class AuthRemoteDataSourceProvider
     extends
@@ -176,7 +168,6 @@ final class AuthRemoteDataSourceProvider
           AuthRemoteDataSource
         >
     with $Provider<AuthRemoteDataSource> {
-  /// Auth remote data source provider
   const AuthRemoteDataSourceProvider._()
     : super(
         from: null,
@@ -214,12 +205,8 @@ final class AuthRemoteDataSourceProvider
 String _$authRemoteDataSourceHash() =>
     r'd871ee9e888536cddea0adc7dcf4ce485967c138';
 
-/// Auth local data source provider
-
 @ProviderFor(authLocalDataSource)
 const authLocalDataSourceProvider = AuthLocalDataSourceProvider._();
-
-/// Auth local data source provider
 
 final class AuthLocalDataSourceProvider
     extends
@@ -229,7 +216,6 @@ final class AuthLocalDataSourceProvider
           AuthLocalDataSource
         >
     with $Provider<AuthLocalDataSource> {
-  /// Auth local data source provider
   const AuthLocalDataSourceProvider._()
     : super(
         from: null,
@@ -267,17 +253,12 @@ final class AuthLocalDataSourceProvider
 String _$authLocalDataSourceHash() =>
     r'490075e382a30e88b06d8f6b22754220578b0772';
 
-/// Main auth repository provider
-
 @ProviderFor(authRepository)
 const authRepositoryProvider = AuthRepositoryProvider._();
-
-/// Main auth repository provider
 
 final class AuthRepositoryProvider
     extends $FunctionalProvider<AuthRepository, AuthRepository, AuthRepository>
     with $Provider<AuthRepository> {
-  /// Main auth repository provider
   const AuthRepositoryProvider._()
     : super(
         from: null,
