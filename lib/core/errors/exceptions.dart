@@ -12,14 +12,3 @@ class NetworkException implements Exception {
   NetworkException({this.message = 'No internet connection'});
 }
 
-class CacheException implements Exception {
-  final String message;
-
-  CacheException({this.message = 'Cache error'});
-}
-
-class TokenExpiredException implements Exception {
-  final String message;
-
-  TokenExpiredException({this.message = 'Token expired and refresh failed'});
-}

@@ -3,7 +3,10 @@ import 'dart:convert';
 
 import 'package:chattrix_ui/core/constants/api_constants.dart';
 import 'package:chattrix_ui/core/network/websocket_connection_manager.dart';
-import 'package:chattrix_ui/core/services/json_parsing_service.dart';
+import 'package:chattrix_ui/features/chat/data/models/message_model.dart';
+import 'package:chattrix_ui/features/chat/data/models/conversation_update_model.dart';
+import 'package:chattrix_ui/features/chat/data/models/typing_indicator_model.dart';
+import 'package:chattrix_ui/features/chat/data/models/user_status_update_model.dart';
 import 'package:chattrix_ui/features/chat/domain/datasources/chat_websocket_datasource.dart';
 import 'package:chattrix_ui/features/chat/domain/entities/conversation_update.dart';
 import 'package:chattrix_ui/features/chat/domain/entities/message.dart';
@@ -119,7 +122,8 @@ class ChatWebSocketDataSourceImpl implements ChatWebSocketDataSource {
 
       if (type == null) {
         // Server might send message directly without wrapper
-        final messageEntity = await JsonParsingService.parseMessage(messageString);
+        final json = jsonDecode(messageString) as Map<String, dynamic>;
+        final messageEntity = MessageModel.fromApi(json).toEntity();
         _messageController.add(messageEntity);
         return;
       }
@@ -134,28 +138,25 @@ class ChatWebSocketDataSourceImpl implements ChatWebSocketDataSource {
         return;
       }
 
-      // Convert payload to JSON string for background parsing
-      final payloadString = jsonEncode(payload);
-
       // Route message based on type
       switch (type) {
         case _ChatWebSocketResponse.chatMessage:
-          final messageEntity = await JsonParsingService.parseMessage(payloadString);
+          final messageEntity = MessageModel.fromApi(payload as Map<String, dynamic>).toEntity();
           _messageController.add(messageEntity);
           break;
 
         case _ChatWebSocketResponse.typingIndicator:
-          final indicatorEntity = await JsonParsingService.parseTypingIndicator(payloadString);
+          final indicatorEntity = TypingIndicatorModel.fromJson(payload as Map<String, dynamic>).toEntity();
           _typingController.add(indicatorEntity);
           break;
 
         case _ChatWebSocketResponse.userStatus:
-          final statusEntity = await JsonParsingService.parseUserStatusUpdate(payloadString);
+          final statusEntity = UserStatusUpdateModel.fromJson(payload as Map<String, dynamic>).toEntity();
           _userStatusController.add(statusEntity);
           break;
 
         case _ChatWebSocketResponse.conversationUpdate:
-          final updateEntity = await JsonParsingService.parseConversationUpdate(payloadString);
+          final updateEntity = ConversationUpdateModel.fromJson(payload as Map<String, dynamic>).toEntity();
           _conversationUpdateController.add(updateEntity);
           break;
 

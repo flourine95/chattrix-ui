@@ -1,3 +1,4 @@
+import 'package:chattrix_ui/core/utils/riverpod_logger.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -11,7 +12,7 @@ import 'features/chat/presentation/providers/chat_websocket_provider_new.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await dotenv.load(fileName: ".env");
-  runApp(ProviderScope(child: const MyApp()));
+  runApp(ProviderScope(observers: [RiverpodLogger()], child: const MyApp()));
 }
 
 class MyApp extends ConsumerWidget {
@@ -19,7 +20,6 @@ class MyApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // Initialize call listener (WebSocket & call state)
     ref.watch(webSocketConnectionProvider);
     ref.watch(callProvider);
 
@@ -30,9 +30,7 @@ class MyApp extends ConsumerWidget {
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
       themeMode: ThemeMode.light,
-      builder: (context, child) => ToastOverlay(
-        child: child ?? const SizedBox.shrink(),
-      ),
+      builder: (context, child) => ToastOverlay(child: child ?? const SizedBox.shrink()),
       routerConfig: AppRouter.router(ref),
     );
   }
