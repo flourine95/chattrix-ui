@@ -8,98 +8,105 @@ class AgoraService {
   RtcEngine? _engine;
   bool _isInitialized = false;
 
-  // Stream controllers for events
-  final _userJoinedController = StreamController<int>.broadcast();
-  final _userOfflineController = StreamController<int>.broadcast();
-  final _connectionStateController = StreamController<ConnectionStateType>.broadcast();
-  final _remoteVideoStateController = StreamController<RemoteVideoStateInfo>.broadcast();
-  final _remoteAudioStateController = StreamController<RemoteAudioStateInfo>.broadcast();
+  StreamController<int>? _userJoinedController;
+  StreamController<int>? _userOfflineController;
+  StreamController<ConnectionStateType>? _connectionStateController;
+  StreamController<RemoteVideoStateInfo>? _remoteVideoStateController;
+  StreamController<RemoteAudioStateInfo>? _remoteAudioStateController;
 
-  Stream<int> get userJoinedStream => _userJoinedController.stream;
-  Stream<int> get userOfflineStream => _userOfflineController.stream;
-  Stream<ConnectionStateType> get connectionStateStream => _connectionStateController.stream;
-  Stream<RemoteVideoStateInfo> get remoteVideoStateStream => _remoteVideoStateController.stream;
-  Stream<RemoteAudioStateInfo> get remoteAudioStateStream => _remoteAudioStateController.stream;
+  Stream<int> get userJoinedStream => _userJoinedController!.stream;
+  Stream<int> get userOfflineStream => _userOfflineController!.stream;
+  Stream<ConnectionStateType> get connectionStateStream => _connectionStateController!.stream;
+  Stream<RemoteVideoStateInfo> get remoteVideoStateStream => _remoteVideoStateController!.stream;
+  Stream<RemoteAudioStateInfo> get remoteAudioStateStream => _remoteAudioStateController!.stream;
 
   bool get isInitialized => _isInitialized;
 
   Future<void> initialize() async {
     if (_isInitialized) {
+      AppLogger.warning('Agora Engine already initialized', tag: 'Agora');
       return;
     }
 
     try {
+      AppLogger.info('Initializing Agora Service...', tag: 'Agora');
+
       final appId = dotenv.env['AGORA_APP_ID'];
       if (appId == null || appId.isEmpty) {
         throw Exception('AGORA_APP_ID not found in environment');
       }
 
-      // Request permissions
+      _initControllers();
       await _requestPermissions();
 
-      // Create RTC engine
       _engine = createAgoraRtcEngine();
       await _engine!.initialize(RtcEngineContext(
         appId: appId,
         channelProfile: ChannelProfileType.channelProfileCommunication,
       ));
 
-      // Register event handlers
-      _engine!.registerEventHandler(
-        RtcEngineEventHandler(
-          onJoinChannelSuccess: (RtcConnection connection, int elapsed) {
-            appLogger.i('Successfully joined channel: ${connection.channelId}');
-          },
-          onUserJoined: (RtcConnection connection, int remoteUid, int elapsed) {
-            appLogger.i('Remote user joined: $remoteUid');
-            _userJoinedController.add(remoteUid);
-          },
-          onUserOffline: (RtcConnection connection, int remoteUid, UserOfflineReasonType reason) {
-            appLogger.i('Remote user offline: $remoteUid, reason: $reason');
-            _userOfflineController.add(remoteUid);
-          },
-          onConnectionStateChanged: (RtcConnection connection, ConnectionStateType state, ConnectionChangedReasonType reason) {
-            appLogger.i('Connection state changed: $state, reason: $reason');
-            _connectionStateController.add(state);
-          },
-          onRemoteVideoStateChanged: (RtcConnection connection, int remoteUid, RemoteVideoState state, RemoteVideoStateReason reason, int elapsed) {
-            appLogger.i('Remote video state changed: uid=$remoteUid, state=$state, reason=$reason');
-            _remoteVideoStateController.add(RemoteVideoStateInfo(
-              uid: remoteUid,
-              state: state,
-              reason: reason,
-            ));
-          },
-          onRemoteAudioStateChanged: (RtcConnection connection, int remoteUid, RemoteAudioState state, RemoteAudioStateReason reason, int elapsed) {
-            appLogger.i('Remote audio state changed: uid=$remoteUid, state=$state, reason=$reason');
-            _remoteAudioStateController.add(RemoteAudioStateInfo(
-              uid: remoteUid,
-              state: state,
-              reason: reason,
-            ));
-          },
-          onError: (ErrorCodeType err, String msg) {
-            appLogger.e('Agora error: $err, message: $msg');
-          },
-        ),
-      );
+      _registerEventHandlers();
 
-      // Enable video module (always enable, we'll control it with enableLocalVideo)
       await _engine!.enableVideo();
-
-      // Set default audio route to speaker
+      await _engine!.startPreview();
       await _engine!.setDefaultAudioRouteToSpeakerphone(true);
 
       _isInitialized = true;
-      appLogger.i('Agora RTC Engine initialized successfully');
-    } catch (e) {
-      appLogger.e('Failed to initialize Agora: $e');
+      AppLogger.success('Agora RTC Engine initialized successfully', tag: 'Agora');
+    } catch (e, stack) {
+      AppLogger.error('Failed to initialize Agora', error: e, stackTrace: stack, tag: 'Agora');
       rethrow;
     }
   }
 
+  void _initControllers() {
+    _disposeControllers();
+
+    _userJoinedController = StreamController<int>.broadcast();
+    _userOfflineController = StreamController<int>.broadcast();
+    _connectionStateController = StreamController<ConnectionStateType>.broadcast();
+    _remoteVideoStateController = StreamController<RemoteVideoStateInfo>.broadcast();
+    _remoteAudioStateController = StreamController<RemoteAudioStateInfo>.broadcast();
+  }
+
   Future<void> _requestPermissions() async {
-    await [Permission.camera, Permission.microphone].request();
+    final status = await [Permission.camera, Permission.microphone].request();
+
+    if (status[Permission.camera] != PermissionStatus.granted ||
+        status[Permission.microphone] != PermissionStatus.granted) {
+      AppLogger.warning('Camera or Microphone permission denied', tag: 'Agora');
+    }
+  }
+
+  void _registerEventHandlers() {
+    _engine!.registerEventHandler(
+      RtcEngineEventHandler(
+        onJoinChannelSuccess: (RtcConnection connection, int elapsed) {
+          AppLogger.success('Joined channel: ${connection.channelId}', tag: 'Agora');
+        },
+        onUserJoined: (RtcConnection connection, int remoteUid, int elapsed) {
+          AppLogger.info('Remote user joined: $remoteUid', tag: 'Agora');
+          _userJoinedController?.add(remoteUid);
+        },
+        onUserOffline: (RtcConnection connection, int remoteUid, UserOfflineReasonType reason) {
+          AppLogger.info('Remote user offline: $remoteUid ($reason)', tag: 'Agora');
+          _userOfflineController?.add(remoteUid);
+        },
+        onConnectionStateChanged: (RtcConnection connection, ConnectionStateType state, ConnectionChangedReasonType reason) {
+          AppLogger.info('Connection state: $state ($reason)', tag: 'Agora');
+          _connectionStateController?.add(state);
+        },
+        onRemoteVideoStateChanged: (RtcConnection connection, int remoteUid, RemoteVideoState state, RemoteVideoStateReason reason, int elapsed) {
+          _remoteVideoStateController?.add(RemoteVideoStateInfo(uid: remoteUid, state: state, reason: reason));
+        },
+        onRemoteAudioStateChanged: (RtcConnection connection, int remoteUid, RemoteAudioState state, RemoteAudioStateReason reason, int elapsed) {
+          _remoteAudioStateController?.add(RemoteAudioStateInfo(uid: remoteUid, state: state, reason: reason));
+        },
+        onError: (ErrorCodeType err, String msg) {
+          AppLogger.error('Agora Internal Error: $err - $msg', tag: 'Agora');
+        },
+      ),
+    );
   }
 
   Future<void> joinChannel({
@@ -109,11 +116,11 @@ class AgoraService {
     required bool isVideoCall,
   }) async {
     if (!_isInitialized || _engine == null) {
-      throw Exception('Agora engine not initialized');
+      AppLogger.error('Attempted to join channel before initialization', tag: 'Agora');
+      return;
     }
 
     try {
-      // Configure for video or audio call
       if (isVideoCall) {
         await _engine!.enableLocalVideo(true);
         await _engine!.startPreview();
@@ -121,7 +128,6 @@ class AgoraService {
         await _engine!.enableLocalVideo(false);
       }
 
-      // Join channel
       await _engine!.joinChannel(
         token: token,
         channelId: channelId,
@@ -129,74 +135,91 @@ class AgoraService {
         options: const ChannelMediaOptions(
           channelProfile: ChannelProfileType.channelProfileCommunication,
           clientRoleType: ClientRoleType.clientRoleBroadcaster,
+          autoSubscribeAudio: true,
+          autoSubscribeVideo: true,
         ),
       );
 
-      appLogger.i('Joined Agora channel: $channelId with uid: $uid');
-    } catch (e) {
-      appLogger.e('Failed to join channel: $e');
+      AppLogger.info('Joining channel $channelId as uid: $uid', tag: 'Agora');
+    } catch (e, stack) {
+      AppLogger.error('Failed to join channel', error: e, stackTrace: stack, tag: 'Agora');
       rethrow;
     }
   }
 
   Future<void> leaveChannel() async {
     if (_engine == null) return;
-
     try {
       await _engine!.leaveChannel();
       await _engine!.stopPreview();
-      appLogger.i('Left Agora channel');
+      AppLogger.info('Left channel', tag: 'Agora');
     } catch (e) {
-      appLogger.e('Failed to leave channel: $e');
+      AppLogger.error('Error leaving channel: $e', tag: 'Agora');
     }
   }
 
   Future<void> toggleMute(bool mute) async {
     if (_engine == null) return;
     await _engine!.muteLocalAudioStream(mute);
-    appLogger.i('Local audio ${mute ? 'muted' : 'unmuted'}');
+    AppLogger.info('Microphone ${mute ? 'muted' : 'unmuted'}', tag: 'Agora');
   }
 
-  Future<void> toggleVideo(bool enabled) async {
+  Future<void> toggleVideo(bool enable) async {
     if (_engine == null) return;
-    await _engine!.enableLocalVideo(enabled);
-    if (enabled) {
+
+    await _engine!.enableLocalVideo(enable);
+
+    if (enable) {
       await _engine!.startPreview();
     } else {
       await _engine!.stopPreview();
     }
-    appLogger.i('Local video ${enabled ? 'enabled' : 'disabled'}');
+    AppLogger.info('Camera ${enable ? 'enabled' : 'disabled'}', tag: 'Agora');
   }
 
-  Future<void> toggleSpeaker(bool enabled) async {
+  Future<void> toggleSpeaker(bool enable) async {
     if (_engine == null) return;
-    await _engine!.setEnableSpeakerphone(enabled);
-    appLogger.i('Speaker ${enabled ? 'enabled' : 'disabled'}');
+    await _engine!.setEnableSpeakerphone(enable);
+    AppLogger.info('Speaker ${enable ? 'enabled' : 'disabled'}', tag: 'Agora');
   }
 
   Future<void> switchCamera() async {
     if (_engine == null) return;
-    await _engine!.switchCamera();
-    appLogger.i('Camera switched');
+    try {
+      await _engine!.switchCamera();
+      AppLogger.info('Camera switched', tag: 'Agora');
+    } catch (e) {
+      AppLogger.error('Failed to switch camera: $e', tag: 'Agora');
+    }
   }
 
   Future<void> dispose() async {
     try {
       await leaveChannel();
-      await _engine?.release();
-      _engine = null;
+      if (_engine != null) {
+        await _engine!.release();
+        _engine = null;
+      }
+      _disposeControllers();
       _isInitialized = false;
-
-      await _userJoinedController.close();
-      await _userOfflineController.close();
-      await _connectionStateController.close();
-      await _remoteVideoStateController.close();
-      await _remoteAudioStateController.close();
-
-      appLogger.i('Agora service disposed');
+      AppLogger.success('Agora service disposed', tag: 'Agora');
     } catch (e) {
-      appLogger.e('Error disposing Agora service: $e');
+      AppLogger.error('Error disposing Agora service: $e', tag: 'Agora');
     }
+  }
+
+  void _disposeControllers() {
+    _userJoinedController?.close();
+    _userOfflineController?.close();
+    _connectionStateController?.close();
+    _remoteVideoStateController?.close();
+    _remoteAudioStateController?.close();
+
+    _userJoinedController = null;
+    _userOfflineController = null;
+    _connectionStateController = null;
+    _remoteVideoStateController = null;
+    _remoteAudioStateController = null;
   }
 
   RtcEngine? get engine => _engine;
@@ -207,11 +230,7 @@ class RemoteVideoStateInfo {
   final RemoteVideoState state;
   final RemoteVideoStateReason reason;
 
-  RemoteVideoStateInfo({
-    required this.uid,
-    required this.state,
-    required this.reason,
-  });
+  RemoteVideoStateInfo({required this.uid, required this.state, required this.reason});
 }
 
 class RemoteAudioStateInfo {
@@ -219,10 +238,5 @@ class RemoteAudioStateInfo {
   final RemoteAudioState state;
   final RemoteAudioStateReason reason;
 
-  RemoteAudioStateInfo({
-    required this.uid,
-    required this.state,
-    required this.reason,
-  });
+  RemoteAudioStateInfo({required this.uid, required this.state, required this.reason});
 }
-

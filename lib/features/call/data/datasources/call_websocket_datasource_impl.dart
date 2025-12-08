@@ -13,7 +13,6 @@ import 'package:chattrix_ui/features/call/domain/entities/call_invitation.dart';
 import 'package:chattrix_ui/features/call/domain/entities/call_reject.dart';
 import 'package:chattrix_ui/features/call/domain/entities/call_timeout.dart';
 
-/// WebSocket event types sent from client to server
 class _CallWebSocketEvent {
   static const String invite = 'call.invite';
   static const String accept = 'call.accept';
@@ -21,7 +20,6 @@ class _CallWebSocketEvent {
   static const String end = 'call.end';
 }
 
-/// WebSocket event types received from server
 class _CallWebSocketResponse {
   static const String incoming = 'call.incoming';
   static const String accepted = 'call.accepted';
@@ -30,13 +28,10 @@ class _CallWebSocketResponse {
   static const String timeout = 'call.timeout';
 }
 
-/// Implementation of CallWebSocketDataSource
-/// Handles call signaling through shared WebSocket connection
 class CallWebSocketDataSourceImpl implements CallWebSocketDataSource {
   final WebSocketService _webSocketService;
   StreamSubscription<Map<String, dynamic>>? _subscription;
 
-  // Stream controllers for call events
   final _incomingCallController = StreamController<CallInvitation>.broadcast();
   final _callAcceptedController = StreamController<CallAccept>.broadcast();
   final _callRejectedController = StreamController<CallReject>.broadcast();
@@ -48,7 +43,6 @@ class CallWebSocketDataSourceImpl implements CallWebSocketDataSource {
   }
 
   void _startListening() {
-    // Listen to call-related messages only
     final callMessageTypes = [
       _CallWebSocketResponse.incoming,
       _CallWebSocketResponse.accepted,
@@ -67,7 +61,6 @@ class CallWebSocketDataSourceImpl implements CallWebSocketDataSource {
         return;
       }
 
-      // Backend may send data in 'data' or 'payload' field
       final data = message['data'] as Map<String, dynamic>? ?? message['payload'] as Map<String, dynamic>?;
 
       if (data == null) {

@@ -3,8 +3,6 @@ import 'package:chattrix_ui/features/call/data/datasources/call_websocket_dataso
 import 'package:chattrix_ui/features/call/domain/datasources/call_websocket_datasource.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-/// Provider for Call WebSocket datasource
-/// Shares the same WebSocket connection with ChatWebSocketDataSource
 final callWebSocketDataSourceProvider = Provider<CallWebSocketDataSource>((ref) {
   final webSocketService = ref.watch(webSocketServiceProvider);
 

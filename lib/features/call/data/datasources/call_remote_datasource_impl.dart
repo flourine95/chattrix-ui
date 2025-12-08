@@ -14,108 +14,65 @@ class CallRemoteDataSourceImpl implements CallRemoteDataSource {
   CallRemoteDataSourceImpl({required this.dio});
 
   @override
-  Future<CallConnectionModel> initiateCall({
-    required int calleeId,
-    required CallType callType,
-  }) async {
+  Future<CallConnectionModel> initiateCall({required int calleeId, required CallType callType}) async {
     try {
       final response = await dio.post(
         ApiConstants.initiateCall,
-        data: {
-          'calleeId': calleeId,
-          'callType': callType.name.toUpperCase(),
-        },
+        data: {'calleeId': calleeId, 'callType': callType.name.toUpperCase()},
       );
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         return CallConnectionModel.fromJson(response.data['data']);
       } else {
-        throw ServerException(
-          message: response.data['message'] ?? 'Failed to initiate call',
-        );
+        throw ServerException(message: response.data['message'] ?? 'Failed to initiate call');
       }
     } on DioException catch (e) {
-      throw ServerException(
-        message: e.response?.data['message'] ?? 'Network error occurred',
-      );
+      throw ServerException(message: e.response?.data['message'] ?? 'Network error occurred');
     }
   }
 
   @override
-  Future<CallConnectionModel> acceptCall({
-    required String callId,
-  }) async {
+  Future<CallConnectionModel> acceptCall({required String callId}) async {
     try {
-      final response = await dio.post(
-        ApiConstants.acceptCall(callId),
-      );
+      final response = await dio.post(ApiConstants.acceptCall(callId));
 
       if (response.statusCode == 200) {
         return CallConnectionModel.fromJson(response.data['data']);
       } else {
-        throw ServerException(
-          message: response.data['message'] ?? 'Failed to accept call',
-        );
+        throw ServerException(message: response.data['message'] ?? 'Failed to accept call');
       }
     } on DioException catch (e) {
-      throw ServerException(
-        message: e.response?.data['message'] ?? 'Network error occurred',
-      );
+      throw ServerException(message: e.response?.data['message'] ?? 'Network error occurred');
     }
   }
 
   @override
-  Future<CallInfoModel> rejectCall({
-    required String callId,
-    required CallRejectReason reason,
-  }) async {
+  Future<CallInfoModel> rejectCall({required String callId, required CallRejectReason reason}) async {
     try {
-      final response = await dio.post(
-        ApiConstants.rejectCall(callId),
-        data: {
-          'reason': reason.name,
-        },
-      );
+      final response = await dio.post(ApiConstants.rejectCall(callId), data: {'reason': reason.name});
 
       if (response.statusCode == 200) {
         return CallInfoModel.fromJson(response.data['data']);
       } else {
-        throw ServerException(
-          message: response.data['message'] ?? 'Failed to reject call',
-        );
+        throw ServerException(message: response.data['message'] ?? 'Failed to reject call');
       }
     } on DioException catch (e) {
-      throw ServerException(
-        message: e.response?.data['message'] ?? 'Network error occurred',
-      );
+      throw ServerException(message: e.response?.data['message'] ?? 'Network error occurred');
     }
   }
 
   @override
-  Future<CallInfoModel> endCall({
-    required String callId,
-    required CallEndReason reason,
-  }) async {
+  Future<CallInfoModel> endCall({required String callId, required CallEndReason reason}) async {
     try {
-      final response = await dio.post(
-        ApiConstants.endCall(callId),
-        data: {
-          'reason': reason.name,
-        },
-      );
+      final response = await dio.post(ApiConstants.endCall(callId), data: {'reason': reason.name});
 
       if (response.statusCode == 200) {
         return CallInfoModel.fromJson(response.data['data']);
       } else {
-        throw ServerException(
-          message: response.data['message'] ?? 'Failed to end call',
-        );
+        throw ServerException(message: response.data['message'] ?? 'Failed to end call');
       }
     } on DioException catch (e) {
-      throw ServerException(
-        message: e.response?.data['message'] ?? 'Network error occurred',
-      );
+      throw ServerException(message: e.response?.data['message'] ?? 'Network error occurred');
     }
   }
 }
-

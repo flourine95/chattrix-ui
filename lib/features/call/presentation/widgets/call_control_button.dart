@@ -5,10 +5,10 @@ class ModernCallButton extends StatelessWidget {
   final IconData icon;
   final String label;
   final VoidCallback onPressed;
-  final bool isActive; // Trạng thái đang kích hoạt (VD: đang Mute)
-  final Color? activeColor; // Màu khi active (VD: Màu đen hoặc trắng)
-  final Color? inactiveColor; // Màu khi bình thường
-  final bool isDestructive; // Nút tắt máy (Màu đỏ)
+  final bool isActive;
+  final Color? activeColor;
+  final Color? inactiveColor;
+  final bool isDestructive;
 
   const ModernCallButton({
     super.key,
@@ -23,17 +23,11 @@ class ModernCallButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Logic màu sắc:
-    // 1. Nút tắt máy: Luôn đỏ
-    // 2. Nút thường:
-    //    - Active (đang mute/tắt cam): Nền Đen/Xám đậm, Icon Trắng (để nổi bật cảnh báo)
-    //    - Inactive (bình thường): Nền Xám nhạt, Icon Đen
-
     final backgroundColor = isDestructive
-        ? const Color(0xFFFF3B30) // Red
+        ? const Color(0xFFFF3B30)
         : isActive
-        ? (activeColor ?? const Color(0xFF2C2C2E)) // Dark grey when active
-        : (inactiveColor ?? const Color(0xFFF2F2F7)); // Light grey when inactive
+        ? (activeColor ?? const Color(0xFF2C2C2E))
+        : (inactiveColor ?? const Color(0xFFF2F2F7));
 
     final iconColor = isDestructive
         ? Colors.white
@@ -44,7 +38,6 @@ class ModernCallButton extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        // Dùng GestureDetector + AnimatedContainer để tránh hiệu ứng ripple đen
         GestureDetector(
           onTap: onPressed,
           child: AnimatedContainer(
@@ -55,30 +48,16 @@ class ModernCallButton extends StatelessWidget {
               color: backgroundColor,
               shape: BoxShape.circle,
               boxShadow: isDestructive
-                  ? [
-                BoxShadow(
-                  color: Colors.red.withOpacity(0.3),
-                  blurRadius: 10,
-                  offset: const Offset(0, 4),
-                )
-              ]
+                  ? [BoxShadow(color: Colors.red.withValues(alpha: 0.3), blurRadius: 10, offset: const Offset(0, 4))]
                   : [],
             ),
-            child: Icon(
-              icon,
-              color: iconColor,
-              size: 28,
-            ),
+            child: Icon(icon, color: iconColor, size: 28),
           ),
         ),
         const SizedBox(height: 8),
         Text(
           label,
-          style: GoogleFonts.inter(
-            color: Colors.black54,
-            fontSize: 12,
-            fontWeight: FontWeight.w500,
-          ),
+          style: GoogleFonts.inter(color: Colors.black54, fontSize: 12, fontWeight: FontWeight.w500),
         ),
       ],
     );

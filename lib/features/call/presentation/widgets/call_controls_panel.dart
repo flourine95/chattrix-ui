@@ -1,31 +1,25 @@
 import 'package:chattrix_ui/features/call/domain/entities/call_type.dart';
 import 'package:chattrix_ui/features/call/presentation/state/call_notifier.dart';
+import 'package:chattrix_ui/features/call/presentation/state/call_state.dart';
 import 'package:chattrix_ui/features/call/presentation/widgets/call_control_button.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-import '../state/call_state.dart';
-
-/// Optimized controls panel that only rebuilds when control states change
 class CallControlsPanel extends ConsumerWidget {
   final CallType callType;
 
-  const CallControlsPanel({
-    super.key,
-    required this.callType,
-  });
+  const CallControlsPanel({super.key, required this.callType});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final callState = ref.watch(callProvider);
 
-    // Extract control states only when connected
     return callState.when(
       idle: () => const SizedBox.shrink(),
-      initiating: (_, __) => const SizedBox.shrink(),
+      initiating: (_, _) => const SizedBox.shrink(),
       ringing: (_) => const SizedBox.shrink(),
-      connecting: (_, __, ___) => const SizedBox.shrink(),
-      connected: (_, __, ___, isMuted, isVideoEnabled, isSpeakerEnabled, ______, _______, ________, _________) {
+      connecting: (_, _, _) => const SizedBox.shrink(),
+      connected: (_, _, _, isMuted, isVideoEnabled, isSpeakerEnabled, _, _, _, _) {
         final isVideoCall = callType == CallType.video;
 
         return Container(
@@ -34,17 +28,12 @@ class CallControlsPanel extends ConsumerWidget {
             color: Colors.white,
             borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
             boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.08),
-                blurRadius: 20,
-                offset: const Offset(0, -4),
-              ),
+              BoxShadow(color: Colors.black.withValues(alpha: 0.08), blurRadius: 20, offset: const Offset(0, -4)),
             ],
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              // Nút Mic
               ModernCallButton(
                 icon: isMuted ? Icons.mic_off : Icons.mic,
                 label: "Mute",
@@ -52,7 +41,6 @@ class CallControlsPanel extends ConsumerWidget {
                 onPressed: ref.read(callProvider.notifier).toggleMute,
               ),
 
-              // Nút Camera (Chỉ hiện nếu là video call)
               if (isVideoCall)
                 ModernCallButton(
                   icon: isVideoEnabled ? Icons.videocam : Icons.videocam_off,
@@ -68,7 +56,6 @@ class CallControlsPanel extends ConsumerWidget {
                   onPressed: ref.read(callProvider.notifier).switchCamera,
                 ),
 
-              // Nút Loa
               ModernCallButton(
                 icon: isSpeakerEnabled ? Icons.volume_up : Icons.volume_off,
                 label: "Speaker",
@@ -77,7 +64,6 @@ class CallControlsPanel extends ConsumerWidget {
                 onPressed: ref.read(callProvider.notifier).toggleSpeaker,
               ),
 
-              // Nút End Call
               ModernCallButton(
                 icon: Icons.call_end,
                 label: "End",
@@ -93,4 +79,3 @@ class CallControlsPanel extends ConsumerWidget {
     );
   }
 }
-

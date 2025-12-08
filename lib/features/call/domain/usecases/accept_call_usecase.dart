@@ -8,10 +8,7 @@ class AcceptCallUseCase {
 
   AcceptCallUseCase(this.repository);
 
-  Future<Either<Failure, CallConnection>> call({
-    required String callId,
-  }) {
+  Future<Either<Failure, CallConnection>> call({required String callId}) {
     return repository.acceptCall(callId: callId);
   }
 }
-

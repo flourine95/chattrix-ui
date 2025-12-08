@@ -9,14 +9,7 @@ class EndCallUseCase {
 
   EndCallUseCase(this.repository);
 
-  Future<Either<Failure, CallInfo>> call({
-    required String callId,
-    required CallEndReason reason,
-  }) {
-    return repository.endCall(
-      callId: callId,
-      reason: reason,
-    );
+  Future<Either<Failure, CallInfo>> call({required String callId, required CallEndReason reason}) {
+    return repository.endCall(callId: callId, reason: reason);
   }
 }
-

@@ -9,13 +9,7 @@ class InitiateCallUseCase {
 
   InitiateCallUseCase(this.repository);
 
-  Future<Either<Failure, CallConnection>> call({
-    required int calleeId,
-    required CallType callType,
-  }) {
-    return repository.initiateCall(
-      calleeId: calleeId,
-      callType: callType,
-    );
+  Future<Either<Failure, CallConnection>> call({required int calleeId, required CallType callType}) {
+    return repository.initiateCall(calleeId: calleeId, callType: callType);
   }
 }

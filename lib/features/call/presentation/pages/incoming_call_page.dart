@@ -16,7 +16,7 @@ class IncomingCallPage extends ConsumerWidget {
       backgroundColor: Colors.white,
       body: callState.when(
         idle: () => const SizedBox(),
-        initiating: (_, __) => const SizedBox(),
+        initiating: (_, _) => const SizedBox(),
         ringing: (invitation) => _buildRingingView(
           context,
           ref,
@@ -24,8 +24,8 @@ class IncomingCallPage extends ConsumerWidget {
           callerAvatar: invitation.callerAvatar,
           callType: invitation.callType,
         ),
-        connecting: (_, __, ___) => const SizedBox(),
-        connected: (_, __, ___, ____, _____, ______, _______, ________, _________, __________) => const SizedBox(),
+        connecting: (_, _, _) => const SizedBox(),
+        connected: (_, _, _, _, _, _, _, _, _, _) => const SizedBox(),
         ended: (_) => const SizedBox(),
         error: (message) => Center(child: Text(message)),
       ),
@@ -69,7 +69,7 @@ class IncomingCallPage extends ConsumerWidget {
                   color: Colors.white,
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.08),
+                      color: Colors.black.withValues(alpha: 0.08),
                       blurRadius: 24,
                       offset: const Offset(0, 12),
                     ),
@@ -113,7 +113,7 @@ class IncomingCallPage extends ConsumerWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 decoration: BoxDecoration(
-                  color: Colors.blue.withOpacity(0.08),
+                  color: Colors.blue.withValues(alpha: 0.08),
                   borderRadius: BorderRadius.circular(24),
                 ),
                 child: Row(
@@ -201,7 +201,7 @@ class _ActionColumn extends StatelessWidget {
               shape: BoxShape.circle,
               boxShadow: [
                 BoxShadow(
-                  color: color.withOpacity(0.4),
+                  color: color.withValues(alpha: 0.4),
                   blurRadius: 16,
                   offset: const Offset(0, 6),
                 ),

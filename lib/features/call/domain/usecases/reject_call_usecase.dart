@@ -9,14 +9,7 @@ class RejectCallUseCase {
 
   RejectCallUseCase(this.repository);
 
-  Future<Either<Failure, CallInfo>> call({
-    required String callId,
-    required CallRejectReason reason,
-  }) {
-    return repository.rejectCall(
-      callId: callId,
-      reason: reason,
-    );
+  Future<Either<Failure, CallInfo>> call({required String callId, required CallRejectReason reason}) {
+    return repository.rejectCall(callId: callId, reason: reason);
   }
 }
-

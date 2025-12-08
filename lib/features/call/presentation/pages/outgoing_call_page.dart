@@ -30,7 +30,7 @@ class OutgoingCallPage extends ConsumerWidget {
           }
           return const SizedBox();
         },
-        connected: (_, __, ___, ____, _____, ______, _______, ________, _________, __________) => const SizedBox(),
+        connected: (_, _, _, _, _, _, _, _, _, _) => const SizedBox(),
         ended: (_) => const SizedBox(),
         error: (msg) => Center(child: Text(msg)),
       ),
@@ -69,7 +69,7 @@ class OutgoingCallPage extends ConsumerWidget {
                   padding: const EdgeInsets.all(4),
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    border: Border.all(color: Colors.blue.withOpacity(0.1), width: 1),
+                    border: Border.all(color: Colors.blue.withValues(alpha: 0.1), width: 1),
                     color: Colors.white,
                   ),
                   child: CircleAvatar(
@@ -128,7 +128,7 @@ class OutgoingCallPage extends ConsumerWidget {
                             shape: BoxShape.circle,
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.red.withOpacity(0.3),
+                                color: Colors.red.withValues(alpha: 0.3),
                                 blurRadius: 15,
                                 offset: const Offset(0, 4),
                               ),
