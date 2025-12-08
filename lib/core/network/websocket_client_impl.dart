@@ -1,9 +1,9 @@
 import 'dart:async';
 
 import 'package:chattrix_ui/core/network/websocket_client.dart';
+import 'package:chattrix_ui/core/utils/app_logger.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
-/// Implementation of WebSocketClient using web_socket_channel package
 class WebSocketClientImpl implements WebSocketClient {
   WebSocketChannel? _channel;
 
@@ -22,18 +22,17 @@ class WebSocketClientImpl implements WebSocketClient {
   @override
   Future<void> connect(String url) async {
     if (_channel != null) {
-      print('🔌 [WebSocketClient] Already connected');
+      AppLogger.websocket('Client already connected');
       return;
     }
 
     try {
-      print('🔌 [WebSocketClient] Connecting to: $url');
+      AppLogger.websocket('Connecting to: $url');
       _channel = WebSocketChannel.connect(Uri.parse(url));
 
       _connectionController.add(true);
-      print('✅ [WebSocketClient] Connected successfully');
+      AppLogger.websocket('Connection established');
 
-      // Listen to messages
       _channel!.stream.listen(
         (message) {
           if (message is String) {
@@ -41,19 +40,17 @@ class WebSocketClientImpl implements WebSocketClient {
           }
         },
         onError: (error, stackTrace) {
-          print('❌ [WebSocketClient] Connection error: $error');
-          print('❌ [WebSocketClient] Stack trace: $stackTrace');
+          AppLogger.websocket('Stream error: $error', isError: true);
           _handleDisconnect();
         },
         onDone: () {
-          print('🔌 [WebSocketClient] Connection closed gracefully');
+          AppLogger.websocket('Stream closed by server');
           _handleDisconnect();
         },
         cancelOnError: false,
       );
     } catch (e, stackTrace) {
-      print('❌ [WebSocketClient] Connection failed: $e');
-      print('❌ [WebSocketClient] Stack trace: $stackTrace');
+      AppLogger.error('Connection failed', error: e, stackTrace: stackTrace, tag: 'WebSocket');
       _connectionController.add(false);
       _channel = null;
       rethrow;
@@ -63,6 +60,7 @@ class WebSocketClientImpl implements WebSocketClient {
   @override
   Future<void> disconnect() async {
     if (_channel != null) {
+      AppLogger.websocket('Closing connection...');
       await _channel!.sink.close();
       _channel = null;
       _connectionController.add(false);
@@ -71,13 +69,19 @@ class WebSocketClientImpl implements WebSocketClient {
 
   @override
   void send(String message) {
-    if (_channel == null) return;
+    if (_channel == null) {
+      AppLogger.websocket('Cannot send message: Not connected', isError: true);
+      return;
+    }
     _channel!.sink.add(message);
   }
 
   void _handleDisconnect() {
-    _connectionController.add(false);
-    _channel = null;
+    if (_channel != null) {
+      _connectionController.add(false);
+      _channel = null;
+      AppLogger.websocket('Disconnected handled');
+    }
   }
 
   @override
@@ -87,4 +91,3 @@ class WebSocketClientImpl implements WebSocketClient {
     _connectionController.close();
   }
 }
-

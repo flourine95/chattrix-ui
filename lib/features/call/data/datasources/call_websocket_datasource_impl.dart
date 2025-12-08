@@ -1,19 +1,28 @@
 import 'dart:async';
-import 'package:chattrix_ui/core/utils/app_logger.dart';
+
+import 'package:chattrix_ui/core/network/websocket_service.dart';
 import 'package:chattrix_ui/features/call/data/models/call_accept_model.dart';
 import 'package:chattrix_ui/features/call/data/models/call_end_model.dart';
 import 'package:chattrix_ui/features/call/data/models/call_invitation_model.dart';
 import 'package:chattrix_ui/features/call/data/models/call_reject_model.dart';
 import 'package:chattrix_ui/features/call/data/models/call_timeout_model.dart';
+import 'package:chattrix_ui/features/call/domain/datasources/call_websocket_datasource.dart';
 import 'package:chattrix_ui/features/call/domain/entities/call_accept.dart';
 import 'package:chattrix_ui/features/call/domain/entities/call_end.dart';
 import 'package:chattrix_ui/features/call/domain/entities/call_invitation.dart';
 import 'package:chattrix_ui/features/call/domain/entities/call_reject.dart';
 import 'package:chattrix_ui/features/call/domain/entities/call_timeout.dart';
-import 'package:chattrix_ui/features/chat/domain/datasources/chat_websocket_datasource.dart';
 
-/// WebSocket event types for call signaling
-class CallWebSocketEvent {
+/// WebSocket event types sent from client to server
+class _CallWebSocketEvent {
+  static const String invite = 'call.invite';
+  static const String accept = 'call.accept';
+  static const String reject = 'call.reject';
+  static const String end = 'call.end';
+}
+
+/// WebSocket event types received from server
+class _CallWebSocketResponse {
   static const String incoming = 'call.incoming';
   static const String accepted = 'call.accepted';
   static const String rejected = 'call.rejected';
@@ -21,10 +30,10 @@ class CallWebSocketEvent {
   static const String timeout = 'call.timeout';
 }
 
-/// Handler for call-related WebSocket messages
-/// Updated to use ChatWebSocketDataSource (Clean Architecture)
-class CallWebSocketHandler {
-  final ChatWebSocketDataSource _webSocketDataSource;
+/// Implementation of CallWebSocketDataSource
+/// Handles call signaling through shared WebSocket connection
+class CallWebSocketDataSourceImpl implements CallWebSocketDataSource {
+  final WebSocketService _webSocketService;
   StreamSubscription<Map<String, dynamic>>? _subscription;
 
   // Stream controllers for call events
@@ -34,122 +43,148 @@ class CallWebSocketHandler {
   final _callEndedController = StreamController<CallEnd>.broadcast();
   final _callTimeoutController = StreamController<CallTimeout>.broadcast();
 
-  Stream<CallInvitation> get incomingCallStream => _incomingCallController.stream;
-  Stream<CallAccept> get callAcceptedStream => _callAcceptedController.stream;
-  Stream<CallReject> get callRejectedStream => _callRejectedController.stream;
-  Stream<CallEnd> get callEndedStream => _callEndedController.stream;
-  Stream<CallTimeout> get callTimeoutStream => _callTimeoutController.stream;
+  CallWebSocketDataSourceImpl({required WebSocketService webSocketService}) : _webSocketService = webSocketService {
+    _startListening();
+  }
 
-  CallWebSocketHandler({required ChatWebSocketDataSource webSocketDataSource})
-      : _webSocketDataSource = webSocketDataSource;
+  void _startListening() {
+    // Listen to call-related messages only
+    final callMessageTypes = [
+      _CallWebSocketResponse.incoming,
+      _CallWebSocketResponse.accepted,
+      _CallWebSocketResponse.rejected,
+      _CallWebSocketResponse.ended,
+      _CallWebSocketResponse.timeout,
+    ];
 
-  void startListening() {
-    _subscription?.cancel();
-    _subscription = _webSocketDataSource.rawMessageStream.listen(
-      _handleMessage,
-      onError: (error) {
-        appLogger.e('📞 [CallWebSocket] Error in handler: $error');
-      },
-    );
-    appLogger.i('📞 [CallWebSocket] Handler started listening for call events');
+    _subscription = _webSocketService.messageRouter.getStreamForTypes(callMessageTypes).listen(_handleMessage);
   }
 
   void _handleMessage(Map<String, dynamic> message) {
     try {
       final type = message['type'] as String?;
-
       if (type == null) {
-        appLogger.w('📞 [CallWebSocket] Message has no type: $message');
         return;
       }
-
-      appLogger.i('📞 [CallWebSocket] Received message type: $type');
 
       // Backend may send data in 'data' or 'payload' field
       final data = message['data'] as Map<String, dynamic>? ?? message['payload'] as Map<String, dynamic>?;
 
       if (data == null) {
-        appLogger.w('📞 [CallWebSocket] Message has no data/payload for type: $type');
-        appLogger.i('📞 [CallWebSocket] Full message: $message');
         return;
       }
 
-      appLogger.i('📞 [CallWebSocket] Processing $type with data: ${data.keys}');
-
       switch (type) {
-        case CallWebSocketEvent.incoming:
-          appLogger.i('📞 [CallWebSocket] Handling incoming call...');
+        case _CallWebSocketResponse.incoming:
           _handleIncomingCall(data);
           break;
-        case CallWebSocketEvent.accepted:
+        case _CallWebSocketResponse.accepted:
           _handleCallAccepted(data);
           break;
-        case CallWebSocketEvent.rejected:
+        case _CallWebSocketResponse.rejected:
           _handleCallRejected(data);
           break;
-        case CallWebSocketEvent.ended:
+        case _CallWebSocketResponse.ended:
           _handleCallEnded(data);
           break;
-        case CallWebSocketEvent.timeout:
+        case _CallWebSocketResponse.timeout:
           _handleCallTimeout(data);
           break;
-        default:
-          // Not a call event, ignore
-          appLogger.i('📞 [CallWebSocket] Ignoring non-call event: $type');
-          break;
       }
-    } catch (e, stackTrace) {
-      appLogger.e('📞 [CallWebSocket] Error handling message: $e', stackTrace: stackTrace);
-    }
+    } catch (e, stackTrace) {}
   }
 
   void _handleIncomingCall(Map<String, dynamic> data) {
     try {
-      appLogger.i('📞 [CallWebSocket] Parsing incoming call data: $data');
       final invitation = CallInvitationModel.fromJson(data).toEntity();
-      appLogger.i('📞 [CallWebSocket] Successfully parsed invitation: ${invitation.callId}');
       _incomingCallController.add(invitation);
-    } catch (e, stackTrace) {
-      appLogger.e('📞 [CallWebSocket] Error parsing incoming call: $e', stackTrace: stackTrace);
-    }
+    } catch (e, stackTrace) {}
   }
 
   void _handleCallAccepted(Map<String, dynamic> data) {
     try {
       final accept = CallAcceptModel.fromJson(data).toEntity();
       _callAcceptedController.add(accept);
-    } catch (e) {
-      appLogger.e('📞 [CallWebSocket] Error parsing call accepted: $e');
-    }
+    } catch (e) {}
   }
 
   void _handleCallRejected(Map<String, dynamic> data) {
     try {
       final reject = CallRejectModel.fromJson(data).toEntity();
       _callRejectedController.add(reject);
-    } catch (e) {
-      appLogger.e('📞 [CallWebSocket] Error parsing call rejected: $e');
-    }
+    } catch (e) {}
   }
 
   void _handleCallEnded(Map<String, dynamic> data) {
     try {
       final end = CallEndModel.fromJson(data).toEntity();
       _callEndedController.add(end);
-    } catch (e) {
-      appLogger.e('📞 [CallWebSocket] Error parsing call ended: $e');
-    }
+    } catch (e) {}
   }
 
   void _handleCallTimeout(Map<String, dynamic> data) {
     try {
       final timeout = CallTimeoutModel.fromJson(data).toEntity();
       _callTimeoutController.add(timeout);
-    } catch (e) {
-      appLogger.e('📞 [CallWebSocket] Error parsing call timeout: $e');
-    }
+    } catch (e) {}
   }
 
+  @override
+  void sendCallInvitation({required String receiverId, required String callType}) {
+    final payload = {
+      'type': _CallWebSocketEvent.invite,
+      'payload': {'receiverId': receiverId, 'callType': callType},
+    };
+
+    _webSocketService.send(payload);
+  }
+
+  @override
+  void sendCallAccept({required String callId, required String sdpAnswer}) {
+    final payload = {
+      'type': _CallWebSocketEvent.accept,
+      'payload': {'callId': callId, 'sdpAnswer': sdpAnswer},
+    };
+
+    _webSocketService.send(payload);
+  }
+
+  @override
+  void sendCallReject({required String callId, required String reason}) {
+    final payload = {
+      'type': _CallWebSocketEvent.reject,
+      'payload': {'callId': callId, 'reason': reason},
+    };
+
+    _webSocketService.send(payload);
+  }
+
+  @override
+  void sendCallEnd(String callId) {
+    final payload = {
+      'type': _CallWebSocketEvent.end,
+      'payload': {'callId': callId},
+    };
+
+    _webSocketService.send(payload);
+  }
+
+  @override
+  Stream<CallInvitation> get incomingCallStream => _incomingCallController.stream;
+
+  @override
+  Stream<CallAccept> get callAcceptedStream => _callAcceptedController.stream;
+
+  @override
+  Stream<CallReject> get callRejectedStream => _callRejectedController.stream;
+
+  @override
+  Stream<CallEnd> get callEndedStream => _callEndedController.stream;
+
+  @override
+  Stream<CallTimeout> get callTimeoutStream => _callTimeoutController.stream;
+
+  @override
   void dispose() {
     _subscription?.cancel();
     _incomingCallController.close();
@@ -159,4 +194,3 @@ class CallWebSocketHandler {
     _callTimeoutController.close();
   }
 }
-

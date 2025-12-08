@@ -11,6 +11,7 @@ import 'package:chattrix_ui/features/call/domain/entities/call_reject_reason.dar
 import 'package:chattrix_ui/features/call/domain/entities/call_type.dart';
 import 'package:chattrix_ui/features/call/presentation/providers/call_service_provider.dart';
 import 'package:chattrix_ui/features/call/presentation/providers/call_usecase_provider.dart';
+import 'package:chattrix_ui/features/call/presentation/providers/call_websocket_provider.dart';
 import 'package:chattrix_ui/features/call/presentation/state/call_state.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
@@ -43,17 +44,16 @@ class CallNotifier extends _$CallNotifier {
   }
 
   void _initializeListeners() {
-    appLogger.i('📞 [CallNotifier] Initializing listeners...');
 
-    final wsHandler = ref.watch(callWebSocketHandlerProvider);
+    final wsDataSource = ref.watch(callWebSocketDataSourceProvider);
     final agoraService = ref.watch(agoraServiceProvider);
 
     // Listen to WebSocket events
-    _incomingCallSubscription = wsHandler.incomingCallStream.listen(_handleIncomingCall);
-    _callAcceptedSubscription = wsHandler.callAcceptedStream.listen(_handleCallAccepted);
-    _callRejectedSubscription = wsHandler.callRejectedStream.listen(_handleCallRejected);
-    _callEndedSubscription = wsHandler.callEndedStream.listen(_handleCallEnded);
-    _callTimeoutSubscription = wsHandler.callTimeoutStream.listen(_handleCallTimeout);
+    _incomingCallSubscription = wsDataSource.incomingCallStream.listen(_handleIncomingCall);
+    _callAcceptedSubscription = wsDataSource.callAcceptedStream.listen(_handleCallAccepted);
+    _callRejectedSubscription = wsDataSource.callRejectedStream.listen(_handleCallRejected);
+    _callEndedSubscription = wsDataSource.callEndedStream.listen(_handleCallEnded);
+    _callTimeoutSubscription = wsDataSource.callTimeoutStream.listen(_handleCallTimeout);
 
     // Listen to Agora events
     _userJoinedSubscription = agoraService.userJoinedStream.listen(_handleUserJoined);
@@ -61,7 +61,6 @@ class CallNotifier extends _$CallNotifier {
     _remoteVideoStateSubscription = agoraService.remoteVideoStateStream.listen(_handleRemoteVideoStateChanged);
     _remoteAudioStateSubscription = agoraService.remoteAudioStateStream.listen(_handleRemoteAudioStateChanged);
 
-    appLogger.i('📞 [CallNotifier] Listeners initialized successfully');
   }
 
   void _cleanup() {

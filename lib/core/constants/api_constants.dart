@@ -12,42 +12,27 @@ class ApiConstants {
 
   static const String _androidEmulatorHost = '10.0.2.2';
 
-  /// Get the appropriate host based on platform
-  /// - Web: Use API_HOST from .env
-  /// - Android Emulator: Use 10.0.2.2 (localhost from emulator perspective)
-  /// - Other platforms (iOS, Windows, Mac, Linux): Use API_HOST from .env
   static String get _effectiveHost {
     if (kIsWeb) {
       return _host;
     }
 
-    // Only use emulator host for Android
     if (defaultTargetPlatform == TargetPlatform.android) {
       return _androidEmulatorHost;
     }
 
-    // For iOS, Windows, macOS, Linux: use configured host
     return _host;
   }
-
-  /// Determines if secure protocols (HTTPS/WSS) should be used
-  ///
-  /// Requirement 10.5: Use HTTPS for API calls and WSS for WebSocket in production
-  /// In debug mode, allows HTTP/WS for localhost development
-  /// In release mode, enforces HTTPS/WSS for security
   static bool get _useSecureProtocol {
-    // Check if explicitly set in environment
     final useSecure = dotenv.env['USE_SECURE_PROTOCOL'];
     if (useSecure != null) {
       return useSecure.toLowerCase() == 'true';
     }
 
-    // In release mode, always use secure protocols
     if (!kDebugMode) {
       return true;
     }
 
-    // In debug mode, use secure protocols for non-localhost hosts
     final host = _effectiveHost;
     final isLocalhost = host == 'localhost' || host == '127.0.0.1' || host == '10.0.2.2' || host == '0.0.0.0';
 
@@ -59,12 +44,6 @@ class ApiConstants {
     final protocol = _useSecureProtocol ? 'https' : 'http';
     final url = '$protocol://$host:$_port$_apiPath';
 
-    if (kDebugMode) {
-      print('🌐 [ApiConstants] Platform: ${defaultTargetPlatform.name}');
-      print('🌐 [ApiConstants] Effective Host: $host');
-      print('🌐 [ApiConstants] HTTP Base URL: $url');
-    }
-
     return url;
   }
 
@@ -72,10 +51,6 @@ class ApiConstants {
     final host = _effectiveHost;
     final protocol = _useSecureProtocol ? 'wss' : 'ws';
     final url = '$protocol://$host:$_port$_wsPath';
-
-    if (kDebugMode) {
-      print('🌐 [ApiConstants] WebSocket Base URL: $url');
-    }
 
     return url;
   }

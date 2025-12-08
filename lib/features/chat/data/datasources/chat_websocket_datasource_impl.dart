@@ -1,8 +1,6 @@
 import 'dart:async';
-import 'dart:convert';
 
-import 'package:chattrix_ui/core/constants/api_constants.dart';
-import 'package:chattrix_ui/core/network/websocket_connection_manager.dart';
+import 'package:chattrix_ui/core/network/websocket_service.dart';
 import 'package:chattrix_ui/features/chat/data/models/message_model.dart';
 import 'package:chattrix_ui/features/chat/data/models/conversation_update_model.dart';
 import 'package:chattrix_ui/features/chat/data/models/typing_indicator_model.dart';
@@ -26,119 +24,51 @@ class _ChatWebSocketResponse {
   static const String typingIndicator = 'typing.indicator';
   static const String userStatus = 'user.status';
   static const String conversationUpdate = 'conversation.update';
-  static const String heartbeatAck = 'heartbeat.ack';
-
-  // Call events
-  static const String callIncoming = 'call.incoming';
-  static const String callInvitation = 'call.invitation';
-  static const String callAccepted = 'call.accepted';
-  static const String callRejected = 'call.rejected';
-  static const String callResponse = 'call.response';
-  static const String callEnded = 'call.ended';
-  static const String callTimeout = 'call.timeout';
 }
 
 /// Implementation of ChatWebSocketDataSource
-/// This class handles WebSocket communication for chat feature
 class ChatWebSocketDataSourceImpl implements ChatWebSocketDataSource {
-  final WebSocketConnectionManager _connectionManager;
+  final WebSocketService _webSocketService;
+  StreamSubscription<Map<String, dynamic>>? _subscription;
 
   // Stream controllers for different message types
   final _messageController = StreamController<Message>.broadcast();
   final _typingController = StreamController<TypingIndicator>.broadcast();
   final _userStatusController = StreamController<UserStatusUpdate>.broadcast();
   final _conversationUpdateController = StreamController<ConversationUpdate>.broadcast();
-  final _rawMessageController = StreamController<Map<String, dynamic>>.broadcast();
 
   ChatWebSocketDataSourceImpl({
-    required WebSocketConnectionManager connectionManager,
-  }) : _connectionManager = connectionManager {
-    // Listen to incoming messages and route them
-    _connectionManager.client.messageStream.listen(_handleMessage);
+    required WebSocketService webSocketService,
+  }) : _webSocketService = webSocketService {
+    _startListening();
   }
 
-  @override
-  Future<void> connect(String accessToken) async {
-    final url = ApiConstants.chatWebSocketWithToken(accessToken);
-    await _connectionManager.connect(url);
+  void _startListening() {
+    // Listen to chat-related messages only
+    final chatMessageTypes = [
+      _ChatWebSocketResponse.chatMessage,
+      _ChatWebSocketResponse.typingIndicator,
+      _ChatWebSocketResponse.userStatus,
+      _ChatWebSocketResponse.conversationUpdate,
+    ];
+
+    _subscription = _webSocketService.messageRouter
+        .getStreamForTypes(chatMessageTypes)
+        .listen(_handleMessage);
+
+    print('💬 [ChatWebSocketDataSource] Started listening for chat events');
   }
 
-  @override
-  Future<void> disconnect() async {
-    await _connectionManager.disconnect();
-  }
-
-  @override
-  void sendMessage({
-    required String conversationId,
-    required String content,
-    int? replyToMessageId,
-  }) {
-    final payload = {
-      'type': _ChatWebSocketEvent.chatMessage,
-      'payload': {
-        'conversationId': conversationId,
-        'content': content,
-        if (replyToMessageId != null) 'replyToMessageId': replyToMessageId,
-      },
-    };
-
-    _connectionManager.client.send(jsonEncode(payload));
-  }
-
-  @override
-  void sendTypingStart(String conversationId) {
-    final payload = {
-      'type': _ChatWebSocketEvent.typingStart,
-      'payload': {'conversationId': conversationId},
-    };
-
-    _connectionManager.client.send(jsonEncode(payload));
-  }
-
-  @override
-  void sendTypingStop(String conversationId) {
-    final payload = {
-      'type': _ChatWebSocketEvent.typingStop,
-      'payload': {'conversationId': conversationId},
-    };
-
-    _connectionManager.client.send(jsonEncode(payload));
-  }
-
-  @override
-  void sendGenericMessage(Map<String, dynamic> payload) {
-    _connectionManager.client.send(jsonEncode(payload));
-  }
-
-  /// Handle incoming WebSocket messages
-  Future<void> _handleMessage(String messageString) async {
+  void _handleMessage(Map<String, dynamic> message) {
     try {
-      // Decode the wrapper to get the type
-      final data = jsonDecode(messageString) as Map<String, dynamic>;
-      final type = data['type'] as String?;
+      final type = message['type'] as String?;
+      if (type == null) return;
 
-      print('🔌 [WebSocketDataSource] Received message type: $type');
+      final payload = message['payload'] ?? message['data'];
+      if (payload == null) return;
 
-      if (type == null) {
-        // Server might send message directly without wrapper
-        final json = jsonDecode(messageString) as Map<String, dynamic>;
-        final messageEntity = MessageModel.fromApi(json).toEntity();
-        _messageController.add(messageEntity);
-        return;
-      }
+      print('💬 [ChatWebSocketDataSource] Processing $type');
 
-      // Emit raw message for custom handlers (like call signaling)
-      _rawMessageController.add(data);
-
-      // Extract payload - try 'payload' first, then 'data' for backward compatibility
-      final payload = data['payload'] ?? data['data'];
-      if (payload == null) {
-        print('🔌 [WebSocketDataSource] Message has no payload/data');
-        return;
-      }
-
-      // Route message based on type
       switch (type) {
         case _ChatWebSocketResponse.chatMessage:
           final messageEntity = MessageModel.fromApi(payload as Map<String, dynamic>).toEntity();
@@ -159,29 +89,67 @@ class ChatWebSocketDataSourceImpl implements ChatWebSocketDataSource {
           final updateEntity = ConversationUpdateModel.fromJson(payload as Map<String, dynamic>).toEntity();
           _conversationUpdateController.add(updateEntity);
           break;
-
-        case _ChatWebSocketResponse.heartbeatAck:
-          // Heartbeat acknowledged - no action needed
-          break;
-
-        case _ChatWebSocketResponse.callIncoming:
-        case _ChatWebSocketResponse.callInvitation:
-        case _ChatWebSocketResponse.callAccepted:
-        case _ChatWebSocketResponse.callRejected:
-        case _ChatWebSocketResponse.callResponse:
-        case _ChatWebSocketResponse.callEnded:
-        case _ChatWebSocketResponse.callTimeout:
-          // These are handled through rawMessageStream by CallWebSocketHandler
-          break;
-
-        default:
-          print('🔌 [WebSocketDataSource] Unknown message type: $type');
-          break;
       }
     } catch (e, stackTrace) {
-      print('🔌 [WebSocketDataSource] Error parsing message: $e');
-      print('🔌 [WebSocketDataSource] Stack trace: $stackTrace');
+      print('💬 [ChatWebSocketDataSource] Error: $e');
+      print('💬 [ChatWebSocketDataSource] Stack trace: $stackTrace');
     }
+  }
+
+  @override
+  Future<void> connect(String accessToken) async {
+    // Connection is managed by WebSocketService
+    // This method is kept for interface compatibility but does nothing
+    print('💬 [ChatWebSocketDataSource] Connect called (handled by WebSocketService)');
+  }
+
+  @override
+  Future<void> disconnect() async {
+    // Disconnection is managed by WebSocketService
+    print('💬 [ChatWebSocketDataSource] Disconnect called (handled by WebSocketService)');
+  }
+
+  @override
+  void sendMessage({
+    required String conversationId,
+    required String content,
+    int? replyToMessageId,
+  }) {
+    final payload = {
+      'type': _ChatWebSocketEvent.chatMessage,
+      'payload': {
+        'conversationId': conversationId,
+        'content': content,
+        if (replyToMessageId != null) 'replyToMessageId': replyToMessageId,
+      },
+    };
+
+    _webSocketService.send(payload);
+  }
+
+  @override
+  void sendTypingStart(String conversationId) {
+    final payload = {
+      'type': _ChatWebSocketEvent.typingStart,
+      'payload': {'conversationId': conversationId},
+    };
+
+    _webSocketService.send(payload);
+  }
+
+  @override
+  void sendTypingStop(String conversationId) {
+    final payload = {
+      'type': _ChatWebSocketEvent.typingStop,
+      'payload': {'conversationId': conversationId},
+    };
+
+    _webSocketService.send(payload);
+  }
+
+  @override
+  void sendGenericMessage(Map<String, dynamic> payload) {
+    _webSocketService.send(payload);
   }
 
   @override
@@ -197,22 +165,20 @@ class ChatWebSocketDataSourceImpl implements ChatWebSocketDataSource {
   Stream<ConversationUpdate> get conversationUpdateStream => _conversationUpdateController.stream;
 
   @override
-  Stream<bool> get connectionStream => _connectionManager.client.connectionStream;
+  Stream<bool> get connectionStream => _webSocketService.connectionStream;
 
   @override
-  Stream<Map<String, dynamic>> get rawMessageStream => _rawMessageController.stream;
+  Stream<Map<String, dynamic>> get rawMessageStream => _webSocketService.messageRouter.rawMessageStream;
 
   @override
-  bool get isConnected => _connectionManager.client.isConnected;
+  bool get isConnected => _webSocketService.isConnected;
 
   @override
   void dispose() {
+    _subscription?.cancel();
     _messageController.close();
     _typingController.close();
     _userStatusController.close();
     _conversationUpdateController.close();
-    _rawMessageController.close();
-    _connectionManager.dispose();
   }
 }
-

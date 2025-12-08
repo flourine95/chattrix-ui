@@ -1,8 +1,7 @@
 import 'package:chattrix_ui/features/call/services/agora_service.dart';
-import 'package:chattrix_ui/features/call/services/call_websocket_handler_new.dart';
-import 'package:chattrix_ui/features/chat/presentation/providers/chat_websocket_provider_new.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
+/// Provider for Agora RTC service
 final agoraServiceProvider = Provider<AgoraService>((ref) {
   final service = AgoraService();
   ref.onDispose(() {
@@ -11,15 +10,7 @@ final agoraServiceProvider = Provider<AgoraService>((ref) {
   return service;
 });
 
-final callWebSocketHandlerProvider = Provider<CallWebSocketHandler>((ref) {
-  final webSocketDataSource = ref.watch(chatWebSocketDataSourceProvider);
-  final handler = CallWebSocketHandler(webSocketDataSource: webSocketDataSource);
-  handler.startListening();
-
-  ref.onDispose(() {
-    handler.dispose();
-  });
-
-  return handler;
-});
+// NOTE: CallWebSocketDataSource provider has been moved to:
+// lib/features/call/presentation/providers/call_websocket_provider.dart
+// Import it from there: callWebSocketDataSourceProvider
 

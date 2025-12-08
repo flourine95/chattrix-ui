@@ -1,5 +1,6 @@
 import 'package:chattrix_ui/core/constants/api_constants.dart';
 import 'package:chattrix_ui/core/errors/exceptions.dart';
+import 'package:chattrix_ui/core/utils/app_logger.dart';
 import 'package:chattrix_ui/features/auth/data/models/user_model.dart';
 import 'package:chattrix_ui/features/chat/data/models/conversation_model.dart';
 import 'package:chattrix_ui/features/chat/data/models/message_model.dart';
@@ -39,17 +40,45 @@ class ChatRemoteDatasourceImpl implements ChatRemoteDatasource {
   @override
   Future<List<ConversationModel>> getConversations() async {
     try {
+      AppLogger.debug('📡 Fetching conversations from API...', tag: 'ChatRemoteDataSource');
+
       final response = await dio.get(ApiConstants.conversations);
+
+      AppLogger.debug(
+        '📥 Conversations API Response - Status: ${response.statusCode}',
+        tag: 'ChatRemoteDataSource',
+      );
 
       if (response.statusCode == 200) {
         final data = response.data['data'] as List;
+
+        AppLogger.info(
+          '✅ Successfully fetched ${data.length} conversations',
+          tag: 'ChatRemoteDataSource',
+        );
 
         return data.whereType<Map<String, dynamic>>().map((json) => ConversationModel.fromApi(json)).toList();
       }
 
       throw ServerException(message: 'Failed to fetch conversations');
     } on DioException catch (e) {
+      AppLogger.error(
+        '❌ Failed to fetch conversations - DioException',
+        error: e,
+        tag: 'ChatRemoteDataSource',
+      );
+      AppLogger.debug(
+        'Status Code: ${e.response?.statusCode}, Message: ${e.response?.data}',
+        tag: 'ChatRemoteDataSource',
+      );
       throw ServerException(message: e.response?.data['message'] ?? 'Failed to fetch conversations');
+    } catch (e) {
+      AppLogger.error(
+        '❌ Failed to fetch conversations - Unexpected error',
+        error: e,
+        tag: 'ChatRemoteDataSource',
+      );
+      throw ServerException(message: 'Failed to fetch conversations: $e');
     }
   }
 
