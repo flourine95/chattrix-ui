@@ -1,0 +1,4418 @@
+# PROJECT STRUCTURE
+- lib/core/constants/api_constants.dart
+- lib/core/constants/app_constants.dart
+- lib/core/errors/exceptions.dart
+- lib/core/errors/failures.dart
+- lib/core/network/auth_interceptor.dart
+- lib/core/network/dio_client.dart
+- lib/core/network/websocket_client.dart
+- lib/core/network/websocket_client_impl.dart
+- lib/core/network/websocket_connection_manager.dart
+- lib/core/network/websocket_message_router.dart
+- lib/core/network/websocket_providers.dart
+- lib/core/network/websocket_service.dart
+- lib/core/router/app_router.dart
+- lib/core/router/redirect_guards.dart
+- lib/core/router/route_config.dart
+- lib/core/router/route_paths.dart
+- lib/core/router/router_notifiers.dart
+- lib/core/router/widgets/nav_shell.dart
+- lib/core/services/token_cache_service.dart
+- lib/core/theme/app_theme.dart
+- lib/core/toast/toast_controller.dart
+- lib/core/toast/toast_overlay.dart
+- lib/core/toast/toast_type.dart
+- lib/core/utils/app_logger.dart
+- lib/core/utils/riverpod_logger.dart
+- lib/core/widgets/app_input_field.dart
+- lib/core/widgets/primary_button.dart
+- lib/features/profile/data/datasources/profile_remote_datasource_impl.dart
+- lib/features/profile/data/models/profile_model.dart
+- lib/features/profile/data/models/update_profile_request.dart
+- lib/features/profile/data/repositories/profile_repository_impl.dart
+- lib/features/profile/domain/datasources/profile_remote_datasource.dart
+- lib/features/profile/domain/entities/gender.dart
+- lib/features/profile/domain/entities/profile.dart
+- lib/features/profile/domain/entities/profile_visibility.dart
+- lib/features/profile/domain/entities/update_profile_params.dart
+- lib/features/profile/domain/repositories/profile_repository.dart
+- lib/features/profile/domain/usecases/get_profile_usecase.dart
+- lib/features/profile/domain/usecases/update_profile_usecase.dart
+- lib/features/profile/presentation/pages/edit_profile_page.dart
+- lib/features/profile/presentation/pages/profile_page.dart
+- lib/features/profile/presentation/pages/settings_page.dart
+- lib/features/profile/presentation/providers/profile_providers.dart
+- lib/features/profile/presentation/widgets/profile_picker_widgets.dart
+- lib/features/profile/presentation/widgets/profile_shared_components.dart
+- lib/features/profile/presentation/widgets/profile_ui_components.dart
+- lib/features/profile/presentation/widgets/single_field_editor.dart
+
+==================================================
+
+================================================================
+FILE: lib/core/constants/api_constants.dart
+================================================================
+import 'package:flutter/foundation.dart' show kDebugMode, kIsWeb, defaultTargetPlatform, TargetPlatform;
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+
+class ApiConstants {
+  static String get _host => dotenv.env['API_HOST'] ?? 'localhost';
+
+  static String get _port => dotenv.env['API_PORT'] ?? '8080';
+
+  static String get _apiPath => dotenv.env['API_PATH'] ?? '/api';
+
+  static String get _wsPath => dotenv.env['WS_PATH'] ?? '';
+
+  static const String _androidEmulatorHost = '10.0.2.2';
+
+  static String get _effectiveHost {
+    if (kIsWeb) {
+      return _host;
+    }
+
+    if (defaultTargetPlatform == TargetPlatform.android) {
+      return _androidEmulatorHost;
+    }
+
+    return _host;
+  }
+  static bool get _useSecureProtocol {
+    final useSecure = dotenv.env['USE_SECURE_PROTOCOL'];
+    if (useSecure != null) {
+      return useSecure.toLowerCase() == 'true';
+    }
+
+    if (!kDebugMode) {
+      return true;
+    }
+
+    final host = _effectiveHost;
+    final isLocalhost = host == 'localhost' || host == '127.0.0.1' || host == '10.0.2.2' || host == '0.0.0.0';
+
+    return !isLocalhost;
+  }
+
+  static String get _baseUrl {
+    final host = _effectiveHost;
+    final protocol = _useSecureProtocol ? 'https' : 'http';
+    final url = '$protocol://$host:$_port$_apiPath';
+
+    return url;
+  }
+
+  static String get _wsBaseUrl {
+    final host = _effectiveHost;
+    final protocol = _useSecureProtocol ? 'wss' : 'ws';
+    final url = '$protocol://$host:$_port$_wsPath';
+
+    return url;
+  }
+
+  static const String _v1 = 'v1';
+  static String get register => '$_baseUrl/$_v1/auth/register';
+
+  static String get verifyEmail => '$_baseUrl/$_v1/auth/verify-email';
+
+  static String get resendVerification => '$_baseUrl/$_v1/auth/resend-verification';
+
+  static String get login => '$_baseUrl/$_v1/auth/login';
+
+  static String get me => '$_baseUrl/$_v1/auth/me';
+
+  static String get refresh => '$_baseUrl/$_v1/auth/refresh';
+
+  static String get changePassword => '$_baseUrl/$_v1/auth/change-password';
+
+  static String get forgotPassword => '$_baseUrl/$_v1/auth/forgot-password';
+
+  static String get resetPassword => '$_baseUrl/$_v1/auth/reset-password';
+
+  static String get logout => '$_baseUrl/$_v1/auth/logout';
+
+  static String get logoutAll => '$_baseUrl/$_v1/auth/logout-all';
+  static String get getProfile => '$_baseUrl/$_v1/profile/me';
+
+  static String get updateProfile => '$_baseUrl/$_v1/profile/me';
+  static String get conversations => '$_baseUrl/$_v1/conversations';
+
+  static String conversationById(String id) => '$_baseUrl/$_v1/conversations/$id';
+
+  static String messagesInConversation(String conversationId) =>
+      '$_baseUrl/$_v1/conversations/$conversationId/messages';
+  static String get searchUsers => '$_baseUrl/$_v1/users/search';
+
+  static String get onlineUsers => '$_baseUrl/$_v1/users/status/online';
+
+  static String onlineUsersInConversation(String conversationId) =>
+      '$_baseUrl/$_v1/users/status/online/conversation/$conversationId';
+
+  static String userStatus(String userId) => '$_baseUrl/$_v1/users/status/$userId';
+  static String messageReactions(String messageId) => '$_baseUrl/$_v1/messages/$messageId/reactions';
+
+  static String deleteReaction(String messageId, String emoji) => '$_baseUrl/$_v1/messages/$messageId/reactions/$emoji';
+
+  static String messageEdit(String messageId) => '$_baseUrl/$_v1/messages/$messageId/edit';
+
+  static String messageDelete(String messageId) => '$_baseUrl/$_v1/messages/$messageId';
+
+  static String messageEditHistory(String messageId) => '$_baseUrl/$_v1/messages/$messageId/edit-history';
+  static String get typingStart => '$_baseUrl/$_v1/typing/start';
+
+  static String get typingStop => '$_baseUrl/$_v1/typing/stop';
+
+  static String typingStatus(String conversationId) => '$_baseUrl/$_v1/typing/status/$conversationId';
+  static String get sendFriendRequest => '$_baseUrl/$_v1/friend-requests/send';
+
+  static String get receivedFriendRequests => '$_baseUrl/$_v1/friend-requests/received';
+
+  static String get sentFriendRequests => '$_baseUrl/$_v1/friend-requests/sent';
+
+  static String acceptFriendRequest(int requestId) => '$_baseUrl/$_v1/friend-requests/$requestId/accept';
+
+  static String rejectFriendRequest(int requestId) => '$_baseUrl/$_v1/friend-requests/$requestId/reject';
+
+  static String cancelFriendRequest(int requestId) => '$_baseUrl/$_v1/friend-requests/$requestId/cancel';
+  static String get contacts => '$_baseUrl/$_v1/contacts';
+
+  static String contactById(int contactId) => '$_baseUrl/$_v1/contacts/$contactId';
+
+  static String updateContactNickname(int contactId) => '$_baseUrl/$_v1/contacts/$contactId/nickname';
+
+  static String deleteContact(int contactId) => '$_baseUrl/$_v1/contacts/$contactId';
+  static String get initiateCall => '$_baseUrl/$_v1/calls/initiate';
+
+  static String acceptCall(String callId) => '$_baseUrl/$_v1/calls/$callId/accept';
+
+  static String rejectCall(String callId) => '$_baseUrl/$_v1/calls/$callId/reject';
+
+  static String endCall(String callId) => '$_baseUrl/$_v1/calls/$callId/end';
+
+  static String get chatWebSocket => '$_wsBaseUrl/ws/chat';
+
+  static String chatWebSocketWithToken(String token) => '$chatWebSocket?token=$token';
+}
+
+================================================================
+FILE: lib/core/constants/app_constants.dart
+================================================================
+class AppConstants {
+  static const Duration connectTimeout = Duration(seconds: 30);
+
+  static const Duration receiveTimeout = Duration(seconds: 30);
+
+  static const Duration reconnectDelay = Duration(seconds: 3);
+
+  static const Duration heartbeatInterval = Duration(seconds: 30);
+
+  static const int maxReconnectAttempts = 5;
+
+  static const String contentTypeJson = 'application/json';
+  static const String authorization = 'Authorization';
+  static const String bearer = 'Bearer';
+
+  static const String accessTokenKey = 'access_token';
+  static const String refreshTokenKey = 'refresh_token';
+}
+
+================================================================
+FILE: lib/core/errors/exceptions.dart
+================================================================
+class ServerException implements Exception {
+  final String message;
+  final String? errorCode;
+  final int? statusCode;
+
+  ServerException({required this.message, this.errorCode, this.statusCode});
+}
+
+class NetworkException implements Exception {
+  final String message;
+
+  NetworkException({this.message = 'No internet connection'});
+}
+
+================================================================
+FILE: lib/core/errors/failures.dart
+================================================================
+import 'package:freezed_annotation/freezed_annotation.dart';
+
+part 'failures.freezed.dart';
+
+@freezed
+abstract class Failure with _$Failure {
+  const factory Failure.server({required String message, String? errorCode}) = ServerFailure;
+
+  const factory Failure.network({required String message}) = NetworkFailure;
+
+  const factory Failure.validation({required String message, List<ValidationError>? errors}) = ValidationFailure;
+
+  const factory Failure.badRequest({required String message, String? errorCode}) = BadRequestFailure;
+
+  const factory Failure.unauthorized({required String message, String? errorCode}) = UnauthorizedFailure;
+
+  const factory Failure.forbidden({required String message, String? errorCode}) = ForbiddenFailure;
+
+  const factory Failure.notFound({required String message, String? errorCode}) = NotFoundFailure;
+
+  const factory Failure.conflict({required String message, String? errorCode}) = ConflictFailure;
+
+  const factory Failure.rateLimitExceeded({required String message}) = RateLimitFailure;
+
+  const factory Failure.unknown({required String message}) = UnknownFailure;
+  const factory Failure.permission({required String message}) = PermissionFailure;
+
+  const factory Failure.agoraEngine({required String message, int? code}) = AgoraEngineFailure;
+
+  const factory Failure.tokenExpired({required String message}) = TokenExpiredFailure;
+
+  const factory Failure.channelJoin({required String message}) = ChannelJoinFailure;
+  const factory Failure.webSocketNotConnected({required String message}) = WebSocketNotConnectedFailure;
+
+  const factory Failure.webSocketSendFailed({required String message}) = WebSocketSendFailure;
+  const factory Failure.callNotFound({required String message}) = CallNotFoundFailure;
+
+  const factory Failure.callAlreadyActive({required String message}) = CallAlreadyActiveFailure;
+}
+
+class ValidationError {
+  final String? field;
+  final String errorCode;
+  final String message;
+
+  ValidationError({this.field, required this.errorCode, required this.message});
+
+  factory ValidationError.fromJson(Map<String, dynamic> json) {
+    return ValidationError(
+      field: json['field'] as String?,
+      errorCode: json['code'] ?? json['errorCode'] as String,
+      message: json['message'] as String,
+    );
+  }
+}
+extension FailureMessage on Failure {
+  String get userMessage {
+    return when(
+      server: (message, errorCode) => 'Server error. Please try again later.',
+      network: (message) => 'Network error. Please check your internet connection.',
+      validation: (message, errors) => message,
+      badRequest: (message, errorCode) => 'Invalid request. Please check your input.',
+      unauthorized: (message, errorCode) => 'Authentication failed. Please login again.',
+      forbidden: (message, errorCode) => 'Access denied. You do not have permission to perform this action.',
+      notFound: (message, errorCode) => 'Resource not found. Please try again.',
+      conflict: (message, errorCode) => 'A conflict occurred. Please refresh and try again.',
+      rateLimitExceeded: (message) => 'Too many requests. Please wait a moment and try again.',
+      unknown: (message) => 'An unexpected error occurred. Please try again.',
+      permission: (message) => message,
+      agoraEngine: (message, code) => 'Failed to join call. Please check your connection and try again.',
+      tokenExpired: (message) => 'Session expired. Please login again.',
+      channelJoin: (message) => 'Failed to join call. Please try again.',
+      webSocketNotConnected: (message) => 'Connection lost. Please check your internet connection.',
+      webSocketSendFailed: (message) => 'Failed to send message. Please try again.',
+      callNotFound: (message) => 'Call not found. It may have already ended.',
+      callAlreadyActive: (message) => 'You are already in a call.',
+    );
+  }
+}
+
+================================================================
+FILE: lib/core/network/auth_interceptor.dart
+================================================================
+import 'package:chattrix_ui/core/constants/api_constants.dart';
+import 'package:chattrix_ui/core/constants/app_constants.dart';
+import 'package:chattrix_ui/core/services/token_cache_service.dart';
+import 'package:dio/dio.dart';
+
+class AuthInterceptor extends QueuedInterceptor {
+  final Dio dio;
+  final TokenCacheService tokenCacheService;
+
+  late final Dio _refreshDio;
+  bool _isRefreshing = false;
+
+  AuthInterceptor({required this.dio, required this.tokenCacheService}) {
+    _refreshDio = Dio(
+      BaseOptions(
+        contentType: AppConstants.contentTypeJson,
+        validateStatus: (status) => true,
+      ),
+    );
+  }
+
+  @override
+  Future<void> onRequest(RequestOptions options, RequestInterceptorHandler handler) async {
+    final accessToken = await tokenCacheService.getAccessToken();
+
+    if (accessToken != null) {
+      options.headers[AppConstants.authorization] = '${AppConstants.bearer} $accessToken';
+    }
+
+    handler.next(options);
+  }
+
+  @override
+  Future<void> onError(DioException err, ErrorInterceptorHandler handler) async {
+    if (err.response?.statusCode == 401) {
+      final isRefreshEndpoint = err.requestOptions.path.contains('/auth/refresh');
+      final isLoginEndpoint = err.requestOptions.path.contains('/auth/login');
+      final isRegisterEndpoint = err.requestOptions.path.contains('/auth/register');
+      final isVerifyEndpoint = err.requestOptions.path.contains('/auth/verify-email');
+      final isResendEndpoint = err.requestOptions.path.contains('/auth/resend-verification');
+      final isForgotPasswordEndpoint = err.requestOptions.path.contains('/auth/forgot-password');
+      final isResetPasswordEndpoint = err.requestOptions.path.contains('/auth/reset-password');
+      if (isRefreshEndpoint ||
+          isLoginEndpoint ||
+          isRegisterEndpoint ||
+          isVerifyEndpoint ||
+          isResendEndpoint ||
+          isForgotPasswordEndpoint ||
+          isResetPasswordEndpoint) {
+        return handler.next(err);
+      }
+      if (_isRefreshing) {
+        await Future.delayed(const Duration(milliseconds: 500));
+        final currentToken = await tokenCacheService.getAccessToken();
+        if (currentToken != null &&
+            currentToken !=
+                err.requestOptions.headers[AppConstants.authorization]?.toString().replaceFirst(
+                  '${AppConstants.bearer} ',
+                  '',
+                )) {
+          err.requestOptions.headers[AppConstants.authorization] = '${AppConstants.bearer} $currentToken';
+          try {
+            final response = await dio.fetch(err.requestOptions);
+            return handler.resolve(response);
+          } catch (e) {
+            return handler.next(err);
+          }
+        }
+        return handler.next(err);
+      }
+
+      try {
+        _isRefreshing = true;
+        final newAccessToken = await _refreshAccessToken();
+
+        if (newAccessToken != null) {
+          err.requestOptions.headers[AppConstants.authorization] = '${AppConstants.bearer} $newAccessToken';
+          try {
+            final response = await dio.fetch(err.requestOptions);
+            return handler.resolve(response);
+          } catch (retryError) {
+            await _clearTokens();
+            return handler.next(err);
+          }
+        } else {
+          return handler.next(err);
+        }
+      } catch (refreshError) {
+        await _clearTokens();
+        return handler.next(err);
+      } finally {
+        _isRefreshing = false;
+      }
+    }
+
+    handler.next(err);
+  }
+
+  Future<String?> _refreshAccessToken() async {
+    try {
+      final refreshToken = await tokenCacheService.getRefreshToken();
+
+      if (refreshToken == null) {
+        await _clearTokens();
+        return null;
+      }
+      final response = await _refreshDio.post(ApiConstants.refresh, data: {'refreshToken': refreshToken});
+
+      if (response.statusCode == 200) {
+        try {
+          final data = response.data['data'];
+          final newAccessToken = data['accessToken'] as String;
+          final newRefreshToken = data['refreshToken'] as String;
+          await tokenCacheService.setTokens(newAccessToken, newRefreshToken);
+
+          return newAccessToken;
+        } catch (parseError) {
+          await _clearTokens();
+          return null;
+        }
+      } else {
+        await _clearTokens();
+        return null;
+      }
+    } catch (e) {
+      await _clearTokens();
+      return null;
+    }
+  }
+
+  Future<void> _clearTokens() async {
+    await tokenCacheService.clearTokens();
+  }
+}
+
+================================================================
+FILE: lib/core/network/dio_client.dart
+================================================================
+import 'package:chattrix_ui/core/constants/app_constants.dart';
+import 'package:dio/dio.dart';
+
+class DioClient {
+  static Dio createDio({String? baseUrl}) {
+    final dio = Dio(
+      BaseOptions(
+        connectTimeout: AppConstants.connectTimeout,
+        receiveTimeout: AppConstants.receiveTimeout,
+        contentType: AppConstants.contentTypeJson,
+        validateStatus: (status) => status != null && status >= 200 && status < 300,
+      ),
+    );
+    return dio;
+  }
+}
+
+================================================================
+FILE: lib/core/network/websocket_client.dart
+================================================================
+abstract class WebSocketClient {
+  Future<void> connect(String url);
+
+  Future<void> disconnect();
+
+  void send(String message);
+
+  Stream<String> get messageStream;
+
+  Stream<bool> get connectionStream;
+
+  bool get isConnected;
+
+  void dispose();
+}
+
+================================================================
+FILE: lib/core/network/websocket_client_impl.dart
+================================================================
+import 'dart:async';
+
+import 'package:chattrix_ui/core/network/websocket_client.dart';
+import 'package:chattrix_ui/core/utils/app_logger.dart';
+import 'package:web_socket_channel/web_socket_channel.dart';
+
+class WebSocketClientImpl implements WebSocketClient {
+  WebSocketChannel? _channel;
+
+  final _messageController = StreamController<String>.broadcast();
+  final _connectionController = StreamController<bool>.broadcast();
+
+  @override
+  Stream<String> get messageStream => _messageController.stream;
+
+  @override
+  Stream<bool> get connectionStream => _connectionController.stream;
+
+  @override
+  bool get isConnected => _channel != null;
+
+  @override
+  Future<void> connect(String url) async {
+    if (_channel != null) {
+      AppLogger.websocket('Client already connected');
+      return;
+    }
+
+    try {
+      AppLogger.websocket('Connecting to: $url');
+      _channel = WebSocketChannel.connect(Uri.parse(url));
+
+      _connectionController.add(true);
+      AppLogger.websocket('Connection established');
+
+      _channel!.stream.listen(
+        (message) {
+          if (message is String) {
+            _messageController.add(message);
+          }
+        },
+        onError: (error, stackTrace) {
+          AppLogger.websocket('Stream error: $error', isError: true);
+          _handleDisconnect();
+        },
+        onDone: () {
+          AppLogger.websocket('Stream closed by server');
+          _handleDisconnect();
+        },
+        cancelOnError: false,
+      );
+    } catch (e, stackTrace) {
+      AppLogger.error('Connection failed', error: e, stackTrace: stackTrace, tag: 'WebSocket');
+      _connectionController.add(false);
+      _channel = null;
+      rethrow;
+    }
+  }
+
+  @override
+  Future<void> disconnect() async {
+    if (_channel != null) {
+      AppLogger.websocket('Closing connection...');
+      await _channel!.sink.close();
+      _channel = null;
+      _connectionController.add(false);
+    }
+  }
+
+  @override
+  void send(String message) {
+    if (_channel == null) {
+      AppLogger.websocket('Cannot send message: Not connected', isError: true);
+      return;
+    }
+    _channel!.sink.add(message);
+  }
+
+  void _handleDisconnect() {
+    if (_channel != null) {
+      _connectionController.add(false);
+      _channel = null;
+      AppLogger.websocket('Disconnected handled');
+    }
+  }
+
+  @override
+  void dispose() {
+    disconnect();
+    _messageController.close();
+    _connectionController.close();
+  }
+}
+
+================================================================
+FILE: lib/core/network/websocket_connection_manager.dart
+================================================================
+import 'dart:async';
+
+import 'package:chattrix_ui/core/network/websocket_client.dart';
+import 'package:chattrix_ui/core/utils/app_logger.dart';
+
+class WebSocketConnectionManager {
+  final WebSocketClient _client;
+  final Duration reconnectDelay;
+  final Duration heartbeatInterval;
+
+  Timer? _heartbeatTimer;
+  Timer? _reconnectTimer;
+  bool _isManualDisconnect = false;
+  String? _lastUrl;
+
+  WebSocketConnectionManager({
+    required WebSocketClient client,
+    this.reconnectDelay = const Duration(seconds: 5),
+    this.heartbeatInterval = const Duration(seconds: 30),
+  }) : _client = client;
+
+  Future<void> connect(String url) async {
+    _isManualDisconnect = false;
+    _lastUrl = url;
+
+    try {
+      await _client.connect(url);
+      _startHeartbeat();
+
+      _client.connectionStream.listen((isConnected) {
+        if (!isConnected && !_isManualDisconnect && _lastUrl != null) {
+          AppLogger.websocket('Connection lost. Stopping heartbeat and scheduling reconnect.');
+          _stopHeartbeat();
+          _scheduleReconnect();
+        }
+      });
+    } catch (e) {
+      AppLogger.websocket('Connect exception caught in manager. Scheduling reconnect.', isError: true);
+      _scheduleReconnect();
+    }
+  }
+
+  Future<void> disconnect() async {
+    AppLogger.websocket('Manual disconnect requested');
+    _isManualDisconnect = true;
+    _stopHeartbeat();
+    _reconnectTimer?.cancel();
+    _lastUrl = null;
+    await _client.disconnect();
+  }
+
+  void _scheduleReconnect() {
+    _reconnectTimer?.cancel();
+
+    if (_isManualDisconnect || _lastUrl == null) return;
+
+    AppLogger.websocket('Scheduling reconnect in ${reconnectDelay.inSeconds}s');
+    _reconnectTimer = Timer(reconnectDelay, () {
+      if (!_isManualDisconnect && _lastUrl != null) {
+        AppLogger.websocket('Attempting to reconnect...');
+        connect(_lastUrl!);
+      }
+    });
+  }
+
+  void _startHeartbeat() {
+    _stopHeartbeat();
+    AppLogger.websocket('Starting heartbeat');
+
+    _heartbeatTimer = Timer.periodic(heartbeatInterval, (timer) {
+      if (_client.isConnected) {
+        AppLogger.debug('Sending heartbeat', tag: 'WebSocket');
+        _client.send('{"type":"heartbeat","payload":{}}');
+      }
+    });
+  }
+
+  void _stopHeartbeat() {
+    _heartbeatTimer?.cancel();
+    _heartbeatTimer = null;
+  }
+
+  WebSocketClient get client => _client;
+
+  void dispose() {
+    _stopHeartbeat();
+    _reconnectTimer?.cancel();
+    disconnect();
+  }
+}
+
+================================================================
+FILE: lib/core/network/websocket_message_router.dart
+================================================================
+import 'dart:async';
+import 'package:chattrix_ui/core/utils/app_logger.dart';
+
+class WebSocketMessageRouter {
+  final Map<String, StreamController<Map<String, dynamic>>> _controllers = {};
+  final _rawMessageController = StreamController<Map<String, dynamic>>.broadcast();
+
+  void registerMessageType(String messageType) {
+    if (!_controllers.containsKey(messageType)) {
+      AppLogger.websocket('Registering handler for type: $messageType');
+      _controllers[messageType] = StreamController<Map<String, dynamic>>.broadcast();
+    }
+  }
+
+  void unregisterMessageType(String messageType) {
+    _controllers[messageType]?.close();
+    _controllers.remove(messageType);
+  }
+
+  void routeMessage(Map<String, dynamic> message) {
+    final type = message['type'] as String?;
+
+    _rawMessageController.add(message);
+
+    if (type == null) {
+      AppLogger.websocket('Received message without type', isError: true);
+      return;
+    }
+
+    final controller = _controllers[type];
+    if (controller != null && !controller.isClosed) {
+      controller.add(message);
+    } else {
+      AppLogger.debug('No handler registered for type: $type', tag: 'WebSocketRouter');
+    }
+  }
+
+  Stream<Map<String, dynamic>> getStreamForType(String messageType) {
+    registerMessageType(messageType);
+    return _controllers[messageType]!.stream;
+  }
+
+  Stream<Map<String, dynamic>> getStreamForTypes(List<String> messageTypes) {
+    final controller = StreamController<Map<String, dynamic>>.broadcast();
+
+    for (final type in messageTypes) {
+      registerMessageType(type);
+      _controllers[type]!.stream.listen(
+            (message) => controller.add(message),
+        onError: (error) => controller.addError(error),
+      );
+    }
+
+    return controller.stream;
+  }
+
+  Stream<Map<String, dynamic>> get rawMessageStream => _rawMessageController.stream;
+
+  void dispose() {
+    for (final controller in _controllers.values) {
+      controller.close();
+    }
+    _controllers.clear();
+    _rawMessageController.close();
+  }
+}
+
+================================================================
+FILE: lib/core/network/websocket_providers.dart
+================================================================
+import 'package:chattrix_ui/core/constants/app_constants.dart';
+import 'package:chattrix_ui/core/network/websocket_client.dart';
+import 'package:chattrix_ui/core/network/websocket_client_impl.dart';
+import 'package:chattrix_ui/core/network/websocket_connection_manager.dart';
+import 'package:chattrix_ui/core/network/websocket_message_router.dart';
+import 'package:chattrix_ui/core/network/websocket_service.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
+
+part 'websocket_providers.g.dart';
+
+@Riverpod(keepAlive: true)
+WebSocketClient webSocketClient(Ref ref) {
+  final client = WebSocketClientImpl();
+
+  ref.onDispose(() => client.dispose());
+
+  return client;
+}
+
+@Riverpod(keepAlive: true)
+WebSocketMessageRouter webSocketMessageRouter(Ref ref) {
+  final router = WebSocketMessageRouter();
+
+  ref.onDispose(() => router.dispose());
+
+  return router;
+}
+
+@Riverpod(keepAlive: true)
+WebSocketConnectionManager webSocketConnectionManager(Ref ref) {
+  final client = ref.watch(webSocketClientProvider);
+
+  final manager = WebSocketConnectionManager(
+    client: client,
+    reconnectDelay: AppConstants.reconnectDelay,
+    heartbeatInterval: AppConstants.heartbeatInterval,
+  );
+
+  ref.onDispose(() => manager.dispose());
+
+  return manager;
+}
+
+@Riverpod(keepAlive: true)
+WebSocketService webSocketService(Ref ref) {
+  final connectionManager = ref.watch(webSocketConnectionManagerProvider);
+  final messageRouter = ref.watch(webSocketMessageRouterProvider);
+
+  final service = WebSocketService(connectionManager: connectionManager, messageRouter: messageRouter);
+
+  ref.onDispose(() => service.dispose());
+
+  return service;
+}
+
+================================================================
+FILE: lib/core/network/websocket_service.dart
+================================================================
+import 'dart:async';
+import 'dart:convert';
+import 'package:chattrix_ui/core/utils/app_logger.dart';
+import 'package:chattrix_ui/core/network/websocket_connection_manager.dart';
+import 'package:chattrix_ui/core/network/websocket_message_router.dart';
+
+class WebSocketService {
+  final WebSocketConnectionManager _connectionManager;
+  final WebSocketMessageRouter _messageRouter;
+  StreamSubscription<String>? _messageSubscription;
+
+  WebSocketService({
+    required WebSocketConnectionManager connectionManager,
+    required WebSocketMessageRouter messageRouter,
+  })  : _connectionManager = connectionManager,
+        _messageRouter = messageRouter;
+
+  Future<void> connect(String url) async {
+    AppLogger.websocket('Service initiating connection...');
+    await _connectionManager.connect(url);
+    _subscribeToMessages();
+  }
+
+  Future<void> disconnect() async {
+    AppLogger.websocket('Service disconnecting...');
+    await _messageSubscription?.cancel();
+    await _connectionManager.disconnect();
+  }
+
+  void send(Map<String, dynamic> payload) {
+    if (!_connectionManager.client.isConnected) {
+      AppLogger.websocket('Attempted to send message while disconnected', isError: true);
+      return;
+    }
+    final jsonString = jsonEncode(payload);
+    _connectionManager.client.send(jsonString);
+  }
+
+  void _subscribeToMessages() {
+    _messageSubscription?.cancel();
+    _messageSubscription = _connectionManager.client.messageStream.listen(
+          (messageString) {
+        try {
+          final data = jsonDecode(messageString) as Map<String, dynamic>;
+          _messageRouter.routeMessage(data);
+        } catch (e, st) {
+          AppLogger.error('Failed to parse WebSocket message', error: e, stackTrace: st, tag: 'WebSocketService');
+        }
+      },
+      onError: (error) {
+        AppLogger.websocket('Service message stream error: $error', isError: true);
+      },
+    );
+  }
+
+  WebSocketMessageRouter get messageRouter => _messageRouter;
+
+  Stream<bool> get connectionStream => _connectionManager.client.connectionStream;
+
+  bool get isConnected => _connectionManager.client.isConnected;
+
+  void dispose() {
+    _messageSubscription?.cancel();
+    _messageRouter.dispose();
+    _connectionManager.dispose();
+  }
+}
+
+================================================================
+FILE: lib/core/router/app_router.dart
+================================================================
+import 'package:chattrix_ui/core/router/redirect_guards.dart';
+import 'package:chattrix_ui/core/router/route_config.dart';
+import 'package:chattrix_ui/core/router/route_paths.dart';
+import 'package:chattrix_ui/core/router/router_notifiers.dart';
+import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
+
+class AppRouter {
+  static const String loginPath = RoutePaths.login;
+  static const String registerPath = RoutePaths.register;
+  static const String forgotPasswordPath = RoutePaths.forgotPassword;
+  static const String otpVerificationPath = RoutePaths.otpVerification;
+  static const String incomingCallPath = RoutePaths.incomingCall;
+  static const String outgoingCallPath = RoutePaths.outgoingCall;
+  static const String activeCallPath = RoutePaths.activeCall;
+
+  static GoRouter router(WidgetRef ref) {
+    return GoRouter(
+      initialLocation: RoutePaths.chats,
+      refreshListenable: Listenable.merge([
+        ref.watch(authNotifierWrapperProvider),
+        ref.watch(callNotifierWrapperProvider),
+      ]),
+      redirect: (context, state) async {
+        final authRedirect = await AuthRedirectGuard.redirect(ref, state);
+        if (authRedirect != null) return authRedirect;
+
+        final callRedirect = CallRedirectGuard.redirect(ref, state.matchedLocation);
+        if (callRedirect != null) return callRedirect;
+
+        return null;
+      },
+      routes: RouteConfig.allRoutes,
+    );
+  }
+}
+
+================================================================
+FILE: lib/core/router/redirect_guards.dart
+================================================================
+import 'package:chattrix_ui/core/router/route_paths.dart';
+import 'package:chattrix_ui/features/auth/presentation/providers/auth_providers.dart';
+import 'package:chattrix_ui/features/call/presentation/state/call_notifier.dart';
+import 'package:chattrix_ui/features/call/presentation/state/call_state.dart';
+import 'package:go_router/go_router.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
+
+class AuthRedirectGuard {
+  static Future<String?> redirect(WidgetRef ref, GoRouterState state) async {
+    final currentLocation = state.matchedLocation;
+    final isLoggedIn = await ref.read(isLoggedInUseCaseProvider)();
+
+    final authRoutes = {
+      RoutePaths.login,
+      RoutePaths.register,
+      RoutePaths.forgotPassword,
+      RoutePaths.otpVerification,
+    };
+
+    final isGoingToAuth = authRoutes.contains(currentLocation);
+
+    if (!isLoggedIn && !isGoingToAuth) {
+      return RoutePaths.login;
+    }
+
+    if (isLoggedIn && isGoingToAuth) {
+      return RoutePaths.chats;
+    }
+
+    return null;
+  }
+}
+
+class CallRedirectGuard {
+  static String? redirect(WidgetRef ref, String currentLocation) {
+    final callState = ref.read(callProvider);
+    final callRoutes = {
+      RoutePaths.incomingCall,
+      RoutePaths.outgoingCall,
+      RoutePaths.activeCall,
+    };
+
+    return callState.when(
+      idle: () => _handleIdleState(currentLocation, callRoutes),
+      initiating: (_, _) => _handleInitiatingState(currentLocation),
+      ringing: (_) => _handleRingingState(currentLocation),
+      connecting: (_, _, isOutgoing) =>
+          _handleConnectingState(currentLocation, isOutgoing),
+      connected: (_, _, isOutgoing, _, _, _, _, _, _, _) =>
+          _handleConnectedState(currentLocation),
+      ended: (_) => _handleEndedState(currentLocation, callRoutes),
+      error: (_) => _handleErrorState(currentLocation, callRoutes),
+    );
+  }
+
+  static String? _handleIdleState(String location, Set<String> callRoutes) {
+    return callRoutes.contains(location) ? RoutePaths.chats : null;
+  }
+
+  static String? _handleInitiatingState(String location) {
+    return location != RoutePaths.outgoingCall ? RoutePaths.outgoingCall : null;
+  }
+
+  static String? _handleRingingState(String location) {
+    return location != RoutePaths.incomingCall ? RoutePaths.incomingCall : null;
+  }
+
+  static String? _handleConnectingState(String location, bool isOutgoing) {
+    if (isOutgoing && location != RoutePaths.outgoingCall) {
+      return RoutePaths.outgoingCall;
+    } else if (!isOutgoing && location != RoutePaths.activeCall) {
+      return RoutePaths.activeCall;
+    }
+    return null;
+  }
+
+  static String? _handleConnectedState(String location) {
+    return location != RoutePaths.activeCall ? RoutePaths.activeCall : null;
+  }
+
+  static String? _handleEndedState(String location, Set<String> callRoutes) {
+    return callRoutes.contains(location) ? RoutePaths.chats : null;
+  }
+
+  static String? _handleErrorState(String location, Set<String> callRoutes) {
+    return callRoutes.contains(location) ? RoutePaths.chats : null;
+  }
+}
+
+================================================================
+FILE: lib/core/router/route_config.dart
+================================================================
+import 'package:chattrix_ui/core/router/route_paths.dart';
+import 'package:chattrix_ui/core/router/widgets/nav_shell.dart';
+import 'package:chattrix_ui/features/auth/presentation/pages/forgot_password_screen.dart';
+import 'package:chattrix_ui/features/auth/presentation/pages/login_screen.dart';
+import 'package:chattrix_ui/features/auth/presentation/pages/otp_verification_screen.dart';
+import 'package:chattrix_ui/features/auth/presentation/pages/register_screen.dart';
+import 'package:chattrix_ui/features/call/presentation/pages/call_page.dart';
+import 'package:chattrix_ui/features/call/presentation/pages/incoming_call_page.dart';
+import 'package:chattrix_ui/features/call/presentation/pages/outgoing_call_page.dart';
+import 'package:chattrix_ui/features/chat/domain/entities/conversation.dart';
+import 'package:chattrix_ui/features/chat/presentation/pages/chat_info_page.dart';
+import 'package:chattrix_ui/features/chat/presentation/pages/chat_list_page.dart';
+import 'package:chattrix_ui/features/chat/presentation/pages/chat_view_page.dart';
+import 'package:chattrix_ui/features/chat/presentation/pages/new_chat_page.dart';
+import 'package:chattrix_ui/features/chat/presentation/pages/new_group_chat_page.dart';
+import 'package:chattrix_ui/features/contacts/presentation/pages/contacts_page.dart';
+import 'package:chattrix_ui/features/profile/presentation/pages/edit_profile_page.dart';
+import 'package:chattrix_ui/features/profile/presentation/pages/profile_page.dart';
+import 'package:chattrix_ui/features/profile/presentation/pages/settings_page.dart';
+import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+
+class RouteConfig {
+  static List<RouteBase> get callRoutes => [
+        GoRoute(
+          path: RoutePaths.incomingCall,
+          name: 'incoming-call',
+          builder: (context, state) => const IncomingCallPage(),
+        ),
+        GoRoute(
+          path: RoutePaths.outgoingCall,
+          name: 'outgoing-call',
+          builder: (context, state) => const OutgoingCallPage(),
+        ),
+        GoRoute(
+          path: RoutePaths.activeCall,
+          name: 'call',
+          builder: (context, state) => const CallPage(),
+        ),
+      ];
+
+  static List<RouteBase> get authRoutes => [
+        GoRoute(
+          path: RoutePaths.login,
+          name: 'login',
+          builder: (context, state) => const LoginScreen(),
+        ),
+        GoRoute(
+          path: RoutePaths.register,
+          name: 'register',
+          builder: (context, state) => const RegisterScreen(),
+        ),
+        GoRoute(
+          path: RoutePaths.forgotPassword,
+          name: 'forgot-password',
+          builder: (context, state) => const ForgotPasswordScreen(),
+        ),
+        GoRoute(
+          path: RoutePaths.otpVerification,
+          name: 'otp',
+          builder: (context, state) => _buildOtpScreen(state),
+        ),
+      ];
+
+  static ShellRoute get mainRoutes => ShellRoute(
+        builder: (context, state, child) => NavShell(child: child),
+        routes: [
+          GoRoute(
+            path: RoutePaths.chats,
+            name: 'chats',
+            pageBuilder: (context, state) =>
+                const NoTransitionPage(child: ChatListPage()),
+          ),
+          GoRoute(
+            path: RoutePaths.contacts,
+            name: 'contacts',
+            pageBuilder: (context, state) =>
+                const NoTransitionPage(child: ContactsPage()),
+          ),
+          GoRoute(
+            path: RoutePaths.profile,
+            name: 'profile',
+            pageBuilder: (context, state) =>
+                const NoTransitionPage(child: ProfilePage()),
+          ),
+          GoRoute(
+            path: RoutePaths.chatView,
+            name: 'chat-view',
+            builder: (context, state) => _buildChatViewPage(state),
+          ),
+          GoRoute(
+            path: RoutePaths.newChat,
+            name: 'new-chat',
+            builder: (context, state) => const NewChatPage(),
+          ),
+          GoRoute(
+            path: RoutePaths.newGroup,
+            name: 'new-group',
+            builder: (context, state) => const NewGroupChatPage(),
+          ),
+          GoRoute(
+            path: RoutePaths.chatInfo,
+            name: 'chat-info',
+            builder: (context, state) => _buildChatInfoPage(state),
+          ),
+        ],
+      );
+
+  static List<RouteBase> get profileRoutes => [
+        GoRoute(
+          path: RoutePaths.editProfile,
+          name: 'edit-profile',
+          builder: (context, state) => const EditProfilePage(),
+        ),
+        GoRoute(
+          path: RoutePaths.settings,
+          name: 'settings',
+          builder: (context, state) => const SettingsPage(),
+        ),
+      ];
+
+  static List<RouteBase> get allRoutes => [
+        ...callRoutes,
+        ...authRoutes,
+        ...profileRoutes,
+        mainRoutes,
+      ];
+
+  static Widget _buildOtpScreen(GoRouterState state) {
+    String? email;
+    bool isPasswordReset = false;
+
+    if (state.extra is Map) {
+      final extraMap = state.extra as Map;
+      email = extraMap['email'] as String?;
+      isPasswordReset = extraMap['isPasswordReset'] as bool? ?? false;
+    }
+
+    return OtpVerificationScreen(
+      email: email,
+      isPasswordReset: isPasswordReset,
+    );
+  }
+
+  static Widget _buildChatViewPage(GoRouterState state) {
+    final id = state.pathParameters['id']!;
+    final extra = state.extra as Map<String, dynamic>?;
+    final name = extra?['name'] as String?;
+    final color = extra?['color'] as Color?;
+    return ChatViewPage(chatId: id, name: name, color: color);
+  }
+
+  static Widget _buildChatInfoPage(GoRouterState state) {
+    final conversation = state.extra as Conversation;
+    return ChatInfoPage(conversation: conversation);
+  }
+}
+
+================================================================
+FILE: lib/core/router/route_paths.dart
+================================================================
+class RoutePaths {
+  static const String login = '/login';
+  static const String register = '/register';
+  static const String forgotPassword = '/forgot-password';
+  static const String otpVerification = '/otp';
+
+  static const String incomingCall = '/incoming-call';
+  static const String outgoingCall = '/outgoing-call';
+  static const String activeCall = '/call';
+
+  static const String chats = '/';
+  static const String contacts = '/contacts';
+  static const String profile = '/profile';
+  static const String editProfile = '/profile/edit';
+  static const String settings = '/settings';
+  static const String chatView = '/chat/:id';
+  static const String newChat = '/new-chat';
+  static const String newGroup = '/new-group';
+  static const String chatInfo = '/chat-info';
+}
+
+================================================================
+FILE: lib/core/router/router_notifiers.dart
+================================================================
+import 'package:chattrix_ui/features/auth/presentation/providers/auth_providers.dart';
+import 'package:chattrix_ui/features/call/presentation/state/call_notifier.dart';
+import 'package:flutter/material.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
+
+class AuthNotifierWrapper extends ChangeNotifier {
+  AuthNotifierWrapper(this._ref) {
+    _ref.listen<AuthState>(authNotifierProvider, (_, _) => notifyListeners());
+  }
+
+  final Ref _ref;
+}
+
+final authNotifierWrapperProvider = Provider<AuthNotifierWrapper>((ref) {
+  return AuthNotifierWrapper(ref);
+});
+
+class CallNotifierWrapper extends ChangeNotifier {
+  CallNotifierWrapper(this._ref) {
+    _ref.listen(callProvider, (_, _) => notifyListeners());
+  }
+
+  final Ref _ref;
+}
+
+final callNotifierWrapperProvider = Provider<CallNotifierWrapper>((ref) {
+  return CallNotifierWrapper(ref);
+});
+
+================================================================
+FILE: lib/core/router/widgets/nav_shell.dart
+================================================================
+import 'package:chattrix_ui/core/router/route_paths.dart';
+import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:go_router/go_router.dart';
+
+class NavShell extends StatefulWidget {
+  const NavShell({super.key, required this.child});
+
+  final Widget child;
+
+  @override
+  State<NavShell> createState() => _NavShellState();
+}
+
+class _NavShellState extends State<NavShell> {
+  bool _isScrolled = false;
+
+  static const _navRoutes = [
+    RoutePaths.chats,
+    RoutePaths.contacts,
+    RoutePaths.profile,
+  ];
+
+  static const _navigationDestinations = [
+    NavigationDestination(
+      icon: FaIcon(FontAwesomeIcons.solidComments),
+      label: 'Chats',
+    ),
+    NavigationDestination(
+      icon: FaIcon(FontAwesomeIcons.addressBook),
+      label: 'Contacts',
+    ),
+    NavigationDestination(
+      icon: FaIcon(FontAwesomeIcons.user),
+      label: 'Profile',
+    ),
+  ];
+
+  int _getCurrentIndex(String location) {
+    for (int i = 0; i < _navRoutes.length; i++) {
+      if (location == _navRoutes[i]) return i;
+    }
+    return 0;
+  }
+
+  bool _shouldShowBottomNav(String location) {
+    return !location.startsWith('/chat/') &&
+        location != RoutePaths.newChat &&
+        location != RoutePaths.newGroup &&
+        location != RoutePaths.chatInfo &&
+        location != RoutePaths.editProfile &&
+        location != RoutePaths.settings;
+  }
+
+  bool _onScrollNotification(ScrollNotification notification) {
+    if (notification is ScrollUpdateNotification) {
+      final shouldShowShadow = notification.metrics.pixels > 0;
+      if (shouldShowShadow != _isScrolled) {
+        setState(() {
+          _isScrolled = shouldShowShadow;
+        });
+      }
+    }
+    return false;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final location = GoRouterState.of(context).uri.toString();
+    final currentIndex = _getCurrentIndex(location);
+    final showBottomNav = _shouldShowBottomNav(location);
+
+    return Scaffold(
+      body: NotificationListener<ScrollNotification>(
+        onNotification: _onScrollNotification,
+        child: widget.child,
+      ),
+      bottomNavigationBar: showBottomNav
+          ? Container(
+              decoration: BoxDecoration(
+                boxShadow: _isScrolled
+                    ? [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.08),
+                          blurRadius: 8,
+                          offset: const Offset(0, -2),
+                        ),
+                      ]
+                    : null,
+              ),
+              child: NavigationBar(
+                selectedIndex: currentIndex,
+                onDestinationSelected: (index) {
+                  context.go(_navRoutes[index]);
+                },
+                destinations: _navigationDestinations,
+              ),
+            )
+          : null,
+    );
+  }
+}
+
+================================================================
+FILE: lib/core/services/token_cache_service.dart
+================================================================
+import 'package:chattrix_ui/core/constants/app_constants.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+
+class TokenCacheService {
+  final FlutterSecureStorage _secureStorage;
+
+  TokenCacheService(this._secureStorage);
+
+  Future<String?> getAccessToken() async {
+    try {
+      return await _secureStorage.read(key: AppConstants.accessTokenKey);
+    } catch (e) {
+      debugPrint('⚠️ [TokenCache] Storage corrupted. Resetting... Error: $e');
+      await clearTokens();
+      return null;
+    }
+  }
+
+  Future<String?> getRefreshToken() async {
+    try {
+      return await _secureStorage.read(key: AppConstants.refreshTokenKey);
+    } catch (e) {
+      debugPrint('⚠️ [TokenCache] Refresh token corrupted: $e');
+      return null;
+    }
+  }
+
+  Future<void> setTokens(String accessToken, String refreshToken) async {
+    debugPrint('🔄 [TokenCache] Updating tokens...');
+    try {
+      await Future.wait([
+        _secureStorage.write(key: AppConstants.accessTokenKey, value: accessToken),
+        _secureStorage.write(key: AppConstants.refreshTokenKey, value: refreshToken),
+      ]);
+    } catch (e) {
+      debugPrint('❌ [TokenCache] Failed to write tokens: $e');
+    }
+  }
+
+  Future<void> clearTokens() async {
+    debugPrint('🧹 [TokenCache] Clearing tokens...');
+    try {
+      await Future.wait([
+        _secureStorage.delete(key: AppConstants.accessTokenKey),
+        _secureStorage.delete(key: AppConstants.refreshTokenKey),
+      ]);
+    } catch (e) {
+      debugPrint('⚠️ [TokenCache] Failed to clear storage (might be already empty): $e');
+    }
+  }
+}
+
+================================================================
+FILE: lib/core/theme/app_theme.dart
+================================================================
+import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+
+class AppTheme {
+  static const _lightPrimaryColor = Colors.black;
+  static const _lightOnPrimaryColor = Colors.white;
+  static const _lightBackgroundColor = Colors.white;
+  static const _lightSurfaceColor = Colors.white;
+  static const _lightOnSurfaceColor = Colors.black;
+  static const _lightBorderColor = Colors.grey;
+
+  static const _darkPrimaryColor = Colors.white;
+  static const _darkOnPrimaryColor = Colors.black;
+  static const _darkBackgroundColor = Colors.black;
+  static const _darkSurfaceColor = Colors.black;
+  static const _darkOnSurfaceColor = Colors.white;
+  static const _darkBorderColor = Colors.grey;
+
+  static final ThemeData lightTheme = ThemeData(
+    brightness: Brightness.light,
+    primaryColor: _lightPrimaryColor,
+    scaffoldBackgroundColor: _lightBackgroundColor,
+    textTheme: GoogleFonts.interTextTheme().apply(bodyColor: _lightOnSurfaceColor),
+    colorScheme: const ColorScheme.light(
+      primary: _lightPrimaryColor,
+      onPrimary: _lightOnPrimaryColor,
+      surface: _lightSurfaceColor,
+      onSurface: _lightOnSurfaceColor,
+    ),
+    inputDecorationTheme: _inputDecorationTheme(borderColor: _lightBorderColor),
+    elevatedButtonTheme: _elevatedButtonTheme(
+      backgroundColor: _lightPrimaryColor,
+      foregroundColor: _lightOnPrimaryColor,
+    ),
+    outlinedButtonTheme: _outlinedButtonTheme(foregroundColor: _lightOnSurfaceColor, borderColor: _lightBorderColor),
+    textButtonTheme: _textButtonTheme(primaryColor: _lightPrimaryColor),
+  );
+
+  static final ThemeData darkTheme = ThemeData(
+    brightness: Brightness.dark,
+    primaryColor: _darkPrimaryColor,
+    scaffoldBackgroundColor: _darkBackgroundColor,
+    textTheme: GoogleFonts.interTextTheme().apply(bodyColor: _darkOnSurfaceColor),
+    colorScheme: const ColorScheme.dark(
+      primary: _darkPrimaryColor,
+      onPrimary: _darkOnPrimaryColor,
+      surface: _darkSurfaceColor,
+      onSurface: _darkOnSurfaceColor,
+    ),
+    inputDecorationTheme: _inputDecorationTheme(borderColor: _darkBorderColor),
+    elevatedButtonTheme: _elevatedButtonTheme(backgroundColor: _darkPrimaryColor, foregroundColor: _darkOnPrimaryColor),
+    outlinedButtonTheme: _outlinedButtonTheme(foregroundColor: _darkOnSurfaceColor, borderColor: _darkBorderColor),
+    textButtonTheme: _textButtonTheme(primaryColor: _darkPrimaryColor),
+  );
+
+  static InputDecorationTheme _inputDecorationTheme({required Color borderColor}) {
+    return InputDecorationTheme(
+      labelStyle: TextStyle(color: borderColor),
+      floatingLabelStyle: TextStyle(color: borderColor.withValues(alpha: 0.8)),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(8.0),
+        borderSide: BorderSide(color: borderColor),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(8.0),
+        borderSide: BorderSide(color: borderColor.withValues(alpha: 0.5)),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(8.0),
+        borderSide: BorderSide(color: borderColor, width: 1.5),
+      ),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+    );
+  }
+
+  static ElevatedButtonThemeData _elevatedButtonTheme({
+    required Color backgroundColor,
+    required Color foregroundColor,
+  }) {
+    return ElevatedButtonThemeData(
+      style: ElevatedButton.styleFrom(
+        backgroundColor: backgroundColor,
+        foregroundColor: foregroundColor,
+        minimumSize: const Size(double.infinity, 50),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)),
+        elevation: 0,
+        textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+      ),
+    );
+  }
+
+  static OutlinedButtonThemeData _outlinedButtonTheme({required Color foregroundColor, required Color borderColor}) {
+    return OutlinedButtonThemeData(
+      style: OutlinedButton.styleFrom(
+        foregroundColor: foregroundColor,
+        minimumSize: const Size(double.infinity, 50),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)),
+        side: BorderSide(color: borderColor.withValues(alpha: 0.5)),
+        textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+      ),
+    );
+  }
+
+  static TextButtonThemeData _textButtonTheme({required Color primaryColor}) {
+    return TextButtonThemeData(
+      style: TextButton.styleFrom(
+        foregroundColor: primaryColor,
+        textStyle: const TextStyle(fontWeight: FontWeight.w600),
+      ),
+    );
+  }
+}
+
+================================================================
+FILE: lib/core/toast/toast_controller.dart
+================================================================
+import 'dart:async';
+
+import 'package:flutter/material.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:hooks_riverpod/legacy.dart';
+
+import 'toast_type.dart';
+
+class ToastEntry {
+  ToastEntry({required this.id, required this.title, this.description, required this.type, required this.duration});
+
+  final String id;
+  final String title;
+  final String? description;
+  final ToastType type;
+  final Duration duration;
+
+  bool dismissed = false;
+  DateTime createdAt = DateTime.now();
+}
+
+class ToastController extends ChangeNotifier {
+  ToastController({this.maxVisible = 3});
+
+  final int maxVisible;
+  final List<ToastEntry> _toasts = <ToastEntry>[];
+  final Map<String, Timer> _timers = <String, Timer>{};
+
+  List<ToastEntry> get toasts => List.unmodifiable(_toasts);
+
+  String show({required String title, String? description, ToastType type = ToastType.info, Duration? duration}) {
+    final entry = ToastEntry(
+      id: UniqueKey().toString(),
+      title: title,
+      description: description,
+      type: type,
+      duration: duration ?? const Duration(milliseconds: 3400),
+    );
+
+    _toasts.add(entry);
+
+    while (_toasts.length > maxVisible) {
+      final removed = _toasts.removeAt(0);
+      _cancelTimer(removed.id);
+    }
+
+    _startAutoDismiss(entry);
+
+    notifyListeners();
+    return entry.id;
+  }
+
+  void dismiss(String id) {
+    final idx = _toasts.indexWhere((e) => e.id == id);
+    if (idx != -1) {
+      _toasts[idx].dismissed = true;
+      notifyListeners();
+      Future.delayed(const Duration(milliseconds: 320), () {
+        _removeById(id);
+      });
+    }
+  }
+
+  void _removeById(String id) {
+    _cancelTimer(id);
+    _toasts.removeWhere((e) => e.id == id);
+    notifyListeners();
+  }
+
+  void _startAutoDismiss(ToastEntry e) {
+    _cancelTimer(e.id);
+    _timers[e.id] = Timer(e.duration, () => dismiss(e.id));
+  }
+
+  void _cancelTimer(String id) {
+    _timers.remove(id)?.cancel();
+  }
+
+  @override
+  void dispose() {
+    for (final t in _timers.values) {
+      t.cancel();
+    }
+    _timers.clear();
+    super.dispose();
+  }
+}
+
+final toastControllerProvider = ChangeNotifierProvider<ToastController>((ref) {
+  return ToastController();
+});
+class Toasts {
+  static String show(
+    BuildContext context, {
+    required String title,
+    String? description,
+    ToastType type = ToastType.info,
+    Duration? duration,
+  }) {
+    final container = ProviderScope.containerOf(context, listen: false);
+    final controller = container.read(toastControllerProvider);
+    return controller.show(title: title, description: description, type: type, duration: duration);
+  }
+
+  static String success(BuildContext context, {required String title, String? description, Duration? duration}) =>
+      show(context, title: title, description: description, type: ToastType.success, duration: duration);
+
+  static String error(BuildContext context, {required String title, String? description, Duration? duration}) =>
+      show(context, title: title, description: description, type: ToastType.error, duration: duration);
+
+  static String warning(BuildContext context, {required String title, String? description, Duration? duration}) =>
+      show(context, title: title, description: description, type: ToastType.warning, duration: duration);
+
+  static String info(BuildContext context, {required String title, String? description, Duration? duration}) =>
+      show(context, title: title, description: description, type: ToastType.info, duration: duration);
+
+  static String loading(BuildContext context, {required String title, String? description, Duration? duration}) => show(
+    context,
+    title: title,
+    description: description,
+    type: ToastType.loading,
+    duration: duration ?? const Duration(milliseconds: 1600),
+  );
+}
+
+================================================================
+FILE: lib/core/toast/toast_overlay.dart
+================================================================
+import 'package:flutter/material.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
+
+import 'toast_controller.dart';
+import 'toast_type.dart';
+
+enum ToastPosition { topLeft, topCenter, topRight, bottomLeft, bottomCenter, bottomRight }
+
+class ToastOverlay extends StatelessWidget {
+  const ToastOverlay({
+    super.key,
+    required this.child,
+    this.position = ToastPosition.bottomRight,
+    this.margin = const EdgeInsets.all(12),
+  });
+
+  final Widget child;
+  final ToastPosition position;
+  final EdgeInsets margin;
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        child,
+        _ToastViewport(position: position, margin: margin),
+      ],
+    );
+  }
+}
+
+class _ToastViewport extends ConsumerWidget {
+  const _ToastViewport({required this.position, required this.margin});
+
+  final ToastPosition position;
+  final EdgeInsets margin;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final controller = ref.watch(toastControllerProvider);
+
+    if (controller.toasts.isEmpty) return const SizedBox.shrink();
+
+    Alignment alignmentFor(ToastPosition pos) {
+      switch (pos) {
+        case ToastPosition.topLeft:
+          return Alignment.topLeft;
+        case ToastPosition.topCenter:
+          return Alignment.topCenter;
+        case ToastPosition.topRight:
+          return Alignment.topRight;
+        case ToastPosition.bottomLeft:
+          return Alignment.bottomLeft;
+        case ToastPosition.bottomCenter:
+          return Alignment.bottomCenter;
+        case ToastPosition.bottomRight:
+          return Alignment.bottomRight;
+      }
+    }
+
+    EdgeInsets paddingFor(ToastPosition pos, EdgeInsets base) {
+      final lr = EdgeInsets.only(left: base.left, right: base.right);
+      if (pos == ToastPosition.topLeft || pos == ToastPosition.topCenter || pos == ToastPosition.topRight) {
+        return lr.copyWith(top: base.top);
+      } else {
+        return lr.copyWith(bottom: base.bottom);
+      }
+    }
+
+    return IgnorePointer(
+      ignoring: false,
+      child: SafeArea(
+        child: Align(
+          alignment: alignmentFor(position),
+          child: Padding(
+            padding: paddingFor(position, margin),
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 420),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  for (final e in controller.toasts)
+                    _ToastItem(
+                      key: ValueKey(e.id),
+                      entry: e,
+                      onClose: () => ref.read(toastControllerProvider).dismiss(e.id),
+                    ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _ToastItem extends StatefulWidget {
+  const _ToastItem({super.key, required this.entry, required this.onClose});
+
+  final ToastEntry entry;
+  final VoidCallback onClose;
+
+  @override
+  State<_ToastItem> createState() => _ToastItemState();
+}
+
+class _ToastItemState extends State<_ToastItem> with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+  late final Animation<Offset> _slide;
+  late final Animation<double> _fade;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(vsync: this, duration: const Duration(milliseconds: 220));
+    _slide = Tween<Offset>(
+      begin: const Offset(0.08, -0.06),
+      end: Offset.zero,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic));
+    _fade = CurvedAnimation(parent: _controller, curve: Curves.easeOut);
+    _controller.forward();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final brightness = theme.brightness;
+    final isDark = brightness == Brightness.dark;
+
+    final accent = toastAccentColor(widget.entry.type, brightness);
+
+    final bg = isDark ? const Color(0xFF0B0B0B) : Colors.white;
+    final onBg = isDark ? Colors.white : Colors.black;
+    final border = isDark ? const Color(0x1FFFFFFF) : const Color(0x14000000);
+
+    final iconBg = Color.alphaBlend(accent.withValues(alpha: isDark ? 0.18 : 0.10), bg);
+
+    return AnimatedSlide(
+      duration: const Duration(milliseconds: 280),
+      curve: Curves.easeInOutCubic,
+      offset: widget.entry.dismissed ? const Offset(0.06, -0.04) : Offset.zero,
+      child: AnimatedOpacity(
+        duration: const Duration(milliseconds: 280),
+        curve: Curves.easeOutCubic,
+        opacity: widget.entry.dismissed ? 0.0 : 1.0,
+        child: FadeTransition(
+          opacity: _fade,
+          child: SlideTransition(
+            position: _slide,
+            child: Padding(
+              padding: const EdgeInsets.only(bottom: 10),
+              child: DecoratedBox(
+                decoration: ShapeDecoration(
+                  color: bg,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    side: BorderSide(color: border),
+                  ),
+                  shadows: [
+                    BoxShadow(
+                      color: isDark ? Colors.black.withValues(alpha: 0.5) : Colors.black.withValues(alpha: 0.06),
+                      blurRadius: 24,
+                      spreadRadius: 0,
+                      offset: const Offset(0, 10),
+                    ),
+                  ],
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: Stack(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Container(
+                              height: 36,
+                              width: 36,
+                              decoration: BoxDecoration(
+                                color: iconBg,
+                                borderRadius: BorderRadius.circular(8),
+                                border: Border.all(color: accent.withValues(alpha: 0.28)),
+                              ),
+                              child: Icon(toastIcon(widget.entry.type), color: accent, size: 20),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(
+                                    widget.entry.title,
+                                    style: theme.textTheme.bodyLarge?.copyWith(
+                                      fontWeight: FontWeight.w700,
+                                      color: onBg,
+                                    ),
+                                  ),
+                                  if (widget.entry.description != null) ...[
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      widget.entry.description!,
+                                      style: theme.textTheme.bodyMedium?.copyWith(
+                                        height: 1.25,
+                                        color: onBg.withValues(alpha: 0.8),
+                                      ),
+                                    ),
+                                  ],
+                                ],
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Material(
+                              type: MaterialType.transparency,
+                              child: InkResponse(
+                                onTap: widget.onClose,
+                                radius: 18,
+                                child: Icon(Icons.close_rounded, size: 18, color: onBg.withValues(alpha: 0.7)),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Positioned(
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        child: _ProgressBar(
+                          color: accent,
+                          startedAt: widget.entry.createdAt,
+                          duration: widget.entry.duration,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _ProgressBar extends StatefulWidget {
+  const _ProgressBar({required this.color, required this.startedAt, required this.duration});
+
+  final Color color;
+  final DateTime startedAt;
+  final Duration duration;
+
+  @override
+  State<_ProgressBar> createState() => _ProgressBarState();
+}
+
+class _ProgressBarState extends State<_ProgressBar> with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(vsync: this, duration: widget.duration)..forward();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return SizedBox(
+      height: 3,
+      child: AnimatedBuilder(
+        animation: _controller,
+        builder: (context, _) {
+          final value = 1.0 - _controller.value;
+          return FractionallySizedBox(
+            alignment: Alignment.centerLeft,
+            widthFactor: value.clamp(0.0, 1.0),
+            child: Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    widget.color.withValues(alpha: isDark ? 0.9 : 0.85),
+                    widget.color.withValues(alpha: isDark ? 0.55 : 0.4),
+                  ],
+                ),
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
+
+================================================================
+FILE: lib/core/toast/toast_type.dart
+================================================================
+import 'package:flutter/material.dart';
+
+enum ToastType { info, success, warning, error, loading }
+
+IconData toastIcon(ToastType type) {
+  switch (type) {
+    case ToastType.success:
+      return Icons.check_circle_rounded;
+    case ToastType.warning:
+      return Icons.warning_amber_rounded;
+    case ToastType.error:
+      return Icons.error_rounded;
+    case ToastType.loading:
+      return Icons.hourglass_bottom_rounded;
+    case ToastType.info:
+      return Icons.info_rounded;
+  }
+}
+
+Color toastAccentColor(ToastType type, Brightness brightness) {
+  final bool dark = brightness == Brightness.dark;
+  switch (type) {
+    case ToastType.success:
+      return dark ? const Color(0xFF22C55E) : const Color(0xFF16A34A);
+    case ToastType.warning:
+      return dark ? const Color(0xFFF59E0B) : const Color(0xFFD97706);
+    case ToastType.error:
+      return dark ? const Color(0xFFEF4444) : const Color(0xFFDC2626);
+    case ToastType.loading:
+      return dark ? const Color(0xFF60A5FA) : const Color(0xFF2563EB);
+    case ToastType.info:
+      return dark ? const Color(0xFF38BDF8) : const Color(0xFF0284C7);
+  }
+}
+
+================================================================
+FILE: lib/core/utils/app_logger.dart
+================================================================
+import 'package:flutter/foundation.dart';
+import 'package:logger/logger.dart';
+
+class AppLogger {
+  static final _logger = Logger(
+    filter: _ProductionFilter(),
+    printer: PrettyPrinter(
+      methodCount: 0,
+      errorMethodCount: 5,
+      lineLength: 100,
+      colors: true,
+      printEmojis: true,
+      dateTimeFormat: DateTimeFormat.onlyTimeAndSinceStart,
+    ),
+  );
+
+  static const String _debugEmoji = '🔍';
+  static const String _infoEmoji = 'ℹ️';
+  static const String _warningEmoji = '⚠️';
+  static const String _errorEmoji = '❌';
+  static const String _successEmoji = '✅';
+
+  static void debug(String message, {String? tag}) {
+    if (kDebugMode) {
+      _logger.d('$_debugEmoji [${tag ?? 'App'}] $message');
+    }
+  }
+
+  static void info(String message, {String? tag}) {
+    _logger.i('$_infoEmoji [${tag ?? 'App'}] $message');
+  }
+
+  static void success(String message, {String? tag}) {
+    _logger.i('$_successEmoji [${tag ?? 'App'}] $message');
+  }
+
+  static void warning(String message, {String? tag}) {
+    _logger.w('$_warningEmoji [${tag ?? 'App'}] $message');
+  }
+
+  static void error(
+    String message, {
+    Object? error,
+    StackTrace? stackTrace,
+    String? tag,
+  }) {
+    _logger.e(
+      '$_errorEmoji [${tag ?? 'App'}] $message',
+      error: error,
+      stackTrace: stackTrace,
+    );
+  }
+
+  static void websocket(String message, {bool isError = false}) {
+    if (isError) {
+      error(message, tag: 'WebSocket');
+    } else {
+      debug(message, tag: 'WebSocket');
+    }
+  }
+
+  static void call(String message, {bool isError = false}) {
+    if (isError) {
+      error(message, tag: 'Call');
+    } else {
+      debug(message, tag: 'Call');
+    }
+  }
+
+  static void chat(String message, {bool isError = false}) {
+    if (isError) {
+      error(message, tag: 'Chat');
+    } else {
+      debug(message, tag: 'Chat');
+    }
+  }
+
+  static void auth(String message, {bool isError = false}) {
+    if (isError) {
+      error(message, tag: 'Auth');
+    } else {
+      debug(message, tag: 'Auth');
+    }
+  }
+
+  static void media(String message, {bool isError = false}) {
+    if (isError) {
+      error(message, tag: 'Media');
+    } else {
+      debug(message, tag: 'Media');
+    }
+  }
+}
+
+class _ProductionFilter extends LogFilter {
+  @override
+  bool shouldLog(LogEvent event) {
+    return kDebugMode;
+  }
+}
+
+@Deprecated('Use AppLogger instead')
+final appLogger = Logger(
+  printer: PrettyPrinter(
+    methodCount: 2,
+    errorMethodCount: 8,
+    lineLength: 120,
+    colors: true,
+    printEmojis: true,
+    dateTimeFormat: DateTimeFormat.onlyTimeAndSinceStart,
+  ),
+);
+
+================================================================
+FILE: lib/core/utils/riverpod_logger.dart
+================================================================
+import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:chattrix_ui/core/utils/app_logger.dart';
+
+final class RiverpodLogger extends ProviderObserver {
+
+  @override
+  void didUpdateProvider(
+      ProviderObserverContext context,
+      Object? previousValue,
+      Object? newValue,
+      ) {
+    final provider = context.provider;
+    final providerName = provider.name ?? provider.runtimeType.toString();
+
+    AppLogger.debug(
+      'State Updated: $previousValue -> $newValue',
+      tag: 'Riverpod: $providerName',
+    );
+  }
+
+  @override
+  void didAddProvider(
+      ProviderObserverContext context,
+      Object? value,
+      ) {
+    final provider = context.provider;
+    final providerName = provider.name ?? provider.runtimeType.toString();
+
+    AppLogger.info(
+      'Initialized with value: $value',
+      tag: 'Riverpod: $providerName',
+    );
+  }
+
+  @override
+  void didDisposeProvider(
+      ProviderObserverContext context,
+      ) {
+    final provider = context.provider;
+    final providerName = provider.name ?? provider.runtimeType.toString();
+
+    AppLogger.warning(
+      'Disposed',
+      tag: 'Riverpod: $providerName',
+    );
+  }
+}
+
+================================================================
+FILE: lib/core/widgets/app_input_field.dart
+================================================================
+import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
+
+class AppInputField extends HookWidget {
+  final String labelText;
+  final String? hintText;
+  final bool isPassword;
+  final TextEditingController? controller;
+  final TextInputType? keyboardType;
+  final String? Function(String?)? validator;
+
+  const AppInputField({
+    super.key,
+    required this.labelText,
+    this.hintText,
+    this.isPassword = false,
+    this.controller,
+    this.keyboardType,
+    this.validator,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final obscureText = useState(isPassword);
+
+    return TextFormField(
+      controller: controller,
+      obscureText: obscureText.value,
+      keyboardType: keyboardType,
+      validator: validator,
+      decoration: InputDecoration(
+        labelText: labelText,
+        hintText: hintText,
+        suffixIcon: isPassword
+            ? IconButton(
+                icon: Icon(
+                  obscureText.value ? Icons.visibility_off_outlined : Icons.visibility_outlined,
+                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
+                ),
+                onPressed: () {
+                  obscureText.value = !obscureText.value;
+                },
+              )
+            : null,
+      ),
+    );
+  }
+}
+
+================================================================
+FILE: lib/core/widgets/primary_button.dart
+================================================================
+import 'package:flutter/material.dart';
+
+class PrimaryButton extends StatelessWidget {
+  final String text;
+  final VoidCallback? onPressed;
+  final bool isLoading;
+
+  const PrimaryButton({super.key, required this.text, required this.onPressed, this.isLoading = false});
+
+  @override
+  Widget build(BuildContext context) {
+    return ElevatedButton(
+      onPressed: isLoading ? null : onPressed,
+      child: isLoading
+          ? SizedBox(
+              height: 20,
+              width: 20,
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                valueColor: AlwaysStoppedAnimation<Color>(Theme.of(context).colorScheme.onPrimary),
+              ),
+            )
+          : Text(text),
+    );
+  }
+}
+
+================================================================
+FILE: lib/features/profile/data/datasources/profile_remote_datasource_impl.dart
+================================================================
+import 'package:chattrix_ui/core/constants/api_constants.dart';
+import 'package:chattrix_ui/features/profile/data/models/profile_model.dart';
+import 'package:chattrix_ui/features/profile/data/models/update_profile_request.dart';
+import 'package:chattrix_ui/features/profile/domain/datasources/profile_remote_datasource.dart';
+import 'package:dio/dio.dart';
+
+class ProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
+  final Dio dio;
+
+  ProfileRemoteDataSourceImpl({required this.dio});
+
+  @override
+  Future<ProfileModel> getProfile() async {
+    final response = await dio.get(ApiConstants.getProfile);
+    return ProfileModel.fromJson(response.data['data']);
+  }
+
+  @override
+  Future<ProfileModel> updateProfile(UpdateProfileRequest request) async {
+    final response = await dio.put(ApiConstants.updateProfile, data: request.toJson());
+    return ProfileModel.fromJson(response.data['data']);
+  }
+}
+
+================================================================
+FILE: lib/features/profile/data/models/profile_model.dart
+================================================================
+import 'package:chattrix_ui/features/profile/domain/entities/gender.dart';
+import 'package:chattrix_ui/features/profile/domain/entities/profile.dart';
+import 'package:chattrix_ui/features/profile/domain/entities/profile_visibility.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
+
+part 'profile_model.freezed.dart';
+part 'profile_model.g.dart';
+
+@freezed
+abstract class ProfileModel with _$ProfileModel {
+  const ProfileModel._();
+
+  const factory ProfileModel({
+    required int id,
+    required String username,
+    required String email,
+    required String fullName,
+    String? avatarUrl,
+    String? bio,
+    String? phone,
+    DateTime? dateOfBirth,
+
+    @JsonKey(unknownEnumValue: Gender.other) Gender? gender,
+
+    String? location,
+
+    ProfileVisibility? profileVisibility,
+
+    required bool isEmailVerified,
+    required bool isOnline,
+
+    required DateTime lastSeen,
+    DateTime? createdAt,
+  }) = _ProfileModel;
+
+  factory ProfileModel.fromJson(Map<String, dynamic> json) => _$ProfileModelFromJson(json);
+
+  Profile toEntity() {
+    return Profile(
+      id: id,
+      username: username,
+      email: email,
+      fullName: fullName,
+      avatarUrl: avatarUrl,
+      bio: bio,
+      phone: phone,
+      dateOfBirth: dateOfBirth, // Không cần parse nữa
+      gender: gender,
+      location: location,
+      profileVisibility: profileVisibility,
+      isEmailVerified: isEmailVerified,
+      isOnline: isOnline,
+      lastSeen: lastSeen,       // Không cần parse nữa
+      createdAt: createdAt,     // Không cần parse nữa
+    );
+  }
+}
+
+================================================================
+FILE: lib/features/profile/data/models/update_profile_request.dart
+================================================================
+import 'package:chattrix_ui/features/profile/domain/entities/gender.dart';
+import 'package:chattrix_ui/features/profile/domain/entities/profile_visibility.dart';
+import 'package:chattrix_ui/features/profile/domain/entities/update_profile_params.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
+
+part 'update_profile_request.freezed.dart';
+part 'update_profile_request.g.dart';
+
+@freezed
+abstract class UpdateProfileRequest with _$UpdateProfileRequest {
+  const UpdateProfileRequest._();
+
+  const factory UpdateProfileRequest({
+    String? username,
+    String? email,
+    String? fullName,
+    String? phone,
+    String? bio,
+    DateTime? dateOfBirth,
+    Gender? gender,
+    String? location,
+    ProfileVisibility? profileVisibility,
+    String? avatarUrl,
+  }) = _UpdateProfileRequest;
+
+  factory UpdateProfileRequest.fromJson(Map<String, dynamic> json) =>
+      _$UpdateProfileRequestFromJson(json);
+
+  factory UpdateProfileRequest.fromParams(UpdateProfileParams params) {
+    return UpdateProfileRequest(
+      username: params.username,
+      email: params.email,
+      fullName: params.fullName,
+      phone: params.phone,
+      bio: params.bio,
+      dateOfBirth: params.dateOfBirth?.toUtc(),
+      gender: params.gender,
+      location: params.location,
+      profileVisibility: params.profileVisibility,
+      avatarUrl: params.avatarUrl,
+    );
+  }
+}
+
+================================================================
+FILE: lib/features/profile/data/repositories/profile_repository_impl.dart
+================================================================
+import 'package:chattrix_ui/core/errors/failures.dart';
+import 'package:chattrix_ui/features/profile/data/models/update_profile_request.dart';
+import 'package:chattrix_ui/features/profile/domain/datasources/profile_remote_datasource.dart';
+import 'package:chattrix_ui/features/profile/domain/entities/profile.dart';
+import 'package:chattrix_ui/features/profile/domain/entities/update_profile_params.dart';
+import 'package:chattrix_ui/features/profile/domain/repositories/profile_repository.dart';
+import 'package:dartz/dartz.dart';
+import 'package:dio/dio.dart';
+
+class ProfileRepositoryImpl implements ProfileRepository {
+  final ProfileRemoteDataSource remoteDataSource;
+
+  ProfileRepositoryImpl({required this.remoteDataSource});
+
+  @override
+  Future<Either<Failure, Profile>> getProfile() async {
+    try {
+      final profileModel = await remoteDataSource.getProfile();
+      return Right(profileModel.toEntity());
+    } on DioException catch (e) {
+      if (e.response?.statusCode == 401) {
+        return const Left(Failure.unauthorized(message: 'Unauthorized'));
+      }
+      return Left(Failure.server(message: e.response?.data['message'] ?? 'Failed to get profile'));
+    } catch (e) {
+      return Left(Failure.unknown(message: e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Profile>> updateProfile(UpdateProfileParams params) async {
+    try {
+      final request = UpdateProfileRequest.fromParams(params);
+      final profileModel = await remoteDataSource.updateProfile(request);
+      return Right(profileModel.toEntity());
+    } on DioException catch (e) {
+      if (e.response?.statusCode == 401) {
+        return const Left(Failure.unauthorized(message: 'Unauthorized'));
+      }
+      return Left(Failure.server(message: e.response?.data['message'] ?? 'Failed to update profile'));
+    } catch (e) {
+      return Left(Failure.unknown(message: e.toString()));
+    }
+  }
+}
+
+================================================================
+FILE: lib/features/profile/domain/datasources/profile_remote_datasource.dart
+================================================================
+import 'package:chattrix_ui/features/profile/data/models/profile_model.dart';
+import 'package:chattrix_ui/features/profile/data/models/update_profile_request.dart';
+
+abstract class ProfileRemoteDataSource {
+  Future<ProfileModel> getProfile();
+
+  Future<ProfileModel> updateProfile(UpdateProfileRequest request);
+}
+
+================================================================
+FILE: lib/features/profile/domain/entities/gender.dart
+================================================================
+import 'package:freezed_annotation/freezed_annotation.dart';
+
+enum Gender {
+  @JsonValue('MALE')
+  male,
+  @JsonValue('FEMALE')
+  female,
+  @JsonValue('OTHER')
+  other;
+
+  String get label {
+    switch (this) {
+      case Gender.male:
+        return 'Male';
+      case Gender.female:
+        return 'Female';
+      case Gender.other:
+        return 'Other';
+    }
+  }
+}
+
+================================================================
+FILE: lib/features/profile/domain/entities/profile.dart
+================================================================
+import 'package:chattrix_ui/features/profile/domain/entities/gender.dart';
+import 'package:chattrix_ui/features/profile/domain/entities/profile_visibility.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
+
+part 'profile.freezed.dart';
+
+@freezed
+abstract class Profile with _$Profile {
+  const factory Profile({
+    required int id,
+    required String username,
+    required String email,
+    required String fullName,
+    String? avatarUrl,
+    String? bio,
+    String? phone,
+    DateTime? dateOfBirth,
+    Gender? gender,
+    String? location,
+    ProfileVisibility? profileVisibility,
+    required bool isEmailVerified,
+    required bool isOnline,
+    required DateTime lastSeen,
+    DateTime? createdAt,
+  }) = _Profile;
+}
+
+================================================================
+FILE: lib/features/profile/domain/entities/profile_visibility.dart
+================================================================
+import 'package:freezed_annotation/freezed_annotation.dart';
+
+enum ProfileVisibility {
+  @JsonValue('PUBLIC')
+  public,
+  @JsonValue('FRIENDS_ONLY')
+  friendsOnly,
+  @JsonValue('PRIVATE')
+  private;
+
+  String get label {
+    switch (this) {
+      case ProfileVisibility.public:
+        return 'Public';
+      case ProfileVisibility.friendsOnly:
+        return 'Friends Only';
+      case ProfileVisibility.private:
+        return 'Private';
+    }
+  }
+}
+
+================================================================
+FILE: lib/features/profile/domain/entities/update_profile_params.dart
+================================================================
+import 'package:chattrix_ui/features/profile/domain/entities/gender.dart';
+import 'package:chattrix_ui/features/profile/domain/entities/profile_visibility.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
+
+part 'update_profile_params.freezed.dart';
+
+@freezed
+abstract class UpdateProfileParams with _$UpdateProfileParams {
+  const factory UpdateProfileParams({
+    String? username,
+    String? email,
+    String? fullName,
+    String? phone,
+    String? bio,
+    DateTime? dateOfBirth,
+    Gender? gender,
+    String? location,
+    ProfileVisibility? profileVisibility,
+    String? avatarUrl,
+  }) = _UpdateProfileParams;
+}
+
+================================================================
+FILE: lib/features/profile/domain/repositories/profile_repository.dart
+================================================================
+import 'package:chattrix_ui/core/errors/failures.dart';
+import 'package:chattrix_ui/features/profile/domain/entities/profile.dart';
+import 'package:chattrix_ui/features/profile/domain/entities/update_profile_params.dart';
+import 'package:dartz/dartz.dart';
+
+abstract class ProfileRepository {
+  Future<Either<Failure, Profile>> getProfile();
+
+  Future<Either<Failure, Profile>> updateProfile(UpdateProfileParams params);
+}
+
+================================================================
+FILE: lib/features/profile/domain/usecases/get_profile_usecase.dart
+================================================================
+import 'package:chattrix_ui/core/errors/failures.dart';
+import 'package:chattrix_ui/features/profile/domain/entities/profile.dart';
+import 'package:chattrix_ui/features/profile/domain/repositories/profile_repository.dart';
+import 'package:dartz/dartz.dart';
+
+class GetProfileUseCase {
+  final ProfileRepository repository;
+
+  GetProfileUseCase(this.repository);
+
+  Future<Either<Failure, Profile>> call() async {
+    return await repository.getProfile();
+  }
+}
+
+================================================================
+FILE: lib/features/profile/domain/usecases/update_profile_usecase.dart
+================================================================
+import 'package:chattrix_ui/core/errors/failures.dart';
+import 'package:chattrix_ui/features/profile/domain/entities/profile.dart';
+import 'package:chattrix_ui/features/profile/domain/entities/update_profile_params.dart';
+import 'package:chattrix_ui/features/profile/domain/repositories/profile_repository.dart';
+import 'package:dartz/dartz.dart';
+
+class UpdateProfileUseCase {
+  final ProfileRepository repository;
+
+  UpdateProfileUseCase(this.repository);
+
+  Future<Either<Failure, Profile>> call(UpdateProfileParams params) async {
+    return await repository.updateProfile(params);
+  }
+}
+
+================================================================
+FILE: lib/features/profile/presentation/pages/edit_profile_page.dart
+================================================================
+import 'dart:io';
+
+import 'package:bottom_picker/bottom_picker.dart';
+import 'package:bottom_picker/resources/arrays.dart';
+import 'package:chattrix_ui/features/profile/domain/entities/gender.dart';
+import 'package:chattrix_ui/features/profile/domain/entities/profile_visibility.dart';
+import 'package:chattrix_ui/features/profile/domain/entities/update_profile_params.dart';
+import 'package:chattrix_ui/features/profile/presentation/providers/profile_providers.dart';
+import 'package:chattrix_ui/features/profile/presentation/widgets/profile_picker_widgets.dart';
+import 'package:chattrix_ui/features/profile/presentation/widgets/profile_ui_components.dart';
+import 'package:chattrix_ui/features/profile/presentation/widgets/single_field_editor.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:go_router/go_router.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:intl/intl.dart';
+
+class EditProfilePage extends HookConsumerWidget {
+  const EditProfilePage({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final colors = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+
+    final profileAsync = ref.watch(profileControllerProvider);
+
+    final username = useState('');
+    final fullName = useState('');
+    final bio = useState('');
+    final phone = useState('');
+    final email = useState('');
+    final location = useState('');
+    final gender = useState<Gender?>(null);
+    final dob = useState<DateTime?>(null);
+    final visibility = useState<ProfileVisibility>(ProfileVisibility.public);
+    final avatarPath = useState<String?>(null);
+    final avatarUrl = useState<String?>(null);
+    final isInitialized = useState(false);
+    final hasUnsavedChanges = useState(false);
+
+    useEffect(() {
+      final currentProfile = profileAsync.asData?.value;
+      if (!isInitialized.value && currentProfile != null) {
+        username.value = currentProfile.username;
+        fullName.value = currentProfile.fullName;
+        bio.value = currentProfile.bio ?? '';
+        phone.value = currentProfile.phone ?? '';
+        email.value = currentProfile.email;
+        location.value = currentProfile.location ?? '';
+        gender.value = currentProfile.gender;
+        dob.value = currentProfile.dateOfBirth;
+        visibility.value = currentProfile.profileVisibility ?? ProfileVisibility.public;
+        avatarUrl.value = currentProfile.avatarUrl;
+        isInitialized.value = true;
+      }
+      return null;
+    }, [profileAsync.asData?.value]);
+
+    useEffect(
+      () {
+        if (isInitialized.value) {
+          final currentProfile = profileAsync.asData?.value;
+          if (currentProfile != null) {
+            final changed =
+                username.value != currentProfile.username ||
+                fullName.value != currentProfile.fullName ||
+                bio.value != (currentProfile.bio ?? '') ||
+                phone.value != (currentProfile.phone ?? '') ||
+                email.value != currentProfile.email ||
+                location.value != (currentProfile.location ?? '') ||
+                gender.value != currentProfile.gender ||
+                dob.value != currentProfile.dateOfBirth ||
+                visibility.value != (currentProfile.profileVisibility ?? ProfileVisibility.public) ||
+                avatarPath.value != null;
+            hasUnsavedChanges.value = changed;
+          }
+        }
+        return null;
+      },
+      [
+        username.value,
+        fullName.value,
+        bio.value,
+        phone.value,
+        email.value,
+        location.value,
+        gender.value,
+        dob.value,
+        visibility.value,
+        avatarPath.value,
+        isInitialized.value,
+      ],
+    );
+
+    Future<bool> onWillPop() async {
+      if (!hasUnsavedChanges.value) return true;
+
+      final shouldPop = await showModalBottomSheet<bool>(
+        context: context,
+        backgroundColor: colors.surface,
+        showDragHandle: true,
+        shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+        builder: (context) => SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(color: colors.errorContainer, borderRadius: BorderRadius.circular(12)),
+                      child: Icon(Icons.warning_rounded, color: colors.error, size: 24),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Text(
+                        'Discard changes?',
+                        style: textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  'You have unsaved changes. Are you sure you want to leave without saving?',
+                  style: textTheme.bodyMedium?.copyWith(color: colors.onSurfaceVariant, height: 1.4),
+                ),
+                const SizedBox(height: 24),
+                Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: () => Navigator.pop(context, false),
+                        style: OutlinedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          side: BorderSide(color: colors.outline, width: 1.5),
+                        ),
+                        child: const Text('Keep Editing', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600)),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: FilledButton(
+                        onPressed: () => Navigator.pop(context, true),
+                        style: FilledButton.styleFrom(
+                          backgroundColor: colors.error,
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        ),
+                        child: const Text('Discard', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600)),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+
+      return shouldPop ?? false;
+    }
+
+    Future<void> saveProfile() async {
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => const Center(child: CircularProgressIndicator()),
+      );
+
+      try {
+        final params = UpdateProfileParams(
+          username: username.value,
+          email: email.value,
+          fullName: fullName.value,
+          phone: phone.value.isNotEmpty ? phone.value : null,
+          bio: bio.value.isNotEmpty ? bio.value : null,
+          dateOfBirth: dob.value,
+          gender: gender.value,
+          location: location.value.isNotEmpty ? location.value : null,
+          profileVisibility: visibility.value,
+          avatarUrl: avatarPath.value != null ? null : avatarUrl.value,
+        );
+
+        File? newImageFile;
+        if (avatarPath.value != null) {
+          newImageFile = File(avatarPath.value!);
+        }
+
+        await ref.read(profileControllerProvider.notifier).updateProfile(params: params, newAvatarFile: newImageFile);
+
+        if (context.mounted) {
+          Navigator.pop(context);
+
+          final currentState = ref.read(profileControllerProvider);
+
+          if (currentState.hasError) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Update failed: ${currentState.error.toString().replaceAll('Exception: ', '')}'),
+                backgroundColor: colors.error,
+              ),
+            );
+          } else {
+            hasUnsavedChanges.value = false;
+            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Profile updated successfully!')));
+            context.pop();
+          }
+        }
+      } catch (e) {
+        if (context.mounted) {
+          Navigator.pop(context);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Error: $e'),
+              backgroundColor: colors.error,
+              behavior: SnackBarBehavior.floating,
+              margin: const EdgeInsets.all(16),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            ),
+          );
+        }
+      }
+    }
+
+    void openEditor({
+      required String title,
+      required String label,
+      required String currentValue,
+      required ValueNotifier<String> notifier,
+      required int maxLength,
+      int maxLines = 1,
+      TextInputType inputType = TextInputType.text,
+      String? helperText,
+    }) {
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (context) => SingleFieldEditor(
+            title: title,
+            label: label,
+            initialValue: currentValue,
+            maxLength: maxLength,
+            maxLines: maxLines,
+            inputType: inputType,
+            helperText: helperText,
+            onSave: (val) {
+              notifier.value = val;
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(SnackBar(content: Text('$title updated'), duration: const Duration(seconds: 1)));
+            },
+          ),
+        ),
+      );
+    }
+
+    void showAvatarPicker() {
+      final picker = ImagePicker();
+      showModalBottomSheet(
+        context: context,
+        backgroundColor: Colors.transparent,
+        builder: (context) => Container(
+          padding: const EdgeInsets.all(24),
+          decoration: BoxDecoration(
+            color: colors.surface,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              PickerOption(
+                icon: Icons.camera_alt_rounded,
+                label: 'Take a photo',
+                onTap: () async {
+                  Navigator.pop(context);
+                  final img = await picker.pickImage(source: ImageSource.camera);
+                  if (img != null) avatarPath.value = img.path;
+                },
+              ),
+              const SizedBox(height: 12),
+              PickerOption(
+                icon: Icons.photo_library_rounded,
+                label: 'Choose from gallery',
+                onTap: () async {
+                  Navigator.pop(context);
+                  final img = await picker.pickImage(source: ImageSource.gallery);
+                  if (img != null) avatarPath.value = img.path;
+                },
+              ),
+              const SizedBox(height: 24),
+            ],
+          ),
+        ),
+      );
+    }
+
+    void showDatePickerDialog() {
+      BottomPicker.date(
+        pickerTitle: const Text('Select Birthday', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+        dateOrder: DatePickerDateOrder.dmy,
+        initialDateTime: dob.value ?? DateTime(2000),
+        maxDateTime: DateTime.now(),
+        minDateTime: DateTime(1900),
+        bottomPickerTheme: BottomPickerTheme.blue,
+        buttonSingleColor: colors.primary,
+        backgroundColor: colors.surface,
+        onSubmit: (date) {
+          if (date is DateTime) dob.value = date;
+        },
+        buttonContent: const Padding(
+          padding: EdgeInsets.symmetric(horizontal: 10),
+          child: Center(
+            child: Text(
+              'Confirm',
+              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+            ),
+          ),
+        ),
+        buttonWidth: 200,
+        displaySubmitButton: true,
+      ).show(context);
+    }
+
+    void showGenderPicker() {
+      showModalBottomSheet(
+        context: context,
+        shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+        builder: (context) => Container(
+          padding: const EdgeInsets.symmetric(vertical: 20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text('Select Gender', style: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
+              const SizedBox(height: 10),
+              GenderOption(
+                gender: Gender.male,
+                selectedGender: gender.value,
+                onSelect: (g) {
+                  gender.value = g;
+                  Navigator.pop(context);
+                },
+              ),
+              GenderOption(
+                gender: Gender.female,
+                selectedGender: gender.value,
+                onSelect: (g) {
+                  gender.value = g;
+                  Navigator.pop(context);
+                },
+              ),
+              GenderOption(
+                gender: Gender.other,
+                selectedGender: gender.value,
+                onSelect: (g) {
+                  gender.value = g;
+                  Navigator.pop(context);
+                },
+              ),
+              const SizedBox(height: 20),
+            ],
+          ),
+        ),
+      );
+    }
+
+    void showVisibilityPicker() {
+      showModalBottomSheet(
+        context: context,
+        shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+        builder: (context) {
+          return Container(
+            padding: const EdgeInsets.symmetric(vertical: 20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text('Profile Visibility', style: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
+                const SizedBox(height: 10),
+                ...ProfileVisibility.values.map(
+                  (v) => ListTile(
+                    leading: Icon(
+                      visibility.value == v ? Icons.radio_button_checked : Icons.radio_button_off,
+                      color: visibility.value == v ? colors.primary : colors.onSurfaceVariant,
+                    ),
+                    title: Text(v.label),
+                    onTap: () {
+                      visibility.value = v;
+                      Navigator.pop(context);
+                    },
+                  ),
+                ),
+                const SizedBox(height: 20),
+              ],
+            ),
+          );
+        },
+      );
+    }
+    if (profileAsync.isLoading && !isInitialized.value) {
+      return Scaffold(
+        backgroundColor: colors.surfaceContainerLow,
+        appBar: AppBar(title: const Text('Edit Profile'), backgroundColor: colors.surface),
+        body: const Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) async {
+        if (didPop) return;
+        final shouldPop = await onWillPop();
+        if (shouldPop && context.mounted) {
+          Navigator.of(context).pop();
+        }
+      },
+      child: Scaffold(
+        backgroundColor: colors.surfaceContainerLow,
+        appBar: AppBar(
+          title: const Text('Edit Profile', style: TextStyle(fontWeight: FontWeight.bold)),
+          centerTitle: true,
+          backgroundColor: colors.surface,
+          surfaceTintColor: Colors.transparent,
+          elevation: 0.5,
+          shadowColor: Colors.black.withValues(alpha: 0.1),
+          scrolledUnderElevation: 0.5,
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back),
+            onPressed: () async {
+              final shouldPop = await onWillPop();
+              if (shouldPop && context.mounted) {
+                context.pop();
+              }
+            },
+          ),
+          actions: [
+            TextButton(
+              onPressed: saveProfile,
+              child: Text(
+                'Save',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: colors.primary),
+              ),
+            ),
+          ],
+        ),
+        body: ListView(
+          padding: const EdgeInsets.symmetric(vertical: 24),
+          children: [
+            Center(
+              child: GestureDetector(
+                onTap: showAvatarPicker,
+                child: SizedBox(
+                  width: 120,
+                  height: 120,
+                  child: Stack(
+                    children: [
+                      Container(
+                        width: 120,
+                        height: 120,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(color: colors.outlineVariant.withValues(alpha: 0.4), width: 1),
+                        ),
+                        child: CircleAvatar(
+                          radius: 60,
+                          backgroundColor: colors.surfaceContainerHighest,
+                          backgroundImage: avatarPath.value != null
+                              ? FileImage(File(avatarPath.value!))
+                              : (avatarUrl.value != null ? NetworkImage(avatarUrl.value!) : null) as ImageProvider?,
+                          child: avatarPath.value == null && avatarUrl.value == null
+                              ? Text(
+                                  fullName.value.isNotEmpty ? fullName.value[0].toUpperCase() : '?',
+                                  style: textTheme.displayMedium?.copyWith(
+                                    color: colors.onSurfaceVariant,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                )
+                              : null,
+                        ),
+                      ),
+                      Align(
+                        alignment: Alignment.bottomRight,
+                        child: Container(
+                          margin: const EdgeInsets.all(4),
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: colors.primary,
+                            shape: BoxShape.circle,
+                            border: Border.all(color: colors.surface, width: 3),
+                          ),
+                          child: const Icon(Icons.camera_alt, size: 18, color: Colors.white),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 12),
+            Center(
+              child: Text(
+                'Change Photo',
+                style: textTheme.labelMedium?.copyWith(color: colors.primary, fontWeight: FontWeight.w600),
+              ),
+            ),
+            const SizedBox(height: 32),
+
+            const SectionHeader(title: 'PERSONAL INFORMATION'),
+            MenuCard(
+              children: [
+                ProfileMenuItem(
+                  label: 'Username',
+                  value: '@${username.value}',
+                  icon: FontAwesomeIcons.at,
+                  onTap: () => openEditor(
+                    title: 'Username',
+                    label: 'Unique ID',
+                    currentValue: username.value,
+                    notifier: username,
+                    maxLength: 20,
+                    helperText: 'Only letters, numbers, dot and underscore.',
+                  ),
+                ),
+                ProfileMenuItem(
+                  label: 'Name',
+                  value: fullName.value,
+                  icon: FontAwesomeIcons.user,
+                  onTap: () => openEditor(
+                    title: 'Name',
+                    label: 'Full Name',
+                    currentValue: fullName.value,
+                    notifier: fullName,
+                    maxLength: 100,
+                  ),
+                ),
+                ProfileMenuItem(
+                  label: 'Gender',
+                  value: gender.value?.label ?? 'Not set',
+                  icon: FontAwesomeIcons.venusMars,
+                  onTap: showGenderPicker,
+                ),
+                ProfileMenuItem(
+                  label: 'Birthday',
+                  value: dob.value != null ? DateFormat('dd MMM, yyyy').format(dob.value!) : 'Not set',
+                  icon: FontAwesomeIcons.cakeCandles,
+                  onTap: showDatePickerDialog,
+                ),
+                ProfileMenuItem(
+                  label: 'Location',
+                  value: location.value.isNotEmpty ? location.value : 'Not set',
+                  icon: FontAwesomeIcons.locationDot,
+                  onTap: () => openEditor(
+                    title: 'Location',
+                    label: 'Current City',
+                    currentValue: location.value,
+                    notifier: location,
+                    maxLength: 100,
+                  ),
+                ),
+              ],
+            ),
+
+            const SizedBox(height: 24),
+
+            const SectionHeader(title: 'CONTACT INFO'),
+            MenuCard(
+              children: [
+                ProfileMenuItem(
+                  label: 'Email',
+                  value: email.value,
+                  icon: FontAwesomeIcons.envelope,
+                  isVerified: profileAsync.asData?.value.isEmailVerified ?? false,
+                  onTap: () => openEditor(
+                    title: 'Email',
+                    label: 'Email Address',
+                    currentValue: email.value,
+                    notifier: email,
+                    maxLength: 50,
+                    inputType: TextInputType.emailAddress,
+                    helperText: 'Changing email will require re-verification.',
+                  ),
+                ),
+                ProfileMenuItem(
+                  label: 'Phone',
+                  value: phone.value.isNotEmpty ? phone.value : 'Not set',
+                  icon: FontAwesomeIcons.phone,
+                  onTap: () => openEditor(
+                    title: 'Phone',
+                    label: 'Phone Number',
+                    currentValue: phone.value,
+                    notifier: phone,
+                    maxLength: 20,
+                    inputType: TextInputType.phone,
+                  ),
+                ),
+              ],
+            ),
+
+            const SizedBox(height: 24),
+
+            const SectionHeader(title: 'ABOUT'),
+            MenuCard(
+              children: [
+                ProfileMenuItem(
+                  label: 'Bio',
+                  value: bio.value.isNotEmpty ? bio.value : 'Not set',
+                  icon: FontAwesomeIcons.penToSquare,
+                  onTap: () => openEditor(
+                    title: 'Bio',
+                    label: 'About yourself',
+                    currentValue: bio.value,
+                    notifier: bio,
+                    maxLength: 500,
+                    maxLines: 5,
+                  ),
+                ),
+              ],
+            ),
+
+            const SizedBox(height: 24),
+
+            const SectionHeader(title: 'PRIVACY'),
+            MenuCard(
+              children: [
+                ProfileMenuItem(
+                  label: 'Profile Visibility',
+                  value: visibility.value.label,
+                  icon: visibility.value == ProfileVisibility.private
+                      ? FontAwesomeIcons.lock
+                      : visibility.value == ProfileVisibility.friendsOnly
+                      ? FontAwesomeIcons.userGroup
+                      : FontAwesomeIcons.globe,
+                  onTap: showVisibilityPicker,
+                ),
+              ],
+            ),
+            const SizedBox(height: 40),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+================================================================
+FILE: lib/features/profile/presentation/pages/profile_page.dart
+================================================================
+import 'package:chattrix_ui/features/auth/presentation/providers/auth_providers.dart';
+import 'package:chattrix_ui/features/profile/presentation/providers/profile_providers.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:go_router/go_router.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:intl/intl.dart';
+import '../widgets/profile_shared_components.dart';
+
+class ProfilePage extends ConsumerWidget {
+  const ProfilePage({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final textTheme = Theme.of(context).textTheme;
+    final colors = Theme.of(context).colorScheme;
+
+    final profileAsync = ref.watch(profileControllerProvider);
+
+    return Scaffold(
+      backgroundColor: colors.surfaceContainerLow,
+      appBar: AppBar(
+        title: Text('Profile', style: textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold)),
+        centerTitle: false,
+        automaticallyImplyLeading: false,
+        backgroundColor: colors.surface,
+        surfaceTintColor: Colors.transparent,
+        elevation: 0.5,
+        shadowColor: Colors.black.withValues(alpha: 0.1),
+        scrolledUnderElevation: 0.5,
+        actions: [
+          if (profileAsync.hasValue)
+            Padding(
+              padding: const EdgeInsets.only(right: 8.0),
+              child: IconButton.filledTonal(
+                onPressed: () async {
+                  final result = await context.push<bool>('/profile/edit');
+                  if (result == true && context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: const Text('✓ Profile updated successfully'),
+                        backgroundColor: Colors.green.shade600,
+                        behavior: SnackBarBehavior.floating,
+                        margin: const EdgeInsets.all(16),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                        duration: const Duration(seconds: 2),
+                      ),
+                    );
+                  }
+                },
+                icon: const Icon(Icons.edit, size: 20),
+                tooltip: 'Edit',
+                style: IconButton.styleFrom(
+                  backgroundColor: colors.surfaceContainerHighest.withValues(alpha: 0.5),
+                  foregroundColor: colors.onSurface,
+                ),
+              ),
+            ),
+          Padding(
+            padding: const EdgeInsets.only(right: 16.0),
+            child: IconButton.filledTonal(
+              onPressed: () => context.push('/settings'),
+              icon: const Icon(Icons.settings, size: 20),
+              tooltip: 'Settings',
+              style: IconButton.styleFrom(
+                backgroundColor: colors.surfaceContainerHighest.withValues(alpha: 0.5),
+                foregroundColor: colors.onSurface,
+              ),
+            ),
+          ),
+        ],
+      ),
+      body: profileAsync.when(
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (error, stack) => Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(error.toString().replaceAll('Exception: ', ''), textAlign: TextAlign.center),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: () => ref.refresh(profileControllerProvider),
+                child: const Text('Retry'),
+              ),
+            ],
+          ),
+        ),
+        data: (profile) => RefreshIndicator(
+          onRefresh: () => ref.refresh(profileControllerProvider.future),
+          child: SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            child: Column(
+              children: [
+                Container(
+                  color: colors.surface,
+                  width: double.infinity,
+                  padding: const EdgeInsets.only(bottom: 24, top: 10),
+                  child: Column(
+                    children: [
+                      Stack(
+                        children: [
+                          Container(
+                            width: 110,
+                            height: 110,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              border: Border.all(color: colors.outlineVariant.withValues(alpha: 0.4), width: 1),
+                            ),
+                            child: CircleAvatar(
+                              radius: 55,
+                              backgroundColor: colors.primaryContainer,
+                              backgroundImage: profile.avatarUrl != null ? NetworkImage(profile.avatarUrl!) : null,
+                              child: profile.avatarUrl == null
+                                  ? Text(
+                                      profile.fullName.isNotEmpty
+                                          ? profile.fullName[0].toUpperCase()
+                                          : profile.username[0].toUpperCase(),
+                                      style: textTheme.displaySmall?.copyWith(
+                                        color: colors.onPrimaryContainer,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    )
+                                  : null,
+                            ),
+                          ),
+                          Positioned(
+                            bottom: 4,
+                            right: 4,
+                            child: Container(
+                              width: 24,
+                              height: 24,
+                              decoration: BoxDecoration(
+                                color: profile.isOnline ? Colors.green : colors.outlineVariant,
+                                shape: BoxShape.circle,
+                                border: Border.all(color: colors.surface, width: 3),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      Text(profile.fullName, style: textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold)),
+                      Text(
+                        '@${profile.username}',
+                        style: textTheme.bodyLarge?.copyWith(color: colors.onSurfaceVariant),
+                      ),
+                      if (profile.bio != null && profile.bio!.isNotEmpty)
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(32, 16, 32, 0),
+                          child: Text(
+                            profile.bio!,
+                            textAlign: TextAlign.center,
+                            style: textTheme.bodyMedium?.copyWith(color: colors.onSurface, height: 1.5),
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+
+                const SizedBox(height: 20),
+                const ProfileSectionLabel(title: 'Personal Info'),
+                ProfileSectionCard(
+                  children: [
+                    ProfileInfoTile(
+                      icon: FontAwesomeIcons.envelope,
+                      label: 'Email',
+                      value: profile.email,
+                      isVerified: profile.isEmailVerified,
+                      onTap: () {
+                        Clipboard.setData(ClipboardData(text: profile.email));
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: const Text('Email copied to clipboard'),
+                            duration: const Duration(seconds: 2),
+                            behavior: SnackBarBehavior.floating,
+                            margin: const EdgeInsets.all(16),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                          ),
+                        );
+                      },
+                    ),
+                    if (profile.phone != null)
+                      ProfileInfoTile(
+                        icon: FontAwesomeIcons.phone,
+                        label: 'Phone',
+                        value: profile.phone!,
+                        onTap: () {
+                          Clipboard.setData(ClipboardData(text: profile.phone!));
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: const Text('Phone number copied to clipboard'),
+                              duration: const Duration(seconds: 2),
+                              behavior: SnackBarBehavior.floating,
+                              margin: const EdgeInsets.all(16),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                            ),
+                          );
+                        },
+                      ),
+                    if (profile.gender != null)
+                      ProfileInfoTile(
+                        icon: FontAwesomeIcons.venusMars,
+                        label: 'Gender',
+                        value: profile.gender!.label,
+                      ),
+                    if (profile.dateOfBirth != null)
+                      ProfileInfoTile(
+                        icon: FontAwesomeIcons.cakeCandles,
+                        label: 'Birthday',
+                        value: DateFormat('dd MMM, yyyy').format(profile.dateOfBirth!),
+                      ),
+                    if (profile.location != null)
+                      ProfileInfoTile(
+                        icon: FontAwesomeIcons.locationDot,
+                        label: 'Location',
+                        value: profile.location!,
+                      ),
+                  ],
+                ),
+
+                const SizedBox(height: 24),
+
+                const ProfileSectionLabel(title: 'Settings'),
+                ProfileSectionCard(
+                  children: [
+                    ProfileInfoTile(
+                      icon: FontAwesomeIcons.lock,
+                      label: 'Privacy',
+                      value: profile.profileVisibility?.label ?? 'Public',
+                      showArrow: false,
+                    ),
+                    ProfileNavigationTile(
+                      icon: FontAwesomeIcons.rightFromBracket,
+                      iconColor: colors.error,
+                      label: 'Logout',
+                      showArrow: false,
+                      onTap: () => _showLogoutBottomSheet(context, ref, colors, textTheme),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 40),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+  void _showLogoutBottomSheet(
+    BuildContext context,
+    WidgetRef ref,
+    ColorScheme colors,
+    TextTheme textTheme,
+  ) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        contentPadding: const EdgeInsets.all(24),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: colors.errorContainer,
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                FontAwesomeIcons.rightFromBracket,
+                color: colors.error,
+                size: 32,
+              ),
+            ),
+            const SizedBox(height: 20),
+            Text(
+              'Logout',
+              style: textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              'Are you sure you want to logout from your account?',
+              textAlign: TextAlign.center,
+              style: textTheme.bodyMedium?.copyWith(
+                color: colors.onSurfaceVariant,
+                height: 1.4,
+              ),
+            ),
+            const SizedBox(height: 24),
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: () => Navigator.pop(context),
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      side: BorderSide(color: colors.outline, width: 1.5),
+                    ),
+                    child: const Text('Cancel', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600)),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: FilledButton(
+                    onPressed: () async {
+                      Navigator.pop(context); // Close dialog
+                      showDialog(
+                        context: context,
+                        barrierDismissible: false,
+                        builder: (context) => const Center(child: CircularProgressIndicator()),
+                      );
+
+                      await ref.read(authNotifierProvider.notifier).logout();
+
+                      if (context.mounted) {
+                        Navigator.pop(context); // Close loading
+                        context.go('/login');
+                      }
+                    },
+                    style: FilledButton.styleFrom(
+                      backgroundColor: colors.error,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    child: const Text('Logout', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600)),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+================================================================
+FILE: lib/features/profile/presentation/pages/settings_page.dart
+================================================================
+import 'package:chattrix_ui/features/profile/domain/entities/profile_visibility.dart';
+import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:go_router/go_router.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
+import '../widgets/profile_shared_components.dart';
+class ThemeModeNotifier extends Notifier<bool> {
+  @override
+  bool build() => false;
+
+  void toggle() => state = !state;
+
+  void set(bool value) => state = value;
+}
+
+class NotificationNotifier extends Notifier<bool> {
+  @override
+  bool build() => true;
+
+  void toggle() => state = !state;
+
+  void set(bool value) => state = value;
+}
+
+class VisibilityNotifier extends Notifier<ProfileVisibility> {
+  @override
+  ProfileVisibility build() => ProfileVisibility.public;
+
+  void set(ProfileVisibility value) => state = value;
+}
+
+class LanguageNotifier extends Notifier<String> {
+  @override
+  String build() => 'English';
+
+  void set(String value) => state = value;
+}
+final themeModeProvider = NotifierProvider<ThemeModeNotifier, bool>(() {
+  return ThemeModeNotifier();
+});
+
+final notificationProvider = NotifierProvider<NotificationNotifier, bool>(() {
+  return NotificationNotifier();
+});
+
+final visibilityProvider = NotifierProvider<VisibilityNotifier, ProfileVisibility>(() {
+  return VisibilityNotifier();
+});
+
+final languageProvider = NotifierProvider<LanguageNotifier, String>(() {
+  return LanguageNotifier();
+});
+
+class SettingsPage extends ConsumerWidget {
+  const SettingsPage({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final colors = Theme.of(context).colorScheme;
+    final isDarkMode = ref.watch(themeModeProvider);
+    final isNotifEnabled = ref.watch(notificationProvider);
+    final currentVisibility = ref.watch(visibilityProvider);
+    final currentLanguage = ref.watch(languageProvider);
+
+    return Scaffold(
+      backgroundColor: colors.surfaceContainerLow,
+      appBar: AppBar(
+        title: const Text('Settings', style: TextStyle(fontWeight: FontWeight.w600)),
+        centerTitle: true,
+        backgroundColor: colors.surface,
+        surfaceTintColor: Colors.transparent,
+        elevation: 0.5,
+        shadowColor: Colors.black.withValues(alpha: 0.1),
+        scrolledUnderElevation: 0.5,
+        leading: IconButton(icon: const Icon(Icons.arrow_back), onPressed: () => context.pop()),
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.symmetric(vertical: 20),
+        child: Column(
+          children: [
+            const ProfileSectionLabel(title: 'General'),
+            ProfileSectionCard(
+              children: [
+                ProfileToggleTile(
+                  icon: isDarkMode ? FontAwesomeIcons.moon : FontAwesomeIcons.sun,
+                  iconColor: Colors.orange,
+                  label: 'Dark Mode',
+                  value: isDarkMode,
+                  onChanged: (val) => ref.read(themeModeProvider.notifier).set(val),
+                ),
+                ProfileToggleTile(
+                  icon: FontAwesomeIcons.bell,
+                  iconColor: Colors.purple,
+                  label: 'Notifications',
+                  value: isNotifEnabled,
+                  onChanged: (val) => ref.read(notificationProvider.notifier).set(val),
+                ),
+                ProfileNavigationTile(
+                  icon: FontAwesomeIcons.globe,
+                  iconColor: Colors.blue,
+                  label: 'Language',
+                  valueLabel: currentLanguage,
+                  onTap: () => _showLanguagePicker(context, ref, currentLanguage),
+                ),
+              ],
+            ),
+            const SizedBox(height: 24),
+            const ProfileSectionLabel(title: 'Privacy'),
+            ProfileSectionCard(
+              children: [
+                ProfileNavigationTile(
+                  icon: FontAwesomeIcons.eye,
+                  iconColor: Colors.teal,
+                  label: 'Profile Visibility',
+                  valueLabel: currentVisibility.label,
+                  onTap: () => _showVisibilityPicker(context, ref, currentVisibility),
+                ),
+                ProfileNavigationTile(
+                  icon: FontAwesomeIcons.userShield,
+                  iconColor: Colors.indigo,
+                  label: 'Blocked Users',
+                  onTap: () {},
+                ),
+              ],
+            ),
+            const SizedBox(height: 24),
+            const ProfileSectionLabel(title: 'Account & Security'),
+            ProfileSectionCard(
+              children: [
+                ProfileNavigationTile(
+                  icon: FontAwesomeIcons.key,
+                  iconColor: colors.primary,
+                  label: 'Change Password',
+                  onTap: () => _showChangePasswordDialog(context),
+                ),
+                ProfileNavigationTile(
+                  icon: FontAwesomeIcons.trashCan,
+                  iconColor: colors.error,
+                  label: 'Delete Account',
+                  onTap: () => _showDeleteConfirmDialog(context, colors),
+                ),
+              ],
+            ),
+
+            const SizedBox(height: 24),
+          ],
+        ),
+      ),
+    );
+  }
+  void _showLanguagePicker(BuildContext context, WidgetRef ref, String current) {
+    final languages = ['English', 'Vietnamese', 'Spanish', 'French'];
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Theme.of(context).colorScheme.surface,
+      showDragHandle: true,
+      builder: (context) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text('Select Language', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+              const SizedBox(height: 10),
+              ...languages.map(
+                (lang) => ListTile(
+                  leading: lang == current ? const Icon(Icons.check, color: Colors.blue) : const SizedBox(width: 24),
+                  title: Text(lang),
+                  onTap: () {
+                    ref.read(languageProvider.notifier).set(lang);
+                    Navigator.pop(context);
+                  },
+                ),
+              ),
+              const SizedBox(height: 10),
+            ],
+          ),
+        );
+      },
+    );
+  }
+  void _showVisibilityPicker(BuildContext context, WidgetRef ref, ProfileVisibility current) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Theme.of(context).colorScheme.surface,
+      showDragHandle: true,
+      builder: (context) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text('Who can see your profile?', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+              const SizedBox(height: 10),
+              ...ProfileVisibility.values.map(
+                (visibility) => ListTile(
+                  leading: Icon(
+                    visibility == current ? Icons.radio_button_checked : Icons.radio_button_off,
+                    color: visibility == current ? Theme.of(context).colorScheme.primary : Colors.grey,
+                  ),
+                  title: Text(visibility.label),
+                  onTap: () {
+                    ref.read(visibilityProvider.notifier).set(visibility);
+                    Navigator.pop(context);
+                  },
+                ),
+              ),
+              const SizedBox(height: 10),
+            ],
+          ),
+        );
+      },
+    );
+  }
+  void _showChangePasswordDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Change Password'),
+        content: const Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(decoration: InputDecoration(labelText: 'Current Password')),
+            TextField(decoration: InputDecoration(labelText: 'New Password')),
+            TextField(decoration: InputDecoration(labelText: 'Confirm New Password')),
+          ],
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
+          FilledButton(onPressed: () => Navigator.pop(context), child: const Text('Update')),
+        ],
+      ),
+    );
+  }
+  void _showDeleteConfirmDialog(BuildContext context, ColorScheme colors) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Delete Account?'),
+        content: const Text('This action cannot be undone.'),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
+          FilledButton(
+            style: FilledButton.styleFrom(backgroundColor: colors.error),
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+================================================================
+FILE: lib/features/profile/presentation/providers/profile_providers.dart
+================================================================
+import 'dart:io';
+
+import 'package:chattrix_ui/core/errors/failures.dart';
+import 'package:chattrix_ui/features/auth/presentation/providers/auth_providers.dart';
+import 'package:chattrix_ui/features/chat/services/cloudinary_provider.dart';
+import 'package:chattrix_ui/features/profile/data/datasources/profile_remote_datasource_impl.dart';
+import 'package:chattrix_ui/features/profile/data/repositories/profile_repository_impl.dart';
+import 'package:chattrix_ui/features/profile/domain/datasources/profile_remote_datasource.dart';
+import 'package:chattrix_ui/features/profile/domain/entities/profile.dart';
+import 'package:chattrix_ui/features/profile/domain/entities/update_profile_params.dart';
+import 'package:chattrix_ui/features/profile/domain/repositories/profile_repository.dart';
+import 'package:chattrix_ui/features/profile/domain/usecases/get_profile_usecase.dart';
+import 'package:chattrix_ui/features/profile/domain/usecases/update_profile_usecase.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
+
+part 'profile_providers.g.dart';
+
+@riverpod
+ProfileRemoteDataSource profileRemoteDataSource(Ref ref) {
+  return ProfileRemoteDataSourceImpl(dio: ref.watch(dioProvider));
+}
+
+@riverpod
+ProfileRepository profileRepository(Ref ref) {
+  return ProfileRepositoryImpl(remoteDataSource: ref.watch(profileRemoteDataSourceProvider));
+}
+
+@riverpod
+GetProfileUseCase getProfileUseCase(Ref ref) {
+  return GetProfileUseCase(ref.watch(profileRepositoryProvider));
+}
+
+@riverpod
+UpdateProfileUseCase updateProfileUseCase(Ref ref) {
+  return UpdateProfileUseCase(ref.watch(profileRepositoryProvider));
+}
+
+@riverpod
+class ProfileController extends _$ProfileController {
+  @override
+  FutureOr<Profile> build() async {
+    return _fetchProfile();
+  }
+
+  Future<Profile> _fetchProfile() async {
+    final useCase = ref.read(getProfileUseCaseProvider);
+    final result = await useCase();
+
+    return result.fold(
+      (failure) => throw Exception(failure.userMessage),
+      (profile) => profile,
+    );
+  }
+
+  Future<void> updateProfile({required UpdateProfileParams params, File? newAvatarFile}) async {
+    state = const AsyncValue.loading();
+
+    state = await AsyncValue.guard(() async {
+      String? avatarUrl = params.avatarUrl;
+
+      if (newAvatarFile != null) {
+        final cloudinaryService = ref.read(cloudinaryServiceProvider);
+        final uploadResult = await cloudinaryService.uploadImage(newAvatarFile);
+        avatarUrl = uploadResult.url;
+      }
+
+      final updatedParams = params.copyWith(avatarUrl: avatarUrl);
+      final updateUseCase = ref.read(updateProfileUseCaseProvider);
+      final result = await updateUseCase(updatedParams);
+
+      return result.fold((failure) => throw Exception(failure.userMessage), (newProfile) => newProfile);
+    });
+  }
+}
+
+================================================================
+FILE: lib/features/profile/presentation/widgets/profile_picker_widgets.dart
+================================================================
+import 'package:chattrix_ui/features/profile/domain/entities/gender.dart';
+import 'package:flutter/material.dart';
+
+class PickerOption extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
+
+  const PickerOption({super.key, required this.icon, required this.label, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(16),
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+        decoration: BoxDecoration(
+          color: colors.surfaceContainerHighest.withValues(alpha: 0.3),
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(color: colors.primary.withValues(alpha: 0.1), shape: BoxShape.circle),
+              child: Icon(icon, color: colors.primary, size: 20),
+            ),
+            const SizedBox(width: 16),
+            Text(
+              label,
+              style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16, color: colors.onSurface),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class GenderOption extends StatelessWidget {
+  final Gender gender;
+  final Gender? selectedGender;
+  final Function(Gender) onSelect;
+
+  const GenderOption({super.key, required this.gender, required this.selectedGender, required this.onSelect});
+
+  @override
+  Widget build(BuildContext context) {
+    final isSelected = selectedGender == gender;
+    final colors = Theme.of(context).colorScheme;
+    return ListTile(
+      leading: Icon(
+        isSelected ? Icons.radio_button_checked : Icons.radio_button_off,
+        color: isSelected ? colors.primary : colors.onSurfaceVariant,
+      ),
+      title: Text(gender.label),
+      onTap: () => onSelect(gender),
+    );
+  }
+}
+
+================================================================
+FILE: lib/features/profile/presentation/widgets/profile_shared_components.dart
+================================================================
+import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+
+class ProfileSectionLabel extends StatelessWidget {
+  final String title;
+
+  const ProfileSectionLabel({super.key, required this.title});
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(24, 0, 24, 8),
+      child: Align(
+        alignment: Alignment.centerLeft,
+        child: Text(
+          title.toUpperCase(),
+          style: TextStyle(
+            color: colors.onSurfaceVariant,
+            fontSize: 12,
+            fontWeight: FontWeight.bold,
+            letterSpacing: 1.0,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class ProfileSectionCard extends StatelessWidget {
+  final List<Widget> children;
+
+  const ProfileSectionCard({super.key, required this.children});
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16),
+      decoration: BoxDecoration(color: colors.surface, borderRadius: BorderRadius.circular(16)),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(16),
+        child: Column(children: children),
+      ),
+    );
+  }
+}
+
+enum ProfileTileType { navigation, toggle, info }
+
+class ProfileTile extends StatelessWidget {
+  final IconData icon;
+  final Color? iconColor;
+  final String label;
+  final String? value;
+  final Color? textColor;
+  final ProfileTileType type;
+
+  final bool switchValue;
+  final ValueChanged<bool>? onChanged;
+
+  final VoidCallback? onTap;
+  final bool showArrow;
+  final bool isVerified;
+  final bool isDestructive;
+
+  const ProfileTile({
+    super.key,
+    required this.icon,
+    this.iconColor,
+    required this.label,
+    this.value,
+    this.textColor,
+    this.type = ProfileTileType.navigation,
+    this.switchValue = false,
+    this.onChanged,
+    this.onTap,
+    this.showArrow = true,
+    this.isVerified = false,
+    this.isDestructive = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+
+    final effectiveIconColor = isDestructive ? colors.error : (iconColor ?? colors.primary);
+
+    final effectiveTextColor = isDestructive ? colors.error : (textColor ?? colors.onSurface);
+
+    return InkWell(
+      onTap: type == ProfileTileType.toggle ? () => onChanged?.call(!switchValue) : onTap,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: effectiveIconColor.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: FaIcon(icon, size: 16, color: effectiveIconColor),
+            ),
+            const SizedBox(width: 16),
+
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (value != null && value!.isNotEmpty) ...[
+                    Text(label, style: textTheme.bodySmall?.copyWith(color: colors.onSurfaceVariant)),
+                    const SizedBox(height: 2),
+                    Row(
+                      children: [
+                        Flexible(
+                          child: Text(
+                            value!,
+                            style: textTheme.bodyMedium?.copyWith(
+                              color: effectiveTextColor,
+                              fontWeight: FontWeight.w600,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        if (isVerified) ...[
+                          const SizedBox(width: 6),
+                          const Icon(Icons.verified, color: Colors.blue, size: 16),
+                        ],
+                      ],
+                    ),
+                  ] else
+                    Text(
+                      label,
+                      style: textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w500, color: effectiveTextColor),
+                    ),
+                ],
+              ),
+            ),
+
+            if (type == ProfileTileType.toggle)
+              Switch(
+                value: switchValue,
+                activeThumbColor: Colors.white,
+                activeTrackColor: colors.primary,
+                inactiveThumbColor: Colors.white,
+                inactiveTrackColor: colors.outlineVariant,
+                trackOutlineColor: WidgetStateProperty.all(Colors.transparent),
+                trackOutlineWidth: WidgetStateProperty.all(0),
+                onChanged: onChanged,
+              )
+            else ...[
+              if (value != null && value!.isNotEmpty && type == ProfileTileType.navigation)
+                Padding(
+                  padding: const EdgeInsets.only(right: 8.0),
+                  child: Text(
+                    value!,
+                    style: textTheme.bodySmall?.copyWith(color: colors.primary, fontWeight: FontWeight.bold),
+                  ),
+                ),
+              if (showArrow) Icon(Icons.chevron_right, size: 20, color: colors.outlineVariant),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class ProfileInfoTile extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final String value;
+  final bool isVerified;
+  final bool isDestructive;
+  final bool showArrow;
+  final VoidCallback? onTap;
+
+  const ProfileInfoTile({
+    super.key,
+    required this.icon,
+    required this.label,
+    required this.value,
+    this.isVerified = false,
+    this.isDestructive = false,
+    this.showArrow = false,
+    this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return ProfileTile(
+      icon: icon,
+      label: label,
+      value: value,
+      type: ProfileTileType.info,
+      isVerified: isVerified,
+      isDestructive: isDestructive,
+      showArrow: showArrow,
+      onTap: onTap,
+    );
+  }
+}
+
+class ProfileNavigationTile extends StatelessWidget {
+  final IconData icon;
+  final Color? iconColor;
+  final String label;
+  final String? valueLabel;
+  final VoidCallback onTap;
+  final bool showArrow;
+
+  const ProfileNavigationTile({
+    super.key,
+    required this.icon,
+    this.iconColor,
+    required this.label,
+    this.valueLabel,
+    required this.onTap,
+    this.showArrow = true,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return ProfileTile(
+      icon: icon,
+      iconColor: iconColor,
+      label: label,
+      value: valueLabel,
+      type: ProfileTileType.navigation,
+      showArrow: showArrow,
+      onTap: onTap,
+    );
+  }
+}
+
+class ProfileToggleTile extends StatelessWidget {
+  final IconData icon;
+  final Color? iconColor;
+  final String label;
+  final bool value;
+  final ValueChanged<bool> onChanged;
+
+  const ProfileToggleTile({
+    super.key,
+    required this.icon,
+    this.iconColor,
+    required this.label,
+    required this.value,
+    required this.onChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return ProfileTile(
+      icon: icon,
+      iconColor: iconColor,
+      label: label,
+      type: ProfileTileType.toggle,
+      switchValue: value,
+      onChanged: onChanged,
+      showArrow: false,
+    );
+  }
+}
+
+class ProfileDivider extends StatelessWidget {
+  const ProfileDivider({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Divider(
+      height: 1,
+      thickness: 1,
+      indent: 56,
+      color: Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.3),
+    );
+  }
+}
+
+List<Widget> buildProfileItems(List<Widget> items) {
+  if (items.isEmpty) return [];
+
+  final result = <Widget>[];
+  for (int i = 0; i < items.length; i++) {
+    result.add(items[i]);
+    if (i < items.length - 1) {
+      result.add(const ProfileDivider());
+    }
+  }
+  return result;
+}
+
+================================================================
+FILE: lib/features/profile/presentation/widgets/profile_ui_components.dart
+================================================================
+import 'package:flutter/material.dart';
+export 'profile_shared_components.dart';
+import 'profile_shared_components.dart';
+typedef SectionHeader = ProfileSectionLabel;
+typedef MenuCard = ProfileSectionCard;
+class ProfileMenuItem extends StatelessWidget {
+  final String label;
+  final String value;
+  final IconData icon;
+  final bool isVerified;
+  final VoidCallback onTap;
+
+  const ProfileMenuItem({
+    super.key,
+    required this.label,
+    required this.value,
+    required this.icon,
+    this.isVerified = false,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return ProfileInfoTile(
+      icon: icon,
+      label: label,
+      value: value,
+      isVerified: isVerified,
+      showArrow: true,
+      onTap: onTap,
+    );
+  }
+}
+
+================================================================
+FILE: lib/features/profile/presentation/widgets/single_field_editor.dart
+================================================================
+import 'package:flutter/material.dart';
+
+class SingleFieldEditor extends StatefulWidget {
+  final String title;
+  final String label;
+  final String initialValue;
+  final int maxLength;
+  final int maxLines;
+  final TextInputType inputType;
+  final String? helperText;
+  final Function(String) onSave;
+
+  const SingleFieldEditor({
+    super.key,
+    required this.title,
+    required this.label,
+    required this.initialValue,
+    required this.maxLength,
+    required this.onSave,
+    this.maxLines = 1,
+    this.inputType = TextInputType.text,
+    this.helperText,
+  });
+
+  @override
+  State<SingleFieldEditor> createState() => _SingleFieldEditorState();
+}
+
+class _SingleFieldEditorState extends State<SingleFieldEditor> {
+  late TextEditingController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = TextEditingController(text: widget.initialValue);
+  }
+
+  void _save() {
+    widget.onSave(_controller.text.trim());
+    Navigator.pop(context);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    return Scaffold(
+      backgroundColor: colors.surface,
+      appBar: AppBar(
+        title: Text(widget.title),
+        centerTitle: true,
+        actions: [
+          TextButton(
+            onPressed: _save,
+            child: Text(
+              'Done',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: colors.primary),
+            ),
+          ),
+        ],
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(widget.label, style: TextStyle(color: colors.onSurfaceVariant, fontSize: 13)),
+            const SizedBox(height: 8),
+            TextFormField(
+              controller: _controller,
+              autofocus: true,
+              maxLength: widget.maxLength,
+              maxLines: widget.maxLines,
+              keyboardType: widget.inputType,
+              style: const TextStyle(fontSize: 16),
+              decoration: InputDecoration(
+                filled: true,
+                fillColor: colors.surfaceContainerHighest.withValues(alpha: 0.3),
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                contentPadding: const EdgeInsets.all(16),
+                suffixIcon: IconButton(icon: const Icon(Icons.clear, size: 20), onPressed: () => _controller.clear()),
+                helperText: widget.helperText,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+

@@ -1,8 +1,12 @@
 import 'package:chattrix_ui/features/auth/presentation/providers/auth_providers.dart';
+import 'package:chattrix_ui/features/profile/presentation/providers/profile_providers.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:intl/intl.dart';
+import '../widgets/profile_shared_components.dart';
 
 class ProfilePage extends ConsumerWidget {
   const ProfilePage({super.key});
@@ -11,241 +15,331 @@ class ProfilePage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final textTheme = Theme.of(context).textTheme;
     final colors = Theme.of(context).colorScheme;
-    final user = ref.watch(currentUserProvider);
-    final isLoading = ref.watch(isLoadingProvider);
+
+    final profileAsync = ref.watch(profileControllerProvider);
 
     return Scaffold(
+      backgroundColor: colors.surfaceContainerLow,
       appBar: AppBar(
-        title: Text('Profile', style: textTheme.titleLarge),
+        title: Text('Profile', style: textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold)),
+        centerTitle: false,
+        automaticallyImplyLeading: false,
+        backgroundColor: colors.surface,
+        surfaceTintColor: Colors.transparent,
+        elevation: 0.5,
+        shadowColor: Colors.black.withValues(alpha: 0.1),
+        scrolledUnderElevation: 0.5,
         actions: [
-          // Add refresh button
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: isLoading ? null : () => ref.read(authNotifierProvider.notifier).loadCurrentUser(),
-            tooltip: 'Refresh information',
+          if (profileAsync.hasValue)
+            Padding(
+              padding: const EdgeInsets.only(right: 8.0),
+              child: IconButton.filledTonal(
+                onPressed: () async {
+                  final result = await context.push<bool>('/profile/edit');
+                  if (result == true && context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: const Text('✓ Profile updated successfully'),
+                        backgroundColor: Colors.green.shade600,
+                        behavior: SnackBarBehavior.floating,
+                        margin: const EdgeInsets.all(16),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                        duration: const Duration(seconds: 2),
+                      ),
+                    );
+                  }
+                },
+                icon: const Icon(Icons.edit, size: 20),
+                tooltip: 'Edit',
+                style: IconButton.styleFrom(
+                  backgroundColor: colors.surfaceContainerHighest.withValues(alpha: 0.5),
+                  foregroundColor: colors.onSurface,
+                ),
+              ),
+            ),
+          Padding(
+            padding: const EdgeInsets.only(right: 16.0),
+            child: IconButton.filledTonal(
+              onPressed: () => context.push('/settings'),
+              icon: const Icon(Icons.settings, size: 20),
+              tooltip: 'Settings',
+              style: IconButton.styleFrom(
+                backgroundColor: colors.surfaceContainerHighest.withValues(alpha: 0.5),
+                foregroundColor: colors.onSurface,
+              ),
+            ),
           ),
         ],
       ),
-      body: RefreshIndicator(
-        onRefresh: () async {
-          await ref.read(authNotifierProvider.notifier).loadCurrentUser();
-        },
-        child: isLoading && user == null
-            ? const Center(child: CircularProgressIndicator())
-            : ListView(
-                padding: const EdgeInsets.all(16),
-                children: [
-                  // User Info Header
-                  Center(
-                    child: Column(
-                      children: [
-                        // Avatar
-                        Stack(
-                          children: [
-                            CircleAvatar(
-                              radius: 50,
-                              backgroundColor: colors.primary,
-                              backgroundImage: user?.avatarUrl != null ? NetworkImage(user!.avatarUrl!) : null,
-                              child: user?.avatarUrl == null
+      body: profileAsync.when(
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (error, stack) => Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(error.toString().replaceAll('Exception: ', ''), textAlign: TextAlign.center),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: () => ref.refresh(profileControllerProvider),
+                child: const Text('Retry'),
+              ),
+            ],
+          ),
+        ),
+        data: (profile) => RefreshIndicator(
+          onRefresh: () => ref.refresh(profileControllerProvider.future),
+          child: SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            child: Column(
+              children: [
+                Container(
+                  color: colors.surface,
+                  width: double.infinity,
+                  padding: const EdgeInsets.only(bottom: 24, top: 10),
+                  child: Column(
+                    children: [
+                      Stack(
+                        children: [
+                          Container(
+                            width: 110,
+                            height: 110,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              border: Border.all(color: colors.outlineVariant.withValues(alpha: 0.4), width: 1),
+                            ),
+                            child: CircleAvatar(
+                              radius: 55,
+                              backgroundColor: colors.primaryContainer,
+                              backgroundImage: profile.avatarUrl != null ? NetworkImage(profile.avatarUrl!) : null,
+                              child: profile.avatarUrl == null
                                   ? Text(
-                                      user?.username.substring(0, 1).toUpperCase() ?? 'U',
-                                      style: textTheme.headlineLarge?.copyWith(
-                                        color: colors.onPrimary,
+                                      profile.fullName.isNotEmpty
+                                          ? profile.fullName[0].toUpperCase()
+                                          : profile.username[0].toUpperCase(),
+                                      style: textTheme.displaySmall?.copyWith(
+                                        color: colors.onPrimaryContainer,
                                         fontWeight: FontWeight.bold,
                                       ),
                                     )
                                   : null,
                             ),
-                            // Online status indicator
-                            if (user?.isOnline ?? false)
-                              Positioned(
-                                bottom: 0,
-                                right: 0,
-                                child: Container(
-                                  width: 20,
-                                  height: 20,
-                                  decoration: BoxDecoration(
-                                    color: Colors.green,
-                                    shape: BoxShape.circle,
-                                    border: Border.all(color: colors.surface, width: 3),
-                                  ),
-                                ),
-                              ),
-                          ],
-                        ),
-                        const SizedBox(height: 16),
-
-                        // Full Name
-                        Text(
-                          user?.fullName ?? 'Loading...',
-                          style: textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold),
-                          textAlign: TextAlign.center,
-                        ),
-                        const SizedBox(height: 4),
-
-                        // Username
-                        Text(
-                          '@${user?.username ?? 'username'}',
-                          style: textTheme.titleMedium?.copyWith(color: colors.primary, fontWeight: FontWeight.w500),
-                        ),
-                        const SizedBox(height: 8),
-
-                        // Email
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(Icons.email_outlined, size: 16, color: colors.onSurface.withValues(alpha: 0.6)),
-                            const SizedBox(width: 4),
-                            Text(
-                              user?.email ?? 'email@example.com',
-                              style: textTheme.bodyMedium?.copyWith(color: colors.onSurface.withValues(alpha: 0.8)),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 4),
-
-                        // Online status
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                          decoration: BoxDecoration(
-                            color: (user?.isOnline ?? false)
-                                ? Colors.green.withValues(alpha: 0.1)
-                                : Colors.grey.withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(12),
                           ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(
-                                Icons.circle,
-                                size: 8,
-                                color: (user?.isOnline ?? false) ? Colors.green : Colors.grey,
-                              ),
-                              const SizedBox(width: 6),
-                              Text(
-                                (user?.isOnline ?? false) ? 'Online' : 'Offline',
-                                style: textTheme.bodySmall?.copyWith(
-                                  color: (user?.isOnline ?? false) ? Colors.green : Colors.grey,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  const SizedBox(height: 32),
-
-                  // User ID (for debugging)
-                  if (user != null)
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: Container(
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: colors.surfaceContainerHighest.withValues(alpha: 0.3),
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: colors.outline.withValues(alpha: 0.2)),
-                        ),
-                        child: Row(
-                          children: [
-                            Icon(Icons.fingerprint, size: 16, color: colors.onSurface.withValues(alpha: 0.6)),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'User ID',
-                                    style: textTheme.labelSmall?.copyWith(
-                                      color: colors.onSurface.withValues(alpha: 0.6),
-                                    ),
-                                  ),
-                                  const SizedBox(height: 2),
-                                  Text(
-                                    user.id.toString(),
-                                    style: textTheme.bodySmall?.copyWith(fontFamily: 'monospace'),
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ],
+                          Positioned(
+                            bottom: 4,
+                            right: 4,
+                            child: Container(
+                              width: 24,
+                              height: 24,
+                              decoration: BoxDecoration(
+                                color: profile.isOnline ? Colors.green : colors.outlineVariant,
+                                shape: BoxShape.circle,
+                                border: Border.all(color: colors.surface, width: 3),
                               ),
                             ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
-                    ),
-
-                  const SizedBox(height: 24),
-                  const Divider(),
-
-                  // Menu Items
-                  ListTile(
-                    leading: const FaIcon(FontAwesomeIcons.userPen),
-                    title: const Text('Edit Profile'),
-                    trailing: const Icon(Icons.chevron_right),
-                    onTap: () {},
-                  ),
-                  // Call History with badge
-                  ListTile(
-                    leading: const FaIcon(FontAwesomeIcons.bell),
-                    title: const Text('Notification Settings'),
-                    trailing: const Icon(Icons.chevron_right),
-                    onTap: () {},
-                  ),
-                  ListTile(
-                    leading: const FaIcon(FontAwesomeIcons.lock),
-                    title: const Text('Privacy & Security'),
-                    trailing: const Icon(Icons.chevron_right),
-                    onTap: () {},
-                  ),
-                  const Divider(),
-
-                  // Debug Token Screen (for testing)
-                  ListTile(
-                    leading: FaIcon(FontAwesomeIcons.bug, color: colors.secondary),
-                    title: Text('Debug Token', style: textTheme.bodyLarge),
-                    trailing: Icon(Icons.chevron_right, color: colors.secondary),
-                    onTap: () {
-                      context.push('/debug-token');
-                    },
-                  ),
-                  const Divider(),
-
-                  // Logout
-                  ListTile(
-                    leading: FaIcon(FontAwesomeIcons.rightFromBracket, color: colors.error),
-                    title: Text('Logout', style: textTheme.bodyLarge?.copyWith(color: colors.error)),
-                    onTap: () async {
-                      // Show confirmation dialog
-                      final shouldLogout = await showDialog<bool>(
-                        context: context,
-                        builder: (context) => AlertDialog(
-                          title: const Text('Logout'),
-                          content: const Text('Are you sure you want to log out?'),
-                          actions: [
-                            TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
-                            TextButton(
-                              onPressed: () => Navigator.pop(context, true),
-                              child: Text('Logout', style: TextStyle(color: colors.error)),
-                            ),
-                          ],
+                      const SizedBox(height: 16),
+                      Text(profile.fullName, style: textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold)),
+                      Text(
+                        '@${profile.username}',
+                        style: textTheme.bodyLarge?.copyWith(color: colors.onSurfaceVariant),
+                      ),
+                      if (profile.bio != null && profile.bio!.isNotEmpty)
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(32, 16, 32, 0),
+                          child: Text(
+                            profile.bio!,
+                            textAlign: TextAlign.center,
+                            style: textTheme.bodyMedium?.copyWith(color: colors.onSurface, height: 1.5),
+                          ),
                         ),
+                    ],
+                  ),
+                ),
+
+                const SizedBox(height: 20),
+
+                // --- INFO GROUPS ---
+                const ProfileSectionLabel(title: 'Personal Info'),
+                ProfileSectionCard(
+                  children: [
+                    ProfileInfoTile(
+                      icon: FontAwesomeIcons.envelope,
+                      label: 'Email',
+                      value: profile.email,
+                      isVerified: profile.isEmailVerified,
+                      onTap: () {
+                        Clipboard.setData(ClipboardData(text: profile.email));
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: const Text('Email copied to clipboard'),
+                            duration: const Duration(seconds: 2),
+                            behavior: SnackBarBehavior.floating,
+                            margin: const EdgeInsets.all(16),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                          ),
+                        );
+                      },
+                    ),
+                    if (profile.phone != null)
+                      ProfileInfoTile(
+                        icon: FontAwesomeIcons.phone,
+                        label: 'Phone',
+                        value: profile.phone!,
+                        onTap: () {
+                          Clipboard.setData(ClipboardData(text: profile.phone!));
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: const Text('Phone number copied to clipboard'),
+                              duration: const Duration(seconds: 2),
+                              behavior: SnackBarBehavior.floating,
+                              margin: const EdgeInsets.all(16),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                            ),
+                          );
+                        },
+                      ),
+                    if (profile.gender != null)
+                      ProfileInfoTile(
+                        icon: FontAwesomeIcons.venusMars,
+                        label: 'Gender',
+                        value: profile.gender!.label,
+                      ),
+                    if (profile.dateOfBirth != null)
+                      ProfileInfoTile(
+                        icon: FontAwesomeIcons.cakeCandles,
+                        label: 'Birthday',
+                        value: DateFormat('dd MMM, yyyy').format(profile.dateOfBirth!),
+                      ),
+                    if (profile.location != null)
+                      ProfileInfoTile(
+                        icon: FontAwesomeIcons.locationDot,
+                        label: 'Location',
+                        value: profile.location!,
+                      ),
+                  ],
+                ),
+
+                const SizedBox(height: 24),
+
+                const ProfileSectionLabel(title: 'Settings'),
+                ProfileSectionCard(
+                  children: [
+                    ProfileInfoTile(
+                      icon: FontAwesomeIcons.lock,
+                      label: 'Privacy',
+                      value: profile.profileVisibility?.label ?? 'Public',
+                      showArrow: false,
+                    ),
+                    ProfileNavigationTile(
+                      icon: FontAwesomeIcons.rightFromBracket,
+                      iconColor: colors.error,
+                      label: 'Logout',
+                      showArrow: false,
+                      onTap: () => _showLogoutBottomSheet(context, ref, colors, textTheme),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 40),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  // Show logout confirmation dialog (changed from bottom sheet to avoid being covered)
+  void _showLogoutBottomSheet(
+    BuildContext context,
+    WidgetRef ref,
+    ColorScheme colors,
+    TextTheme textTheme,
+  ) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        contentPadding: const EdgeInsets.all(24),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: colors.errorContainer,
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                FontAwesomeIcons.rightFromBracket,
+                color: colors.error,
+                size: 32,
+              ),
+            ),
+            const SizedBox(height: 20),
+            Text(
+              'Logout',
+              style: textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              'Are you sure you want to logout from your account?',
+              textAlign: TextAlign.center,
+              style: textTheme.bodyMedium?.copyWith(
+                color: colors.onSurfaceVariant,
+                height: 1.4,
+              ),
+            ),
+            const SizedBox(height: 24),
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: () => Navigator.pop(context),
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      side: BorderSide(color: colors.outline, width: 1.5),
+                    ),
+                    child: const Text('Cancel', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600)),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: FilledButton(
+                    onPressed: () async {
+                      Navigator.pop(context); // Close dialog
+                      // Show loading
+                      showDialog(
+                        context: context,
+                        barrierDismissible: false,
+                        builder: (context) => const Center(child: CircularProgressIndicator()),
                       );
 
-                      if (shouldLogout == true && context.mounted) {
-                        // Perform logout
-                        await ref.read(authNotifierProvider.notifier).logout();
-                        // Navigate to login screen
-                        if (context.mounted) {
-                          context.go('/login');
-                        }
+                      await ref.read(authNotifierProvider.notifier).logout();
+
+                      if (context.mounted) {
+                        Navigator.pop(context); // Close loading
+                        context.go('/login');
                       }
                     },
+                    style: FilledButton.styleFrom(
+                      backgroundColor: colors.error,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    child: const Text('Logout', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600)),
                   ),
-                ],
-              ),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }

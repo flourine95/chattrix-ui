@@ -80,6 +80,12 @@ class ApiConstants {
 
   static String get logoutAll => '$_baseUrl/$_v1/auth/logout-all';
 
+  // Profile endpoints
+  static String get getProfile => '$_baseUrl/$_v1/profile/me';
+
+  static String get updateProfile => '$_baseUrl/$_v1/profile/me';
+
+
   // Conversation endpoints
   static String get conversations => '$_baseUrl/$_v1/conversations';
 

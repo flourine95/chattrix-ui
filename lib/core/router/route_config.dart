@@ -14,7 +14,9 @@ import 'package:chattrix_ui/features/chat/presentation/pages/chat_view_page.dart
 import 'package:chattrix_ui/features/chat/presentation/pages/new_chat_page.dart';
 import 'package:chattrix_ui/features/chat/presentation/pages/new_group_chat_page.dart';
 import 'package:chattrix_ui/features/contacts/presentation/pages/contacts_page.dart';
+import 'package:chattrix_ui/features/profile/presentation/pages/edit_profile_page.dart';
 import 'package:chattrix_ui/features/profile/presentation/pages/profile_page.dart';
+import 'package:chattrix_ui/features/profile/presentation/pages/settings_page.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -104,9 +106,23 @@ class RouteConfig {
         ],
       );
 
+  static List<RouteBase> get profileRoutes => [
+        GoRoute(
+          path: RoutePaths.editProfile,
+          name: 'edit-profile',
+          builder: (context, state) => const EditProfilePage(),
+        ),
+        GoRoute(
+          path: RoutePaths.settings,
+          name: 'settings',
+          builder: (context, state) => const SettingsPage(),
+        ),
+      ];
+
   static List<RouteBase> get allRoutes => [
         ...callRoutes,
         ...authRoutes,
+        ...profileRoutes,
         mainRoutes,
       ];
 

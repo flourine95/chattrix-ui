@@ -8,17 +8,25 @@ class AgoraService {
   RtcEngine? _engine;
   bool _isInitialized = false;
 
-  StreamController<int>? _userJoinedController;
-  StreamController<int>? _userOfflineController;
-  StreamController<ConnectionStateType>? _connectionStateController;
-  StreamController<RemoteVideoStateInfo>? _remoteVideoStateController;
-  StreamController<RemoteAudioStateInfo>? _remoteAudioStateController;
+  late final StreamController<int> _userJoinedController;
+  late final StreamController<int> _userOfflineController;
+  late final StreamController<ConnectionStateType> _connectionStateController;
+  late final StreamController<RemoteVideoStateInfo> _remoteVideoStateController;
+  late final StreamController<RemoteAudioStateInfo> _remoteAudioStateController;
 
-  Stream<int> get userJoinedStream => _userJoinedController!.stream;
-  Stream<int> get userOfflineStream => _userOfflineController!.stream;
-  Stream<ConnectionStateType> get connectionStateStream => _connectionStateController!.stream;
-  Stream<RemoteVideoStateInfo> get remoteVideoStateStream => _remoteVideoStateController!.stream;
-  Stream<RemoteAudioStateInfo> get remoteAudioStateStream => _remoteAudioStateController!.stream;
+  AgoraService() {
+    _userJoinedController = StreamController<int>.broadcast();
+    _userOfflineController = StreamController<int>.broadcast();
+    _connectionStateController = StreamController<ConnectionStateType>.broadcast();
+    _remoteVideoStateController = StreamController<RemoteVideoStateInfo>.broadcast();
+    _remoteAudioStateController = StreamController<RemoteAudioStateInfo>.broadcast();
+  }
+
+  Stream<int> get userJoinedStream => _userJoinedController.stream;
+  Stream<int> get userOfflineStream => _userOfflineController.stream;
+  Stream<ConnectionStateType> get connectionStateStream => _connectionStateController.stream;
+  Stream<RemoteVideoStateInfo> get remoteVideoStateStream => _remoteVideoStateController.stream;
+  Stream<RemoteAudioStateInfo> get remoteAudioStateStream => _remoteAudioStateController.stream;
 
   bool get isInitialized => _isInitialized;
 
@@ -36,7 +44,6 @@ class AgoraService {
         throw Exception('AGORA_APP_ID not found in environment');
       }
 
-      _initControllers();
       await _requestPermissions();
 
       _engine = createAgoraRtcEngine();
@@ -59,15 +66,6 @@ class AgoraService {
     }
   }
 
-  void _initControllers() {
-    _disposeControllers();
-
-    _userJoinedController = StreamController<int>.broadcast();
-    _userOfflineController = StreamController<int>.broadcast();
-    _connectionStateController = StreamController<ConnectionStateType>.broadcast();
-    _remoteVideoStateController = StreamController<RemoteVideoStateInfo>.broadcast();
-    _remoteAudioStateController = StreamController<RemoteAudioStateInfo>.broadcast();
-  }
 
   Future<void> _requestPermissions() async {
     final status = await [Permission.camera, Permission.microphone].request();
@@ -86,21 +84,21 @@ class AgoraService {
         },
         onUserJoined: (RtcConnection connection, int remoteUid, int elapsed) {
           AppLogger.info('Remote user joined: $remoteUid', tag: 'Agora');
-          _userJoinedController?.add(remoteUid);
+          _userJoinedController.add(remoteUid);
         },
         onUserOffline: (RtcConnection connection, int remoteUid, UserOfflineReasonType reason) {
           AppLogger.info('Remote user offline: $remoteUid ($reason)', tag: 'Agora');
-          _userOfflineController?.add(remoteUid);
+          _userOfflineController.add(remoteUid);
         },
         onConnectionStateChanged: (RtcConnection connection, ConnectionStateType state, ConnectionChangedReasonType reason) {
           AppLogger.info('Connection state: $state ($reason)', tag: 'Agora');
-          _connectionStateController?.add(state);
+          _connectionStateController.add(state);
         },
         onRemoteVideoStateChanged: (RtcConnection connection, int remoteUid, RemoteVideoState state, RemoteVideoStateReason reason, int elapsed) {
-          _remoteVideoStateController?.add(RemoteVideoStateInfo(uid: remoteUid, state: state, reason: reason));
+          _remoteVideoStateController.add(RemoteVideoStateInfo(uid: remoteUid, state: state, reason: reason));
         },
         onRemoteAudioStateChanged: (RtcConnection connection, int remoteUid, RemoteAudioState state, RemoteAudioStateReason reason, int elapsed) {
-          _remoteAudioStateController?.add(RemoteAudioStateInfo(uid: remoteUid, state: state, reason: reason));
+          _remoteAudioStateController.add(RemoteAudioStateInfo(uid: remoteUid, state: state, reason: reason));
         },
         onError: (ErrorCodeType err, String msg) {
           AppLogger.error('Agora Internal Error: $err - $msg', tag: 'Agora');
@@ -209,17 +207,11 @@ class AgoraService {
   }
 
   void _disposeControllers() {
-    _userJoinedController?.close();
-    _userOfflineController?.close();
-    _connectionStateController?.close();
-    _remoteVideoStateController?.close();
-    _remoteAudioStateController?.close();
-
-    _userJoinedController = null;
-    _userOfflineController = null;
-    _connectionStateController = null;
-    _remoteVideoStateController = null;
-    _remoteAudioStateController = null;
+    _userJoinedController.close();
+    _userOfflineController.close();
+    _connectionStateController.close();
+    _remoteVideoStateController.close();
+    _remoteAudioStateController.close();
   }
 
   RtcEngine? get engine => _engine;

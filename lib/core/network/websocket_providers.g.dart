@@ -12,21 +12,14 @@ part of 'websocket_providers.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
-/// 2. WebSocket Client
-/// Sử dụng @Riverpod(keepAlive: true) để tạo Singleton (tương đương Provider gốc không có autoDispose)
 
 @ProviderFor(webSocketClient)
 const webSocketClientProvider = WebSocketClientProvider._();
-
-/// 2. WebSocket Client
-/// Sử dụng @Riverpod(keepAlive: true) để tạo Singleton (tương đương Provider gốc không có autoDispose)
 
 final class WebSocketClientProvider
     extends
         $FunctionalProvider<WebSocketClient, WebSocketClient, WebSocketClient>
     with $Provider<WebSocketClient> {
-  /// 2. WebSocket Client
-  /// Sử dụng @Riverpod(keepAlive: true) để tạo Singleton (tương đương Provider gốc không có autoDispose)
   const WebSocketClientProvider._()
     : super(
         from: null,
@@ -62,12 +55,8 @@ final class WebSocketClientProvider
 
 String _$webSocketClientHash() => r'ec6251da86914721d6ace6cf1245aac3de72ec19';
 
-/// 3. Message Router
-
 @ProviderFor(webSocketMessageRouter)
 const webSocketMessageRouterProvider = WebSocketMessageRouterProvider._();
-
-/// 3. Message Router
 
 final class WebSocketMessageRouterProvider
     extends
@@ -77,7 +66,6 @@ final class WebSocketMessageRouterProvider
           WebSocketMessageRouter
         >
     with $Provider<WebSocketMessageRouter> {
-  /// 3. Message Router
   const WebSocketMessageRouterProvider._()
     : super(
         from: null,
@@ -115,13 +103,9 @@ final class WebSocketMessageRouterProvider
 String _$webSocketMessageRouterHash() =>
     r'fc596012397fd8a219eaa65b550dcd3b0dac9c08';
 
-/// 4. Connection Manager
-
 @ProviderFor(webSocketConnectionManager)
 const webSocketConnectionManagerProvider =
     WebSocketConnectionManagerProvider._();
-
-/// 4. Connection Manager
 
 final class WebSocketConnectionManagerProvider
     extends
@@ -131,7 +115,6 @@ final class WebSocketConnectionManagerProvider
           WebSocketConnectionManager
         >
     with $Provider<WebSocketConnectionManager> {
-  /// 4. Connection Manager
   const WebSocketConnectionManagerProvider._()
     : super(
         from: null,
@@ -167,14 +150,10 @@ final class WebSocketConnectionManagerProvider
 }
 
 String _$webSocketConnectionManagerHash() =>
-    r'b3ddaafa421d7b871a4e5c5f29fc7e006263b554';
-
-/// 5. WebSocket Service
+    r'cbe8c454ba135b37cf9e6ce49d0850397fd5d0bc';
 
 @ProviderFor(webSocketService)
 const webSocketServiceProvider = WebSocketServiceProvider._();
-
-/// 5. WebSocket Service
 
 final class WebSocketServiceProvider
     extends
@@ -184,7 +163,6 @@ final class WebSocketServiceProvider
           WebSocketService
         >
     with $Provider<WebSocketService> {
-  /// 5. WebSocket Service
   const WebSocketServiceProvider._()
     : super(
         from: null,

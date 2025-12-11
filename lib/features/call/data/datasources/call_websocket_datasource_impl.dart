@@ -55,71 +55,59 @@ class CallWebSocketDataSourceImpl implements CallWebSocketDataSource {
   }
 
   void _handleMessage(Map<String, dynamic> message) {
-    try {
-      final type = message['type'] as String?;
-      if (type == null) {
-        return;
-      }
+    final type = message['type'] as String?;
+    if (type == null) {
+      return;
+    }
 
-      final data = message['data'] as Map<String, dynamic>? ?? message['payload'] as Map<String, dynamic>?;
+    final data = message['data'] as Map<String, dynamic>? ?? message['payload'] as Map<String, dynamic>?;
 
-      if (data == null) {
-        return;
-      }
+    if (data == null) {
+      return;
+    }
 
-      switch (type) {
-        case _CallWebSocketResponse.incoming:
-          _handleIncomingCall(data);
-          break;
-        case _CallWebSocketResponse.accepted:
-          _handleCallAccepted(data);
-          break;
-        case _CallWebSocketResponse.rejected:
-          _handleCallRejected(data);
-          break;
-        case _CallWebSocketResponse.ended:
-          _handleCallEnded(data);
-          break;
-        case _CallWebSocketResponse.timeout:
-          _handleCallTimeout(data);
-          break;
-      }
-    } catch (e, stackTrace) {}
+    switch (type) {
+      case _CallWebSocketResponse.incoming:
+        _handleIncomingCall(data);
+        break;
+      case _CallWebSocketResponse.accepted:
+        _handleCallAccepted(data);
+        break;
+      case _CallWebSocketResponse.rejected:
+        _handleCallRejected(data);
+        break;
+      case _CallWebSocketResponse.ended:
+        _handleCallEnded(data);
+        break;
+      case _CallWebSocketResponse.timeout:
+        _handleCallTimeout(data);
+        break;
+    }
   }
 
   void _handleIncomingCall(Map<String, dynamic> data) {
-    try {
-      final invitation = CallInvitationModel.fromJson(data).toEntity();
-      _incomingCallController.add(invitation);
-    } catch (e, stackTrace) {}
+    final invitation = CallInvitationModel.fromJson(data).toEntity();
+    _incomingCallController.add(invitation);
   }
 
   void _handleCallAccepted(Map<String, dynamic> data) {
-    try {
-      final accept = CallAcceptModel.fromJson(data).toEntity();
-      _callAcceptedController.add(accept);
-    } catch (e) {}
+    final accept = CallAcceptModel.fromJson(data).toEntity();
+    _callAcceptedController.add(accept);
   }
 
   void _handleCallRejected(Map<String, dynamic> data) {
-    try {
-      final reject = CallRejectModel.fromJson(data).toEntity();
-      _callRejectedController.add(reject);
-    } catch (e) {}
+    final reject = CallRejectModel.fromJson(data).toEntity();
+    _callRejectedController.add(reject);
   }
 
   void _handleCallEnded(Map<String, dynamic> data) {
-    try {
-      final end = CallEndModel.fromJson(data).toEntity();
-      _callEndedController.add(end);
-    } catch (e) {}
+    final end = CallEndModel.fromJson(data).toEntity();
+    _callEndedController.add(end);
   }
 
   void _handleCallTimeout(Map<String, dynamic> data) {
-    try {
-      final timeout = CallTimeoutModel.fromJson(data).toEntity();
-      _callTimeoutController.add(timeout);
-    } catch (e) {}
+    final timeout = CallTimeoutModel.fromJson(data).toEntity();
+    _callTimeoutController.add(timeout);
   }
 
   @override
