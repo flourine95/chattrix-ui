@@ -1,4 +1,5 @@
 import 'package:agora_rtc_engine/agora_rtc_engine.dart';
+import 'package:chattrix_ui/core/widgets/user_avatar.dart';
 import 'package:chattrix_ui/features/call/domain/entities/call_type.dart';
 import 'package:chattrix_ui/features/call/presentation/providers/call_service_provider.dart';
 import 'package:chattrix_ui/features/call/presentation/state/call_notifier.dart';
@@ -162,16 +163,10 @@ class CallPage extends ConsumerWidget {
                 color: Colors.white,
                 boxShadow: [BoxShadow(color: Colors.grey.withOpacity(0.1), blurRadius: 30, spreadRadius: 10)],
               ),
-              child: CircleAvatar(
+              child: UserAvatar(
+                displayName: name,
+                avatarUrl: avatar,
                 radius: 80,
-                backgroundColor: Colors.grey[100],
-                backgroundImage: avatar != null ? NetworkImage(avatar) : null,
-                child: avatar == null
-                    ? Text(
-                        name.isNotEmpty ? name[0] : '?',
-                        style: GoogleFonts.inter(fontSize: 60, color: Colors.black38),
-                      )
-                    : null,
               ),
             ),
           ],

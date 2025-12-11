@@ -1,3 +1,4 @@
+import 'package:chattrix_ui/core/widgets/user_avatar.dart';
 import 'package:chattrix_ui/features/auth/presentation/providers/auth_providers.dart';
 import 'package:chattrix_ui/features/chat/domain/entities/conversation.dart';
 import 'package:chattrix_ui/features/chat/domain/entities/participant.dart';
@@ -302,12 +303,11 @@ class _MemberListItem extends StatelessWidget {
       child: ListTile(
         leading: Stack(
           children: [
-            CircleAvatar(
+            UserAvatar(
+              displayName: member.fullName,
+              avatarUrl: null, // TODO: Add avatarUrl when backend supports it
+              radius: 20,
               backgroundColor: colors.primary,
-              child: Text(
-                member.fullName.isNotEmpty ? member.fullName.substring(0, 1).toUpperCase() : '?',
-                style: TextStyle(color: colors.onPrimary),
-              ),
             ),
             if (member.isOnline ?? false)
               Positioned(

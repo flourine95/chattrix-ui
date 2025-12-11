@@ -8,8 +8,12 @@ part 'message_sender_model.g.dart';
 abstract class MessageSenderModel with _$MessageSenderModel {
   const MessageSenderModel._();
 
-  const factory MessageSenderModel({required int id, required String username, required String fullName}) =
-      _MessageSenderModel;
+  const factory MessageSenderModel({
+    required int id,
+    required String username,
+    required String fullName,
+    String? avatarUrl,
+  }) = _MessageSenderModel;
 
   factory MessageSenderModel.fromJson(Map<String, dynamic> json) => _$MessageSenderModelFromJson(json);
 
@@ -21,10 +25,16 @@ abstract class MessageSenderModel with _$MessageSenderModel {
       id: id,
       username: (json['username'] ?? json['senderUsername'] ?? '').toString(),
       fullName: (json['fullName'] ?? json['full_name'] ?? '').toString(),
+      avatarUrl: json['avatarUrl'] as String? ?? json['avatar_url'] as String?,
     );
   }
 
   MessageSender toEntity() {
-    return MessageSender(id: id, username: username, fullName: fullName);
+    return MessageSender(
+      id: id,
+      username: username,
+      fullName: fullName,
+      avatarUrl: avatarUrl,
+    );
   }
 }

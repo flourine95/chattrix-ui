@@ -1,17 +1,21 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:chattrix_ui/core/widgets/user_avatar.dart';
 import 'package:chattrix_ui/features/auth/presentation/providers/auth_providers.dart';
 import 'package:chattrix_ui/features/call/domain/entities/call_type.dart';
 import 'package:chattrix_ui/features/call/presentation/state/call_notifier.dart';
 import 'package:chattrix_ui/features/chat/domain/entities/message.dart';
 import 'package:chattrix_ui/features/chat/presentation/providers/chat_providers.dart';
+import 'package:chattrix_ui/features/chat/presentation/providers/typing_providers.dart';
 import 'package:chattrix_ui/features/chat/presentation/utils/conversation_utils.dart';
+import 'package:chattrix_ui/features/chat/presentation/utils/typing_debouncer.dart';
 import 'package:chattrix_ui/features/chat/presentation/widgets/attachment_picker_bottom_sheet.dart';
 import 'package:chattrix_ui/features/chat/presentation/widgets/edit_message_dialog.dart';
 import 'package:chattrix_ui/features/chat/presentation/widgets/message_bubble.dart';
 import 'package:chattrix_ui/features/chat/presentation/widgets/message_reactions.dart';
 import 'package:chattrix_ui/features/chat/presentation/widgets/reply_message_preview.dart';
+import 'package:chattrix_ui/features/chat/presentation/widgets/typing_indicator_widget.dart';
 import 'package:chattrix_ui/features/chat/presentation/widgets/voice_recorder_widget.dart';
 import 'package:chattrix_ui/features/chat/services/cloudinary_provider.dart';
 import 'package:chattrix_ui/features/chat/services/media_picker_provider.dart';
@@ -42,14 +46,6 @@ class ChatViewPage extends HookConsumerWidget {
     final textTheme = Theme.of(context).textTheme;
     final colors = Theme.of(context).colorScheme;
     final avatarColor = color ?? colors.primary;
-
-    final r = (avatarColor.r * 255).round();
-    final g = (avatarColor.g * 255).round();
-    final b = (avatarColor.b * 255).round();
-
-    final brightness = (r * 0.299 + g * 0.587 + b * 0.114) / 255;
-
-    final onAvatarColor = brightness < 0.5 ? Colors.white : Colors.black;
 
     final me = ref.watch(currentUserProvider);
     final messagesAsync = ref.watch(messagesProvider(chatId));
@@ -250,12 +246,11 @@ class ChatViewPage extends HookConsumerWidget {
           },
           child: Row(
             children: [
-              CircleAvatar(
+              UserAvatar(
+                displayName: name ?? 'User $chatId',
+                avatarUrl: null, // TODO: Add avatarUrl when backend supports it
+                radius: 20,
                 backgroundColor: avatarColor,
-                child: Text(
-                  (name ?? 'User $chatId').substring(0, 1).toUpperCase(),
-                  style: textTheme.titleMedium?.copyWith(color: onAvatarColor),
-                ),
               ),
               const SizedBox(width: 12),
               Expanded(
@@ -377,28 +372,96 @@ class ChatViewPage extends HookConsumerWidget {
                         // Use cached lookup map instead of searching through list
                         final repliedMsg = m.replyToMessageId != null ? repliedMessageMap[m.replyToMessageId] : null;
 
+                        // Check if this is a group chat
+                        final isGroupChat = conversation?.type == 'GROUP';
+
+                        // Check if next message is from different sender (show avatar only for last message in sequence)
+                        // Since list is reversed (newest first), check next index (older message)
+                        final showAvatar = isGroupChat && !isMe &&
+                          (index == messages.length - 1 || messages[index + 1].sender.id != m.sender.id);
+
                         return Align(
                           key: ValueKey(m.id), // Add key for better performance
                           alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
-                          child: MessageBubble(
-                            message: m,
-                            isMe: isMe,
-                            currentUserId: me?.id,
-                            replyToMessage: repliedMsg,
-                            onReply: () {
-                              replyToMessage.value = m;
-                            },
-                            onReactionTap: (emoji) {
-                              handleReaction(m, emoji);
-                            },
-                            onAddReaction: () {
-                              showReactionPicker(context, (emoji) {
-                                handleReaction(m, emoji);
-                              });
-                            },
-                            onEdit: isMe ? () => handleEditMessage(m) : null,
-                            onDelete: isMe ? () => handleDeleteMessage(m) : null,
-                          ),
+                          child: isGroupChat && !isMe
+                              ? Row(
+                                  crossAxisAlignment: CrossAxisAlignment.end,
+                                  children: [
+                                    // Avatar for group chat messages from others
+                                    // Show avatar only for last message in sequence
+                                    SizedBox(
+                                      width: 40,
+                                      child: showAvatar
+                                          ? Padding(
+                                              padding: const EdgeInsets.only(left: 4, right: 8, bottom: 6),
+                                              child: UserAvatar(
+                                                displayName: m.sender.fullName,
+                                                avatarUrl: m.sender.avatarUrl,
+                                                radius: 16,
+                                              ),
+                                            )
+                                          : null,
+                                    ),
+                                    // Message bubble
+                                    Flexible(
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          // Sender name above message (only for first message in sequence)
+                                          if (showAvatar)
+                                            Padding(
+                                              padding: const EdgeInsets.only(left: 12, bottom: 2),
+                                              child: Text(
+                                                m.sender.fullName,
+                                                style: textTheme.bodySmall?.copyWith(
+                                                  color: colors.primary,
+                                                  fontWeight: FontWeight.w600,
+                                                ),
+                                              ),
+                                            ),
+                                          MessageBubble(
+                                            message: m,
+                                            isMe: isMe,
+                                            currentUserId: me?.id,
+                                            replyToMessage: repliedMsg,
+                                            onReply: () {
+                                              replyToMessage.value = m;
+                                            },
+                                            onReactionTap: (emoji) {
+                                              handleReaction(m, emoji);
+                                            },
+                                            onAddReaction: () {
+                                              showReactionPicker(context, (emoji) {
+                                                handleReaction(m, emoji);
+                                              });
+                                            },
+                                            onEdit: isMe ? () => handleEditMessage(m) : null,
+                                            onDelete: isMe ? () => handleDeleteMessage(m) : null,
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                )
+                              : MessageBubble(
+                                  message: m,
+                                  isMe: isMe,
+                                  currentUserId: me?.id,
+                                  replyToMessage: repliedMsg,
+                                  onReply: () {
+                                    replyToMessage.value = m;
+                                  },
+                                  onReactionTap: (emoji) {
+                                    handleReaction(m, emoji);
+                                  },
+                                  onAddReaction: () {
+                                    showReactionPicker(context, (emoji) {
+                                      handleReaction(m, emoji);
+                                    });
+                                  },
+                                  onEdit: isMe ? () => handleEditMessage(m) : null,
+                                  onDelete: isMe ? () => handleDeleteMessage(m) : null,
+                                ),
                         );
                       },
                     );
@@ -816,51 +879,95 @@ class _InputBar extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final colors = Theme.of(context).colorScheme;
 
+    // Initialize typing debouncer
+    final typingDebouncer = useRef<TypingDebouncer?>(null);
+    useEffect(() {
+      typingDebouncer.value = TypingDebouncer();
+      return () {
+        // Send typing stop when disposing
+        if (typingDebouncer.value?.isTyping ?? false) {
+          ref.read(typingProvider.notifier).sendTypingStop(chatId);
+        }
+        typingDebouncer.value?.dispose();
+      };
+    }, []);
+
+    // Watch typing users for this conversation
+    final typingUsers = ref.watch(conversationTypingUsersProvider(chatId));
+
+    // Handle text change for typing indicator
+    void handleTextChange(String text) {
+      typingDebouncer.value?.onTextChanged(
+        text,
+        () => ref.read(typingProvider.notifier).sendTypingStart(chatId),
+        () => ref.read(typingProvider.notifier).sendTypingStop(chatId),
+      );
+    }
+
+    // Enhanced onSend to stop typing
+    void handleSend() {
+      // Stop typing before sending
+      typingDebouncer.value?.stop(
+        () => ref.read(typingProvider.notifier).sendTypingStop(chatId),
+      );
+      onSend();
+    }
+
     return SafeArea(
       top: false,
-      child: Container(
-        padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
-        decoration: BoxDecoration(
-          color: Theme.of(context).scaffoldBackgroundColor,
-          border: Border(top: BorderSide(color: colors.onSurface.withValues(alpha: 0.08))),
-        ),
-        child: Row(
-          children: [
-            IconButton(
-              onPressed: () async {
-                final type = await AttachmentPickerBottomSheet.show(context);
-                if (type != null && context.mounted) {
-                  await _handleAttachment(context, ref, type);
-                }
-              },
-              icon: const FaIcon(FontAwesomeIcons.paperclip),
-              color: colors.onSurface,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // Typing indicator
+          if (typingUsers.isNotEmpty)
+            TypingIndicatorWidget(typingUsers: typingUsers),
+
+          Container(
+            padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
+            decoration: BoxDecoration(
+              color: Theme.of(context).scaffoldBackgroundColor,
+              border: Border(top: BorderSide(color: colors.onSurface.withValues(alpha: 0.08))),
             ),
-            Expanded(
-              child: TextField(
-                controller: controller,
-                onSubmitted: (_) => onSend(),
-                textInputAction: TextInputAction.send,
-                decoration: InputDecoration(
-                  hintText: 'Type a message',
-                  filled: true,
-                  fillColor: colors.surface.withValues(alpha: 0.6),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(20),
-                    borderSide: const BorderSide(color: Colors.transparent),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(20),
-                    borderSide: const BorderSide(color: Colors.transparent),
-                  ),
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+            child: Row(
+              children: [
+                IconButton(
+                  onPressed: () async {
+                    final type = await AttachmentPickerBottomSheet.show(context);
+                    if (type != null && context.mounted) {
+                      await _handleAttachment(context, ref, type);
+                    }
+                  },
+                  icon: const FaIcon(FontAwesomeIcons.paperclip),
+                  color: colors.onSurface,
                 ),
-              ),
+                Expanded(
+                  child: TextField(
+                    controller: controller,
+                    onChanged: handleTextChange,
+                    onSubmitted: (_) => handleSend(),
+                    textInputAction: TextInputAction.send,
+                    decoration: InputDecoration(
+                      hintText: 'Type a message',
+                      filled: true,
+                      fillColor: colors.surface.withValues(alpha: 0.6),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(20),
+                        borderSide: const BorderSide(color: Colors.transparent),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(20),
+                        borderSide: const BorderSide(color: Colors.transparent),
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                IconButton(onPressed: handleSend, icon: const FaIcon(FontAwesomeIcons.paperPlane), color: colors.primary),
+              ],
             ),
-            const SizedBox(width: 8),
-            IconButton(onPressed: onSend, icon: const FaIcon(FontAwesomeIcons.paperPlane), color: colors.primary),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

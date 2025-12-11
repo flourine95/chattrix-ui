@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:chattrix_ui/core/widgets/user_avatar.dart';
 import 'package:chattrix_ui/features/auth/presentation/providers/auth_providers.dart';
 import 'package:chattrix_ui/features/chat/domain/entities/search_user.dart';
 import 'package:chattrix_ui/features/chat/presentation/providers/chat_providers.dart';
@@ -298,9 +299,11 @@ class NewChatPage extends HookConsumerWidget {
 
     return ListTile(
       onTap: () => _handleUserTap(context, ref, user),
-      leading: CircleAvatar(
+      leading: UserAvatar(
+        displayName: userName,
+        avatarUrl: user.avatarUrl,
+        radius: 20,
         backgroundColor: avatarColor,
-        child: Text(initial, style: textTheme.titleMedium?.copyWith(color: Colors.white)),
       ),
       title: Row(
         children: [

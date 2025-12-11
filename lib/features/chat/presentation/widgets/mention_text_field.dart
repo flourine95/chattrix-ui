@@ -1,3 +1,4 @@
+import 'package:chattrix_ui/core/widgets/user_avatar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
 
@@ -136,12 +137,10 @@ class _MentionTextFieldState extends State<MentionTextField> {
                   final user = _filteredUsers[index];
                   return ListTile(
                     dense: true,
-                    leading: CircleAvatar(
+                    leading: UserAvatar(
+                      displayName: user.name,
+                      avatarUrl: user.avatarUrl,
                       radius: 16,
-                      backgroundImage: user.avatarUrl != null ? NetworkImage(user.avatarUrl!) : null,
-                      child: user.avatarUrl == null
-                          ? Text(user.name[0].toUpperCase(), style: const TextStyle(fontSize: 14))
-                          : null,
                     ),
                     title: Text(user.name, style: Theme.of(context).textTheme.bodyMedium),
                     onTap: () => _insertMention(user),

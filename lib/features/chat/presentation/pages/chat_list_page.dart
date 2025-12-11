@@ -1,3 +1,4 @@
+import 'package:chattrix_ui/core/widgets/user_avatar.dart';
 import 'package:chattrix_ui/features/auth/presentation/providers/auth_providers.dart';
 import 'package:chattrix_ui/features/chat/presentation/providers/chat_providers.dart';
 import 'package:chattrix_ui/features/chat/presentation/utils/conversation_utils.dart';
@@ -79,16 +80,11 @@ class ChatListPage extends HookConsumerWidget {
                     context.push('/chat/${c.id}', extra: {'name': title, 'color': _avatarColor(context, index + 21)}),
                 leading: Stack(
                   children: [
-                    CircleAvatar(
+                    UserAvatar(
+                      displayName: title,
+                      avatarUrl: null, // TODO: Add avatarUrl when backend supports it
+                      radius: 24,
                       backgroundColor: avatarColor,
-                      child: Text(
-                        initial,
-                        style: textTheme.titleMedium?.copyWith(
-                          color: avatarColor == primary
-                              ? Theme.of(context).colorScheme.onPrimary
-                              : Theme.of(context).colorScheme.onSurface,
-                        ),
-                      ),
                     ),
                     // Online indicator for DIRECT conversations
                     if (c.type.toUpperCase() == 'DIRECT' && isOnline)

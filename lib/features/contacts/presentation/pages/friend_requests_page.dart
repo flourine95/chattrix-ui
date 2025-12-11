@@ -1,3 +1,4 @@
+import 'package:chattrix_ui/core/widgets/user_avatar.dart';
 import 'package:chattrix_ui/features/contacts/presentation/providers/contact_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -64,9 +65,10 @@ class _FriendRequestsPageState extends ConsumerState<FriendRequestsPage> {
         return Card(
           margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           child: ListTile(
-            leading: CircleAvatar(
-              backgroundImage: request.senderAvatarUrl != null ? NetworkImage(request.senderAvatarUrl!) : null,
-              child: request.senderAvatarUrl == null ? Text(request.senderUsername[0].toUpperCase()) : null,
+            leading: UserAvatar(
+              displayName: request.senderFullName,
+              avatarUrl: request.senderAvatarUrl,
+              radius: 20,
             ),
             title: Text(request.senderFullName),
             subtitle: Text('@${request.senderUsername}'),
@@ -119,9 +121,10 @@ class _FriendRequestsPageState extends ConsumerState<FriendRequestsPage> {
         return Card(
           margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           child: ListTile(
-            leading: CircleAvatar(
-              backgroundImage: request.receiverAvatarUrl != null ? NetworkImage(request.receiverAvatarUrl!) : null,
-              child: request.receiverAvatarUrl == null ? Text(request.receiverUsername[0].toUpperCase()) : null,
+            leading: UserAvatar(
+              displayName: request.receiverFullName,
+              avatarUrl: request.receiverAvatarUrl,
+              radius: 20,
             ),
             title: Text(request.receiverFullName),
             subtitle: Text('@${request.receiverUsername}'),

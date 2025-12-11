@@ -76,7 +76,12 @@ class ChatWebSocketDataSourceImpl implements ChatWebSocketDataSource {
           break;
 
         case _ChatWebSocketResponse.typingIndicator:
+          print('💬 [ChatWebSocketDataSource] Typing payload: $payload');
           final indicatorEntity = TypingIndicatorModel.fromJson(payload as Map<String, dynamic>).toEntity();
+          print('💬 [ChatWebSocketDataSource] Parsed typing: conversationId=${indicatorEntity.conversationId}, users=${indicatorEntity.typingUsers.length}');
+          if (indicatorEntity.typingUsers.isNotEmpty) {
+            print('💬 [ChatWebSocketDataSource] Typing users: ${indicatorEntity.typingUsers.map((u) => '${u.fullName}(${u.id})').join(', ')}');
+          }
           _typingController.add(indicatorEntity);
           break;
 

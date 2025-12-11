@@ -1,3 +1,4 @@
+import 'package:chattrix_ui/core/widgets/user_avatar.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -322,7 +323,11 @@ class _ContactTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      leading: CircleAvatar(child: Text(contact.name[0])),
+      leading: UserAvatar(
+        displayName: contact.name,
+        avatarUrl: contact.avatarUrl,
+        radius: 20,
+      ),
       title: Text(contact.name, style: const TextStyle(fontWeight: FontWeight.w600)),
       subtitle: Text(contact.status),
     );

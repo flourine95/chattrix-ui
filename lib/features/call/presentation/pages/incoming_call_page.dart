@@ -1,3 +1,4 @@
+import 'package:chattrix_ui/core/widgets/user_avatar.dart';
 import 'package:chattrix_ui/features/call/domain/entities/call_type.dart';
 import 'package:chattrix_ui/features/call/presentation/state/call_notifier.dart';
 import 'package:chattrix_ui/features/call/presentation/state/call_state.dart';
@@ -75,20 +76,10 @@ class IncomingCallPage extends ConsumerWidget {
                     ),
                   ],
                 ),
-                child: CircleAvatar(
-                  radius: 80, // Avatar to rõ
-                  backgroundColor: Colors.grey[100],
-                  backgroundImage: callerAvatar != null ? NetworkImage(callerAvatar) : null,
-                  child: callerAvatar == null
-                      ? Text(
-                    callerName.isNotEmpty ? callerName[0].toUpperCase() : '?',
-                    style: GoogleFonts.inter(
-                      fontSize: 64,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.black38,
-                    ),
-                  )
-                      : null,
+                child: UserAvatar(
+                  displayName: callerName,
+                  avatarUrl: callerAvatar,
+                  radius: 80,
                 ),
               ),
               const SizedBox(height: 32),

@@ -1,3 +1,4 @@
+import 'package:chattrix_ui/core/widgets/user_avatar.dart';
 import 'package:chattrix_ui/features/auth/presentation/providers/auth_providers.dart';
 import 'package:chattrix_ui/features/chat/domain/entities/conversation.dart';
 import 'package:chattrix_ui/features/chat/presentation/utils/conversation_utils.dart';
@@ -36,13 +37,11 @@ class ChatInfoHeader extends ConsumerWidget {
       child: Column(
         children: [
           // Avatar
-          CircleAvatar(
+          UserAvatar(
+            displayName: displayName,
+            avatarUrl: null, // TODO: Add avatarUrl when backend supports it
             radius: 50,
             backgroundColor: colors.primary,
-            child: Text(
-              displayName.substring(0, 1).toUpperCase(),
-              style: textTheme.headlineMedium?.copyWith(color: colors.onPrimary),
-            ),
           ),
           const SizedBox(height: 16),
 

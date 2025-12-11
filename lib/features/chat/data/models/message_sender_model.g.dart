@@ -15,6 +15,7 @@ _MessageSenderModel _$MessageSenderModelFromJson(Map<String, dynamic> json) =>
       id: (json['id'] as num).toInt(),
       username: json['username'] as String,
       fullName: json['fullName'] as String,
+      avatarUrl: json['avatarUrl'] as String?,
     );
 
 Map<String, dynamic> _$MessageSenderModelToJson(_MessageSenderModel instance) =>
@@ -22,4 +23,5 @@ Map<String, dynamic> _$MessageSenderModelToJson(_MessageSenderModel instance) =>
       'id': instance.id,
       'username': instance.username,
       'fullName': instance.fullName,
+      'avatarUrl': instance.avatarUrl,
     };

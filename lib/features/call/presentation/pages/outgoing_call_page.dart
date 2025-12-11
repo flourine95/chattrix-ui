@@ -1,3 +1,4 @@
+import 'package:chattrix_ui/core/widgets/user_avatar.dart';
 import 'package:chattrix_ui/features/call/domain/entities/call_type.dart';
 import 'package:chattrix_ui/features/call/presentation/state/call_notifier.dart';
 import 'package:chattrix_ui/features/call/presentation/state/call_state.dart';
@@ -72,16 +73,10 @@ class OutgoingCallPage extends ConsumerWidget {
                     border: Border.all(color: Colors.blue.withValues(alpha: 0.1), width: 1),
                     color: Colors.white,
                   ),
-                  child: CircleAvatar(
+                  child: UserAvatar(
+                    displayName: name,
+                    avatarUrl: avatar,
                     radius: 72,
-                    backgroundColor: Colors.grey[100],
-                    backgroundImage: avatar != null ? NetworkImage(avatar) : null,
-                    child: avatar == null
-                        ? Text(
-                      name.isNotEmpty ? name[0].toUpperCase() : '?',
-                      style: GoogleFonts.inter(fontSize: 60, color: Colors.black38),
-                    )
-                        : null,
                   ),
                 ),
                 const SizedBox(height: 24),
