@@ -52,7 +52,6 @@ class ChatListPage extends HookConsumerWidget {
               final c = conversations[index];
               final title = ConversationUtils.getConversationTitle(c, me);
               final avatarColor = _avatarColor(context, index + 21);
-              final initial = title.isNotEmpty ? title.substring(0, 1) : '?';
 
               // Get last message and format it
               final lastMessageText = ConversationUtils.formatLastMessage(c.lastMessage, me);
@@ -82,7 +81,7 @@ class ChatListPage extends HookConsumerWidget {
                   children: [
                     UserAvatar(
                       displayName: title,
-                      avatarUrl: null, // TODO: Add avatarUrl when backend supports it
+                      avatarUrl: ConversationUtils.getOtherParticipantAvatarUrl(c, me),
                       radius: 24,
                       backgroundColor: avatarColor,
                     ),

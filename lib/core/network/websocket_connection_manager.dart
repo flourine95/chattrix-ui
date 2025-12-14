@@ -10,6 +10,7 @@ class WebSocketConnectionManager {
 
   Timer? _heartbeatTimer;
   Timer? _reconnectTimer;
+  StreamSubscription? _connectionSubscription;
   bool _isManualDisconnect = false;
   String? _lastUrl;
 
@@ -17,7 +18,16 @@ class WebSocketConnectionManager {
     required WebSocketClient client,
     this.reconnectDelay = const Duration(seconds: 5),
     this.heartbeatInterval = const Duration(seconds: 30),
-  }) : _client = client;
+  }) : _client = client {
+    // Setup connection listener once in constructor to prevent memory leak
+    _connectionSubscription = _client.connectionStream.listen((isConnected) {
+      if (!isConnected && !_isManualDisconnect && _lastUrl != null) {
+        AppLogger.websocket('Connection lost. Stopping heartbeat and scheduling reconnect.');
+        _stopHeartbeat();
+        _scheduleReconnect();
+      }
+    });
+  }
 
   Future<void> connect(String url) async {
     _isManualDisconnect = false;
@@ -26,14 +36,6 @@ class WebSocketConnectionManager {
     try {
       await _client.connect(url);
       _startHeartbeat();
-
-      _client.connectionStream.listen((isConnected) {
-        if (!isConnected && !_isManualDisconnect && _lastUrl != null) {
-          AppLogger.websocket('Connection lost. Stopping heartbeat and scheduling reconnect.');
-          _stopHeartbeat();
-          _scheduleReconnect();
-        }
-      });
     } catch (e) {
       AppLogger.websocket('Connect exception caught in manager. Scheduling reconnect.', isError: true);
       _scheduleReconnect();
@@ -85,6 +87,7 @@ class WebSocketConnectionManager {
   void dispose() {
     _stopHeartbeat();
     _reconnectTimer?.cancel();
+    _connectionSubscription?.cancel();
     disconnect();
   }
 }

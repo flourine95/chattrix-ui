@@ -13,6 +13,7 @@ class AppLogger {
       dateTimeFormat: DateTimeFormat.onlyTimeAndSinceStart,
     ),
   );
+  static const bool enableWebSocketDebugLogs = false;
 
   static const String _debugEmoji = '🔍';
   static const String _infoEmoji = 'ℹ️';
@@ -54,7 +55,7 @@ class AppLogger {
   static void websocket(String message, {bool isError = false}) {
     if (isError) {
       error(message, tag: 'WebSocket');
-    } else {
+    } else if (enableWebSocketDebugLogs) {
       debug(message, tag: 'WebSocket');
     }
   }

@@ -176,11 +176,18 @@ class ConversationUtils {
     return User(
       id: otherParticipant.userId,
       username: otherParticipant.username,
-      email: '', // Not available in Participant
+      email: otherParticipant.email ?? '', // Use participant email if available
       fullName: otherParticipant.fullName,
-      avatarUrl: null, // Not available in Participant
+      avatarUrl: otherParticipant.avatarUrl, // Now available in Participant
       isOnline: otherParticipant.isOnline ?? false,
       lastSeen: otherParticipant.lastSeen ?? DateTime.now(),
     );
+  }
+
+  /// Get avatar URL of other participant in DIRECT conversation
+  /// Returns null for GROUP conversations or if no avatar is set
+  static String? getOtherParticipantAvatarUrl(Conversation conversation, User? currentUser) {
+    final otherParticipant = getOtherParticipant(conversation, currentUser);
+    return otherParticipant?.avatarUrl;
   }
 }

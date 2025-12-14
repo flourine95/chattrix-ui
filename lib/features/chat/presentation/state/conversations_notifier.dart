@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:chattrix_ui/core/utils/app_logger.dart';
+import 'package:chattrix_ui/features/auth/presentation/providers/auth_providers.dart';
 import 'package:chattrix_ui/features/chat/domain/entities/conversation.dart';
 import 'package:chattrix_ui/features/chat/presentation/providers/chat_usecase_provider.dart';
 import 'package:chattrix_ui/features/chat/presentation/providers/chat_websocket_provider_new.dart';
@@ -17,6 +18,13 @@ class ConversationsNotifier extends _$ConversationsNotifier {
   @override
   FutureOr<List<Conversation>> build() async {
     AppLogger.debug('🏗️ Building ConversationsNotifier...', tag: 'ConversationsNotifier');
+
+    // Check if user is logged in first
+    final isLoggedIn = await ref.read(isLoggedInUseCaseProvider)();
+    if (!isLoggedIn) {
+      AppLogger.warning('⚠️ User not logged in, returning empty conversations list', tag: 'ConversationsNotifier');
+      return [];
+    }
     ref.keepAlive();
 
     final wsDataSource = ref.watch(chatWebSocketDataSourceProvider);
@@ -72,8 +80,8 @@ class ConversationsNotifier extends _$ConversationsNotifier {
 
   void _startPolling() {
     _stopPolling();
-    AppLogger.info('🔄 Starting conversation polling (every 5s)', tag: 'ConversationsNotifier');
-    _pollingTimer = Timer.periodic(const Duration(seconds: 5), (timer) {
+    AppLogger.info('🔄 Starting conversation polling (every 10s)', tag: 'ConversationsNotifier');
+    _pollingTimer = Timer.periodic(const Duration(seconds: 10), (timer) {
       AppLogger.debug('⏰ Polling timer triggered - refreshing conversations', tag: 'ConversationsNotifier');
       refresh();
     });
@@ -89,6 +97,13 @@ class ConversationsNotifier extends _$ConversationsNotifier {
 
   Future<List<Conversation>> _fetchConversations() async {
     AppLogger.debug('🔄 Starting to fetch conversations...', tag: 'ConversationsNotifier');
+
+    // Double check if user is still logged in before fetching
+    final isLoggedIn = await ref.read(isLoggedInUseCaseProvider)();
+    if (!isLoggedIn) {
+      AppLogger.warning('⚠️ User not logged in, skipping fetch', tag: 'ConversationsNotifier');
+      return [];
+    }
 
     final result = await _getConversationsUsecase();
 

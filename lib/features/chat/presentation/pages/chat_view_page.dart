@@ -248,7 +248,9 @@ class ChatViewPage extends HookConsumerWidget {
             children: [
               UserAvatar(
                 displayName: name ?? 'User $chatId',
-                avatarUrl: null, // TODO: Add avatarUrl when backend supports it
+                avatarUrl: conversation != null
+                    ? ConversationUtils.getOtherParticipantAvatarUrl(conversation, me)
+                    : null,
                 radius: 20,
                 backgroundColor: avatarColor,
               ),

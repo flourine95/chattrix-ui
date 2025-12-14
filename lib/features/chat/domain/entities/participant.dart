@@ -11,6 +11,7 @@ abstract class Participant with _$Participant {
     required String role, // 'ADMIN' or 'MEMBER'
     String? email,
     String? nickname,
+    String? avatarUrl,
     bool? isOnline,
     DateTime? lastSeen,
   }) = _Participant;

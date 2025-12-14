@@ -17,7 +17,7 @@ class AppRouter {
 
   static GoRouter router(WidgetRef ref) {
     return GoRouter(
-      initialLocation: RoutePaths.chats,
+      initialLocation: RoutePaths.contactsDemo, // Changed to demo page for quick preview
       refreshListenable: Listenable.merge([
         ref.watch(authNotifierWrapperProvider),
         ref.watch(callNotifierWrapperProvider),

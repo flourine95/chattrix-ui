@@ -15,6 +15,7 @@ abstract class ParticipantModel with _$ParticipantModel {
     required String role,
     String? email,
     String? nickname,
+    String? avatarUrl,
     bool? isOnline,
     String? lastSeen,
   }) = _ParticipantModel;
@@ -33,6 +34,7 @@ abstract class ParticipantModel with _$ParticipantModel {
       role: (json['role'] ?? '').toString(),
       email: json['email']?.toString(),
       nickname: json['nickname']?.toString(),
+      avatarUrl: json['avatarUrl']?.toString() ?? json['avatar_url']?.toString(),
       isOnline: isOnline,
       lastSeen: lastSeen,
     );
@@ -46,6 +48,7 @@ abstract class ParticipantModel with _$ParticipantModel {
       role: role,
       email: email,
       nickname: nickname,
+      avatarUrl: avatarUrl,
       isOnline: isOnline,
       lastSeen: lastSeen != null ? DateTime.parse(lastSeen!) : null,
     );

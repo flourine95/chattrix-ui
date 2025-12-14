@@ -17,5 +17,7 @@ class RoutePaths {
   static const String newChat = '/new-chat';
   static const String newGroup = '/new-group';
   static const String chatInfo = '/chat-info';
+  static const String chatListDemo = '/chat-list-demo';
+  static const String contactsDemo = '/contacts-demo';
 }
 

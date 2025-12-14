@@ -10,10 +10,12 @@ import 'package:chattrix_ui/features/call/presentation/pages/outgoing_call_page.
 import 'package:chattrix_ui/features/chat/domain/entities/conversation.dart';
 import 'package:chattrix_ui/features/chat/presentation/pages/chat_info_page.dart';
 import 'package:chattrix_ui/features/chat/presentation/pages/chat_list_page.dart';
+import 'package:chattrix_ui/features/chat/presentation/pages/chat_list_demo_page.dart';
 import 'package:chattrix_ui/features/chat/presentation/pages/chat_view_page.dart';
 import 'package:chattrix_ui/features/chat/presentation/pages/new_chat_page.dart';
 import 'package:chattrix_ui/features/chat/presentation/pages/new_group_chat_page.dart';
 import 'package:chattrix_ui/features/contacts/presentation/pages/contacts_page.dart';
+import 'package:chattrix_ui/features/contacts/presentation/pages/contacts_demo_page.dart';
 import 'package:chattrix_ui/features/profile/presentation/pages/edit_profile_page.dart';
 import 'package:chattrix_ui/features/profile/presentation/pages/profile_page.dart';
 import 'package:chattrix_ui/features/profile/presentation/pages/settings_page.dart';
@@ -116,6 +118,16 @@ class RouteConfig {
           path: RoutePaths.settings,
           name: 'settings',
           builder: (context, state) => const SettingsPage(),
+        ),
+        GoRoute(
+          path: RoutePaths.chatListDemo,
+          name: 'chat-list-demo',
+          builder: (context, state) => const ChatListPagePreview(),
+        ),
+        GoRoute(
+          path: RoutePaths.contactsDemo,
+          name: 'contacts-demo',
+          builder: (context, state) => const ContactListDemoPage(),
         ),
       ];
 
