@@ -10,11 +10,14 @@ part 'message.freezed.dart';
 abstract class Message with _$Message {
   const factory Message({
     required int id,
+    required int conversationId,
+    required int senderId,
+    String? senderUsername,
+    String? senderFullName,
     required String content,
     required String type, // 'TEXT', 'IMAGE', 'VIDEO', 'AUDIO', 'FILE', 'LOCATION'
     required DateTime createdAt,
-    required String conversationId,
-    required MessageSender sender,
+    @Deprecated('Use senderId, senderUsername, senderFullName instead') MessageSender? sender,
     // Rich media fields
     String? mediaUrl, // URL for image, video, audio, or document
     String? thumbnailUrl, // Thumbnail for video or document preview

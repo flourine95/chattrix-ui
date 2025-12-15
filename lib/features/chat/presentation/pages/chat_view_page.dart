@@ -369,7 +369,7 @@ class ChatViewPage extends HookConsumerWidget {
                       // Cache items 500px outside viewport
                       itemBuilder: (context, index) {
                         final m = messages[index];
-                        final isMe = m.sender.id == me?.id;
+                        final isMe = m.senderId == me?.id;
 
                         // Use cached lookup map instead of searching through list
                         final repliedMsg = m.replyToMessageId != null ? repliedMessageMap[m.replyToMessageId] : null;
@@ -380,7 +380,7 @@ class ChatViewPage extends HookConsumerWidget {
                         // Check if next message is from different sender (show avatar only for last message in sequence)
                         // Since list is reversed (newest first), check next index (older message)
                         final showAvatar = isGroupChat && !isMe &&
-                          (index == messages.length - 1 || messages[index + 1].sender.id != m.sender.id);
+                          (index == messages.length - 1 || messages[index + 1].senderId != m.senderId);
 
                         return Align(
                           key: ValueKey(m.id), // Add key for better performance
@@ -397,8 +397,8 @@ class ChatViewPage extends HookConsumerWidget {
                                           ? Padding(
                                               padding: const EdgeInsets.only(left: 4, right: 8, bottom: 6),
                                               child: UserAvatar(
-                                                displayName: m.sender.fullName,
-                                                avatarUrl: m.sender.avatarUrl,
+                                                displayName: m.senderFullName ?? m.senderUsername ?? 'User',
+                                                avatarUrl: m.sender?.avatarUrl,
                                                 radius: 16,
                                               ),
                                             )
@@ -414,7 +414,7 @@ class ChatViewPage extends HookConsumerWidget {
                                             Padding(
                                               padding: const EdgeInsets.only(left: 12, bottom: 2),
                                               child: Text(
-                                                m.sender.fullName,
+                                                m.senderFullName ?? m.senderUsername ?? 'User',
                                                 style: textTheme.bodySmall?.copyWith(
                                                   color: colors.primary,
                                                   fontWeight: FontWeight.w600,

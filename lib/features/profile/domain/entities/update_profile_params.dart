@@ -1,9 +1,8 @@
+import 'package:chattrix_ui/core/domain/enums/gender.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'update_profile_params.freezed.dart';
 
-/// Parameters for updating user profile
-/// Only updatable fields: fullName, avatarUrl, phone, bio, dateOfBirth, gender, location
 @freezed
 abstract class UpdateProfileParams with _$UpdateProfileParams {
   const factory UpdateProfileParams({
@@ -12,7 +11,7 @@ abstract class UpdateProfileParams with _$UpdateProfileParams {
     String? phone,
     String? bio,
     DateTime? dateOfBirth,
-    String? gender, // MALE, FEMALE, OTHER
+    Gender? gender,
     String? location,
   }) = _UpdateProfileParams;
 }

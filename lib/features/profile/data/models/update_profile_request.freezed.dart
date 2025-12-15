@@ -15,9 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$UpdateProfileRequest {
 
- String? get fullName; String? get avatarUrl; String? get phone; String? get bio;@JsonKey(name: 'dateOfBirth') String? get dateOfBirth;// API expects date string
- String? get gender;// MALE, FEMALE, OTHER
- String? get location;
+ String? get fullName; String? get avatarUrl; String? get phone; String? get bio; String? get dateOfBirth;@JsonKey(unknownEnumValue: Gender.other) Gender? get gender; String? get location;
 /// Create a copy of UpdateProfileRequest
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -50,7 +48,7 @@ abstract mixin class $UpdateProfileRequestCopyWith<$Res>  {
   factory $UpdateProfileRequestCopyWith(UpdateProfileRequest value, $Res Function(UpdateProfileRequest) _then) = _$UpdateProfileRequestCopyWithImpl;
 @useResult
 $Res call({
- String? fullName, String? avatarUrl, String? phone, String? bio,@JsonKey(name: 'dateOfBirth') String? dateOfBirth, String? gender, String? location
+ String? fullName, String? avatarUrl, String? phone, String? bio, String? dateOfBirth,@JsonKey(unknownEnumValue: Gender.other) Gender? gender, String? location
 });
 
 
@@ -75,7 +73,7 @@ as String?,phone: freezed == phone ? _self.phone : phone // ignore: cast_nullabl
 as String?,bio: freezed == bio ? _self.bio : bio // ignore: cast_nullable_to_non_nullable
 as String?,dateOfBirth: freezed == dateOfBirth ? _self.dateOfBirth : dateOfBirth // ignore: cast_nullable_to_non_nullable
 as String?,gender: freezed == gender ? _self.gender : gender // ignore: cast_nullable_to_non_nullable
-as String?,location: freezed == location ? _self.location : location // ignore: cast_nullable_to_non_nullable
+as Gender?,location: freezed == location ? _self.location : location // ignore: cast_nullable_to_non_nullable
 as String?,
   ));
 }
@@ -161,7 +159,7 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String? fullName,  String? avatarUrl,  String? phone,  String? bio, @JsonKey(name: 'dateOfBirth')  String? dateOfBirth,  String? gender,  String? location)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String? fullName,  String? avatarUrl,  String? phone,  String? bio,  String? dateOfBirth, @JsonKey(unknownEnumValue: Gender.other)  Gender? gender,  String? location)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _UpdateProfileRequest() when $default != null:
 return $default(_that.fullName,_that.avatarUrl,_that.phone,_that.bio,_that.dateOfBirth,_that.gender,_that.location);case _:
@@ -182,7 +180,7 @@ return $default(_that.fullName,_that.avatarUrl,_that.phone,_that.bio,_that.dateO
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String? fullName,  String? avatarUrl,  String? phone,  String? bio, @JsonKey(name: 'dateOfBirth')  String? dateOfBirth,  String? gender,  String? location)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String? fullName,  String? avatarUrl,  String? phone,  String? bio,  String? dateOfBirth, @JsonKey(unknownEnumValue: Gender.other)  Gender? gender,  String? location)  $default,) {final _that = this;
 switch (_that) {
 case _UpdateProfileRequest():
 return $default(_that.fullName,_that.avatarUrl,_that.phone,_that.bio,_that.dateOfBirth,_that.gender,_that.location);case _:
@@ -202,7 +200,7 @@ return $default(_that.fullName,_that.avatarUrl,_that.phone,_that.bio,_that.dateO
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String? fullName,  String? avatarUrl,  String? phone,  String? bio, @JsonKey(name: 'dateOfBirth')  String? dateOfBirth,  String? gender,  String? location)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String? fullName,  String? avatarUrl,  String? phone,  String? bio,  String? dateOfBirth, @JsonKey(unknownEnumValue: Gender.other)  Gender? gender,  String? location)?  $default,) {final _that = this;
 switch (_that) {
 case _UpdateProfileRequest() when $default != null:
 return $default(_that.fullName,_that.avatarUrl,_that.phone,_that.bio,_that.dateOfBirth,_that.gender,_that.location);case _:
@@ -217,17 +215,15 @@ return $default(_that.fullName,_that.avatarUrl,_that.phone,_that.bio,_that.dateO
 @JsonSerializable()
 
 class _UpdateProfileRequest extends UpdateProfileRequest {
-  const _UpdateProfileRequest({this.fullName, this.avatarUrl, this.phone, this.bio, @JsonKey(name: 'dateOfBirth') this.dateOfBirth, this.gender, this.location}): super._();
+  const _UpdateProfileRequest({this.fullName, this.avatarUrl, this.phone, this.bio, this.dateOfBirth, @JsonKey(unknownEnumValue: Gender.other) this.gender, this.location}): super._();
   factory _UpdateProfileRequest.fromJson(Map<String, dynamic> json) => _$UpdateProfileRequestFromJson(json);
 
 @override final  String? fullName;
 @override final  String? avatarUrl;
 @override final  String? phone;
 @override final  String? bio;
-@override@JsonKey(name: 'dateOfBirth') final  String? dateOfBirth;
-// API expects date string
-@override final  String? gender;
-// MALE, FEMALE, OTHER
+@override final  String? dateOfBirth;
+@override@JsonKey(unknownEnumValue: Gender.other) final  Gender? gender;
 @override final  String? location;
 
 /// Create a copy of UpdateProfileRequest
@@ -263,7 +259,7 @@ abstract mixin class _$UpdateProfileRequestCopyWith<$Res> implements $UpdateProf
   factory _$UpdateProfileRequestCopyWith(_UpdateProfileRequest value, $Res Function(_UpdateProfileRequest) _then) = __$UpdateProfileRequestCopyWithImpl;
 @override @useResult
 $Res call({
- String? fullName, String? avatarUrl, String? phone, String? bio,@JsonKey(name: 'dateOfBirth') String? dateOfBirth, String? gender, String? location
+ String? fullName, String? avatarUrl, String? phone, String? bio, String? dateOfBirth,@JsonKey(unknownEnumValue: Gender.other) Gender? gender, String? location
 });
 
 
@@ -288,7 +284,7 @@ as String?,phone: freezed == phone ? _self.phone : phone // ignore: cast_nullabl
 as String?,bio: freezed == bio ? _self.bio : bio // ignore: cast_nullable_to_non_nullable
 as String?,dateOfBirth: freezed == dateOfBirth ? _self.dateOfBirth : dateOfBirth // ignore: cast_nullable_to_non_nullable
 as String?,gender: freezed == gender ? _self.gender : gender // ignore: cast_nullable_to_non_nullable
-as String?,location: freezed == location ? _self.location : location // ignore: cast_nullable_to_non_nullable
+as Gender?,location: freezed == location ? _self.location : location // ignore: cast_nullable_to_non_nullable
 as String?,
   ));
 }

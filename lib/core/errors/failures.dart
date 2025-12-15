@@ -54,7 +54,7 @@ class ValidationError {
   factory ValidationError.fromJson(Map<String, dynamic> json) {
     return ValidationError(
       field: json['field'] as String?,
-      errorCode: json['code'] ?? json['errorCode'] as String,
+      errorCode: json['code'] as String,
       message: json['message'] as String,
     );
   }

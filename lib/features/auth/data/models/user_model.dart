@@ -1,11 +1,10 @@
+import 'package:chattrix_ui/core/domain/enums/enums.dart';
 import 'package:chattrix_ui/features/auth/domain/entities/user.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'user_model.freezed.dart';
 part 'user_model.g.dart';
 
-/// UserModel matching UserResponse schema from API
-/// Now includes all profile information
 @freezed
 abstract class UserModel with _$UserModel {
   const UserModel._();
@@ -19,10 +18,10 @@ abstract class UserModel with _$UserModel {
     required String fullName,
     String? avatarUrl,
     String? bio,
-    String? gender,
+    @JsonKey(unknownEnumValue: Gender.other) Gender? gender,
     DateTime? dateOfBirth,
     String? location,
-    String? profileVisibility,
+    @JsonKey(unknownEnumValue: ProfileVisibility.public) ProfileVisibility? profileVisibility,
     required bool online,
     String? lastSeen,
     required String createdAt,

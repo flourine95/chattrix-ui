@@ -167,7 +167,7 @@ class MessageSearchWidget extends HookConsumerWidget {
                   return _SearchResultItem(
                     message: message,
                     searchQuery: searchQuery.value,
-                    isMe: message.sender.id == me?.id,
+                    isMe: message.senderId == me?.id,
                     onTap: () {
                       // Navigate back to chat and scroll to message
                       context.pop();
@@ -217,7 +217,7 @@ class _SearchResultItem extends StatelessWidget {
               children: [
                 Expanded(
                   child: Text(
-                    isMe ? 'Bạn' : message.sender.fullName,
+                    isMe ? 'Bạn' : (message.senderFullName ?? message.senderUsername ?? 'User'),
                     style: textTheme.labelMedium?.copyWith(fontWeight: FontWeight.bold, color: colors.primary),
                   ),
                 ),

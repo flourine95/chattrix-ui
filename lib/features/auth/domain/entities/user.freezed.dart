@@ -14,9 +14,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$User {
 
- int get id; String get username; String get email; bool get emailVerified; String? get phone; String get fullName; String? get avatarUrl; String? get bio; String? get gender;// MALE, FEMALE, OTHER
- DateTime? get dateOfBirth; String? get location; String? get profileVisibility;// PUBLIC, FRIENDS_ONLY, PRIVATE
- bool get online; DateTime? get lastSeen; DateTime get createdAt; DateTime? get updatedAt;
+ int get id; String get username; String get email; bool get emailVerified; String? get phone; String get fullName; String? get avatarUrl; String? get bio; Gender? get gender; DateTime? get dateOfBirth; String? get location; ProfileVisibility? get profileVisibility; bool get online; DateTime? get lastSeen; DateTime get createdAt; DateTime? get updatedAt;
 /// Create a copy of User
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -47,7 +45,7 @@ abstract mixin class $UserCopyWith<$Res>  {
   factory $UserCopyWith(User value, $Res Function(User) _then) = _$UserCopyWithImpl;
 @useResult
 $Res call({
- int id, String username, String email, bool emailVerified, String? phone, String fullName, String? avatarUrl, String? bio, String? gender, DateTime? dateOfBirth, String? location, String? profileVisibility, bool online, DateTime? lastSeen, DateTime createdAt, DateTime? updatedAt
+ int id, String username, String email, bool emailVerified, String? phone, String fullName, String? avatarUrl, String? bio, Gender? gender, DateTime? dateOfBirth, String? location, ProfileVisibility? profileVisibility, bool online, DateTime? lastSeen, DateTime createdAt, DateTime? updatedAt
 });
 
 
@@ -75,10 +73,10 @@ as String?,fullName: null == fullName ? _self.fullName : fullName // ignore: cas
 as String,avatarUrl: freezed == avatarUrl ? _self.avatarUrl : avatarUrl // ignore: cast_nullable_to_non_nullable
 as String?,bio: freezed == bio ? _self.bio : bio // ignore: cast_nullable_to_non_nullable
 as String?,gender: freezed == gender ? _self.gender : gender // ignore: cast_nullable_to_non_nullable
-as String?,dateOfBirth: freezed == dateOfBirth ? _self.dateOfBirth : dateOfBirth // ignore: cast_nullable_to_non_nullable
+as Gender?,dateOfBirth: freezed == dateOfBirth ? _self.dateOfBirth : dateOfBirth // ignore: cast_nullable_to_non_nullable
 as DateTime?,location: freezed == location ? _self.location : location // ignore: cast_nullable_to_non_nullable
 as String?,profileVisibility: freezed == profileVisibility ? _self.profileVisibility : profileVisibility // ignore: cast_nullable_to_non_nullable
-as String?,online: null == online ? _self.online : online // ignore: cast_nullable_to_non_nullable
+as ProfileVisibility?,online: null == online ? _self.online : online // ignore: cast_nullable_to_non_nullable
 as bool,lastSeen: freezed == lastSeen ? _self.lastSeen : lastSeen // ignore: cast_nullable_to_non_nullable
 as DateTime?,createdAt: null == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
 as DateTime,updatedAt: freezed == updatedAt ? _self.updatedAt : updatedAt // ignore: cast_nullable_to_non_nullable
@@ -167,7 +165,7 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int id,  String username,  String email,  bool emailVerified,  String? phone,  String fullName,  String? avatarUrl,  String? bio,  String? gender,  DateTime? dateOfBirth,  String? location,  String? profileVisibility,  bool online,  DateTime? lastSeen,  DateTime createdAt,  DateTime? updatedAt)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int id,  String username,  String email,  bool emailVerified,  String? phone,  String fullName,  String? avatarUrl,  String? bio,  Gender? gender,  DateTime? dateOfBirth,  String? location,  ProfileVisibility? profileVisibility,  bool online,  DateTime? lastSeen,  DateTime createdAt,  DateTime? updatedAt)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _User() when $default != null:
 return $default(_that.id,_that.username,_that.email,_that.emailVerified,_that.phone,_that.fullName,_that.avatarUrl,_that.bio,_that.gender,_that.dateOfBirth,_that.location,_that.profileVisibility,_that.online,_that.lastSeen,_that.createdAt,_that.updatedAt);case _:
@@ -188,7 +186,7 @@ return $default(_that.id,_that.username,_that.email,_that.emailVerified,_that.ph
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int id,  String username,  String email,  bool emailVerified,  String? phone,  String fullName,  String? avatarUrl,  String? bio,  String? gender,  DateTime? dateOfBirth,  String? location,  String? profileVisibility,  bool online,  DateTime? lastSeen,  DateTime createdAt,  DateTime? updatedAt)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int id,  String username,  String email,  bool emailVerified,  String? phone,  String fullName,  String? avatarUrl,  String? bio,  Gender? gender,  DateTime? dateOfBirth,  String? location,  ProfileVisibility? profileVisibility,  bool online,  DateTime? lastSeen,  DateTime createdAt,  DateTime? updatedAt)  $default,) {final _that = this;
 switch (_that) {
 case _User():
 return $default(_that.id,_that.username,_that.email,_that.emailVerified,_that.phone,_that.fullName,_that.avatarUrl,_that.bio,_that.gender,_that.dateOfBirth,_that.location,_that.profileVisibility,_that.online,_that.lastSeen,_that.createdAt,_that.updatedAt);case _:
@@ -208,7 +206,7 @@ return $default(_that.id,_that.username,_that.email,_that.emailVerified,_that.ph
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int id,  String username,  String email,  bool emailVerified,  String? phone,  String fullName,  String? avatarUrl,  String? bio,  String? gender,  DateTime? dateOfBirth,  String? location,  String? profileVisibility,  bool online,  DateTime? lastSeen,  DateTime createdAt,  DateTime? updatedAt)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int id,  String username,  String email,  bool emailVerified,  String? phone,  String fullName,  String? avatarUrl,  String? bio,  Gender? gender,  DateTime? dateOfBirth,  String? location,  ProfileVisibility? profileVisibility,  bool online,  DateTime? lastSeen,  DateTime createdAt,  DateTime? updatedAt)?  $default,) {final _that = this;
 switch (_that) {
 case _User() when $default != null:
 return $default(_that.id,_that.username,_that.email,_that.emailVerified,_that.phone,_that.fullName,_that.avatarUrl,_that.bio,_that.gender,_that.dateOfBirth,_that.location,_that.profileVisibility,_that.online,_that.lastSeen,_that.createdAt,_that.updatedAt);case _:
@@ -234,12 +232,10 @@ class _User implements User {
 @override final  String fullName;
 @override final  String? avatarUrl;
 @override final  String? bio;
-@override final  String? gender;
-// MALE, FEMALE, OTHER
+@override final  Gender? gender;
 @override final  DateTime? dateOfBirth;
 @override final  String? location;
-@override final  String? profileVisibility;
-// PUBLIC, FRIENDS_ONLY, PRIVATE
+@override final  ProfileVisibility? profileVisibility;
 @override final  bool online;
 @override final  DateTime? lastSeen;
 @override final  DateTime createdAt;
@@ -275,7 +271,7 @@ abstract mixin class _$UserCopyWith<$Res> implements $UserCopyWith<$Res> {
   factory _$UserCopyWith(_User value, $Res Function(_User) _then) = __$UserCopyWithImpl;
 @override @useResult
 $Res call({
- int id, String username, String email, bool emailVerified, String? phone, String fullName, String? avatarUrl, String? bio, String? gender, DateTime? dateOfBirth, String? location, String? profileVisibility, bool online, DateTime? lastSeen, DateTime createdAt, DateTime? updatedAt
+ int id, String username, String email, bool emailVerified, String? phone, String fullName, String? avatarUrl, String? bio, Gender? gender, DateTime? dateOfBirth, String? location, ProfileVisibility? profileVisibility, bool online, DateTime? lastSeen, DateTime createdAt, DateTime? updatedAt
 });
 
 
@@ -303,10 +299,10 @@ as String?,fullName: null == fullName ? _self.fullName : fullName // ignore: cas
 as String,avatarUrl: freezed == avatarUrl ? _self.avatarUrl : avatarUrl // ignore: cast_nullable_to_non_nullable
 as String?,bio: freezed == bio ? _self.bio : bio // ignore: cast_nullable_to_non_nullable
 as String?,gender: freezed == gender ? _self.gender : gender // ignore: cast_nullable_to_non_nullable
-as String?,dateOfBirth: freezed == dateOfBirth ? _self.dateOfBirth : dateOfBirth // ignore: cast_nullable_to_non_nullable
+as Gender?,dateOfBirth: freezed == dateOfBirth ? _self.dateOfBirth : dateOfBirth // ignore: cast_nullable_to_non_nullable
 as DateTime?,location: freezed == location ? _self.location : location // ignore: cast_nullable_to_non_nullable
 as String?,profileVisibility: freezed == profileVisibility ? _self.profileVisibility : profileVisibility // ignore: cast_nullable_to_non_nullable
-as String?,online: null == online ? _self.online : online // ignore: cast_nullable_to_non_nullable
+as ProfileVisibility?,online: null == online ? _self.online : online // ignore: cast_nullable_to_non_nullable
 as bool,lastSeen: freezed == lastSeen ? _self.lastSeen : lastSeen // ignore: cast_nullable_to_non_nullable
 as DateTime?,createdAt: null == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
 as DateTime,updatedAt: freezed == updatedAt ? _self.updatedAt : updatedAt // ignore: cast_nullable_to_non_nullable

@@ -1,9 +1,8 @@
+import 'package:chattrix_ui/core/domain/enums/enums.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'user.freezed.dart';
 
-/// User entity matching UserResponse schema from API
-/// This replaces the old separate Profile concept
 @freezed
 abstract class User with _$User {
   const factory User({
@@ -15,10 +14,10 @@ abstract class User with _$User {
     required String fullName,
     String? avatarUrl,
     String? bio,
-    String? gender, // MALE, FEMALE, OTHER
+    Gender? gender,
     DateTime? dateOfBirth,
     String? location,
-    String? profileVisibility, // PUBLIC, FRIENDS_ONLY, PRIVATE
+    ProfileVisibility? profileVisibility,
     required bool online,
     DateTime? lastSeen,
     required DateTime createdAt,

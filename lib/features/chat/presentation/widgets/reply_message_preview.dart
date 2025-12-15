@@ -35,7 +35,7 @@ class ReplyMessagePreview extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  replyToMessage.sender.fullName,
+                  replyToMessage.senderFullName ?? replyToMessage.senderUsername ?? 'User',
                   style: textTheme.labelMedium?.copyWith(color: colors.primary, fontWeight: FontWeight.w600),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
@@ -111,7 +111,7 @@ class QuotedMessageWidget extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              replyToMessage.sender.fullName,
+              replyToMessage.senderFullName ?? replyToMessage.senderUsername ?? 'User',
               style: textTheme.labelSmall?.copyWith(color: colors.primary, fontWeight: FontWeight.w600),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,

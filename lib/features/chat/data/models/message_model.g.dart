@@ -10,60 +10,69 @@ part of 'message_model.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_MessageModel _$MessageModelFromJson(
-  Map<String, dynamic> json,
-) => _MessageModel(
-  id: (json['id'] as num).toInt(),
-  content: json['content'] as String,
-  type: json['type'] as String,
-  createdAt: json['createdAt'] as String,
-  conversationId: json['conversationId'] as String,
-  sender: MessageSenderModel.fromJson(json['sender'] as Map<String, dynamic>),
-  mediaUrl: json['mediaUrl'] as String?,
-  thumbnailUrl: json['thumbnailUrl'] as String?,
-  fileName: json['fileName'] as String?,
-  fileSize: (json['fileSize'] as num?)?.toInt(),
-  duration: (json['duration'] as num?)?.toInt(),
-  latitude: (json['latitude'] as num?)?.toDouble(),
-  longitude: (json['longitude'] as num?)?.toDouble(),
-  locationName: json['locationName'] as String?,
-  replyToMessageId: (json['replyToMessageId'] as num?)?.toInt(),
-  replyToMessage: json['replyToMessage'] == null
-      ? null
-      : ReplyToMessageModel.fromJson(
-          json['replyToMessage'] as Map<String, dynamic>,
-        ),
-  reactions: json['reactions'] as String?,
-  mentions: json['mentions'] as String?,
-  mentionedUsers:
-      (json['mentionedUsers'] as List<dynamic>?)
-          ?.map((e) => MentionedUserModel.fromJson(e as Map<String, dynamic>))
-          .toList() ??
-      const [],
-  sentAt: json['sentAt'] as String?,
-  updatedAt: json['updatedAt'] as String?,
-  edited: json['edited'] as bool? ?? false,
-  editedAt: json['editedAt'] as String?,
-  deleted: json['deleted'] as bool? ?? false,
-  deletedAt: json['deletedAt'] as String?,
-  forwarded: json['forwarded'] as bool? ?? false,
-  originalMessageId: (json['originalMessageId'] as num?)?.toInt(),
-  forwardCount: (json['forwardCount'] as num?)?.toInt() ?? 0,
-  readCount: (json['readCount'] as num?)?.toInt() ?? 0,
-  readBy:
-      (json['readBy'] as List<dynamic>?)
-          ?.map((e) => ReadReceiptModel.fromJson(e as Map<String, dynamic>))
-          .toList() ??
-      const [],
-);
+_MessageModel _$MessageModelFromJson(Map<String, dynamic> json) =>
+    _MessageModel(
+      id: (json['id'] as num).toInt(),
+      conversationId: (json['conversationId'] as num).toInt(),
+      senderId: (json['senderId'] as num).toInt(),
+      senderUsername: json['senderUsername'] as String?,
+      senderFullName: json['senderFullName'] as String?,
+      content: json['content'] as String,
+      type: json['type'] as String,
+      createdAt: json['createdAt'] as String,
+      sender: json['sender'] == null
+          ? null
+          : MessageSenderModel.fromJson(json['sender'] as Map<String, dynamic>),
+      mediaUrl: json['mediaUrl'] as String?,
+      thumbnailUrl: json['thumbnailUrl'] as String?,
+      fileName: json['fileName'] as String?,
+      fileSize: (json['fileSize'] as num?)?.toInt(),
+      duration: (json['duration'] as num?)?.toInt(),
+      latitude: (json['latitude'] as num?)?.toDouble(),
+      longitude: (json['longitude'] as num?)?.toDouble(),
+      locationName: json['locationName'] as String?,
+      replyToMessageId: (json['replyToMessageId'] as num?)?.toInt(),
+      replyToMessage: json['replyToMessage'] == null
+          ? null
+          : ReplyToMessageModel.fromJson(
+              json['replyToMessage'] as Map<String, dynamic>,
+            ),
+      reactions: json['reactions'] as String?,
+      mentions: json['mentions'] as String?,
+      mentionedUsers:
+          (json['mentionedUsers'] as List<dynamic>?)
+              ?.map(
+                (e) => MentionedUserModel.fromJson(e as Map<String, dynamic>),
+              )
+              .toList() ??
+          const [],
+      sentAt: json['sentAt'] as String?,
+      updatedAt: json['updatedAt'] as String?,
+      edited: json['edited'] as bool? ?? false,
+      editedAt: json['editedAt'] as String?,
+      deleted: json['deleted'] as bool? ?? false,
+      deletedAt: json['deletedAt'] as String?,
+      forwarded: json['forwarded'] as bool? ?? false,
+      originalMessageId: (json['originalMessageId'] as num?)?.toInt(),
+      forwardCount: (json['forwardCount'] as num?)?.toInt() ?? 0,
+      readCount: (json['readCount'] as num?)?.toInt() ?? 0,
+      readBy:
+          (json['readBy'] as List<dynamic>?)
+              ?.map((e) => ReadReceiptModel.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          const [],
+    );
 
 Map<String, dynamic> _$MessageModelToJson(_MessageModel instance) =>
     <String, dynamic>{
       'id': instance.id,
+      'conversationId': instance.conversationId,
+      'senderId': instance.senderId,
+      'senderUsername': instance.senderUsername,
+      'senderFullName': instance.senderFullName,
       'content': instance.content,
       'type': instance.type,
       'createdAt': instance.createdAt,
-      'conversationId': instance.conversationId,
       'sender': instance.sender,
       'mediaUrl': instance.mediaUrl,
       'thumbnailUrl': instance.thumbnailUrl,

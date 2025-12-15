@@ -26,13 +26,13 @@ abstract class ContactModel with _$ContactModel {
   Contact toEntity() {
     return Contact(
       id: id,
-      userId: contactUserId,
+      contactUserId: contactUserId,
       username: username,
       fullName: fullName,
       avatarUrl: avatarUrl,
       nickname: nickname,
       favorite: favorite,
-      isOnline: online,
+      online: online,
       lastSeen: lastSeen,
       createdAt: createdAt,
     );

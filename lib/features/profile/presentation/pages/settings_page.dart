@@ -1,4 +1,4 @@
-import 'package:chattrix_ui/features/profile/domain/entities/profile_visibility.dart';
+import 'package:chattrix_ui/core/domain/enums/enums.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';

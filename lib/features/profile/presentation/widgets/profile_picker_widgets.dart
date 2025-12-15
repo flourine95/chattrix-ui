@@ -1,4 +1,4 @@
-import 'package:chattrix_ui/features/profile/domain/entities/gender.dart';
+import 'package:chattrix_ui/core/domain/enums/enums.dart';
 import 'package:flutter/material.dart';
 
 class PickerOption extends StatelessWidget {

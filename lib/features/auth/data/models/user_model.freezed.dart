@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$UserModel {
 
- int get id; String get username; String get email; bool get emailVerified; String? get phone; String get fullName; String? get avatarUrl; String? get bio; String? get gender; DateTime? get dateOfBirth; String? get location; String? get profileVisibility; bool get online; String? get lastSeen; String get createdAt; String? get updatedAt;
+ int get id; String get username; String get email; bool get emailVerified; String? get phone; String get fullName; String? get avatarUrl; String? get bio;@JsonKey(unknownEnumValue: Gender.other) Gender? get gender; DateTime? get dateOfBirth; String? get location;@JsonKey(unknownEnumValue: ProfileVisibility.public) ProfileVisibility? get profileVisibility; bool get online; String? get lastSeen; String get createdAt; String? get updatedAt;
 /// Create a copy of UserModel
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -48,7 +48,7 @@ abstract mixin class $UserModelCopyWith<$Res>  {
   factory $UserModelCopyWith(UserModel value, $Res Function(UserModel) _then) = _$UserModelCopyWithImpl;
 @useResult
 $Res call({
- int id, String username, String email, bool emailVerified, String? phone, String fullName, String? avatarUrl, String? bio, String? gender, DateTime? dateOfBirth, String? location, String? profileVisibility, bool online, String? lastSeen, String createdAt, String? updatedAt
+ int id, String username, String email, bool emailVerified, String? phone, String fullName, String? avatarUrl, String? bio,@JsonKey(unknownEnumValue: Gender.other) Gender? gender, DateTime? dateOfBirth, String? location,@JsonKey(unknownEnumValue: ProfileVisibility.public) ProfileVisibility? profileVisibility, bool online, String? lastSeen, String createdAt, String? updatedAt
 });
 
 
@@ -76,10 +76,10 @@ as String?,fullName: null == fullName ? _self.fullName : fullName // ignore: cas
 as String,avatarUrl: freezed == avatarUrl ? _self.avatarUrl : avatarUrl // ignore: cast_nullable_to_non_nullable
 as String?,bio: freezed == bio ? _self.bio : bio // ignore: cast_nullable_to_non_nullable
 as String?,gender: freezed == gender ? _self.gender : gender // ignore: cast_nullable_to_non_nullable
-as String?,dateOfBirth: freezed == dateOfBirth ? _self.dateOfBirth : dateOfBirth // ignore: cast_nullable_to_non_nullable
+as Gender?,dateOfBirth: freezed == dateOfBirth ? _self.dateOfBirth : dateOfBirth // ignore: cast_nullable_to_non_nullable
 as DateTime?,location: freezed == location ? _self.location : location // ignore: cast_nullable_to_non_nullable
 as String?,profileVisibility: freezed == profileVisibility ? _self.profileVisibility : profileVisibility // ignore: cast_nullable_to_non_nullable
-as String?,online: null == online ? _self.online : online // ignore: cast_nullable_to_non_nullable
+as ProfileVisibility?,online: null == online ? _self.online : online // ignore: cast_nullable_to_non_nullable
 as bool,lastSeen: freezed == lastSeen ? _self.lastSeen : lastSeen // ignore: cast_nullable_to_non_nullable
 as String?,createdAt: null == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
 as String,updatedAt: freezed == updatedAt ? _self.updatedAt : updatedAt // ignore: cast_nullable_to_non_nullable
@@ -168,7 +168,7 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int id,  String username,  String email,  bool emailVerified,  String? phone,  String fullName,  String? avatarUrl,  String? bio,  String? gender,  DateTime? dateOfBirth,  String? location,  String? profileVisibility,  bool online,  String? lastSeen,  String createdAt,  String? updatedAt)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int id,  String username,  String email,  bool emailVerified,  String? phone,  String fullName,  String? avatarUrl,  String? bio, @JsonKey(unknownEnumValue: Gender.other)  Gender? gender,  DateTime? dateOfBirth,  String? location, @JsonKey(unknownEnumValue: ProfileVisibility.public)  ProfileVisibility? profileVisibility,  bool online,  String? lastSeen,  String createdAt,  String? updatedAt)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _UserModel() when $default != null:
 return $default(_that.id,_that.username,_that.email,_that.emailVerified,_that.phone,_that.fullName,_that.avatarUrl,_that.bio,_that.gender,_that.dateOfBirth,_that.location,_that.profileVisibility,_that.online,_that.lastSeen,_that.createdAt,_that.updatedAt);case _:
@@ -189,7 +189,7 @@ return $default(_that.id,_that.username,_that.email,_that.emailVerified,_that.ph
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int id,  String username,  String email,  bool emailVerified,  String? phone,  String fullName,  String? avatarUrl,  String? bio,  String? gender,  DateTime? dateOfBirth,  String? location,  String? profileVisibility,  bool online,  String? lastSeen,  String createdAt,  String? updatedAt)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int id,  String username,  String email,  bool emailVerified,  String? phone,  String fullName,  String? avatarUrl,  String? bio, @JsonKey(unknownEnumValue: Gender.other)  Gender? gender,  DateTime? dateOfBirth,  String? location, @JsonKey(unknownEnumValue: ProfileVisibility.public)  ProfileVisibility? profileVisibility,  bool online,  String? lastSeen,  String createdAt,  String? updatedAt)  $default,) {final _that = this;
 switch (_that) {
 case _UserModel():
 return $default(_that.id,_that.username,_that.email,_that.emailVerified,_that.phone,_that.fullName,_that.avatarUrl,_that.bio,_that.gender,_that.dateOfBirth,_that.location,_that.profileVisibility,_that.online,_that.lastSeen,_that.createdAt,_that.updatedAt);case _:
@@ -209,7 +209,7 @@ return $default(_that.id,_that.username,_that.email,_that.emailVerified,_that.ph
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int id,  String username,  String email,  bool emailVerified,  String? phone,  String fullName,  String? avatarUrl,  String? bio,  String? gender,  DateTime? dateOfBirth,  String? location,  String? profileVisibility,  bool online,  String? lastSeen,  String createdAt,  String? updatedAt)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int id,  String username,  String email,  bool emailVerified,  String? phone,  String fullName,  String? avatarUrl,  String? bio, @JsonKey(unknownEnumValue: Gender.other)  Gender? gender,  DateTime? dateOfBirth,  String? location, @JsonKey(unknownEnumValue: ProfileVisibility.public)  ProfileVisibility? profileVisibility,  bool online,  String? lastSeen,  String createdAt,  String? updatedAt)?  $default,) {final _that = this;
 switch (_that) {
 case _UserModel() when $default != null:
 return $default(_that.id,_that.username,_that.email,_that.emailVerified,_that.phone,_that.fullName,_that.avatarUrl,_that.bio,_that.gender,_that.dateOfBirth,_that.location,_that.profileVisibility,_that.online,_that.lastSeen,_that.createdAt,_that.updatedAt);case _:
@@ -224,7 +224,7 @@ return $default(_that.id,_that.username,_that.email,_that.emailVerified,_that.ph
 @JsonSerializable()
 
 class _UserModel extends UserModel {
-  const _UserModel({required this.id, required this.username, required this.email, required this.emailVerified, this.phone, required this.fullName, this.avatarUrl, this.bio, this.gender, this.dateOfBirth, this.location, this.profileVisibility, required this.online, this.lastSeen, required this.createdAt, this.updatedAt}): super._();
+  const _UserModel({required this.id, required this.username, required this.email, required this.emailVerified, this.phone, required this.fullName, this.avatarUrl, this.bio, @JsonKey(unknownEnumValue: Gender.other) this.gender, this.dateOfBirth, this.location, @JsonKey(unknownEnumValue: ProfileVisibility.public) this.profileVisibility, required this.online, this.lastSeen, required this.createdAt, this.updatedAt}): super._();
   factory _UserModel.fromJson(Map<String, dynamic> json) => _$UserModelFromJson(json);
 
 @override final  int id;
@@ -235,10 +235,10 @@ class _UserModel extends UserModel {
 @override final  String fullName;
 @override final  String? avatarUrl;
 @override final  String? bio;
-@override final  String? gender;
+@override@JsonKey(unknownEnumValue: Gender.other) final  Gender? gender;
 @override final  DateTime? dateOfBirth;
 @override final  String? location;
-@override final  String? profileVisibility;
+@override@JsonKey(unknownEnumValue: ProfileVisibility.public) final  ProfileVisibility? profileVisibility;
 @override final  bool online;
 @override final  String? lastSeen;
 @override final  String createdAt;
@@ -277,7 +277,7 @@ abstract mixin class _$UserModelCopyWith<$Res> implements $UserModelCopyWith<$Re
   factory _$UserModelCopyWith(_UserModel value, $Res Function(_UserModel) _then) = __$UserModelCopyWithImpl;
 @override @useResult
 $Res call({
- int id, String username, String email, bool emailVerified, String? phone, String fullName, String? avatarUrl, String? bio, String? gender, DateTime? dateOfBirth, String? location, String? profileVisibility, bool online, String? lastSeen, String createdAt, String? updatedAt
+ int id, String username, String email, bool emailVerified, String? phone, String fullName, String? avatarUrl, String? bio,@JsonKey(unknownEnumValue: Gender.other) Gender? gender, DateTime? dateOfBirth, String? location,@JsonKey(unknownEnumValue: ProfileVisibility.public) ProfileVisibility? profileVisibility, bool online, String? lastSeen, String createdAt, String? updatedAt
 });
 
 
@@ -305,10 +305,10 @@ as String?,fullName: null == fullName ? _self.fullName : fullName // ignore: cas
 as String,avatarUrl: freezed == avatarUrl ? _self.avatarUrl : avatarUrl // ignore: cast_nullable_to_non_nullable
 as String?,bio: freezed == bio ? _self.bio : bio // ignore: cast_nullable_to_non_nullable
 as String?,gender: freezed == gender ? _self.gender : gender // ignore: cast_nullable_to_non_nullable
-as String?,dateOfBirth: freezed == dateOfBirth ? _self.dateOfBirth : dateOfBirth // ignore: cast_nullable_to_non_nullable
+as Gender?,dateOfBirth: freezed == dateOfBirth ? _self.dateOfBirth : dateOfBirth // ignore: cast_nullable_to_non_nullable
 as DateTime?,location: freezed == location ? _self.location : location // ignore: cast_nullable_to_non_nullable
 as String?,profileVisibility: freezed == profileVisibility ? _self.profileVisibility : profileVisibility // ignore: cast_nullable_to_non_nullable
-as String?,online: null == online ? _self.online : online // ignore: cast_nullable_to_non_nullable
+as ProfileVisibility?,online: null == online ? _self.online : online // ignore: cast_nullable_to_non_nullable
 as bool,lastSeen: freezed == lastSeen ? _self.lastSeen : lastSeen // ignore: cast_nullable_to_non_nullable
 as String?,createdAt: null == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
 as String,updatedAt: freezed == updatedAt ? _self.updatedAt : updatedAt // ignore: cast_nullable_to_non_nullable

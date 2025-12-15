@@ -204,7 +204,7 @@ class ProfilePage extends ConsumerWidget {
                       ProfileInfoTile(
                         icon: FontAwesomeIcons.venusMars,
                         label: 'Gender',
-                        value: profile.gender!, // Already String: MALE, FEMALE, OTHER
+                        value: profile.gender!.label,
                       ),
                     if (profile.dateOfBirth != null)
                       ProfileInfoTile(
@@ -229,7 +229,7 @@ class ProfilePage extends ConsumerWidget {
                     ProfileInfoTile(
                       icon: FontAwesomeIcons.lock,
                       label: 'Privacy',
-                      value: profile.profileVisibility ?? 'PUBLIC', // Already String
+                      value: profile.profileVisibility?.label ?? 'Public',
                       showArrow: false,
                     ),
                     ProfileNavigationTile(

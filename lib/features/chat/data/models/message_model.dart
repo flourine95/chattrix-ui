@@ -16,11 +16,14 @@ abstract class MessageModel with _$MessageModel {
 
   const factory MessageModel({
     required int id,
+    required int conversationId,
+    required int senderId,
+    String? senderUsername,
+    String? senderFullName,
     required String content,
     required String type,
     required String createdAt,
-    required String conversationId,
-    required MessageSenderModel sender,
+    @Deprecated('Use senderId, senderUsername, senderFullName instead') MessageSenderModel? sender,
     String? mediaUrl,
     String? thumbnailUrl,
     String? fileName,
@@ -50,15 +53,29 @@ abstract class MessageModel with _$MessageModel {
   factory MessageModel.fromJson(Map<String, dynamic> json) => _$MessageModelFromJson(json);
 
   factory MessageModel.fromApi(Map<String, dynamic> json) {
+    // Parse senderId
+    final senderId = (json['senderId'] ?? json['sender']?['id'] ?? 0) is int
+        ? (json['senderId'] ?? json['sender']?['id'] ?? 0)
+        : int.tryParse((json['senderId'] ?? json['sender']?['id'] ?? 0).toString()) ?? 0;
+
+    // Parse senderUsername
+    final senderUsername = json['senderUsername']?.toString() ??
+                          json['sender']?['username']?.toString();
+
+    // Parse senderFullName
+    final senderFullName = json['senderFullName']?.toString() ??
+                          json['sender']?['fullName']?.toString();
+
+    // Keep backward compatibility with old sender object
     final senderJson = (json['sender'] is Map<String, dynamic>)
         ? json['sender'] as Map<String, dynamic>
         : <String, dynamic>{
-            'id': json['senderId'],
-            'userId': json['senderId'],
-            'senderId': json['senderId'],
-            'username': json['senderUsername'],
-            'senderUsername': json['senderUsername'],
-            'fullName': json['senderFullName'] ?? json['full_name'] ?? '',
+            'id': senderId,
+            'userId': senderId,
+            'senderId': senderId,
+            'username': senderUsername,
+            'senderUsername': senderUsername,
+            'fullName': senderFullName ?? '',
           };
 
     // Parse replyToMessage
@@ -87,12 +104,15 @@ abstract class MessageModel with _$MessageModel {
       id: (json['id'] ?? json['messageId'] ?? 0) is int
           ? (json['id'] ?? json['messageId'] ?? 0)
           : int.tryParse((json['id'] ?? json['messageId'] ?? 0).toString()) ?? 0,
+      conversationId: (json['conversationId'] ?? json['conversation_id'] ?? 0) is int
+          ? (json['conversationId'] ?? json['conversation_id'] ?? 0)
+          : int.tryParse((json['conversationId'] ?? json['conversation_id'] ?? '0').toString()) ?? 0,
+      senderId: senderId,
+      senderUsername: senderUsername,
+      senderFullName: senderFullName,
       content: (json['content'] ?? '').toString(),
       type: (json['type'] ?? '').toString(),
       createdAt: (json['createdAt'] ?? json['sentAt'] ?? DateTime.now().toIso8601String()).toString(),
-      conversationId: (json['conversationId'] ?? json['conversation_id'] ?? 0) is int
-          ? (json['conversationId'] ?? json['conversation_id'] ?? 0).toString()
-          : (json['conversationId'] ?? json['conversation_id'] ?? '').toString(),
       sender: MessageSenderModel.fromApi(senderJson),
       mediaUrl: json['mediaUrl']?.toString(),
       thumbnailUrl: json['thumbnailUrl']?.toString(),
@@ -159,11 +179,14 @@ abstract class MessageModel with _$MessageModel {
   Message toEntity() {
     return Message(
       id: id,
+      conversationId: conversationId,
+      senderId: senderId,
+      senderUsername: senderUsername,
+      senderFullName: senderFullName,
       content: content,
       type: type,
       createdAt: DateTime.parse(createdAt),
-      conversationId: conversationId,
-      sender: sender.toEntity(),
+      sender: sender?.toEntity(),
       mediaUrl: mediaUrl,
       thumbnailUrl: thumbnailUrl,
       fileName: fileName,

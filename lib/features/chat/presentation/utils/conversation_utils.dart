@@ -69,7 +69,7 @@ class ConversationUtils {
     }
 
     // Add "You: " prefix if message is from current user
-    if (currentUser != null && lastMessage.sender.id == currentUser.id) {
+    if (currentUser != null && lastMessage.senderId == currentUser.id) {
       return 'You: $content';
     }
 

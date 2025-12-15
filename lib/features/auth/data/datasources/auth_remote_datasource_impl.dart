@@ -1,5 +1,6 @@
 import 'package:chattrix_ui/core/constants/api_constants.dart';
 import 'package:chattrix_ui/core/errors/exceptions.dart';
+import 'package:chattrix_ui/core/network/models/api_response.dart';
 import 'package:chattrix_ui/features/auth/data/models/auth_tokens_model.dart';
 import 'package:chattrix_ui/features/auth/data/models/user_model.dart';
 import 'package:chattrix_ui/features/auth/domain/datasources/auth_remote_datasource.dart';
@@ -59,8 +60,19 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         data: {'usernameOrEmail': usernameOrEmail, 'password': password},
       );
 
-      final data = _handleResponse(response);
-      return AuthTokensModel.fromJson(data);
+      // Parse as ApiResponse
+      final apiResponse = ApiResponse<AuthTokensModel>.fromJson(
+        response.data,
+        (data) => AuthTokensModel.fromJson(data as Map<String, dynamic>),
+      );
+
+      // Check if successful
+      if (apiResponse.isSuccess) {
+        return apiResponse.data!;
+      } else {
+        // Convert error to exception
+        throw _apiResponseToException(apiResponse);
+      }
     } catch (e) {
       throw _handleError(e);
     }
@@ -69,8 +81,6 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   @override
   Future<UserModel> getCurrentUser(String accessToken) async {
     try {
-      // Không cần truyền accessToken vào header thủ công
-      // AuthDioClient sẽ tự động thêm từ secure storage
       final response = await dio.get(ApiConstants.me);
 
       final data = _handleResponse(response);
@@ -99,7 +109,6 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     required String newPassword,
   }) async {
     try {
-      // Bỏ Authorization header - để AuthDioClient tự động thêm
       final response = await dio.put(
         ApiConstants.changePassword,
         data: {'currentPassword': currentPassword, 'newPassword': newPassword},
@@ -139,7 +148,6 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   @override
   Future<void> logout(String accessToken) async {
     try {
-      // Bỏ Authorization header - để AuthDioClient tự động thêm
       final response = await dio.post(ApiConstants.logout);
 
       _handleResponse(response);
@@ -151,7 +159,6 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   @override
   Future<void> logoutAll(String accessToken) async {
     try {
-      // Bỏ Authorization header - để AuthDioClient tự động thêm
       final response = await dio.post(ApiConstants.logoutAll);
 
       _handleResponse(response);
@@ -164,13 +171,21 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     if (response.statusCode! >= 200 && response.statusCode! < 300) {
       return response.data['data'];
     } else {
-      // Parse error from API format: { "success": false, "error": { "code": "...", "message": "..." }, "requestId": "..." }
       final errorData = response.data['error'];
       final message = errorData?['message'] ?? response.data['message'] ?? 'An error occurred';
       final errorCode = errorData?['code'] as String?;
 
       throw ServerException(message: message, errorCode: errorCode, statusCode: response.statusCode);
     }
+  }
+
+  /// Convert ApiResponse error to ServerException
+  ServerException _apiResponseToException(ApiResponse apiResponse) {
+    return ServerException(
+      message: apiResponse.message ?? 'An error occurred',
+      errorCode: apiResponse.code,
+      statusCode: null, // We don't have HTTP status code from parsed response
+    );
   }
 
   Exception _handleError(dynamic error) {
@@ -184,9 +199,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         return NetworkException();
       }
 
-      // Handle response errors
       if (error.response != null) {
-        // Parse error from API format: { "success": false, "error": { "code": "...", "message": "..." }, "requestId": "..." }
         final errorData = error.response?.data['error'];
         final message = errorData?['message'] ?? error.response?.data['message'] ?? 'An error occurred';
         final errorCode = errorData?['code'] as String?;

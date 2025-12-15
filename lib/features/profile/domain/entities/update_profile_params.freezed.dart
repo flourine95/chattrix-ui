@@ -14,8 +14,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$UpdateProfileParams {
 
- String? get fullName; String? get avatarUrl; String? get phone; String? get bio; DateTime? get dateOfBirth; String? get gender;// MALE, FEMALE, OTHER
- String? get location;
+ String? get fullName; String? get avatarUrl; String? get phone; String? get bio; DateTime? get dateOfBirth; Gender? get gender; String? get location;
 /// Create a copy of UpdateProfileParams
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -46,7 +45,7 @@ abstract mixin class $UpdateProfileParamsCopyWith<$Res>  {
   factory $UpdateProfileParamsCopyWith(UpdateProfileParams value, $Res Function(UpdateProfileParams) _then) = _$UpdateProfileParamsCopyWithImpl;
 @useResult
 $Res call({
- String? fullName, String? avatarUrl, String? phone, String? bio, DateTime? dateOfBirth, String? gender, String? location
+ String? fullName, String? avatarUrl, String? phone, String? bio, DateTime? dateOfBirth, Gender? gender, String? location
 });
 
 
@@ -71,7 +70,7 @@ as String?,phone: freezed == phone ? _self.phone : phone // ignore: cast_nullabl
 as String?,bio: freezed == bio ? _self.bio : bio // ignore: cast_nullable_to_non_nullable
 as String?,dateOfBirth: freezed == dateOfBirth ? _self.dateOfBirth : dateOfBirth // ignore: cast_nullable_to_non_nullable
 as DateTime?,gender: freezed == gender ? _self.gender : gender // ignore: cast_nullable_to_non_nullable
-as String?,location: freezed == location ? _self.location : location // ignore: cast_nullable_to_non_nullable
+as Gender?,location: freezed == location ? _self.location : location // ignore: cast_nullable_to_non_nullable
 as String?,
   ));
 }
@@ -157,7 +156,7 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String? fullName,  String? avatarUrl,  String? phone,  String? bio,  DateTime? dateOfBirth,  String? gender,  String? location)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String? fullName,  String? avatarUrl,  String? phone,  String? bio,  DateTime? dateOfBirth,  Gender? gender,  String? location)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _UpdateProfileParams() when $default != null:
 return $default(_that.fullName,_that.avatarUrl,_that.phone,_that.bio,_that.dateOfBirth,_that.gender,_that.location);case _:
@@ -178,7 +177,7 @@ return $default(_that.fullName,_that.avatarUrl,_that.phone,_that.bio,_that.dateO
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String? fullName,  String? avatarUrl,  String? phone,  String? bio,  DateTime? dateOfBirth,  String? gender,  String? location)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String? fullName,  String? avatarUrl,  String? phone,  String? bio,  DateTime? dateOfBirth,  Gender? gender,  String? location)  $default,) {final _that = this;
 switch (_that) {
 case _UpdateProfileParams():
 return $default(_that.fullName,_that.avatarUrl,_that.phone,_that.bio,_that.dateOfBirth,_that.gender,_that.location);case _:
@@ -198,7 +197,7 @@ return $default(_that.fullName,_that.avatarUrl,_that.phone,_that.bio,_that.dateO
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String? fullName,  String? avatarUrl,  String? phone,  String? bio,  DateTime? dateOfBirth,  String? gender,  String? location)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String? fullName,  String? avatarUrl,  String? phone,  String? bio,  DateTime? dateOfBirth,  Gender? gender,  String? location)?  $default,) {final _that = this;
 switch (_that) {
 case _UpdateProfileParams() when $default != null:
 return $default(_that.fullName,_that.avatarUrl,_that.phone,_that.bio,_that.dateOfBirth,_that.gender,_that.location);case _:
@@ -221,8 +220,7 @@ class _UpdateProfileParams implements UpdateProfileParams {
 @override final  String? phone;
 @override final  String? bio;
 @override final  DateTime? dateOfBirth;
-@override final  String? gender;
-// MALE, FEMALE, OTHER
+@override final  Gender? gender;
 @override final  String? location;
 
 /// Create a copy of UpdateProfileParams
@@ -255,7 +253,7 @@ abstract mixin class _$UpdateProfileParamsCopyWith<$Res> implements $UpdateProfi
   factory _$UpdateProfileParamsCopyWith(_UpdateProfileParams value, $Res Function(_UpdateProfileParams) _then) = __$UpdateProfileParamsCopyWithImpl;
 @override @useResult
 $Res call({
- String? fullName, String? avatarUrl, String? phone, String? bio, DateTime? dateOfBirth, String? gender, String? location
+ String? fullName, String? avatarUrl, String? phone, String? bio, DateTime? dateOfBirth, Gender? gender, String? location
 });
 
 
@@ -280,7 +278,7 @@ as String?,phone: freezed == phone ? _self.phone : phone // ignore: cast_nullabl
 as String?,bio: freezed == bio ? _self.bio : bio // ignore: cast_nullable_to_non_nullable
 as String?,dateOfBirth: freezed == dateOfBirth ? _self.dateOfBirth : dateOfBirth // ignore: cast_nullable_to_non_nullable
 as DateTime?,gender: freezed == gender ? _self.gender : gender // ignore: cast_nullable_to_non_nullable
-as String?,location: freezed == location ? _self.location : location // ignore: cast_nullable_to_non_nullable
+as Gender?,location: freezed == location ? _self.location : location // ignore: cast_nullable_to_non_nullable
 as String?,
   ));
 }

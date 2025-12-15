@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$MessageModel {
 
- int get id; String get content; String get type; String get createdAt; String get conversationId; MessageSenderModel get sender; String? get mediaUrl; String? get thumbnailUrl; String? get fileName; int? get fileSize; int? get duration; double? get latitude; double? get longitude; String? get locationName; int? get replyToMessageId; ReplyToMessageModel? get replyToMessage; String? get reactions; String? get mentions; List<MentionedUserModel> get mentionedUsers; String? get sentAt; String? get updatedAt; bool get edited; String? get editedAt; bool get deleted; String? get deletedAt; bool get forwarded; int? get originalMessageId; int get forwardCount; int get readCount; List<ReadReceiptModel> get readBy;
+ int get id; int get conversationId; int get senderId; String? get senderUsername; String? get senderFullName; String get content; String get type; String get createdAt;@Deprecated('Use senderId, senderUsername, senderFullName instead') MessageSenderModel? get sender; String? get mediaUrl; String? get thumbnailUrl; String? get fileName; int? get fileSize; int? get duration; double? get latitude; double? get longitude; String? get locationName; int? get replyToMessageId; ReplyToMessageModel? get replyToMessage; String? get reactions; String? get mentions; List<MentionedUserModel> get mentionedUsers; String? get sentAt; String? get updatedAt; bool get edited; String? get editedAt; bool get deleted; String? get deletedAt; bool get forwarded; int? get originalMessageId; int get forwardCount; int get readCount; List<ReadReceiptModel> get readBy;
 /// Create a copy of MessageModel
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -28,16 +28,16 @@ $MessageModelCopyWith<MessageModel> get copyWith => _$MessageModelCopyWithImpl<M
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is MessageModel&&(identical(other.id, id) || other.id == id)&&(identical(other.content, content) || other.content == content)&&(identical(other.type, type) || other.type == type)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.conversationId, conversationId) || other.conversationId == conversationId)&&(identical(other.sender, sender) || other.sender == sender)&&(identical(other.mediaUrl, mediaUrl) || other.mediaUrl == mediaUrl)&&(identical(other.thumbnailUrl, thumbnailUrl) || other.thumbnailUrl == thumbnailUrl)&&(identical(other.fileName, fileName) || other.fileName == fileName)&&(identical(other.fileSize, fileSize) || other.fileSize == fileSize)&&(identical(other.duration, duration) || other.duration == duration)&&(identical(other.latitude, latitude) || other.latitude == latitude)&&(identical(other.longitude, longitude) || other.longitude == longitude)&&(identical(other.locationName, locationName) || other.locationName == locationName)&&(identical(other.replyToMessageId, replyToMessageId) || other.replyToMessageId == replyToMessageId)&&(identical(other.replyToMessage, replyToMessage) || other.replyToMessage == replyToMessage)&&(identical(other.reactions, reactions) || other.reactions == reactions)&&(identical(other.mentions, mentions) || other.mentions == mentions)&&const DeepCollectionEquality().equals(other.mentionedUsers, mentionedUsers)&&(identical(other.sentAt, sentAt) || other.sentAt == sentAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt)&&(identical(other.edited, edited) || other.edited == edited)&&(identical(other.editedAt, editedAt) || other.editedAt == editedAt)&&(identical(other.deleted, deleted) || other.deleted == deleted)&&(identical(other.deletedAt, deletedAt) || other.deletedAt == deletedAt)&&(identical(other.forwarded, forwarded) || other.forwarded == forwarded)&&(identical(other.originalMessageId, originalMessageId) || other.originalMessageId == originalMessageId)&&(identical(other.forwardCount, forwardCount) || other.forwardCount == forwardCount)&&(identical(other.readCount, readCount) || other.readCount == readCount)&&const DeepCollectionEquality().equals(other.readBy, readBy));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is MessageModel&&(identical(other.id, id) || other.id == id)&&(identical(other.conversationId, conversationId) || other.conversationId == conversationId)&&(identical(other.senderId, senderId) || other.senderId == senderId)&&(identical(other.senderUsername, senderUsername) || other.senderUsername == senderUsername)&&(identical(other.senderFullName, senderFullName) || other.senderFullName == senderFullName)&&(identical(other.content, content) || other.content == content)&&(identical(other.type, type) || other.type == type)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.sender, sender) || other.sender == sender)&&(identical(other.mediaUrl, mediaUrl) || other.mediaUrl == mediaUrl)&&(identical(other.thumbnailUrl, thumbnailUrl) || other.thumbnailUrl == thumbnailUrl)&&(identical(other.fileName, fileName) || other.fileName == fileName)&&(identical(other.fileSize, fileSize) || other.fileSize == fileSize)&&(identical(other.duration, duration) || other.duration == duration)&&(identical(other.latitude, latitude) || other.latitude == latitude)&&(identical(other.longitude, longitude) || other.longitude == longitude)&&(identical(other.locationName, locationName) || other.locationName == locationName)&&(identical(other.replyToMessageId, replyToMessageId) || other.replyToMessageId == replyToMessageId)&&(identical(other.replyToMessage, replyToMessage) || other.replyToMessage == replyToMessage)&&(identical(other.reactions, reactions) || other.reactions == reactions)&&(identical(other.mentions, mentions) || other.mentions == mentions)&&const DeepCollectionEquality().equals(other.mentionedUsers, mentionedUsers)&&(identical(other.sentAt, sentAt) || other.sentAt == sentAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt)&&(identical(other.edited, edited) || other.edited == edited)&&(identical(other.editedAt, editedAt) || other.editedAt == editedAt)&&(identical(other.deleted, deleted) || other.deleted == deleted)&&(identical(other.deletedAt, deletedAt) || other.deletedAt == deletedAt)&&(identical(other.forwarded, forwarded) || other.forwarded == forwarded)&&(identical(other.originalMessageId, originalMessageId) || other.originalMessageId == originalMessageId)&&(identical(other.forwardCount, forwardCount) || other.forwardCount == forwardCount)&&(identical(other.readCount, readCount) || other.readCount == readCount)&&const DeepCollectionEquality().equals(other.readBy, readBy));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hashAll([runtimeType,id,content,type,createdAt,conversationId,sender,mediaUrl,thumbnailUrl,fileName,fileSize,duration,latitude,longitude,locationName,replyToMessageId,replyToMessage,reactions,mentions,const DeepCollectionEquality().hash(mentionedUsers),sentAt,updatedAt,edited,editedAt,deleted,deletedAt,forwarded,originalMessageId,forwardCount,readCount,const DeepCollectionEquality().hash(readBy)]);
+int get hashCode => Object.hashAll([runtimeType,id,conversationId,senderId,senderUsername,senderFullName,content,type,createdAt,sender,mediaUrl,thumbnailUrl,fileName,fileSize,duration,latitude,longitude,locationName,replyToMessageId,replyToMessage,reactions,mentions,const DeepCollectionEquality().hash(mentionedUsers),sentAt,updatedAt,edited,editedAt,deleted,deletedAt,forwarded,originalMessageId,forwardCount,readCount,const DeepCollectionEquality().hash(readBy)]);
 
 @override
 String toString() {
-  return 'MessageModel(id: $id, content: $content, type: $type, createdAt: $createdAt, conversationId: $conversationId, sender: $sender, mediaUrl: $mediaUrl, thumbnailUrl: $thumbnailUrl, fileName: $fileName, fileSize: $fileSize, duration: $duration, latitude: $latitude, longitude: $longitude, locationName: $locationName, replyToMessageId: $replyToMessageId, replyToMessage: $replyToMessage, reactions: $reactions, mentions: $mentions, mentionedUsers: $mentionedUsers, sentAt: $sentAt, updatedAt: $updatedAt, edited: $edited, editedAt: $editedAt, deleted: $deleted, deletedAt: $deletedAt, forwarded: $forwarded, originalMessageId: $originalMessageId, forwardCount: $forwardCount, readCount: $readCount, readBy: $readBy)';
+  return 'MessageModel(id: $id, conversationId: $conversationId, senderId: $senderId, senderUsername: $senderUsername, senderFullName: $senderFullName, content: $content, type: $type, createdAt: $createdAt, sender: $sender, mediaUrl: $mediaUrl, thumbnailUrl: $thumbnailUrl, fileName: $fileName, fileSize: $fileSize, duration: $duration, latitude: $latitude, longitude: $longitude, locationName: $locationName, replyToMessageId: $replyToMessageId, replyToMessage: $replyToMessage, reactions: $reactions, mentions: $mentions, mentionedUsers: $mentionedUsers, sentAt: $sentAt, updatedAt: $updatedAt, edited: $edited, editedAt: $editedAt, deleted: $deleted, deletedAt: $deletedAt, forwarded: $forwarded, originalMessageId: $originalMessageId, forwardCount: $forwardCount, readCount: $readCount, readBy: $readBy)';
 }
 
 
@@ -48,11 +48,11 @@ abstract mixin class $MessageModelCopyWith<$Res>  {
   factory $MessageModelCopyWith(MessageModel value, $Res Function(MessageModel) _then) = _$MessageModelCopyWithImpl;
 @useResult
 $Res call({
- int id, String content, String type, String createdAt, String conversationId, MessageSenderModel sender, String? mediaUrl, String? thumbnailUrl, String? fileName, int? fileSize, int? duration, double? latitude, double? longitude, String? locationName, int? replyToMessageId, ReplyToMessageModel? replyToMessage, String? reactions, String? mentions, List<MentionedUserModel> mentionedUsers, String? sentAt, String? updatedAt, bool edited, String? editedAt, bool deleted, String? deletedAt, bool forwarded, int? originalMessageId, int forwardCount, int readCount, List<ReadReceiptModel> readBy
+ int id, int conversationId, int senderId, String? senderUsername, String? senderFullName, String content, String type, String createdAt,@Deprecated('Use senderId, senderUsername, senderFullName instead') MessageSenderModel? sender, String? mediaUrl, String? thumbnailUrl, String? fileName, int? fileSize, int? duration, double? latitude, double? longitude, String? locationName, int? replyToMessageId, ReplyToMessageModel? replyToMessage, String? reactions, String? mentions, List<MentionedUserModel> mentionedUsers, String? sentAt, String? updatedAt, bool edited, String? editedAt, bool deleted, String? deletedAt, bool forwarded, int? originalMessageId, int forwardCount, int readCount, List<ReadReceiptModel> readBy
 });
 
 
-$MessageSenderModelCopyWith<$Res> get sender;$ReplyToMessageModelCopyWith<$Res>? get replyToMessage;
+$MessageSenderModelCopyWith<$Res>? get sender;$ReplyToMessageModelCopyWith<$Res>? get replyToMessage;
 
 }
 /// @nodoc
@@ -65,15 +65,18 @@ class _$MessageModelCopyWithImpl<$Res>
 
 /// Create a copy of MessageModel
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? content = null,Object? type = null,Object? createdAt = null,Object? conversationId = null,Object? sender = null,Object? mediaUrl = freezed,Object? thumbnailUrl = freezed,Object? fileName = freezed,Object? fileSize = freezed,Object? duration = freezed,Object? latitude = freezed,Object? longitude = freezed,Object? locationName = freezed,Object? replyToMessageId = freezed,Object? replyToMessage = freezed,Object? reactions = freezed,Object? mentions = freezed,Object? mentionedUsers = null,Object? sentAt = freezed,Object? updatedAt = freezed,Object? edited = null,Object? editedAt = freezed,Object? deleted = null,Object? deletedAt = freezed,Object? forwarded = null,Object? originalMessageId = freezed,Object? forwardCount = null,Object? readCount = null,Object? readBy = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? conversationId = null,Object? senderId = null,Object? senderUsername = freezed,Object? senderFullName = freezed,Object? content = null,Object? type = null,Object? createdAt = null,Object? sender = freezed,Object? mediaUrl = freezed,Object? thumbnailUrl = freezed,Object? fileName = freezed,Object? fileSize = freezed,Object? duration = freezed,Object? latitude = freezed,Object? longitude = freezed,Object? locationName = freezed,Object? replyToMessageId = freezed,Object? replyToMessage = freezed,Object? reactions = freezed,Object? mentions = freezed,Object? mentionedUsers = null,Object? sentAt = freezed,Object? updatedAt = freezed,Object? edited = null,Object? editedAt = freezed,Object? deleted = null,Object? deletedAt = freezed,Object? forwarded = null,Object? originalMessageId = freezed,Object? forwardCount = null,Object? readCount = null,Object? readBy = null,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
-as int,content: null == content ? _self.content : content // ignore: cast_nullable_to_non_nullable
+as int,conversationId: null == conversationId ? _self.conversationId : conversationId // ignore: cast_nullable_to_non_nullable
+as int,senderId: null == senderId ? _self.senderId : senderId // ignore: cast_nullable_to_non_nullable
+as int,senderUsername: freezed == senderUsername ? _self.senderUsername : senderUsername // ignore: cast_nullable_to_non_nullable
+as String?,senderFullName: freezed == senderFullName ? _self.senderFullName : senderFullName // ignore: cast_nullable_to_non_nullable
+as String?,content: null == content ? _self.content : content // ignore: cast_nullable_to_non_nullable
 as String,type: null == type ? _self.type : type // ignore: cast_nullable_to_non_nullable
 as String,createdAt: null == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
-as String,conversationId: null == conversationId ? _self.conversationId : conversationId // ignore: cast_nullable_to_non_nullable
-as String,sender: null == sender ? _self.sender : sender // ignore: cast_nullable_to_non_nullable
-as MessageSenderModel,mediaUrl: freezed == mediaUrl ? _self.mediaUrl : mediaUrl // ignore: cast_nullable_to_non_nullable
+as String,sender: freezed == sender ? _self.sender : sender // ignore: cast_nullable_to_non_nullable
+as MessageSenderModel?,mediaUrl: freezed == mediaUrl ? _self.mediaUrl : mediaUrl // ignore: cast_nullable_to_non_nullable
 as String?,thumbnailUrl: freezed == thumbnailUrl ? _self.thumbnailUrl : thumbnailUrl // ignore: cast_nullable_to_non_nullable
 as String?,fileName: freezed == fileName ? _self.fileName : fileName // ignore: cast_nullable_to_non_nullable
 as String?,fileSize: freezed == fileSize ? _self.fileSize : fileSize // ignore: cast_nullable_to_non_nullable
@@ -104,9 +107,12 @@ as List<ReadReceiptModel>,
 /// with the given fields replaced by the non-null parameter values.
 @override
 @pragma('vm:prefer-inline')
-$MessageSenderModelCopyWith<$Res> get sender {
-  
-  return $MessageSenderModelCopyWith<$Res>(_self.sender, (value) {
+$MessageSenderModelCopyWith<$Res>? get sender {
+    if (_self.sender == null) {
+    return null;
+  }
+
+  return $MessageSenderModelCopyWith<$Res>(_self.sender!, (value) {
     return _then(_self.copyWith(sender: value));
   });
 }/// Create a copy of MessageModel
@@ -203,10 +209,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int id,  String content,  String type,  String createdAt,  String conversationId,  MessageSenderModel sender,  String? mediaUrl,  String? thumbnailUrl,  String? fileName,  int? fileSize,  int? duration,  double? latitude,  double? longitude,  String? locationName,  int? replyToMessageId,  ReplyToMessageModel? replyToMessage,  String? reactions,  String? mentions,  List<MentionedUserModel> mentionedUsers,  String? sentAt,  String? updatedAt,  bool edited,  String? editedAt,  bool deleted,  String? deletedAt,  bool forwarded,  int? originalMessageId,  int forwardCount,  int readCount,  List<ReadReceiptModel> readBy)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int id,  int conversationId,  int senderId,  String? senderUsername,  String? senderFullName,  String content,  String type,  String createdAt, @Deprecated('Use senderId, senderUsername, senderFullName instead')  MessageSenderModel? sender,  String? mediaUrl,  String? thumbnailUrl,  String? fileName,  int? fileSize,  int? duration,  double? latitude,  double? longitude,  String? locationName,  int? replyToMessageId,  ReplyToMessageModel? replyToMessage,  String? reactions,  String? mentions,  List<MentionedUserModel> mentionedUsers,  String? sentAt,  String? updatedAt,  bool edited,  String? editedAt,  bool deleted,  String? deletedAt,  bool forwarded,  int? originalMessageId,  int forwardCount,  int readCount,  List<ReadReceiptModel> readBy)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _MessageModel() when $default != null:
-return $default(_that.id,_that.content,_that.type,_that.createdAt,_that.conversationId,_that.sender,_that.mediaUrl,_that.thumbnailUrl,_that.fileName,_that.fileSize,_that.duration,_that.latitude,_that.longitude,_that.locationName,_that.replyToMessageId,_that.replyToMessage,_that.reactions,_that.mentions,_that.mentionedUsers,_that.sentAt,_that.updatedAt,_that.edited,_that.editedAt,_that.deleted,_that.deletedAt,_that.forwarded,_that.originalMessageId,_that.forwardCount,_that.readCount,_that.readBy);case _:
+return $default(_that.id,_that.conversationId,_that.senderId,_that.senderUsername,_that.senderFullName,_that.content,_that.type,_that.createdAt,_that.sender,_that.mediaUrl,_that.thumbnailUrl,_that.fileName,_that.fileSize,_that.duration,_that.latitude,_that.longitude,_that.locationName,_that.replyToMessageId,_that.replyToMessage,_that.reactions,_that.mentions,_that.mentionedUsers,_that.sentAt,_that.updatedAt,_that.edited,_that.editedAt,_that.deleted,_that.deletedAt,_that.forwarded,_that.originalMessageId,_that.forwardCount,_that.readCount,_that.readBy);case _:
   return orElse();
 
 }
@@ -224,10 +230,10 @@ return $default(_that.id,_that.content,_that.type,_that.createdAt,_that.conversa
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int id,  String content,  String type,  String createdAt,  String conversationId,  MessageSenderModel sender,  String? mediaUrl,  String? thumbnailUrl,  String? fileName,  int? fileSize,  int? duration,  double? latitude,  double? longitude,  String? locationName,  int? replyToMessageId,  ReplyToMessageModel? replyToMessage,  String? reactions,  String? mentions,  List<MentionedUserModel> mentionedUsers,  String? sentAt,  String? updatedAt,  bool edited,  String? editedAt,  bool deleted,  String? deletedAt,  bool forwarded,  int? originalMessageId,  int forwardCount,  int readCount,  List<ReadReceiptModel> readBy)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int id,  int conversationId,  int senderId,  String? senderUsername,  String? senderFullName,  String content,  String type,  String createdAt, @Deprecated('Use senderId, senderUsername, senderFullName instead')  MessageSenderModel? sender,  String? mediaUrl,  String? thumbnailUrl,  String? fileName,  int? fileSize,  int? duration,  double? latitude,  double? longitude,  String? locationName,  int? replyToMessageId,  ReplyToMessageModel? replyToMessage,  String? reactions,  String? mentions,  List<MentionedUserModel> mentionedUsers,  String? sentAt,  String? updatedAt,  bool edited,  String? editedAt,  bool deleted,  String? deletedAt,  bool forwarded,  int? originalMessageId,  int forwardCount,  int readCount,  List<ReadReceiptModel> readBy)  $default,) {final _that = this;
 switch (_that) {
 case _MessageModel():
-return $default(_that.id,_that.content,_that.type,_that.createdAt,_that.conversationId,_that.sender,_that.mediaUrl,_that.thumbnailUrl,_that.fileName,_that.fileSize,_that.duration,_that.latitude,_that.longitude,_that.locationName,_that.replyToMessageId,_that.replyToMessage,_that.reactions,_that.mentions,_that.mentionedUsers,_that.sentAt,_that.updatedAt,_that.edited,_that.editedAt,_that.deleted,_that.deletedAt,_that.forwarded,_that.originalMessageId,_that.forwardCount,_that.readCount,_that.readBy);case _:
+return $default(_that.id,_that.conversationId,_that.senderId,_that.senderUsername,_that.senderFullName,_that.content,_that.type,_that.createdAt,_that.sender,_that.mediaUrl,_that.thumbnailUrl,_that.fileName,_that.fileSize,_that.duration,_that.latitude,_that.longitude,_that.locationName,_that.replyToMessageId,_that.replyToMessage,_that.reactions,_that.mentions,_that.mentionedUsers,_that.sentAt,_that.updatedAt,_that.edited,_that.editedAt,_that.deleted,_that.deletedAt,_that.forwarded,_that.originalMessageId,_that.forwardCount,_that.readCount,_that.readBy);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -244,10 +250,10 @@ return $default(_that.id,_that.content,_that.type,_that.createdAt,_that.conversa
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int id,  String content,  String type,  String createdAt,  String conversationId,  MessageSenderModel sender,  String? mediaUrl,  String? thumbnailUrl,  String? fileName,  int? fileSize,  int? duration,  double? latitude,  double? longitude,  String? locationName,  int? replyToMessageId,  ReplyToMessageModel? replyToMessage,  String? reactions,  String? mentions,  List<MentionedUserModel> mentionedUsers,  String? sentAt,  String? updatedAt,  bool edited,  String? editedAt,  bool deleted,  String? deletedAt,  bool forwarded,  int? originalMessageId,  int forwardCount,  int readCount,  List<ReadReceiptModel> readBy)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int id,  int conversationId,  int senderId,  String? senderUsername,  String? senderFullName,  String content,  String type,  String createdAt, @Deprecated('Use senderId, senderUsername, senderFullName instead')  MessageSenderModel? sender,  String? mediaUrl,  String? thumbnailUrl,  String? fileName,  int? fileSize,  int? duration,  double? latitude,  double? longitude,  String? locationName,  int? replyToMessageId,  ReplyToMessageModel? replyToMessage,  String? reactions,  String? mentions,  List<MentionedUserModel> mentionedUsers,  String? sentAt,  String? updatedAt,  bool edited,  String? editedAt,  bool deleted,  String? deletedAt,  bool forwarded,  int? originalMessageId,  int forwardCount,  int readCount,  List<ReadReceiptModel> readBy)?  $default,) {final _that = this;
 switch (_that) {
 case _MessageModel() when $default != null:
-return $default(_that.id,_that.content,_that.type,_that.createdAt,_that.conversationId,_that.sender,_that.mediaUrl,_that.thumbnailUrl,_that.fileName,_that.fileSize,_that.duration,_that.latitude,_that.longitude,_that.locationName,_that.replyToMessageId,_that.replyToMessage,_that.reactions,_that.mentions,_that.mentionedUsers,_that.sentAt,_that.updatedAt,_that.edited,_that.editedAt,_that.deleted,_that.deletedAt,_that.forwarded,_that.originalMessageId,_that.forwardCount,_that.readCount,_that.readBy);case _:
+return $default(_that.id,_that.conversationId,_that.senderId,_that.senderUsername,_that.senderFullName,_that.content,_that.type,_that.createdAt,_that.sender,_that.mediaUrl,_that.thumbnailUrl,_that.fileName,_that.fileSize,_that.duration,_that.latitude,_that.longitude,_that.locationName,_that.replyToMessageId,_that.replyToMessage,_that.reactions,_that.mentions,_that.mentionedUsers,_that.sentAt,_that.updatedAt,_that.edited,_that.editedAt,_that.deleted,_that.deletedAt,_that.forwarded,_that.originalMessageId,_that.forwardCount,_that.readCount,_that.readBy);case _:
   return null;
 
 }
@@ -259,15 +265,18 @@ return $default(_that.id,_that.content,_that.type,_that.createdAt,_that.conversa
 @JsonSerializable()
 
 class _MessageModel extends MessageModel {
-  const _MessageModel({required this.id, required this.content, required this.type, required this.createdAt, required this.conversationId, required this.sender, this.mediaUrl, this.thumbnailUrl, this.fileName, this.fileSize, this.duration, this.latitude, this.longitude, this.locationName, this.replyToMessageId, this.replyToMessage, this.reactions, this.mentions, final  List<MentionedUserModel> mentionedUsers = const [], this.sentAt, this.updatedAt, this.edited = false, this.editedAt, this.deleted = false, this.deletedAt, this.forwarded = false, this.originalMessageId, this.forwardCount = 0, this.readCount = 0, final  List<ReadReceiptModel> readBy = const []}): _mentionedUsers = mentionedUsers,_readBy = readBy,super._();
+  const _MessageModel({required this.id, required this.conversationId, required this.senderId, this.senderUsername, this.senderFullName, required this.content, required this.type, required this.createdAt, @Deprecated('Use senderId, senderUsername, senderFullName instead') this.sender, this.mediaUrl, this.thumbnailUrl, this.fileName, this.fileSize, this.duration, this.latitude, this.longitude, this.locationName, this.replyToMessageId, this.replyToMessage, this.reactions, this.mentions, final  List<MentionedUserModel> mentionedUsers = const [], this.sentAt, this.updatedAt, this.edited = false, this.editedAt, this.deleted = false, this.deletedAt, this.forwarded = false, this.originalMessageId, this.forwardCount = 0, this.readCount = 0, final  List<ReadReceiptModel> readBy = const []}): _mentionedUsers = mentionedUsers,_readBy = readBy,super._();
   factory _MessageModel.fromJson(Map<String, dynamic> json) => _$MessageModelFromJson(json);
 
 @override final  int id;
+@override final  int conversationId;
+@override final  int senderId;
+@override final  String? senderUsername;
+@override final  String? senderFullName;
 @override final  String content;
 @override final  String type;
 @override final  String createdAt;
-@override final  String conversationId;
-@override final  MessageSenderModel sender;
+@override@Deprecated('Use senderId, senderUsername, senderFullName instead') final  MessageSenderModel? sender;
 @override final  String? mediaUrl;
 @override final  String? thumbnailUrl;
 @override final  String? fileName;
@@ -318,16 +327,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _MessageModel&&(identical(other.id, id) || other.id == id)&&(identical(other.content, content) || other.content == content)&&(identical(other.type, type) || other.type == type)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.conversationId, conversationId) || other.conversationId == conversationId)&&(identical(other.sender, sender) || other.sender == sender)&&(identical(other.mediaUrl, mediaUrl) || other.mediaUrl == mediaUrl)&&(identical(other.thumbnailUrl, thumbnailUrl) || other.thumbnailUrl == thumbnailUrl)&&(identical(other.fileName, fileName) || other.fileName == fileName)&&(identical(other.fileSize, fileSize) || other.fileSize == fileSize)&&(identical(other.duration, duration) || other.duration == duration)&&(identical(other.latitude, latitude) || other.latitude == latitude)&&(identical(other.longitude, longitude) || other.longitude == longitude)&&(identical(other.locationName, locationName) || other.locationName == locationName)&&(identical(other.replyToMessageId, replyToMessageId) || other.replyToMessageId == replyToMessageId)&&(identical(other.replyToMessage, replyToMessage) || other.replyToMessage == replyToMessage)&&(identical(other.reactions, reactions) || other.reactions == reactions)&&(identical(other.mentions, mentions) || other.mentions == mentions)&&const DeepCollectionEquality().equals(other._mentionedUsers, _mentionedUsers)&&(identical(other.sentAt, sentAt) || other.sentAt == sentAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt)&&(identical(other.edited, edited) || other.edited == edited)&&(identical(other.editedAt, editedAt) || other.editedAt == editedAt)&&(identical(other.deleted, deleted) || other.deleted == deleted)&&(identical(other.deletedAt, deletedAt) || other.deletedAt == deletedAt)&&(identical(other.forwarded, forwarded) || other.forwarded == forwarded)&&(identical(other.originalMessageId, originalMessageId) || other.originalMessageId == originalMessageId)&&(identical(other.forwardCount, forwardCount) || other.forwardCount == forwardCount)&&(identical(other.readCount, readCount) || other.readCount == readCount)&&const DeepCollectionEquality().equals(other._readBy, _readBy));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _MessageModel&&(identical(other.id, id) || other.id == id)&&(identical(other.conversationId, conversationId) || other.conversationId == conversationId)&&(identical(other.senderId, senderId) || other.senderId == senderId)&&(identical(other.senderUsername, senderUsername) || other.senderUsername == senderUsername)&&(identical(other.senderFullName, senderFullName) || other.senderFullName == senderFullName)&&(identical(other.content, content) || other.content == content)&&(identical(other.type, type) || other.type == type)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.sender, sender) || other.sender == sender)&&(identical(other.mediaUrl, mediaUrl) || other.mediaUrl == mediaUrl)&&(identical(other.thumbnailUrl, thumbnailUrl) || other.thumbnailUrl == thumbnailUrl)&&(identical(other.fileName, fileName) || other.fileName == fileName)&&(identical(other.fileSize, fileSize) || other.fileSize == fileSize)&&(identical(other.duration, duration) || other.duration == duration)&&(identical(other.latitude, latitude) || other.latitude == latitude)&&(identical(other.longitude, longitude) || other.longitude == longitude)&&(identical(other.locationName, locationName) || other.locationName == locationName)&&(identical(other.replyToMessageId, replyToMessageId) || other.replyToMessageId == replyToMessageId)&&(identical(other.replyToMessage, replyToMessage) || other.replyToMessage == replyToMessage)&&(identical(other.reactions, reactions) || other.reactions == reactions)&&(identical(other.mentions, mentions) || other.mentions == mentions)&&const DeepCollectionEquality().equals(other._mentionedUsers, _mentionedUsers)&&(identical(other.sentAt, sentAt) || other.sentAt == sentAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt)&&(identical(other.edited, edited) || other.edited == edited)&&(identical(other.editedAt, editedAt) || other.editedAt == editedAt)&&(identical(other.deleted, deleted) || other.deleted == deleted)&&(identical(other.deletedAt, deletedAt) || other.deletedAt == deletedAt)&&(identical(other.forwarded, forwarded) || other.forwarded == forwarded)&&(identical(other.originalMessageId, originalMessageId) || other.originalMessageId == originalMessageId)&&(identical(other.forwardCount, forwardCount) || other.forwardCount == forwardCount)&&(identical(other.readCount, readCount) || other.readCount == readCount)&&const DeepCollectionEquality().equals(other._readBy, _readBy));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hashAll([runtimeType,id,content,type,createdAt,conversationId,sender,mediaUrl,thumbnailUrl,fileName,fileSize,duration,latitude,longitude,locationName,replyToMessageId,replyToMessage,reactions,mentions,const DeepCollectionEquality().hash(_mentionedUsers),sentAt,updatedAt,edited,editedAt,deleted,deletedAt,forwarded,originalMessageId,forwardCount,readCount,const DeepCollectionEquality().hash(_readBy)]);
+int get hashCode => Object.hashAll([runtimeType,id,conversationId,senderId,senderUsername,senderFullName,content,type,createdAt,sender,mediaUrl,thumbnailUrl,fileName,fileSize,duration,latitude,longitude,locationName,replyToMessageId,replyToMessage,reactions,mentions,const DeepCollectionEquality().hash(_mentionedUsers),sentAt,updatedAt,edited,editedAt,deleted,deletedAt,forwarded,originalMessageId,forwardCount,readCount,const DeepCollectionEquality().hash(_readBy)]);
 
 @override
 String toString() {
-  return 'MessageModel(id: $id, content: $content, type: $type, createdAt: $createdAt, conversationId: $conversationId, sender: $sender, mediaUrl: $mediaUrl, thumbnailUrl: $thumbnailUrl, fileName: $fileName, fileSize: $fileSize, duration: $duration, latitude: $latitude, longitude: $longitude, locationName: $locationName, replyToMessageId: $replyToMessageId, replyToMessage: $replyToMessage, reactions: $reactions, mentions: $mentions, mentionedUsers: $mentionedUsers, sentAt: $sentAt, updatedAt: $updatedAt, edited: $edited, editedAt: $editedAt, deleted: $deleted, deletedAt: $deletedAt, forwarded: $forwarded, originalMessageId: $originalMessageId, forwardCount: $forwardCount, readCount: $readCount, readBy: $readBy)';
+  return 'MessageModel(id: $id, conversationId: $conversationId, senderId: $senderId, senderUsername: $senderUsername, senderFullName: $senderFullName, content: $content, type: $type, createdAt: $createdAt, sender: $sender, mediaUrl: $mediaUrl, thumbnailUrl: $thumbnailUrl, fileName: $fileName, fileSize: $fileSize, duration: $duration, latitude: $latitude, longitude: $longitude, locationName: $locationName, replyToMessageId: $replyToMessageId, replyToMessage: $replyToMessage, reactions: $reactions, mentions: $mentions, mentionedUsers: $mentionedUsers, sentAt: $sentAt, updatedAt: $updatedAt, edited: $edited, editedAt: $editedAt, deleted: $deleted, deletedAt: $deletedAt, forwarded: $forwarded, originalMessageId: $originalMessageId, forwardCount: $forwardCount, readCount: $readCount, readBy: $readBy)';
 }
 
 
@@ -338,11 +347,11 @@ abstract mixin class _$MessageModelCopyWith<$Res> implements $MessageModelCopyWi
   factory _$MessageModelCopyWith(_MessageModel value, $Res Function(_MessageModel) _then) = __$MessageModelCopyWithImpl;
 @override @useResult
 $Res call({
- int id, String content, String type, String createdAt, String conversationId, MessageSenderModel sender, String? mediaUrl, String? thumbnailUrl, String? fileName, int? fileSize, int? duration, double? latitude, double? longitude, String? locationName, int? replyToMessageId, ReplyToMessageModel? replyToMessage, String? reactions, String? mentions, List<MentionedUserModel> mentionedUsers, String? sentAt, String? updatedAt, bool edited, String? editedAt, bool deleted, String? deletedAt, bool forwarded, int? originalMessageId, int forwardCount, int readCount, List<ReadReceiptModel> readBy
+ int id, int conversationId, int senderId, String? senderUsername, String? senderFullName, String content, String type, String createdAt,@Deprecated('Use senderId, senderUsername, senderFullName instead') MessageSenderModel? sender, String? mediaUrl, String? thumbnailUrl, String? fileName, int? fileSize, int? duration, double? latitude, double? longitude, String? locationName, int? replyToMessageId, ReplyToMessageModel? replyToMessage, String? reactions, String? mentions, List<MentionedUserModel> mentionedUsers, String? sentAt, String? updatedAt, bool edited, String? editedAt, bool deleted, String? deletedAt, bool forwarded, int? originalMessageId, int forwardCount, int readCount, List<ReadReceiptModel> readBy
 });
 
 
-@override $MessageSenderModelCopyWith<$Res> get sender;@override $ReplyToMessageModelCopyWith<$Res>? get replyToMessage;
+@override $MessageSenderModelCopyWith<$Res>? get sender;@override $ReplyToMessageModelCopyWith<$Res>? get replyToMessage;
 
 }
 /// @nodoc
@@ -355,15 +364,18 @@ class __$MessageModelCopyWithImpl<$Res>
 
 /// Create a copy of MessageModel
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? content = null,Object? type = null,Object? createdAt = null,Object? conversationId = null,Object? sender = null,Object? mediaUrl = freezed,Object? thumbnailUrl = freezed,Object? fileName = freezed,Object? fileSize = freezed,Object? duration = freezed,Object? latitude = freezed,Object? longitude = freezed,Object? locationName = freezed,Object? replyToMessageId = freezed,Object? replyToMessage = freezed,Object? reactions = freezed,Object? mentions = freezed,Object? mentionedUsers = null,Object? sentAt = freezed,Object? updatedAt = freezed,Object? edited = null,Object? editedAt = freezed,Object? deleted = null,Object? deletedAt = freezed,Object? forwarded = null,Object? originalMessageId = freezed,Object? forwardCount = null,Object? readCount = null,Object? readBy = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? conversationId = null,Object? senderId = null,Object? senderUsername = freezed,Object? senderFullName = freezed,Object? content = null,Object? type = null,Object? createdAt = null,Object? sender = freezed,Object? mediaUrl = freezed,Object? thumbnailUrl = freezed,Object? fileName = freezed,Object? fileSize = freezed,Object? duration = freezed,Object? latitude = freezed,Object? longitude = freezed,Object? locationName = freezed,Object? replyToMessageId = freezed,Object? replyToMessage = freezed,Object? reactions = freezed,Object? mentions = freezed,Object? mentionedUsers = null,Object? sentAt = freezed,Object? updatedAt = freezed,Object? edited = null,Object? editedAt = freezed,Object? deleted = null,Object? deletedAt = freezed,Object? forwarded = null,Object? originalMessageId = freezed,Object? forwardCount = null,Object? readCount = null,Object? readBy = null,}) {
   return _then(_MessageModel(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
-as int,content: null == content ? _self.content : content // ignore: cast_nullable_to_non_nullable
+as int,conversationId: null == conversationId ? _self.conversationId : conversationId // ignore: cast_nullable_to_non_nullable
+as int,senderId: null == senderId ? _self.senderId : senderId // ignore: cast_nullable_to_non_nullable
+as int,senderUsername: freezed == senderUsername ? _self.senderUsername : senderUsername // ignore: cast_nullable_to_non_nullable
+as String?,senderFullName: freezed == senderFullName ? _self.senderFullName : senderFullName // ignore: cast_nullable_to_non_nullable
+as String?,content: null == content ? _self.content : content // ignore: cast_nullable_to_non_nullable
 as String,type: null == type ? _self.type : type // ignore: cast_nullable_to_non_nullable
 as String,createdAt: null == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
-as String,conversationId: null == conversationId ? _self.conversationId : conversationId // ignore: cast_nullable_to_non_nullable
-as String,sender: null == sender ? _self.sender : sender // ignore: cast_nullable_to_non_nullable
-as MessageSenderModel,mediaUrl: freezed == mediaUrl ? _self.mediaUrl : mediaUrl // ignore: cast_nullable_to_non_nullable
+as String,sender: freezed == sender ? _self.sender : sender // ignore: cast_nullable_to_non_nullable
+as MessageSenderModel?,mediaUrl: freezed == mediaUrl ? _self.mediaUrl : mediaUrl // ignore: cast_nullable_to_non_nullable
 as String?,thumbnailUrl: freezed == thumbnailUrl ? _self.thumbnailUrl : thumbnailUrl // ignore: cast_nullable_to_non_nullable
 as String?,fileName: freezed == fileName ? _self.fileName : fileName // ignore: cast_nullable_to_non_nullable
 as String?,fileSize: freezed == fileSize ? _self.fileSize : fileSize // ignore: cast_nullable_to_non_nullable
@@ -395,9 +407,12 @@ as List<ReadReceiptModel>,
 /// with the given fields replaced by the non-null parameter values.
 @override
 @pragma('vm:prefer-inline')
-$MessageSenderModelCopyWith<$Res> get sender {
-  
-  return $MessageSenderModelCopyWith<$Res>(_self.sender, (value) {
+$MessageSenderModelCopyWith<$Res>? get sender {
+    if (_self.sender == null) {
+    return null;
+  }
+
+  return $MessageSenderModelCopyWith<$Res>(_self.sender!, (value) {
     return _then(_self.copyWith(sender: value));
   });
 }/// Create a copy of MessageModel
