@@ -131,7 +131,7 @@ class ProfilePage extends ConsumerWidget {
                               width: 24,
                               height: 24,
                               decoration: BoxDecoration(
-                                color: profile.isOnline ? Colors.green : colors.outlineVariant,
+                                color: profile.online ? Colors.green : colors.outlineVariant,
                                 shape: BoxShape.circle,
                                 border: Border.all(color: colors.surface, width: 3),
                               ),
@@ -168,7 +168,7 @@ class ProfilePage extends ConsumerWidget {
                       icon: FontAwesomeIcons.envelope,
                       label: 'Email',
                       value: profile.email,
-                      isVerified: profile.isEmailVerified,
+                      isVerified: profile.emailVerified,
                       onTap: () {
                         Clipboard.setData(ClipboardData(text: profile.email));
                         ScaffoldMessenger.of(context).showSnackBar(
@@ -204,7 +204,7 @@ class ProfilePage extends ConsumerWidget {
                       ProfileInfoTile(
                         icon: FontAwesomeIcons.venusMars,
                         label: 'Gender',
-                        value: profile.gender!.label,
+                        value: profile.gender!, // Already String: MALE, FEMALE, OTHER
                       ),
                     if (profile.dateOfBirth != null)
                       ProfileInfoTile(
@@ -229,7 +229,7 @@ class ProfilePage extends ConsumerWidget {
                     ProfileInfoTile(
                       icon: FontAwesomeIcons.lock,
                       label: 'Privacy',
-                      value: profile.profileVisibility?.label ?? 'Public',
+                      value: profile.profileVisibility ?? 'PUBLIC', // Already String
                       showArrow: false,
                     ),
                     ProfileNavigationTile(

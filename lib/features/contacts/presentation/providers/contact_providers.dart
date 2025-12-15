@@ -1,5 +1,6 @@
 import 'package:chattrix_ui/core/errors/failures.dart';
 import 'package:chattrix_ui/features/auth/presentation/providers/auth_providers.dart';
+import 'package:chattrix_ui/features/auth/presentation/providers/auth_state_provider.dart';
 import 'package:chattrix_ui/features/contacts/data/datasources/contact_remote_datasource_impl.dart';
 import 'package:chattrix_ui/features/contacts/data/repositories/contact_repository_impl.dart';
 import 'package:chattrix_ui/features/contacts/domain/datasources/contact_remote_datasource.dart';
@@ -22,7 +23,13 @@ final contactRemoteDataSourceProvider = Provider<ContactRemoteDataSource>((ref) 
 
 // Repository provider
 final contactRepositoryProvider = Provider<ContactRepository>((ref) {
-  return ContactRepositoryImpl(remoteDataSource: ref.watch(contactRemoteDataSourceProvider));
+  final authState = ref.watch(authProvider);
+  final currentUserId = authState.value?.user?.id ?? 0;
+
+  return ContactRepositoryImpl(
+    remoteDataSource: ref.watch(contactRemoteDataSourceProvider),
+    currentUserId: currentUserId,
+  );
 });
 
 // Use case providers

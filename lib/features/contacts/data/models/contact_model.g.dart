@@ -18,10 +18,12 @@ _ContactModel _$ContactModelFromJson(Map<String, dynamic> json) =>
       fullName: json['fullName'] as String,
       avatarUrl: json['avatarUrl'] as String?,
       nickname: json['nickname'] as String?,
-      isOnline: json['isOnline'] as bool,
-      lastSeen: DateTime.parse(json['lastSeen'] as String),
+      favorite: json['favorite'] as bool? ?? false,
+      online: json['online'] as bool? ?? false,
+      lastSeen: json['lastSeen'] == null
+          ? null
+          : DateTime.parse(json['lastSeen'] as String),
       createdAt: DateTime.parse(json['createdAt'] as String),
-      isFavorite: json['isFavorite'] as bool? ?? false,
     );
 
 Map<String, dynamic> _$ContactModelToJson(_ContactModel instance) =>
@@ -32,8 +34,8 @@ Map<String, dynamic> _$ContactModelToJson(_ContactModel instance) =>
       'fullName': instance.fullName,
       'avatarUrl': instance.avatarUrl,
       'nickname': instance.nickname,
-      'isOnline': instance.isOnline,
-      'lastSeen': instance.lastSeen.toIso8601String(),
+      'favorite': instance.favorite,
+      'online': instance.online,
+      'lastSeen': instance.lastSeen?.toIso8601String(),
       'createdAt': instance.createdAt.toIso8601String(),
-      'isFavorite': instance.isFavorite,
     };

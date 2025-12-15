@@ -19,6 +19,7 @@ _FriendRequestModel _$FriendRequestModelFromJson(Map<String, dynamic> json) =>
       avatarUrl: json['avatarUrl'] as String?,
       nickname: json['nickname'] as String?,
       status: $enumDecode(_$FriendRequestStatusEnumMap, json['status']),
+      online: json['online'] as bool? ?? false,
       requestedAt: DateTime.parse(json['requestedAt'] as String),
       acceptedAt: json['acceptedAt'] == null
           ? null
@@ -26,7 +27,6 @@ _FriendRequestModel _$FriendRequestModelFromJson(Map<String, dynamic> json) =>
       rejectedAt: json['rejectedAt'] == null
           ? null
           : DateTime.parse(json['rejectedAt'] as String),
-      online: json['online'] as bool? ?? false,
     );
 
 Map<String, dynamic> _$FriendRequestModelToJson(_FriendRequestModel instance) =>
@@ -38,10 +38,10 @@ Map<String, dynamic> _$FriendRequestModelToJson(_FriendRequestModel instance) =>
       'avatarUrl': instance.avatarUrl,
       'nickname': instance.nickname,
       'status': _$FriendRequestStatusEnumMap[instance.status]!,
+      'online': instance.online,
       'requestedAt': instance.requestedAt.toIso8601String(),
       'acceptedAt': instance.acceptedAt?.toIso8601String(),
       'rejectedAt': instance.rejectedAt?.toIso8601String(),
-      'online': instance.online,
     };
 
 const _$FriendRequestStatusEnumMap = {

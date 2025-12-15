@@ -15,10 +15,10 @@ abstract class ContactModel with _$ContactModel {
     required String fullName,
     String? avatarUrl,
     String? nickname,
-    required bool isOnline,
-    required DateTime lastSeen,
+    @Default(false) bool favorite,
+    @Default(false) bool online,
+    DateTime? lastSeen,
     required DateTime createdAt,
-    @Default(false) bool isFavorite,
   }) = _ContactModel;
 
   factory ContactModel.fromJson(Map<String, dynamic> json) => _$ContactModelFromJson(json);
@@ -28,11 +28,11 @@ abstract class ContactModel with _$ContactModel {
       id: id,
       userId: contactUserId,
       username: username,
-      email: '', // Not provided by API
       fullName: fullName,
       avatarUrl: avatarUrl,
       nickname: nickname,
-      isOnline: isOnline,
+      favorite: favorite,
+      isOnline: online,
       lastSeen: lastSeen,
       createdAt: createdAt,
     );

@@ -28,7 +28,9 @@ abstract class ParticipantModel with _$ParticipantModel {
     final lastSeen = json['lastSeen']?.toString();
 
     return ParticipantModel(
-      userId: (json['userId'] ?? json['user_id'] ?? ''),
+      userId: (json['userId'] ?? json['user_id'] ?? 0) is int
+          ? (json['userId'] ?? json['user_id'] ?? 0)
+          : int.tryParse((json['userId'] ?? json['user_id'] ?? 0).toString()) ?? 0,
       username: (json['username'] ?? '').toString(),
       fullName: (json['fullName'] ?? json['full_name'] ?? '').toString(),
       role: (json['role'] ?? '').toString(),

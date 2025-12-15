@@ -1,26 +1,24 @@
-import 'package:chattrix_ui/features/profile/domain/entities/gender.dart';
-import 'package:chattrix_ui/features/profile/domain/entities/profile_visibility.dart';
 import 'package:chattrix_ui/features/profile/domain/entities/update_profile_params.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'update_profile_request.freezed.dart';
 part 'update_profile_request.g.dart';
 
+/// UpdateProfileRequest matching API spec
+/// Only allows updating: fullName, avatarUrl, phone, bio, dateOfBirth, gender, location
+/// Note: username, email, and profileVisibility are NOT updatable via this endpoint
 @freezed
 abstract class UpdateProfileRequest with _$UpdateProfileRequest {
   const UpdateProfileRequest._();
 
   const factory UpdateProfileRequest({
-    String? username,
-    String? email,
     String? fullName,
+    String? avatarUrl,
     String? phone,
     String? bio,
-    DateTime? dateOfBirth,
-    Gender? gender,
+    @JsonKey(name: 'dateOfBirth') String? dateOfBirth, // API expects date string
+    String? gender, // MALE, FEMALE, OTHER
     String? location,
-    ProfileVisibility? profileVisibility,
-    String? avatarUrl,
   }) = _UpdateProfileRequest;
 
   factory UpdateProfileRequest.fromJson(Map<String, dynamic> json) =>
@@ -28,16 +26,13 @@ abstract class UpdateProfileRequest with _$UpdateProfileRequest {
 
   factory UpdateProfileRequest.fromParams(UpdateProfileParams params) {
     return UpdateProfileRequest(
-      username: params.username,
-      email: params.email,
       fullName: params.fullName,
+      avatarUrl: params.avatarUrl,
       phone: params.phone,
       bio: params.bio,
-      dateOfBirth: params.dateOfBirth?.toUtc(),
+      dateOfBirth: params.dateOfBirth?.toIso8601String().split('T')[0], // Format as date only
       gender: params.gender,
       location: params.location,
-      profileVisibility: params.profileVisibility,
-      avatarUrl: params.avatarUrl,
     );
   }
 }

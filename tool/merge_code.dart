@@ -1,6 +1,6 @@
 import 'dart:io';
 
-const List<String> DEFAULT_SOURCE_FOLDERS = ['lib/features/profile','lib/core'];
+const List<String> DEFAULT_SOURCE_FOLDERS = ['lib/features/chat','lib/core'];
 const int MAX_CHARS_PER_FILE = 2000000;
 const List<String> EXTENSIONS = ['.dart', '.yaml', '.json', '.gradle', '.xml', '.sql', '.prisma'];
 const List<String> IGNORE_PATTERNS = [

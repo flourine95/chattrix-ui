@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$ConversationModel {
 
- int get id; String? get name; String get type; String get createdAt; String get updatedAt; List<ParticipantModel> get participants; MessageModel? get lastMessage;
+ int get id; String? get name; String get type; String? get avatarUrl; String get createdAt; String get updatedAt; List<ParticipantModel> get participants; MessageModel? get lastMessage; int get unreadCount;
 /// Create a copy of ConversationModel
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -28,16 +28,16 @@ $ConversationModelCopyWith<ConversationModel> get copyWith => _$ConversationMode
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ConversationModel&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.type, type) || other.type == type)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt)&&const DeepCollectionEquality().equals(other.participants, participants)&&(identical(other.lastMessage, lastMessage) || other.lastMessage == lastMessage));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ConversationModel&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.type, type) || other.type == type)&&(identical(other.avatarUrl, avatarUrl) || other.avatarUrl == avatarUrl)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt)&&const DeepCollectionEquality().equals(other.participants, participants)&&(identical(other.lastMessage, lastMessage) || other.lastMessage == lastMessage)&&(identical(other.unreadCount, unreadCount) || other.unreadCount == unreadCount));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,name,type,createdAt,updatedAt,const DeepCollectionEquality().hash(participants),lastMessage);
+int get hashCode => Object.hash(runtimeType,id,name,type,avatarUrl,createdAt,updatedAt,const DeepCollectionEquality().hash(participants),lastMessage,unreadCount);
 
 @override
 String toString() {
-  return 'ConversationModel(id: $id, name: $name, type: $type, createdAt: $createdAt, updatedAt: $updatedAt, participants: $participants, lastMessage: $lastMessage)';
+  return 'ConversationModel(id: $id, name: $name, type: $type, avatarUrl: $avatarUrl, createdAt: $createdAt, updatedAt: $updatedAt, participants: $participants, lastMessage: $lastMessage, unreadCount: $unreadCount)';
 }
 
 
@@ -48,7 +48,7 @@ abstract mixin class $ConversationModelCopyWith<$Res>  {
   factory $ConversationModelCopyWith(ConversationModel value, $Res Function(ConversationModel) _then) = _$ConversationModelCopyWithImpl;
 @useResult
 $Res call({
- int id, String? name, String type, String createdAt, String updatedAt, List<ParticipantModel> participants, MessageModel? lastMessage
+ int id, String? name, String type, String? avatarUrl, String createdAt, String updatedAt, List<ParticipantModel> participants, MessageModel? lastMessage, int unreadCount
 });
 
 
@@ -65,16 +65,18 @@ class _$ConversationModelCopyWithImpl<$Res>
 
 /// Create a copy of ConversationModel
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? name = freezed,Object? type = null,Object? createdAt = null,Object? updatedAt = null,Object? participants = null,Object? lastMessage = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? name = freezed,Object? type = null,Object? avatarUrl = freezed,Object? createdAt = null,Object? updatedAt = null,Object? participants = null,Object? lastMessage = freezed,Object? unreadCount = null,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as int,name: freezed == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
 as String?,type: null == type ? _self.type : type // ignore: cast_nullable_to_non_nullable
-as String,createdAt: null == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
+as String,avatarUrl: freezed == avatarUrl ? _self.avatarUrl : avatarUrl // ignore: cast_nullable_to_non_nullable
+as String?,createdAt: null == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
 as String,updatedAt: null == updatedAt ? _self.updatedAt : updatedAt // ignore: cast_nullable_to_non_nullable
 as String,participants: null == participants ? _self.participants : participants // ignore: cast_nullable_to_non_nullable
 as List<ParticipantModel>,lastMessage: freezed == lastMessage ? _self.lastMessage : lastMessage // ignore: cast_nullable_to_non_nullable
-as MessageModel?,
+as MessageModel?,unreadCount: null == unreadCount ? _self.unreadCount : unreadCount // ignore: cast_nullable_to_non_nullable
+as int,
   ));
 }
 /// Create a copy of ConversationModel
@@ -171,10 +173,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int id,  String? name,  String type,  String createdAt,  String updatedAt,  List<ParticipantModel> participants,  MessageModel? lastMessage)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int id,  String? name,  String type,  String? avatarUrl,  String createdAt,  String updatedAt,  List<ParticipantModel> participants,  MessageModel? lastMessage,  int unreadCount)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _ConversationModel() when $default != null:
-return $default(_that.id,_that.name,_that.type,_that.createdAt,_that.updatedAt,_that.participants,_that.lastMessage);case _:
+return $default(_that.id,_that.name,_that.type,_that.avatarUrl,_that.createdAt,_that.updatedAt,_that.participants,_that.lastMessage,_that.unreadCount);case _:
   return orElse();
 
 }
@@ -192,10 +194,10 @@ return $default(_that.id,_that.name,_that.type,_that.createdAt,_that.updatedAt,_
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int id,  String? name,  String type,  String createdAt,  String updatedAt,  List<ParticipantModel> participants,  MessageModel? lastMessage)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int id,  String? name,  String type,  String? avatarUrl,  String createdAt,  String updatedAt,  List<ParticipantModel> participants,  MessageModel? lastMessage,  int unreadCount)  $default,) {final _that = this;
 switch (_that) {
 case _ConversationModel():
-return $default(_that.id,_that.name,_that.type,_that.createdAt,_that.updatedAt,_that.participants,_that.lastMessage);case _:
+return $default(_that.id,_that.name,_that.type,_that.avatarUrl,_that.createdAt,_that.updatedAt,_that.participants,_that.lastMessage,_that.unreadCount);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -212,10 +214,10 @@ return $default(_that.id,_that.name,_that.type,_that.createdAt,_that.updatedAt,_
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int id,  String? name,  String type,  String createdAt,  String updatedAt,  List<ParticipantModel> participants,  MessageModel? lastMessage)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int id,  String? name,  String type,  String? avatarUrl,  String createdAt,  String updatedAt,  List<ParticipantModel> participants,  MessageModel? lastMessage,  int unreadCount)?  $default,) {final _that = this;
 switch (_that) {
 case _ConversationModel() when $default != null:
-return $default(_that.id,_that.name,_that.type,_that.createdAt,_that.updatedAt,_that.participants,_that.lastMessage);case _:
+return $default(_that.id,_that.name,_that.type,_that.avatarUrl,_that.createdAt,_that.updatedAt,_that.participants,_that.lastMessage,_that.unreadCount);case _:
   return null;
 
 }
@@ -227,12 +229,13 @@ return $default(_that.id,_that.name,_that.type,_that.createdAt,_that.updatedAt,_
 @JsonSerializable()
 
 class _ConversationModel extends ConversationModel {
-  const _ConversationModel({required this.id, this.name, required this.type, required this.createdAt, required this.updatedAt, required final  List<ParticipantModel> participants, this.lastMessage}): _participants = participants,super._();
+  const _ConversationModel({required this.id, this.name, required this.type, this.avatarUrl, required this.createdAt, required this.updatedAt, required final  List<ParticipantModel> participants, this.lastMessage, this.unreadCount = 0}): _participants = participants,super._();
   factory _ConversationModel.fromJson(Map<String, dynamic> json) => _$ConversationModelFromJson(json);
 
 @override final  int id;
 @override final  String? name;
 @override final  String type;
+@override final  String? avatarUrl;
 @override final  String createdAt;
 @override final  String updatedAt;
  final  List<ParticipantModel> _participants;
@@ -243,6 +246,7 @@ class _ConversationModel extends ConversationModel {
 }
 
 @override final  MessageModel? lastMessage;
+@override@JsonKey() final  int unreadCount;
 
 /// Create a copy of ConversationModel
 /// with the given fields replaced by the non-null parameter values.
@@ -257,16 +261,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ConversationModel&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.type, type) || other.type == type)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt)&&const DeepCollectionEquality().equals(other._participants, _participants)&&(identical(other.lastMessage, lastMessage) || other.lastMessage == lastMessage));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ConversationModel&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.type, type) || other.type == type)&&(identical(other.avatarUrl, avatarUrl) || other.avatarUrl == avatarUrl)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt)&&const DeepCollectionEquality().equals(other._participants, _participants)&&(identical(other.lastMessage, lastMessage) || other.lastMessage == lastMessage)&&(identical(other.unreadCount, unreadCount) || other.unreadCount == unreadCount));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,name,type,createdAt,updatedAt,const DeepCollectionEquality().hash(_participants),lastMessage);
+int get hashCode => Object.hash(runtimeType,id,name,type,avatarUrl,createdAt,updatedAt,const DeepCollectionEquality().hash(_participants),lastMessage,unreadCount);
 
 @override
 String toString() {
-  return 'ConversationModel(id: $id, name: $name, type: $type, createdAt: $createdAt, updatedAt: $updatedAt, participants: $participants, lastMessage: $lastMessage)';
+  return 'ConversationModel(id: $id, name: $name, type: $type, avatarUrl: $avatarUrl, createdAt: $createdAt, updatedAt: $updatedAt, participants: $participants, lastMessage: $lastMessage, unreadCount: $unreadCount)';
 }
 
 
@@ -277,7 +281,7 @@ abstract mixin class _$ConversationModelCopyWith<$Res> implements $ConversationM
   factory _$ConversationModelCopyWith(_ConversationModel value, $Res Function(_ConversationModel) _then) = __$ConversationModelCopyWithImpl;
 @override @useResult
 $Res call({
- int id, String? name, String type, String createdAt, String updatedAt, List<ParticipantModel> participants, MessageModel? lastMessage
+ int id, String? name, String type, String? avatarUrl, String createdAt, String updatedAt, List<ParticipantModel> participants, MessageModel? lastMessage, int unreadCount
 });
 
 
@@ -294,16 +298,18 @@ class __$ConversationModelCopyWithImpl<$Res>
 
 /// Create a copy of ConversationModel
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? name = freezed,Object? type = null,Object? createdAt = null,Object? updatedAt = null,Object? participants = null,Object? lastMessage = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? name = freezed,Object? type = null,Object? avatarUrl = freezed,Object? createdAt = null,Object? updatedAt = null,Object? participants = null,Object? lastMessage = freezed,Object? unreadCount = null,}) {
   return _then(_ConversationModel(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as int,name: freezed == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
 as String?,type: null == type ? _self.type : type // ignore: cast_nullable_to_non_nullable
-as String,createdAt: null == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
+as String,avatarUrl: freezed == avatarUrl ? _self.avatarUrl : avatarUrl // ignore: cast_nullable_to_non_nullable
+as String?,createdAt: null == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
 as String,updatedAt: null == updatedAt ? _self.updatedAt : updatedAt // ignore: cast_nullable_to_non_nullable
 as String,participants: null == participants ? _self._participants : participants // ignore: cast_nullable_to_non_nullable
 as List<ParticipantModel>,lastMessage: freezed == lastMessage ? _self.lastMessage : lastMessage // ignore: cast_nullable_to_non_nullable
-as MessageModel?,
+as MessageModel?,unreadCount: null == unreadCount ? _self.unreadCount : unreadCount // ignore: cast_nullable_to_non_nullable
+as int,
   ));
 }
 

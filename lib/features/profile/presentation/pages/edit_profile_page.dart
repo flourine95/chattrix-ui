@@ -2,8 +2,6 @@ import 'dart:io';
 
 import 'package:bottom_picker/bottom_picker.dart';
 import 'package:bottom_picker/resources/arrays.dart';
-import 'package:chattrix_ui/features/profile/domain/entities/gender.dart';
-import 'package:chattrix_ui/features/profile/domain/entities/profile_visibility.dart';
 import 'package:chattrix_ui/features/profile/domain/entities/update_profile_params.dart';
 import 'package:chattrix_ui/features/profile/presentation/providers/profile_providers.dart';
 import 'package:chattrix_ui/features/profile/presentation/widgets/profile_picker_widgets.dart';
@@ -34,9 +32,9 @@ class EditProfilePage extends HookConsumerWidget {
     final phone = useState('');
     final email = useState('');
     final location = useState('');
-    final gender = useState<Gender?>(null);
+    final gender = useState<String?>(null); // MALE, FEMALE, OTHER
     final dob = useState<DateTime?>(null);
-    final visibility = useState<ProfileVisibility>(ProfileVisibility.public);
+    final visibility = useState<String?>('PUBLIC'); // PUBLIC, FRIENDS_ONLY, PRIVATE
     final avatarPath = useState<String?>(null);
     final avatarUrl = useState<String?>(null);
     final isInitialized = useState(false);
@@ -51,9 +49,9 @@ class EditProfilePage extends HookConsumerWidget {
         phone.value = currentProfile.phone ?? '';
         email.value = currentProfile.email;
         location.value = currentProfile.location ?? '';
-        gender.value = currentProfile.gender;
+        gender.value = currentProfile.gender; // Already String
         dob.value = currentProfile.dateOfBirth;
-        visibility.value = currentProfile.profileVisibility ?? ProfileVisibility.public;
+        visibility.value = currentProfile.profileVisibility ?? 'PUBLIC'; // Already String
         avatarUrl.value = currentProfile.avatarUrl;
         isInitialized.value = true;
       }
@@ -74,7 +72,7 @@ class EditProfilePage extends HookConsumerWidget {
                 location.value != (currentProfile.location ?? '') ||
                 gender.value != currentProfile.gender ||
                 dob.value != currentProfile.dateOfBirth ||
-                visibility.value != (currentProfile.profileVisibility ?? ProfileVisibility.public) ||
+                visibility.value != (currentProfile.profileVisibility ?? 'PUBLIC') ||
                 avatarPath.value != null;
             hasUnsavedChanges.value = changed;
           }
@@ -178,15 +176,12 @@ class EditProfilePage extends HookConsumerWidget {
 
       try {
         final params = UpdateProfileParams(
-          username: username.value,
-          email: email.value,
           fullName: fullName.value,
           phone: phone.value.isNotEmpty ? phone.value : null,
           bio: bio.value.isNotEmpty ? bio.value : null,
           dateOfBirth: dob.value,
           gender: gender.value,
           location: location.value.isNotEmpty ? location.value : null,
-          profileVisibility: visibility.value,
           avatarUrl: avatarPath.value != null ? null : avatarUrl.value,
         );
 
@@ -330,6 +325,12 @@ class EditProfilePage extends HookConsumerWidget {
     }
 
     void showGenderPicker() {
+      final genderOptions = [
+        {'value': 'MALE', 'label': 'Male'},
+        {'value': 'FEMALE', 'label': 'Female'},
+        {'value': 'OTHER', 'label': 'Other'},
+      ];
+
       showModalBottomSheet(
         context: context,
         shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
@@ -340,30 +341,20 @@ class EditProfilePage extends HookConsumerWidget {
             children: [
               Text('Select Gender', style: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
               const SizedBox(height: 10),
-              GenderOption(
-                gender: Gender.male,
-                selectedGender: gender.value,
-                onSelect: (g) {
-                  gender.value = g;
-                  Navigator.pop(context);
-                },
-              ),
-              GenderOption(
-                gender: Gender.female,
-                selectedGender: gender.value,
-                onSelect: (g) {
-                  gender.value = g;
-                  Navigator.pop(context);
-                },
-              ),
-              GenderOption(
-                gender: Gender.other,
-                selectedGender: gender.value,
-                onSelect: (g) {
-                  gender.value = g;
-                  Navigator.pop(context);
-                },
-              ),
+              ...genderOptions.map((option) {
+                final isSelected = gender.value == option['value'];
+                return ListTile(
+                  leading: Icon(
+                    isSelected ? Icons.radio_button_checked : Icons.radio_button_off,
+                    color: isSelected ? colors.primary : colors.onSurfaceVariant,
+                  ),
+                  title: Text(option['label']!),
+                  onTap: () {
+                    gender.value = option['value'];
+                    Navigator.pop(context);
+                  },
+                );
+              }),
               const SizedBox(height: 20),
             ],
           ),
@@ -372,6 +363,12 @@ class EditProfilePage extends HookConsumerWidget {
     }
 
     void showVisibilityPicker() {
+      final visibilityOptions = [
+        {'value': 'PUBLIC', 'label': 'Public'},
+        {'value': 'FRIENDS_ONLY', 'label': 'Friends Only'},
+        {'value': 'PRIVATE', 'label': 'Private'},
+      ];
+
       showModalBottomSheet(
         context: context,
         shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
@@ -383,15 +380,15 @@ class EditProfilePage extends HookConsumerWidget {
               children: [
                 Text('Profile Visibility', style: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
                 const SizedBox(height: 10),
-                ...ProfileVisibility.values.map(
-                  (v) => ListTile(
+                ...visibilityOptions.map(
+                  (option) => ListTile(
                     leading: Icon(
-                      visibility.value == v ? Icons.radio_button_checked : Icons.radio_button_off,
-                      color: visibility.value == v ? colors.primary : colors.onSurfaceVariant,
+                      visibility.value == option['value'] ? Icons.radio_button_checked : Icons.radio_button_off,
+                      color: visibility.value == option['value'] ? colors.primary : colors.onSurfaceVariant,
                     ),
-                    title: Text(v.label),
+                    title: Text(option['label']!),
                     onTap: () {
-                      visibility.value = v;
+                      visibility.value = option['value'];
                       Navigator.pop(context);
                     },
                   ),
@@ -541,7 +538,7 @@ class EditProfilePage extends HookConsumerWidget {
                 ),
                 ProfileMenuItem(
                   label: 'Gender',
-                  value: gender.value?.label ?? 'Not set',
+                  value: gender.value ?? 'Not set', // Already String
                   icon: FontAwesomeIcons.venusMars,
                   onTap: showGenderPicker,
                 ),
@@ -575,7 +572,7 @@ class EditProfilePage extends HookConsumerWidget {
                   label: 'Email',
                   value: email.value,
                   icon: FontAwesomeIcons.envelope,
-                  isVerified: profileAsync.asData?.value.isEmailVerified ?? false,
+                  isVerified: profileAsync.asData?.value.emailVerified ?? false,
                   onTap: () => openEditor(
                     title: 'Email',
                     label: 'Email Address',
@@ -630,10 +627,10 @@ class EditProfilePage extends HookConsumerWidget {
               children: [
                 ProfileMenuItem(
                   label: 'Profile Visibility',
-                  value: visibility.value.label,
-                  icon: visibility.value == ProfileVisibility.private
+                  value: visibility.value ?? 'PUBLIC', // Already String
+                  icon: visibility.value == 'PRIVATE'
                       ? FontAwesomeIcons.lock
-                      : visibility.value == ProfileVisibility.friendsOnly
+                      : visibility.value == 'FRIENDS_ONLY'
                       ? FontAwesomeIcons.userGroup
                       : FontAwesomeIcons.globe,
                   onTap: showVisibilityPicker,

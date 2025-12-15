@@ -1,5 +1,8 @@
 import 'dart:convert';
+import 'package:chattrix_ui/features/chat/data/models/mentioned_user_model.dart';
 import 'package:chattrix_ui/features/chat/data/models/message_sender_model.dart';
+import 'package:chattrix_ui/features/chat/data/models/read_receipt_model.dart';
+import 'package:chattrix_ui/features/chat/data/models/reply_to_message_model.dart';
 import 'package:chattrix_ui/features/chat/domain/entities/message.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -27,8 +30,21 @@ abstract class MessageModel with _$MessageModel {
     double? longitude,
     String? locationName,
     int? replyToMessageId,
+    ReplyToMessageModel? replyToMessage,
     String? reactions,
     String? mentions,
+    @Default([]) List<MentionedUserModel> mentionedUsers,
+    String? sentAt,
+    String? updatedAt,
+    @Default(false) bool edited,
+    String? editedAt,
+    @Default(false) bool deleted,
+    String? deletedAt,
+    @Default(false) bool forwarded,
+    int? originalMessageId,
+    @Default(0) int forwardCount,
+    @Default(0) int readCount,
+    @Default([]) List<ReadReceiptModel> readBy,
   }) = _MessageModel;
 
   factory MessageModel.fromJson(Map<String, dynamic> json) => _$MessageModelFromJson(json);
@@ -45,12 +61,38 @@ abstract class MessageModel with _$MessageModel {
             'fullName': json['senderFullName'] ?? json['full_name'] ?? '',
           };
 
+    // Parse replyToMessage
+    ReplyToMessageModel? replyToMessage;
+    if (json['replyToMessage'] != null && json['replyToMessage'] is Map<String, dynamic>) {
+      replyToMessage = ReplyToMessageModel.fromJson(json['replyToMessage']);
+    }
+
+    // Parse mentionedUsers
+    List<MentionedUserModel> mentionedUsers = [];
+    if (json['mentionedUsers'] != null && json['mentionedUsers'] is List) {
+      mentionedUsers = (json['mentionedUsers'] as List)
+          .map((e) => MentionedUserModel.fromJson(e as Map<String, dynamic>))
+          .toList();
+    }
+
+    // Parse readBy
+    List<ReadReceiptModel> readBy = [];
+    if (json['readBy'] != null && json['readBy'] is List) {
+      readBy = (json['readBy'] as List)
+          .map((e) => ReadReceiptModel.fromJson(e as Map<String, dynamic>))
+          .toList();
+    }
+
     return MessageModel(
-      id: (json['id'] ?? json['messageId'] ?? ''),
+      id: (json['id'] ?? json['messageId'] ?? 0) is int
+          ? (json['id'] ?? json['messageId'] ?? 0)
+          : int.tryParse((json['id'] ?? json['messageId'] ?? 0).toString()) ?? 0,
       content: (json['content'] ?? '').toString(),
       type: (json['type'] ?? '').toString(),
       createdAt: (json['createdAt'] ?? json['sentAt'] ?? DateTime.now().toIso8601String()).toString(),
-      conversationId: (json['conversationId'] ?? json['conversation_id'] ?? '').toString(),
+      conversationId: (json['conversationId'] ?? json['conversation_id'] ?? 0) is int
+          ? (json['conversationId'] ?? json['conversation_id'] ?? 0).toString()
+          : (json['conversationId'] ?? json['conversation_id'] ?? '').toString(),
       sender: MessageSenderModel.fromApi(senderJson),
       mediaUrl: json['mediaUrl']?.toString(),
       thumbnailUrl: json['thumbnailUrl']?.toString(),
@@ -61,8 +103,21 @@ abstract class MessageModel with _$MessageModel {
       longitude: json['longitude'] != null ? (json['longitude'] as num).toDouble() : null,
       locationName: json['locationName']?.toString(),
       replyToMessageId: json['replyToMessageId'] != null ? (json['replyToMessageId'] as num).toInt() : null,
+      replyToMessage: replyToMessage,
       reactions: _convertReactionsToJson(json['reactions']),
       mentions: _convertMentionsToJson(json['mentions']),
+      mentionedUsers: mentionedUsers,
+      sentAt: json['sentAt']?.toString(),
+      updatedAt: json['updatedAt']?.toString(),
+      edited: json['edited'] ?? false,
+      editedAt: json['editedAt']?.toString(),
+      deleted: json['deleted'] ?? false,
+      deletedAt: json['deletedAt']?.toString(),
+      forwarded: json['forwarded'] ?? false,
+      originalMessageId: json['originalMessageId'] != null ? (json['originalMessageId'] as num).toInt() : null,
+      forwardCount: json['forwardCount'] ?? 0,
+      readCount: json['readCount'] ?? 0,
+      readBy: readBy,
     );
   }
 
@@ -118,8 +173,21 @@ abstract class MessageModel with _$MessageModel {
       longitude: longitude,
       locationName: locationName,
       replyToMessageId: replyToMessageId,
+      replyToMessage: replyToMessage?.toEntity(),
       reactions: reactions,
       mentions: mentions,
+      mentionedUsers: mentionedUsers.map((e) => e.toEntity()).toList(),
+      sentAt: sentAt != null ? DateTime.parse(sentAt!) : null,
+      updatedAt: updatedAt != null ? DateTime.parse(updatedAt!) : null,
+      edited: edited,
+      editedAt: editedAt != null ? DateTime.parse(editedAt!) : null,
+      deleted: deleted,
+      deletedAt: deletedAt != null ? DateTime.parse(deletedAt!) : null,
+      forwarded: forwarded,
+      originalMessageId: originalMessageId,
+      forwardCount: forwardCount,
+      readCount: readCount,
+      readBy: readBy.map((e) => e.toEntity()).toList(),
     );
   }
 }

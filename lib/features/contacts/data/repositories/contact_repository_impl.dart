@@ -8,14 +8,18 @@ import 'package:dartz/dartz.dart';
 
 class ContactRepositoryImpl implements ContactRepository {
   final ContactRemoteDataSource remoteDataSource;
+  final int currentUserId;
 
-  ContactRepositoryImpl({required this.remoteDataSource});
+  ContactRepositoryImpl({
+    required this.remoteDataSource,
+    required this.currentUserId,
+  });
 
   @override
   Future<Either<Failure, FriendRequest>> sendFriendRequest({required int receiverUserId, String? nickname}) async {
     try {
       final result = await remoteDataSource.sendFriendRequest(receiverUserId: receiverUserId, nickname: nickname);
-      return Right(result.toEntity());
+      return Right(result.toEntityAsSent(currentUserId));
     } on ServerException catch (e) {
       return Left(_mapServerExceptionToFailure(e));
     } on NetworkException catch (e) {
@@ -29,7 +33,7 @@ class ContactRepositoryImpl implements ContactRepository {
   Future<Either<Failure, List<FriendRequest>>> getReceivedFriendRequests() async {
     try {
       final result = await remoteDataSource.getReceivedFriendRequests();
-      return Right(result.map((model) => model.toEntity()).toList());
+      return Right(result.map((model) => model.toEntityAsReceived(currentUserId)).toList());
     } on ServerException catch (e) {
       return Left(_mapServerExceptionToFailure(e));
     } on NetworkException catch (e) {
@@ -43,7 +47,7 @@ class ContactRepositoryImpl implements ContactRepository {
   Future<Either<Failure, List<FriendRequest>>> getSentFriendRequests() async {
     try {
       final result = await remoteDataSource.getSentFriendRequests();
-      return Right(result.map((model) => model.toEntity()).toList());
+      return Right(result.map((model) => model.toEntityAsSent(currentUserId)).toList());
     } on ServerException catch (e) {
       return Left(_mapServerExceptionToFailure(e));
     } on NetworkException catch (e) {

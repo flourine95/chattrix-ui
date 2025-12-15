@@ -15,7 +15,8 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$FriendRequestModel {
 
- int get id; int get userId; String get username; String get fullName; String? get avatarUrl; String? get nickname; FriendRequestStatus get status; DateTime get requestedAt; DateTime? get acceptedAt; DateTime? get rejectedAt; bool get online;
+ int get id; int get userId;// Sender khi received, Receiver khi sent
+ String get username; String get fullName; String? get avatarUrl; String? get nickname; FriendRequestStatus get status; bool get online; DateTime get requestedAt; DateTime? get acceptedAt; DateTime? get rejectedAt;
 /// Create a copy of FriendRequestModel
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -28,16 +29,16 @@ $FriendRequestModelCopyWith<FriendRequestModel> get copyWith => _$FriendRequestM
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is FriendRequestModel&&(identical(other.id, id) || other.id == id)&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.username, username) || other.username == username)&&(identical(other.fullName, fullName) || other.fullName == fullName)&&(identical(other.avatarUrl, avatarUrl) || other.avatarUrl == avatarUrl)&&(identical(other.nickname, nickname) || other.nickname == nickname)&&(identical(other.status, status) || other.status == status)&&(identical(other.requestedAt, requestedAt) || other.requestedAt == requestedAt)&&(identical(other.acceptedAt, acceptedAt) || other.acceptedAt == acceptedAt)&&(identical(other.rejectedAt, rejectedAt) || other.rejectedAt == rejectedAt)&&(identical(other.online, online) || other.online == online));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is FriendRequestModel&&(identical(other.id, id) || other.id == id)&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.username, username) || other.username == username)&&(identical(other.fullName, fullName) || other.fullName == fullName)&&(identical(other.avatarUrl, avatarUrl) || other.avatarUrl == avatarUrl)&&(identical(other.nickname, nickname) || other.nickname == nickname)&&(identical(other.status, status) || other.status == status)&&(identical(other.online, online) || other.online == online)&&(identical(other.requestedAt, requestedAt) || other.requestedAt == requestedAt)&&(identical(other.acceptedAt, acceptedAt) || other.acceptedAt == acceptedAt)&&(identical(other.rejectedAt, rejectedAt) || other.rejectedAt == rejectedAt));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,userId,username,fullName,avatarUrl,nickname,status,requestedAt,acceptedAt,rejectedAt,online);
+int get hashCode => Object.hash(runtimeType,id,userId,username,fullName,avatarUrl,nickname,status,online,requestedAt,acceptedAt,rejectedAt);
 
 @override
 String toString() {
-  return 'FriendRequestModel(id: $id, userId: $userId, username: $username, fullName: $fullName, avatarUrl: $avatarUrl, nickname: $nickname, status: $status, requestedAt: $requestedAt, acceptedAt: $acceptedAt, rejectedAt: $rejectedAt, online: $online)';
+  return 'FriendRequestModel(id: $id, userId: $userId, username: $username, fullName: $fullName, avatarUrl: $avatarUrl, nickname: $nickname, status: $status, online: $online, requestedAt: $requestedAt, acceptedAt: $acceptedAt, rejectedAt: $rejectedAt)';
 }
 
 
@@ -48,7 +49,7 @@ abstract mixin class $FriendRequestModelCopyWith<$Res>  {
   factory $FriendRequestModelCopyWith(FriendRequestModel value, $Res Function(FriendRequestModel) _then) = _$FriendRequestModelCopyWithImpl;
 @useResult
 $Res call({
- int id, int userId, String username, String fullName, String? avatarUrl, String? nickname, FriendRequestStatus status, DateTime requestedAt, DateTime? acceptedAt, DateTime? rejectedAt, bool online
+ int id, int userId, String username, String fullName, String? avatarUrl, String? nickname, FriendRequestStatus status, bool online, DateTime requestedAt, DateTime? acceptedAt, DateTime? rejectedAt
 });
 
 
@@ -65,7 +66,7 @@ class _$FriendRequestModelCopyWithImpl<$Res>
 
 /// Create a copy of FriendRequestModel
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? userId = null,Object? username = null,Object? fullName = null,Object? avatarUrl = freezed,Object? nickname = freezed,Object? status = null,Object? requestedAt = null,Object? acceptedAt = freezed,Object? rejectedAt = freezed,Object? online = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? userId = null,Object? username = null,Object? fullName = null,Object? avatarUrl = freezed,Object? nickname = freezed,Object? status = null,Object? online = null,Object? requestedAt = null,Object? acceptedAt = freezed,Object? rejectedAt = freezed,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as int,userId: null == userId ? _self.userId : userId // ignore: cast_nullable_to_non_nullable
@@ -74,11 +75,11 @@ as String,fullName: null == fullName ? _self.fullName : fullName // ignore: cast
 as String,avatarUrl: freezed == avatarUrl ? _self.avatarUrl : avatarUrl // ignore: cast_nullable_to_non_nullable
 as String?,nickname: freezed == nickname ? _self.nickname : nickname // ignore: cast_nullable_to_non_nullable
 as String?,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
-as FriendRequestStatus,requestedAt: null == requestedAt ? _self.requestedAt : requestedAt // ignore: cast_nullable_to_non_nullable
+as FriendRequestStatus,online: null == online ? _self.online : online // ignore: cast_nullable_to_non_nullable
+as bool,requestedAt: null == requestedAt ? _self.requestedAt : requestedAt // ignore: cast_nullable_to_non_nullable
 as DateTime,acceptedAt: freezed == acceptedAt ? _self.acceptedAt : acceptedAt // ignore: cast_nullable_to_non_nullable
 as DateTime?,rejectedAt: freezed == rejectedAt ? _self.rejectedAt : rejectedAt // ignore: cast_nullable_to_non_nullable
-as DateTime?,online: null == online ? _self.online : online // ignore: cast_nullable_to_non_nullable
-as bool,
+as DateTime?,
   ));
 }
 
@@ -163,10 +164,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int id,  int userId,  String username,  String fullName,  String? avatarUrl,  String? nickname,  FriendRequestStatus status,  DateTime requestedAt,  DateTime? acceptedAt,  DateTime? rejectedAt,  bool online)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int id,  int userId,  String username,  String fullName,  String? avatarUrl,  String? nickname,  FriendRequestStatus status,  bool online,  DateTime requestedAt,  DateTime? acceptedAt,  DateTime? rejectedAt)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _FriendRequestModel() when $default != null:
-return $default(_that.id,_that.userId,_that.username,_that.fullName,_that.avatarUrl,_that.nickname,_that.status,_that.requestedAt,_that.acceptedAt,_that.rejectedAt,_that.online);case _:
+return $default(_that.id,_that.userId,_that.username,_that.fullName,_that.avatarUrl,_that.nickname,_that.status,_that.online,_that.requestedAt,_that.acceptedAt,_that.rejectedAt);case _:
   return orElse();
 
 }
@@ -184,10 +185,10 @@ return $default(_that.id,_that.userId,_that.username,_that.fullName,_that.avatar
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int id,  int userId,  String username,  String fullName,  String? avatarUrl,  String? nickname,  FriendRequestStatus status,  DateTime requestedAt,  DateTime? acceptedAt,  DateTime? rejectedAt,  bool online)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int id,  int userId,  String username,  String fullName,  String? avatarUrl,  String? nickname,  FriendRequestStatus status,  bool online,  DateTime requestedAt,  DateTime? acceptedAt,  DateTime? rejectedAt)  $default,) {final _that = this;
 switch (_that) {
 case _FriendRequestModel():
-return $default(_that.id,_that.userId,_that.username,_that.fullName,_that.avatarUrl,_that.nickname,_that.status,_that.requestedAt,_that.acceptedAt,_that.rejectedAt,_that.online);case _:
+return $default(_that.id,_that.userId,_that.username,_that.fullName,_that.avatarUrl,_that.nickname,_that.status,_that.online,_that.requestedAt,_that.acceptedAt,_that.rejectedAt);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -204,10 +205,10 @@ return $default(_that.id,_that.userId,_that.username,_that.fullName,_that.avatar
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int id,  int userId,  String username,  String fullName,  String? avatarUrl,  String? nickname,  FriendRequestStatus status,  DateTime requestedAt,  DateTime? acceptedAt,  DateTime? rejectedAt,  bool online)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int id,  int userId,  String username,  String fullName,  String? avatarUrl,  String? nickname,  FriendRequestStatus status,  bool online,  DateTime requestedAt,  DateTime? acceptedAt,  DateTime? rejectedAt)?  $default,) {final _that = this;
 switch (_that) {
 case _FriendRequestModel() when $default != null:
-return $default(_that.id,_that.userId,_that.username,_that.fullName,_that.avatarUrl,_that.nickname,_that.status,_that.requestedAt,_that.acceptedAt,_that.rejectedAt,_that.online);case _:
+return $default(_that.id,_that.userId,_that.username,_that.fullName,_that.avatarUrl,_that.nickname,_that.status,_that.online,_that.requestedAt,_that.acceptedAt,_that.rejectedAt);case _:
   return null;
 
 }
@@ -219,20 +220,21 @@ return $default(_that.id,_that.userId,_that.username,_that.fullName,_that.avatar
 @JsonSerializable()
 
 class _FriendRequestModel extends FriendRequestModel {
-  const _FriendRequestModel({required this.id, required this.userId, required this.username, required this.fullName, this.avatarUrl, this.nickname, required this.status, required this.requestedAt, this.acceptedAt, this.rejectedAt, this.online = false}): super._();
+  const _FriendRequestModel({required this.id, required this.userId, required this.username, required this.fullName, this.avatarUrl, this.nickname, required this.status, this.online = false, required this.requestedAt, this.acceptedAt, this.rejectedAt}): super._();
   factory _FriendRequestModel.fromJson(Map<String, dynamic> json) => _$FriendRequestModelFromJson(json);
 
 @override final  int id;
 @override final  int userId;
+// Sender khi received, Receiver khi sent
 @override final  String username;
 @override final  String fullName;
 @override final  String? avatarUrl;
 @override final  String? nickname;
 @override final  FriendRequestStatus status;
+@override@JsonKey() final  bool online;
 @override final  DateTime requestedAt;
 @override final  DateTime? acceptedAt;
 @override final  DateTime? rejectedAt;
-@override@JsonKey() final  bool online;
 
 /// Create a copy of FriendRequestModel
 /// with the given fields replaced by the non-null parameter values.
@@ -247,16 +249,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _FriendRequestModel&&(identical(other.id, id) || other.id == id)&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.username, username) || other.username == username)&&(identical(other.fullName, fullName) || other.fullName == fullName)&&(identical(other.avatarUrl, avatarUrl) || other.avatarUrl == avatarUrl)&&(identical(other.nickname, nickname) || other.nickname == nickname)&&(identical(other.status, status) || other.status == status)&&(identical(other.requestedAt, requestedAt) || other.requestedAt == requestedAt)&&(identical(other.acceptedAt, acceptedAt) || other.acceptedAt == acceptedAt)&&(identical(other.rejectedAt, rejectedAt) || other.rejectedAt == rejectedAt)&&(identical(other.online, online) || other.online == online));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _FriendRequestModel&&(identical(other.id, id) || other.id == id)&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.username, username) || other.username == username)&&(identical(other.fullName, fullName) || other.fullName == fullName)&&(identical(other.avatarUrl, avatarUrl) || other.avatarUrl == avatarUrl)&&(identical(other.nickname, nickname) || other.nickname == nickname)&&(identical(other.status, status) || other.status == status)&&(identical(other.online, online) || other.online == online)&&(identical(other.requestedAt, requestedAt) || other.requestedAt == requestedAt)&&(identical(other.acceptedAt, acceptedAt) || other.acceptedAt == acceptedAt)&&(identical(other.rejectedAt, rejectedAt) || other.rejectedAt == rejectedAt));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,userId,username,fullName,avatarUrl,nickname,status,requestedAt,acceptedAt,rejectedAt,online);
+int get hashCode => Object.hash(runtimeType,id,userId,username,fullName,avatarUrl,nickname,status,online,requestedAt,acceptedAt,rejectedAt);
 
 @override
 String toString() {
-  return 'FriendRequestModel(id: $id, userId: $userId, username: $username, fullName: $fullName, avatarUrl: $avatarUrl, nickname: $nickname, status: $status, requestedAt: $requestedAt, acceptedAt: $acceptedAt, rejectedAt: $rejectedAt, online: $online)';
+  return 'FriendRequestModel(id: $id, userId: $userId, username: $username, fullName: $fullName, avatarUrl: $avatarUrl, nickname: $nickname, status: $status, online: $online, requestedAt: $requestedAt, acceptedAt: $acceptedAt, rejectedAt: $rejectedAt)';
 }
 
 
@@ -267,7 +269,7 @@ abstract mixin class _$FriendRequestModelCopyWith<$Res> implements $FriendReques
   factory _$FriendRequestModelCopyWith(_FriendRequestModel value, $Res Function(_FriendRequestModel) _then) = __$FriendRequestModelCopyWithImpl;
 @override @useResult
 $Res call({
- int id, int userId, String username, String fullName, String? avatarUrl, String? nickname, FriendRequestStatus status, DateTime requestedAt, DateTime? acceptedAt, DateTime? rejectedAt, bool online
+ int id, int userId, String username, String fullName, String? avatarUrl, String? nickname, FriendRequestStatus status, bool online, DateTime requestedAt, DateTime? acceptedAt, DateTime? rejectedAt
 });
 
 
@@ -284,7 +286,7 @@ class __$FriendRequestModelCopyWithImpl<$Res>
 
 /// Create a copy of FriendRequestModel
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? userId = null,Object? username = null,Object? fullName = null,Object? avatarUrl = freezed,Object? nickname = freezed,Object? status = null,Object? requestedAt = null,Object? acceptedAt = freezed,Object? rejectedAt = freezed,Object? online = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? userId = null,Object? username = null,Object? fullName = null,Object? avatarUrl = freezed,Object? nickname = freezed,Object? status = null,Object? online = null,Object? requestedAt = null,Object? acceptedAt = freezed,Object? rejectedAt = freezed,}) {
   return _then(_FriendRequestModel(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as int,userId: null == userId ? _self.userId : userId // ignore: cast_nullable_to_non_nullable
@@ -293,11 +295,11 @@ as String,fullName: null == fullName ? _self.fullName : fullName // ignore: cast
 as String,avatarUrl: freezed == avatarUrl ? _self.avatarUrl : avatarUrl // ignore: cast_nullable_to_non_nullable
 as String?,nickname: freezed == nickname ? _self.nickname : nickname // ignore: cast_nullable_to_non_nullable
 as String?,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
-as FriendRequestStatus,requestedAt: null == requestedAt ? _self.requestedAt : requestedAt // ignore: cast_nullable_to_non_nullable
+as FriendRequestStatus,online: null == online ? _self.online : online // ignore: cast_nullable_to_non_nullable
+as bool,requestedAt: null == requestedAt ? _self.requestedAt : requestedAt // ignore: cast_nullable_to_non_nullable
 as DateTime,acceptedAt: freezed == acceptedAt ? _self.acceptedAt : acceptedAt // ignore: cast_nullable_to_non_nullable
 as DateTime?,rejectedAt: freezed == rejectedAt ? _self.rejectedAt : rejectedAt // ignore: cast_nullable_to_non_nullable
-as DateTime?,online: null == online ? _self.online : online // ignore: cast_nullable_to_non_nullable
-as bool,
+as DateTime?,
   ));
 }
 

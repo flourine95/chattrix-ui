@@ -179,8 +179,10 @@ class ConversationUtils {
       email: otherParticipant.email ?? '', // Use participant email if available
       fullName: otherParticipant.fullName,
       avatarUrl: otherParticipant.avatarUrl, // Now available in Participant
-      isOnline: otherParticipant.isOnline ?? false,
-      lastSeen: otherParticipant.lastSeen ?? DateTime.now(),
+      online: otherParticipant.isOnline ?? false,
+      lastSeen: otherParticipant.lastSeen,
+      emailVerified: false, // Not available in Participant
+      createdAt: DateTime.now(), // Not available in Participant
     );
   }
 

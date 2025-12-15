@@ -85,6 +85,10 @@ class ApiConstants {
 
   static String get updateProfile => '$_baseUrl/$_v1/profile/me';
 
+  static String profileByUserId(int userId) => '$_baseUrl/$_v1/profile/$userId';
+
+  static String profileByUsername(String username) => '$_baseUrl/$_v1/profile/username/$username';
+
 
   // Conversation endpoints
   static String get conversations => '$_baseUrl/$_v1/conversations';
@@ -115,6 +119,8 @@ class ApiConstants {
 
   static String messageEditHistory(String messageId) => '$_baseUrl/$_v1/messages/$messageId/edit-history';
 
+  static String messageRead(String messageId) => '$_baseUrl/$_v1/messages/$messageId/read';
+
   // Typing endpoints
   static String get typingStart => '$_baseUrl/$_v1/typing/start';
 
@@ -123,7 +129,7 @@ class ApiConstants {
   static String typingStatus(String conversationId) => '$_baseUrl/$_v1/typing/status/$conversationId';
 
   // Friend Request endpoints
-  static String get sendFriendRequest => '$_baseUrl/$_v1/friend-requests/send';
+  static String get sendFriendRequest => '$_baseUrl/$_v1/friend-requests';
 
   static String get receivedFriendRequests => '$_baseUrl/$_v1/friend-requests/received';
 
@@ -133,7 +139,7 @@ class ApiConstants {
 
   static String rejectFriendRequest(int requestId) => '$_baseUrl/$_v1/friend-requests/$requestId/reject';
 
-  static String cancelFriendRequest(int requestId) => '$_baseUrl/$_v1/friend-requests/$requestId/cancel';
+  static String cancelFriendRequest(int requestId) => '$_baseUrl/$_v1/friend-requests/$requestId';
 
   // Contact endpoints
   static String get contacts => '$_baseUrl/$_v1/contacts';
@@ -143,6 +149,21 @@ class ApiConstants {
   static String updateContactNickname(int contactId) => '$_baseUrl/$_v1/contacts/$contactId/nickname';
 
   static String deleteContact(int contactId) => '$_baseUrl/$_v1/contacts/$contactId';
+
+  static String get favoriteContacts => '$_baseUrl/$_v1/contacts/favorites';
+
+  static String toggleContactFavorite(int contactId) => '$_baseUrl/$_v1/contacts/$contactId/favorite';
+
+  // Notes endpoints
+  static String get notes => '$_baseUrl/$_v1/notes';
+
+  static String get myNotes => '$_baseUrl/$_v1/notes/me';
+
+  static String notesByUserId(int userId) => '$_baseUrl/$_v1/notes/$userId';
+
+  static String noteReplies(int noteId) => '$_baseUrl/$_v1/notes/$noteId/replies';
+
+  static String noteReact(int noteId) => '$_baseUrl/$_v1/notes/$noteId/react';
 
   // Call endpoints
   static String get initiateCall => '$_baseUrl/$_v1/calls/initiate';

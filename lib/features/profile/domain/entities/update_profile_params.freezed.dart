@@ -14,7 +14,8 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$UpdateProfileParams {
 
- String? get username; String? get email; String? get fullName; String? get phone; String? get bio; DateTime? get dateOfBirth; Gender? get gender; String? get location; ProfileVisibility? get profileVisibility; String? get avatarUrl;
+ String? get fullName; String? get avatarUrl; String? get phone; String? get bio; DateTime? get dateOfBirth; String? get gender;// MALE, FEMALE, OTHER
+ String? get location;
 /// Create a copy of UpdateProfileParams
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -25,16 +26,16 @@ $UpdateProfileParamsCopyWith<UpdateProfileParams> get copyWith => _$UpdateProfil
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is UpdateProfileParams&&(identical(other.username, username) || other.username == username)&&(identical(other.email, email) || other.email == email)&&(identical(other.fullName, fullName) || other.fullName == fullName)&&(identical(other.phone, phone) || other.phone == phone)&&(identical(other.bio, bio) || other.bio == bio)&&(identical(other.dateOfBirth, dateOfBirth) || other.dateOfBirth == dateOfBirth)&&(identical(other.gender, gender) || other.gender == gender)&&(identical(other.location, location) || other.location == location)&&(identical(other.profileVisibility, profileVisibility) || other.profileVisibility == profileVisibility)&&(identical(other.avatarUrl, avatarUrl) || other.avatarUrl == avatarUrl));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is UpdateProfileParams&&(identical(other.fullName, fullName) || other.fullName == fullName)&&(identical(other.avatarUrl, avatarUrl) || other.avatarUrl == avatarUrl)&&(identical(other.phone, phone) || other.phone == phone)&&(identical(other.bio, bio) || other.bio == bio)&&(identical(other.dateOfBirth, dateOfBirth) || other.dateOfBirth == dateOfBirth)&&(identical(other.gender, gender) || other.gender == gender)&&(identical(other.location, location) || other.location == location));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,username,email,fullName,phone,bio,dateOfBirth,gender,location,profileVisibility,avatarUrl);
+int get hashCode => Object.hash(runtimeType,fullName,avatarUrl,phone,bio,dateOfBirth,gender,location);
 
 @override
 String toString() {
-  return 'UpdateProfileParams(username: $username, email: $email, fullName: $fullName, phone: $phone, bio: $bio, dateOfBirth: $dateOfBirth, gender: $gender, location: $location, profileVisibility: $profileVisibility, avatarUrl: $avatarUrl)';
+  return 'UpdateProfileParams(fullName: $fullName, avatarUrl: $avatarUrl, phone: $phone, bio: $bio, dateOfBirth: $dateOfBirth, gender: $gender, location: $location)';
 }
 
 
@@ -45,7 +46,7 @@ abstract mixin class $UpdateProfileParamsCopyWith<$Res>  {
   factory $UpdateProfileParamsCopyWith(UpdateProfileParams value, $Res Function(UpdateProfileParams) _then) = _$UpdateProfileParamsCopyWithImpl;
 @useResult
 $Res call({
- String? username, String? email, String? fullName, String? phone, String? bio, DateTime? dateOfBirth, Gender? gender, String? location, ProfileVisibility? profileVisibility, String? avatarUrl
+ String? fullName, String? avatarUrl, String? phone, String? bio, DateTime? dateOfBirth, String? gender, String? location
 });
 
 
@@ -62,18 +63,15 @@ class _$UpdateProfileParamsCopyWithImpl<$Res>
 
 /// Create a copy of UpdateProfileParams
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? username = freezed,Object? email = freezed,Object? fullName = freezed,Object? phone = freezed,Object? bio = freezed,Object? dateOfBirth = freezed,Object? gender = freezed,Object? location = freezed,Object? profileVisibility = freezed,Object? avatarUrl = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? fullName = freezed,Object? avatarUrl = freezed,Object? phone = freezed,Object? bio = freezed,Object? dateOfBirth = freezed,Object? gender = freezed,Object? location = freezed,}) {
   return _then(_self.copyWith(
-username: freezed == username ? _self.username : username // ignore: cast_nullable_to_non_nullable
-as String?,email: freezed == email ? _self.email : email // ignore: cast_nullable_to_non_nullable
-as String?,fullName: freezed == fullName ? _self.fullName : fullName // ignore: cast_nullable_to_non_nullable
+fullName: freezed == fullName ? _self.fullName : fullName // ignore: cast_nullable_to_non_nullable
+as String?,avatarUrl: freezed == avatarUrl ? _self.avatarUrl : avatarUrl // ignore: cast_nullable_to_non_nullable
 as String?,phone: freezed == phone ? _self.phone : phone // ignore: cast_nullable_to_non_nullable
 as String?,bio: freezed == bio ? _self.bio : bio // ignore: cast_nullable_to_non_nullable
 as String?,dateOfBirth: freezed == dateOfBirth ? _self.dateOfBirth : dateOfBirth // ignore: cast_nullable_to_non_nullable
 as DateTime?,gender: freezed == gender ? _self.gender : gender // ignore: cast_nullable_to_non_nullable
-as Gender?,location: freezed == location ? _self.location : location // ignore: cast_nullable_to_non_nullable
-as String?,profileVisibility: freezed == profileVisibility ? _self.profileVisibility : profileVisibility // ignore: cast_nullable_to_non_nullable
-as ProfileVisibility?,avatarUrl: freezed == avatarUrl ? _self.avatarUrl : avatarUrl // ignore: cast_nullable_to_non_nullable
+as String?,location: freezed == location ? _self.location : location // ignore: cast_nullable_to_non_nullable
 as String?,
   ));
 }
@@ -159,10 +157,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String? username,  String? email,  String? fullName,  String? phone,  String? bio,  DateTime? dateOfBirth,  Gender? gender,  String? location,  ProfileVisibility? profileVisibility,  String? avatarUrl)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String? fullName,  String? avatarUrl,  String? phone,  String? bio,  DateTime? dateOfBirth,  String? gender,  String? location)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _UpdateProfileParams() when $default != null:
-return $default(_that.username,_that.email,_that.fullName,_that.phone,_that.bio,_that.dateOfBirth,_that.gender,_that.location,_that.profileVisibility,_that.avatarUrl);case _:
+return $default(_that.fullName,_that.avatarUrl,_that.phone,_that.bio,_that.dateOfBirth,_that.gender,_that.location);case _:
   return orElse();
 
 }
@@ -180,10 +178,10 @@ return $default(_that.username,_that.email,_that.fullName,_that.phone,_that.bio,
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String? username,  String? email,  String? fullName,  String? phone,  String? bio,  DateTime? dateOfBirth,  Gender? gender,  String? location,  ProfileVisibility? profileVisibility,  String? avatarUrl)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String? fullName,  String? avatarUrl,  String? phone,  String? bio,  DateTime? dateOfBirth,  String? gender,  String? location)  $default,) {final _that = this;
 switch (_that) {
 case _UpdateProfileParams():
-return $default(_that.username,_that.email,_that.fullName,_that.phone,_that.bio,_that.dateOfBirth,_that.gender,_that.location,_that.profileVisibility,_that.avatarUrl);case _:
+return $default(_that.fullName,_that.avatarUrl,_that.phone,_that.bio,_that.dateOfBirth,_that.gender,_that.location);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -200,10 +198,10 @@ return $default(_that.username,_that.email,_that.fullName,_that.phone,_that.bio,
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String? username,  String? email,  String? fullName,  String? phone,  String? bio,  DateTime? dateOfBirth,  Gender? gender,  String? location,  ProfileVisibility? profileVisibility,  String? avatarUrl)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String? fullName,  String? avatarUrl,  String? phone,  String? bio,  DateTime? dateOfBirth,  String? gender,  String? location)?  $default,) {final _that = this;
 switch (_that) {
 case _UpdateProfileParams() when $default != null:
-return $default(_that.username,_that.email,_that.fullName,_that.phone,_that.bio,_that.dateOfBirth,_that.gender,_that.location,_that.profileVisibility,_that.avatarUrl);case _:
+return $default(_that.fullName,_that.avatarUrl,_that.phone,_that.bio,_that.dateOfBirth,_that.gender,_that.location);case _:
   return null;
 
 }
@@ -215,19 +213,17 @@ return $default(_that.username,_that.email,_that.fullName,_that.phone,_that.bio,
 
 
 class _UpdateProfileParams implements UpdateProfileParams {
-  const _UpdateProfileParams({this.username, this.email, this.fullName, this.phone, this.bio, this.dateOfBirth, this.gender, this.location, this.profileVisibility, this.avatarUrl});
+  const _UpdateProfileParams({this.fullName, this.avatarUrl, this.phone, this.bio, this.dateOfBirth, this.gender, this.location});
   
 
-@override final  String? username;
-@override final  String? email;
 @override final  String? fullName;
+@override final  String? avatarUrl;
 @override final  String? phone;
 @override final  String? bio;
 @override final  DateTime? dateOfBirth;
-@override final  Gender? gender;
+@override final  String? gender;
+// MALE, FEMALE, OTHER
 @override final  String? location;
-@override final  ProfileVisibility? profileVisibility;
-@override final  String? avatarUrl;
 
 /// Create a copy of UpdateProfileParams
 /// with the given fields replaced by the non-null parameter values.
@@ -239,16 +235,16 @@ _$UpdateProfileParamsCopyWith<_UpdateProfileParams> get copyWith => __$UpdatePro
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _UpdateProfileParams&&(identical(other.username, username) || other.username == username)&&(identical(other.email, email) || other.email == email)&&(identical(other.fullName, fullName) || other.fullName == fullName)&&(identical(other.phone, phone) || other.phone == phone)&&(identical(other.bio, bio) || other.bio == bio)&&(identical(other.dateOfBirth, dateOfBirth) || other.dateOfBirth == dateOfBirth)&&(identical(other.gender, gender) || other.gender == gender)&&(identical(other.location, location) || other.location == location)&&(identical(other.profileVisibility, profileVisibility) || other.profileVisibility == profileVisibility)&&(identical(other.avatarUrl, avatarUrl) || other.avatarUrl == avatarUrl));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _UpdateProfileParams&&(identical(other.fullName, fullName) || other.fullName == fullName)&&(identical(other.avatarUrl, avatarUrl) || other.avatarUrl == avatarUrl)&&(identical(other.phone, phone) || other.phone == phone)&&(identical(other.bio, bio) || other.bio == bio)&&(identical(other.dateOfBirth, dateOfBirth) || other.dateOfBirth == dateOfBirth)&&(identical(other.gender, gender) || other.gender == gender)&&(identical(other.location, location) || other.location == location));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,username,email,fullName,phone,bio,dateOfBirth,gender,location,profileVisibility,avatarUrl);
+int get hashCode => Object.hash(runtimeType,fullName,avatarUrl,phone,bio,dateOfBirth,gender,location);
 
 @override
 String toString() {
-  return 'UpdateProfileParams(username: $username, email: $email, fullName: $fullName, phone: $phone, bio: $bio, dateOfBirth: $dateOfBirth, gender: $gender, location: $location, profileVisibility: $profileVisibility, avatarUrl: $avatarUrl)';
+  return 'UpdateProfileParams(fullName: $fullName, avatarUrl: $avatarUrl, phone: $phone, bio: $bio, dateOfBirth: $dateOfBirth, gender: $gender, location: $location)';
 }
 
 
@@ -259,7 +255,7 @@ abstract mixin class _$UpdateProfileParamsCopyWith<$Res> implements $UpdateProfi
   factory _$UpdateProfileParamsCopyWith(_UpdateProfileParams value, $Res Function(_UpdateProfileParams) _then) = __$UpdateProfileParamsCopyWithImpl;
 @override @useResult
 $Res call({
- String? username, String? email, String? fullName, String? phone, String? bio, DateTime? dateOfBirth, Gender? gender, String? location, ProfileVisibility? profileVisibility, String? avatarUrl
+ String? fullName, String? avatarUrl, String? phone, String? bio, DateTime? dateOfBirth, String? gender, String? location
 });
 
 
@@ -276,18 +272,15 @@ class __$UpdateProfileParamsCopyWithImpl<$Res>
 
 /// Create a copy of UpdateProfileParams
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? username = freezed,Object? email = freezed,Object? fullName = freezed,Object? phone = freezed,Object? bio = freezed,Object? dateOfBirth = freezed,Object? gender = freezed,Object? location = freezed,Object? profileVisibility = freezed,Object? avatarUrl = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? fullName = freezed,Object? avatarUrl = freezed,Object? phone = freezed,Object? bio = freezed,Object? dateOfBirth = freezed,Object? gender = freezed,Object? location = freezed,}) {
   return _then(_UpdateProfileParams(
-username: freezed == username ? _self.username : username // ignore: cast_nullable_to_non_nullable
-as String?,email: freezed == email ? _self.email : email // ignore: cast_nullable_to_non_nullable
-as String?,fullName: freezed == fullName ? _self.fullName : fullName // ignore: cast_nullable_to_non_nullable
+fullName: freezed == fullName ? _self.fullName : fullName // ignore: cast_nullable_to_non_nullable
+as String?,avatarUrl: freezed == avatarUrl ? _self.avatarUrl : avatarUrl // ignore: cast_nullable_to_non_nullable
 as String?,phone: freezed == phone ? _self.phone : phone // ignore: cast_nullable_to_non_nullable
 as String?,bio: freezed == bio ? _self.bio : bio // ignore: cast_nullable_to_non_nullable
 as String?,dateOfBirth: freezed == dateOfBirth ? _self.dateOfBirth : dateOfBirth // ignore: cast_nullable_to_non_nullable
 as DateTime?,gender: freezed == gender ? _self.gender : gender // ignore: cast_nullable_to_non_nullable
-as Gender?,location: freezed == location ? _self.location : location // ignore: cast_nullable_to_non_nullable
-as String?,profileVisibility: freezed == profileVisibility ? _self.profileVisibility : profileVisibility // ignore: cast_nullable_to_non_nullable
-as ProfileVisibility?,avatarUrl: freezed == avatarUrl ? _self.avatarUrl : avatarUrl // ignore: cast_nullable_to_non_nullable
+as String?,location: freezed == location ? _self.location : location // ignore: cast_nullable_to_non_nullable
 as String?,
   ));
 }

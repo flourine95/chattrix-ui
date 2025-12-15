@@ -10,9 +10,11 @@ abstract class Conversation with _$Conversation {
     required int id,
     String? name,
     required String type, // 'DIRECT' or 'GROUP'
+    String? avatarUrl,
     required DateTime createdAt,
     required DateTime updatedAt,
     required List<Participant> participants,
     Message? lastMessage,
+    @Default(0) int unreadCount,
   }) = _Conversation;
 }

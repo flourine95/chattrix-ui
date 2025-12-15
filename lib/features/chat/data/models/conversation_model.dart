@@ -14,10 +14,12 @@ abstract class ConversationModel with _$ConversationModel {
     required int id,
     String? name,
     required String type,
+    String? avatarUrl,
     required String createdAt,
     required String updatedAt,
     required List<ParticipantModel> participants,
     MessageModel? lastMessage,
+    @Default(0) int unreadCount,
   }) = _ConversationModel;
 
   factory ConversationModel.fromJson(Map<String, dynamic> json) => _$ConversationModelFromJson(json);
@@ -32,13 +34,17 @@ abstract class ConversationModel with _$ConversationModel {
     }
 
     return ConversationModel(
-      id: (json['id'] ?? json['conversationId'] ?? ''),
+      id: (json['id'] ?? json['conversationId'] ?? 0) is int
+          ? (json['id'] ?? json['conversationId'] ?? 0)
+          : int.tryParse((json['id'] ?? json['conversationId'] ?? 0).toString()) ?? 0,
       name: (json['name'] ?? json['title'])?.toString(),
       type: (json['type'] ?? '').toString(),
+      avatarUrl: json['avatarUrl']?.toString(),
       createdAt: (json['createdAt'] ?? json['created_at'] ?? '').toString(),
       updatedAt: (json['updatedAt'] ?? json['updated_at'] ?? '').toString(),
       participants: participantsJson.map((p) => ParticipantModel.fromApi(p)).toList(),
       lastMessage: lastMessageModel,
+      unreadCount: json['unreadCount'] ?? 0,
     );
   }
 
@@ -47,10 +53,12 @@ abstract class ConversationModel with _$ConversationModel {
       id: id,
       name: name,
       type: type,
+      avatarUrl: avatarUrl,
       createdAt: DateTime.parse(createdAt),
       updatedAt: DateTime.parse(updatedAt),
       participants: participants.map((p) => p.toEntity()).toList(),
       lastMessage: lastMessage?.toEntity(),
+      unreadCount: unreadCount,
     );
   }
 }
