@@ -8,20 +8,11 @@ part 'call_end_model.g.dart';
 abstract class CallEndModel with _$CallEndModel {
   const CallEndModel._();
 
-  const factory CallEndModel({
-    required String callId,
-    required int endedBy,
-    int? durationSeconds,
-  }) = _CallEndModel;
+  const factory CallEndModel({required String callId, required int endedBy, int? durationSeconds}) = _CallEndModel;
 
-  factory CallEndModel.fromJson(Map<String, dynamic> json) =>
-      _$CallEndModelFromJson(json);
+  factory CallEndModel.fromJson(Map<String, dynamic> json) => _$CallEndModelFromJson(json);
 
   CallEnd toEntity() {
-    return CallEnd(
-      callId: callId,
-      endedBy: endedBy,
-      durationSeconds: durationSeconds,
-    );
+    return CallEnd(callId: callId, endedBy: endedBy, durationSeconds: durationSeconds);
   }
 }

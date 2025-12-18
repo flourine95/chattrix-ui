@@ -1,3 +1,3 @@
-import 'package:chattrix_ui/features/auth/data/models/user_model.dart';
+import 'package:chattrix_ui/features/auth/data/models/user_dto.dart';
 
-typedef ProfileModel = UserModel;
+typedef ProfileModel = UserDto;

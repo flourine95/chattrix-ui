@@ -1,7 +1,7 @@
-import 'package:chattrix_ui/core/errors/failures.dart';
-import 'package:chattrix_ui/features/contacts/domain/entities/contact.dart';
-import 'package:chattrix_ui/features/contacts/domain/repositories/contact_repository.dart';
-import 'package:dartz/dartz.dart';
+import 'package:fpdart/fpdart.dart';
+import '../../../../core/errors/failures.dart';
+import '../entities/contact.dart';
+import '../repositories/contact_repository.dart';
 
 class GetContactsUseCase {
   final ContactRepository repository;

@@ -389,6 +389,7 @@ class EditProfilePage extends HookConsumerWidget {
         },
       );
     }
+
     if (profileAsync.isLoading && !isInitialized.value) {
       return Scaffold(
         backgroundColor: colors.surfaceContainerLow,

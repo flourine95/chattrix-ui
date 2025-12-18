@@ -1,3 +1,4 @@
+import 'package:chattrix_ui/core/domain/enums/enums.dart';
 import 'package:chattrix_ui/features/chat/data/models/message_model.dart';
 import 'package:chattrix_ui/features/chat/data/models/participant_model.dart';
 import 'package:chattrix_ui/features/chat/domain/entities/conversation.dart';
@@ -49,10 +50,13 @@ abstract class ConversationModel with _$ConversationModel {
   }
 
   Conversation toEntity() {
+    // Map string type to ConversationType enum
+    final conversationType = type.toUpperCase() == 'DIRECT' ? ConversationType.direct : ConversationType.group;
+
     return Conversation(
       id: id,
       name: name,
-      type: type,
+      type: conversationType,
       avatarUrl: avatarUrl,
       createdAt: DateTime.parse(createdAt),
       updatedAt: DateTime.parse(updatedAt),

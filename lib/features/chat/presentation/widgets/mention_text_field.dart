@@ -137,11 +137,7 @@ class _MentionTextFieldState extends State<MentionTextField> {
                   final user = _filteredUsers[index];
                   return ListTile(
                     dense: true,
-                    leading: UserAvatar(
-                      displayName: user.name,
-                      avatarUrl: user.avatarUrl,
-                      radius: 16,
-                    ),
+                    leading: UserAvatar(displayName: user.name, avatarUrl: user.avatarUrl, radius: 16),
                     title: Text(user.name, style: Theme.of(context).textTheme.bodyMedium),
                     onTap: () => _insertMention(user),
                   );

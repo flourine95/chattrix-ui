@@ -1,3 +1,4 @@
+import 'package:chattrix_ui/core/domain/enums/enums.dart';
 import 'package:chattrix_ui/features/chat/domain/entities/conversation.dart';
 import 'package:chattrix_ui/features/chat/presentation/widgets/chat_info/chat_info_header.dart';
 import 'package:chattrix_ui/features/chat/presentation/widgets/chat_info/media_grid_widget.dart';
@@ -55,7 +56,7 @@ class ChatInfoPage extends HookConsumerWidget {
                   isSelected: selectedTab.value == 2,
                   onTap: () => selectedTab.value = 2,
                 ),
-                if (conversation.type.toUpperCase() == 'GROUP')
+                if (conversation.type == ConversationType.group)
                   _TabButton(
                     label: 'Members',
                     icon: Icons.people_outline,
@@ -81,7 +82,7 @@ class ChatInfoPage extends HookConsumerWidget {
                 MessageSearchWidget(conversationId: conversation.id.toString()),
 
                 // Members tab (only for groups)
-                if (conversation.type.toUpperCase() == 'GROUP') MembersListWidget(conversation: conversation),
+                if (conversation.type == ConversationType.group) MembersListWidget(conversation: conversation),
               ],
             ),
           ),

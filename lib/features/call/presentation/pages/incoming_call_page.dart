@@ -34,12 +34,12 @@ class IncomingCallPage extends ConsumerWidget {
   }
 
   Widget _buildRingingView(
-      BuildContext context,
-      WidgetRef ref, {
-        required String callerName,
-        String? callerAvatar,
-        required CallType callType,
-      }) {
+    BuildContext context,
+    WidgetRef ref, {
+    required String callerName,
+    String? callerAvatar,
+    required CallType callType,
+  }) {
     return Container(
       width: double.infinity, // FIX: Đảm bảo container nền full width
       height: double.infinity, // FIX: Đảm bảo container nền full height
@@ -69,18 +69,10 @@ class IncomingCallPage extends ConsumerWidget {
                   shape: BoxShape.circle,
                   color: Colors.white,
                   boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.08),
-                      blurRadius: 24,
-                      offset: const Offset(0, 12),
-                    ),
+                    BoxShadow(color: Colors.black.withValues(alpha: 0.08), blurRadius: 24, offset: const Offset(0, 12)),
                   ],
                 ),
-                child: UserAvatar(
-                  displayName: callerName,
-                  avatarUrl: callerAvatar,
-                  radius: 80,
-                ),
+                child: UserAvatar(displayName: callerName, avatarUrl: callerAvatar, radius: 80),
               ),
               const SizedBox(height: 32),
 
@@ -118,11 +110,7 @@ class IncomingCallPage extends ConsumerWidget {
                     const SizedBox(width: 8),
                     Text(
                       callType == CallType.video ? 'Incoming Video Call' : 'Incoming Audio Call',
-                      style: GoogleFonts.inter(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.blue[700],
-                      ),
+                      style: GoogleFonts.inter(fontSize: 15, fontWeight: FontWeight.w600, color: Colors.blue[700]),
                     ),
                   ],
                 ),
@@ -169,12 +157,7 @@ class _ActionColumn extends StatelessWidget {
   final Color color;
   final VoidCallback onTap;
 
-  const _ActionColumn({
-    required this.icon,
-    required this.label,
-    required this.color,
-    required this.onTap,
-  });
+  const _ActionColumn({required this.icon, required this.label, required this.color, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -190,13 +173,7 @@ class _ActionColumn extends StatelessWidget {
             decoration: BoxDecoration(
               color: color,
               shape: BoxShape.circle,
-              boxShadow: [
-                BoxShadow(
-                  color: color.withValues(alpha: 0.4),
-                  blurRadius: 16,
-                  offset: const Offset(0, 6),
-                ),
-              ],
+              boxShadow: [BoxShadow(color: color.withValues(alpha: 0.4), blurRadius: 16, offset: const Offset(0, 6))],
             ),
             child: Icon(icon, color: Colors.white, size: 32),
           ),
@@ -204,11 +181,7 @@ class _ActionColumn extends StatelessWidget {
         const SizedBox(height: 12),
         Text(
           label,
-          style: GoogleFonts.inter(
-            color: Colors.black87,
-            fontWeight: FontWeight.w600,
-            fontSize: 15,
-          ),
+          style: GoogleFonts.inter(color: Colors.black87, fontWeight: FontWeight.w600, fontSize: 15),
         ),
       ],
     );

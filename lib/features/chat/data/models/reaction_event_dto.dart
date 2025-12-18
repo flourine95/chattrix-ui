@@ -18,4 +18,3 @@ abstract class ReactionEventDto with _$ReactionEventDto {
 
   factory ReactionEventDto.fromJson(Map<String, dynamic> json) => _$ReactionEventDtoFromJson(json);
 }
-

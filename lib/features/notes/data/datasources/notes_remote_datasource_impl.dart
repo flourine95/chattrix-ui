@@ -59,4 +59,3 @@ class NotesRemoteDatasourceImpl implements NotesRemoteDatasource {
     return UserNoteModel.fromJson(data);
   }
 }
-

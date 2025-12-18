@@ -8,18 +8,11 @@ part 'call_accept_model.g.dart';
 abstract class CallAcceptModel with _$CallAcceptModel {
   const CallAcceptModel._();
 
-  const factory CallAcceptModel({
-    required String callId,
-    required int acceptedBy,
-  }) = _CallAcceptModel;
+  const factory CallAcceptModel({required String callId, required int acceptedBy}) = _CallAcceptModel;
 
-  factory CallAcceptModel.fromJson(Map<String, dynamic> json) =>
-      _$CallAcceptModelFromJson(json);
+  factory CallAcceptModel.fromJson(Map<String, dynamic> json) => _$CallAcceptModelFromJson(json);
 
   CallAccept toEntity() {
-    return CallAccept(
-      callId: callId,
-      acceptedBy: acceptedBy,
-    );
+    return CallAccept(callId: callId, acceptedBy: acceptedBy);
   }
 }

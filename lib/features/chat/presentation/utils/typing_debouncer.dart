@@ -19,11 +19,7 @@ class TypingDebouncer {
   /// [text] - Current text value
   /// [onStart] - Callback when typing starts
   /// [onStop] - Callback when typing stops
-  void onTextChanged(
-    String text,
-    void Function() onStart,
-    void Function() onStop,
-  ) {
+  void onTextChanged(String text, void Function() onStart, void Function() onStop) {
     // Cancel previous timers
     _debounceTimer?.cancel();
     _stopTimer?.cancel();
@@ -84,4 +80,3 @@ class TypingDebouncer {
     _isTyping = false;
   }
 }
-

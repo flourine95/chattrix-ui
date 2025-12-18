@@ -1,10 +1,11 @@
-import 'package:chattrix_ui/features/notes/domain/entities/user_note.dart';
-import 'package:dartz/dartz.dart';
+import 'package:fpdart/fpdart.dart';
+import '../../../../core/errors/failures.dart';
+import '../entities/user_note.dart';
 
 /// Repository interface for Notes feature
 abstract class NotesRepository {
   /// Create or update my note
-  Future<Either<String, UserNote>> createOrUpdateNote({
+  Future<Either<Failure, UserNote>> createOrUpdateNote({
     required String noteText,
     String? musicUrl,
     String? musicTitle,
@@ -12,15 +13,14 @@ abstract class NotesRepository {
   });
 
   /// Get my current note
-  Future<Either<String, UserNote?>> getMyNote();
+  Future<Either<Failure, UserNote?>> getMyNote();
 
   /// Delete my current note
-  Future<Either<String, void>> deleteMyNote();
+  Future<Either<Failure, void>> deleteMyNote();
 
   /// Get notes from all contacts
-  Future<Either<String, List<UserNote>>> getContactNotes();
+  Future<Either<Failure, List<UserNote>>> getContactNotes();
 
   /// Get note of a specific user
-  Future<Either<String, UserNote?>> getUserNote(int userId);
+  Future<Either<Failure, UserNote?>> getUserNote(int userId);
 }
-

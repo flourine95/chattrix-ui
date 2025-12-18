@@ -1,3 +1,19 @@
+// ==========================================
+// DEPRECATED: This file is no longer used
+// ==========================================
+// This demo page has been replaced by the production ChatListPage
+// located at lib/features/chat/presentation/pages/chat_list_page.dart
+//
+// The production page includes:
+// - Full API integration
+// - Real-time WebSocket updates
+// - Filter functionality
+// - Search capabilities
+// - Online users list
+//
+// This file is kept for reference only and may be removed in the future.
+// ==========================================
+
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
@@ -730,9 +746,11 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
               CircleAvatar(radius: 18, backgroundImage: NetworkImage(widget.chat.avatarUrl)),
               if (widget.chat.isOnline)
                 Positioned(
-                  right: 0, bottom: 0,
+                  right: 0,
+                  bottom: 0,
                   child: Container(
-                    width: 10, height: 10,
+                    width: 10,
+                    height: 10,
                     decoration: BoxDecoration(
                       color: const Color(0xFF31A24C),
                       shape: BoxShape.circle,
@@ -750,7 +768,8 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
                 Text(
                   widget.chat.name,
                   style: TextStyle(
-                    fontSize: 16, fontWeight: FontWeight.w700,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
                     color: isDark ? Colors.white : Colors.black,
                   ),
                   overflow: TextOverflow.ellipsis,
@@ -768,17 +787,18 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
       ),
       actions: [
         // Thay icon đặc bằng icon rounded/outlined nhìn thoáng hơn
-        IconButton(icon: const Icon(Icons.call_outlined, color: appBarIconColor), onPressed: () {}),
-        IconButton(icon: const Icon(Icons.videocam_outlined, color: appBarIconColor), onPressed: () {}),
+        IconButton(
+          icon: const Icon(Icons.call_outlined, color: appBarIconColor),
+          onPressed: () {},
+        ),
+        IconButton(
+          icon: const Icon(Icons.videocam_outlined, color: appBarIconColor),
+          onPressed: () {},
+        ),
         IconButton(
           icon: const Icon(Icons.info_outline_rounded, color: appBarIconColor),
           onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => ChatInfoPageDemo(chat: widget.chat),
-              ),
-            );
+            Navigator.push(context, MaterialPageRoute(builder: (context) => ChatInfoPageDemo(chat: widget.chat)));
           },
         ),
         const SizedBox(width: 6),
@@ -841,12 +861,13 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
                   child: message.isImage
                       ? const SizedBox(width: 220, height: 160)
                       : Text(
-                    message.text,
-                    style: TextStyle(
-                      fontSize: 16, height: 1.3,
-                      color: message.isMe ? Colors.white : (isDark ? Colors.white : Colors.black87),
-                    ),
-                  ),
+                          message.text,
+                          style: TextStyle(
+                            fontSize: 16,
+                            height: 1.3,
+                            color: message.isMe ? Colors.white : (isDark ? Colors.white : Colors.black87),
+                          ),
+                        ),
                 ),
               ],
             ),
@@ -893,10 +914,7 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
               Expanded(
                 child: Container(
                   constraints: const BoxConstraints(minHeight: 44, maxHeight: 120),
-                  decoration: BoxDecoration(
-                    color: inputFieldColor,
-                    borderRadius: BorderRadius.circular(24),
-                  ),
+                  decoration: BoxDecoration(color: inputFieldColor, borderRadius: BorderRadius.circular(24)),
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
@@ -905,10 +923,7 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
                           controller: _controller,
                           maxLines: null,
                           textCapitalization: TextCapitalization.sentences,
-                          style: TextStyle(
-                            color: isDark ? Colors.white : Colors.black,
-                            fontSize: 16, height: 1.3,
-                          ),
+                          style: TextStyle(color: isDark ? Colors.white : Colors.black, fontSize: 16, height: 1.3),
                           decoration: InputDecoration(
                             hintText: 'Nhắn tin...',
                             hintStyle: TextStyle(color: Colors.grey.shade500),
@@ -948,20 +963,20 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
                   transitionBuilder: (child, anim) => ScaleTransition(scale: anim, child: child),
                   child: _isTyping
                       ? InkWell(
-                    key: const ValueKey('send'),
-                    onTap: () {
-                      _controller.clear();
-                      setState(() => _isTyping = false);
-                    },
-                    // Icon Send bo tròn
-                    child: Icon(Icons.send_rounded, color: iconColor, size: 28),
-                  )
+                          key: const ValueKey('send'),
+                          onTap: () {
+                            _controller.clear();
+                            setState(() => _isTyping = false);
+                          },
+                          // Icon Send bo tròn
+                          child: Icon(Icons.send_rounded, color: iconColor, size: 28),
+                        )
                       : InkWell(
-                    key: const ValueKey('like'),
-                    onTap: () {},
-                    // Icon Like bo tròn
-                    child: Icon(Icons.thumb_up_alt_rounded, color: iconColor, size: 28),
-                  ),
+                          key: const ValueKey('like'),
+                          onTap: () {},
+                          // Icon Like bo tròn
+                          child: Icon(Icons.thumb_up_alt_rounded, color: iconColor, size: 28),
+                        ),
                 ),
               ),
             ],
@@ -983,6 +998,7 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
     );
   }
 }
+
 // ==========================================
 // CẬP NHẬT CHÍNH: CHAT ITEM VỚI SỐ LƯỢNG TIN NHẮN
 // ==========================================
@@ -1235,10 +1251,7 @@ class ChatInfoPageDemo extends StatelessWidget {
                   // Avatar lớn
                   Stack(
                     children: [
-                      CircleAvatar(
-                        radius: 50,
-                        backgroundImage: NetworkImage(chat.avatarUrl),
-                      ),
+                      CircleAvatar(radius: 50, backgroundImage: NetworkImage(chat.avatarUrl)),
                       if (chat.isOnline)
                         Positioned(
                           right: 4,
@@ -1259,11 +1272,7 @@ class ChatInfoPageDemo extends StatelessWidget {
                   // Tên
                   Text(
                     chat.name,
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.w800,
-                      color: textColor,
-                    ),
+                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.w800, color: textColor),
                   ),
                   const SizedBox(height: 4),
                   // Trạng thái (Active status)
@@ -1437,11 +1446,7 @@ class ChatInfoPageDemo extends StatelessWidget {
         const SizedBox(height: 8),
         Text(
           label,
-          style: TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.w500,
-            color: isDark ? Colors.white70 : Colors.black87,
-          ),
+          style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: isDark ? Colors.white70 : Colors.black87),
         ),
       ],
     );
@@ -1461,11 +1466,7 @@ class ChatInfoPageDemo extends StatelessWidget {
           padding: const EdgeInsets.only(left: 16, bottom: 8),
           child: Text(
             title,
-            style: TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.w600,
-              color: Colors.grey.shade500,
-            ),
+            style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Colors.grey.shade500),
           ),
         ),
         Container(
@@ -1475,9 +1476,7 @@ class ChatInfoPageDemo extends StatelessWidget {
             // Nếu muốn bo góc giống iOS Grouped List thì bật dòng dưới
             // borderRadius: BorderRadius.circular(16),
           ),
-          child: Column(
-            children: children,
-          ),
+          child: Column(children: children),
         ),
       ],
     );
@@ -1518,11 +1517,7 @@ class ChatInfoPageDemo extends StatelessWidget {
                       color: textColor ?? (isDark ? Colors.white : Colors.black),
                     ),
                   ),
-                  if (subtitle != null)
-                    Text(
-                      subtitle,
-                      style: TextStyle(fontSize: 13, color: Colors.grey.shade500),
-                    ),
+                  if (subtitle != null) Text(subtitle, style: TextStyle(fontSize: 13, color: Colors.grey.shade500)),
                 ],
               ),
             ),
@@ -1546,4 +1541,3 @@ class ChatInfoPageDemo extends StatelessWidget {
     );
   }
 }
-

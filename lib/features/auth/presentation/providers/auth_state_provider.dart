@@ -167,24 +167,13 @@ class Auth extends _$Auth {
   /// Map Failure to Exception for AsyncValue.guard
   Exception _mapFailureToException(Failure failure) {
     return failure.when(
-      server: (message, errorCode) => ServerException(message, errorCode),
-      network: (message) => NetworkException(message),
-      validation: (message, errors) => ValidationException(message, errors),
-      badRequest: (message, errorCode) => BadRequestException(message, errorCode),
-      unauthorized: (message, errorCode) => UnauthorizedException(message, errorCode),
-      forbidden: (message, errorCode) => ForbiddenException(message, errorCode),
-      notFound: (message, errorCode) => NotFoundException(message, errorCode),
-      conflict: (message, errorCode) => ConflictException(message, errorCode),
-      rateLimitExceeded: (message) => RateLimitException(message),
-      unknown: (message) => UnknownException(message),
-      permission: (message) => UnknownException(message),
-      agoraEngine: (message, code) => UnknownException(message),
-      tokenExpired: (message) => UnknownException(message),
-      channelJoin: (message) => UnknownException(message),
-      webSocketNotConnected: (message) => UnknownException(message),
-      webSocketSendFailed: (message) => UnknownException(message),
-      callNotFound: (message) => UnknownException(message),
-      callAlreadyActive: (message) => UnknownException(message),
+      server: (message, code, requestId) => ServerException(message, code),
+      network: (message, code) => NetworkException(message),
+      validation: (message, code, details, requestId) => ValidationException(message, details),
+      auth: (message, code, requestId) => AuthException(message, code),
+      notFound: (message, code, requestId) => NotFoundException(message, code),
+      conflict: (message, code, requestId) => ConflictException(message, code),
+      rateLimit: (message, code, requestId) => RateLimitException(message),
     );
   }
 }
@@ -192,8 +181,8 @@ class Auth extends _$Auth {
 /// Custom exceptions matching Failure types
 class ServerException implements Exception {
   final String message;
-  final String? errorCode;
-  ServerException(this.message, [this.errorCode]);
+  final String? code;
+  ServerException(this.message, [this.code]);
 
   @override
   String toString() => message;
@@ -209,40 +198,22 @@ class NetworkException implements Exception {
 
 class ValidationException implements Exception {
   final String message;
-  final List<ValidationError>? errors;
-  ValidationException(this.message, [this.errors]);
+  final Map<String, String>? details;
+  ValidationException(this.message, [this.details]);
 
   @override
   String toString() {
-    if (errors != null && errors!.isNotEmpty) {
-      return errors!.map((e) => e.message).join(', ');
+    if (details != null && details!.isNotEmpty) {
+      return details!.values.join(', ');
     }
     return message;
   }
 }
 
-class BadRequestException implements Exception {
+class AuthException implements Exception {
   final String message;
-  final String? errorCode;
-  BadRequestException(this.message, [this.errorCode]);
-
-  @override
-  String toString() => message;
-}
-
-class UnauthorizedException implements Exception {
-  final String message;
-  final String? errorCode;
-  UnauthorizedException(this.message, [this.errorCode]);
-
-  @override
-  String toString() => message;
-}
-
-class ForbiddenException implements Exception {
-  final String message;
-  final String? errorCode;
-  ForbiddenException(this.message, [this.errorCode]);
+  final String? code;
+  AuthException(this.message, [this.code]);
 
   @override
   String toString() => message;
@@ -250,8 +221,8 @@ class ForbiddenException implements Exception {
 
 class NotFoundException implements Exception {
   final String message;
-  final String? errorCode;
-  NotFoundException(this.message, [this.errorCode]);
+  final String? code;
+  NotFoundException(this.message, [this.code]);
 
   @override
   String toString() => message;
@@ -259,8 +230,8 @@ class NotFoundException implements Exception {
 
 class ConflictException implements Exception {
   final String message;
-  final String? errorCode;
-  ConflictException(this.message, [this.errorCode]);
+  final String? code;
+  ConflictException(this.message, [this.code]);
 
   @override
   String toString() => message;
@@ -269,14 +240,6 @@ class ConflictException implements Exception {
 class RateLimitException implements Exception {
   final String message;
   RateLimitException(this.message);
-
-  @override
-  String toString() => message;
-}
-
-class UnknownException implements Exception {
-  final String message;
-  UnknownException(this.message);
 
   @override
   String toString() => message;

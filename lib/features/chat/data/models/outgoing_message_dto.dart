@@ -46,4 +46,3 @@ abstract class MessageSenderDto with _$MessageSenderDto {
 
   factory MessageSenderDto.fromJson(Map<String, dynamic> json) => _$MessageSenderDtoFromJson(json);
 }
-

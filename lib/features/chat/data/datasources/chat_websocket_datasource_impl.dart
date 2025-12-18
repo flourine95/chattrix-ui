@@ -1,6 +1,8 @@
 import 'dart:async';
 
 import 'package:chattrix_ui/core/network/websocket_service.dart';
+import 'package:chattrix_ui/core/utils/app_logger.dart';
+import 'package:chattrix_ui/features/chat/data/models/chat_message_request.dart';
 import 'package:chattrix_ui/features/chat/data/models/message_model.dart';
 import 'package:chattrix_ui/features/chat/data/models/conversation_update_model.dart';
 import 'package:chattrix_ui/features/chat/data/models/typing_indicator_model.dart';
@@ -37,9 +39,7 @@ class ChatWebSocketDataSourceImpl implements ChatWebSocketDataSource {
   final _userStatusController = StreamController<UserStatusUpdate>.broadcast();
   final _conversationUpdateController = StreamController<ConversationUpdate>.broadcast();
 
-  ChatWebSocketDataSourceImpl({
-    required WebSocketService webSocketService,
-  }) : _webSocketService = webSocketService {
+  ChatWebSocketDataSourceImpl({required WebSocketService webSocketService}) : _webSocketService = webSocketService {
     _startListening();
   }
 
@@ -54,50 +54,113 @@ class ChatWebSocketDataSourceImpl implements ChatWebSocketDataSource {
 
     _subscription = _webSocketService.messageRouter
         .getStreamForTypes(chatMessageTypes)
-        .listen(_handleMessage);
+        .listen(
+          _handleMessage,
+          onError: (error, stackTrace) {
+            AppLogger.error(
+              'WebSocket message stream error',
+              error: error,
+              stackTrace: stackTrace,
+              tag: 'ChatWebSocketDataSource',
+            );
+          },
+        );
 
-    print('💬 [ChatWebSocketDataSource] Started listening for chat events');
+    AppLogger.debug('Started listening for chat events', tag: 'ChatWebSocketDataSource');
   }
 
   void _handleMessage(Map<String, dynamic> message) {
     try {
       final type = message['type'] as String?;
-      if (type == null) return;
+      if (type == null) {
+        AppLogger.warning('Received message without type field', tag: 'ChatWebSocketDataSource');
+        return;
+      }
 
       final payload = message['payload'] ?? message['data'];
-      if (payload == null) return;
+      if (payload == null) {
+        AppLogger.warning(
+          'Received message without payload/data field for type: $type',
+          tag: 'ChatWebSocketDataSource',
+        );
+        return;
+      }
 
-      print('💬 [ChatWebSocketDataSource] Processing $type');
+      AppLogger.debug('Processing WebSocket message: $type', tag: 'ChatWebSocketDataSource');
 
       switch (type) {
         case _ChatWebSocketResponse.chatMessage:
-          final messageEntity = MessageModel.fromApi(payload as Map<String, dynamic>).toEntity();
-          _messageController.add(messageEntity);
+          try {
+            final messageEntity = MessageModel.fromApi(payload as Map<String, dynamic>).toEntity();
+            _messageController.add(messageEntity);
+            AppLogger.debug('Successfully processed chat message', tag: 'ChatWebSocketDataSource');
+          } catch (e, st) {
+            AppLogger.error('Failed to parse chat message', error: e, stackTrace: st, tag: 'ChatWebSocketDataSource');
+          }
           break;
 
         case _ChatWebSocketResponse.typingIndicator:
-          print('💬 [ChatWebSocketDataSource] Typing payload: $payload');
-          final indicatorEntity = TypingIndicatorModel.fromJson(payload as Map<String, dynamic>).toEntity();
-          print('💬 [ChatWebSocketDataSource] Parsed typing: conversationId=${indicatorEntity.conversationId}, users=${indicatorEntity.typingUsers.length}');
-          if (indicatorEntity.typingUsers.isNotEmpty) {
-            print('💬 [ChatWebSocketDataSource] Typing users: ${indicatorEntity.typingUsers.map((u) => '${u.fullName}(${u.id})').join(', ')}');
+          try {
+            final indicatorEntity = TypingIndicatorModel.fromJson(payload as Map<String, dynamic>).toEntity();
+            _typingController.add(indicatorEntity);
+            AppLogger.debug(
+              'Typing indicator: conversationId=${indicatorEntity.conversationId}, users=${indicatorEntity.typingUsers.length}',
+              tag: 'ChatWebSocketDataSource',
+            );
+          } catch (e, st) {
+            AppLogger.error(
+              'Failed to parse typing indicator',
+              error: e,
+              stackTrace: st,
+              tag: 'ChatWebSocketDataSource',
+            );
           }
-          _typingController.add(indicatorEntity);
           break;
 
         case _ChatWebSocketResponse.userStatus:
-          final statusEntity = UserStatusUpdateModel.fromJson(payload as Map<String, dynamic>).toEntity();
-          _userStatusController.add(statusEntity);
+          try {
+            final statusEntity = UserStatusUpdateModel.fromJson(payload as Map<String, dynamic>).toEntity();
+            _userStatusController.add(statusEntity);
+            AppLogger.debug('User status update: userId=${statusEntity.userId}', tag: 'ChatWebSocketDataSource');
+          } catch (e, st) {
+            AppLogger.error(
+              'Failed to parse user status update',
+              error: e,
+              stackTrace: st,
+              tag: 'ChatWebSocketDataSource',
+            );
+          }
           break;
 
         case _ChatWebSocketResponse.conversationUpdate:
-          final updateEntity = ConversationUpdateModel.fromJson(payload as Map<String, dynamic>).toEntity();
-          _conversationUpdateController.add(updateEntity);
+          try {
+            final updateEntity = ConversationUpdateModel.fromJson(payload as Map<String, dynamic>).toEntity();
+            _conversationUpdateController.add(updateEntity);
+            AppLogger.debug(
+              'Conversation update: conversationId=${updateEntity.conversationId}',
+              tag: 'ChatWebSocketDataSource',
+            );
+          } catch (e, st) {
+            AppLogger.error(
+              'Failed to parse conversation update',
+              error: e,
+              stackTrace: st,
+              tag: 'ChatWebSocketDataSource',
+            );
+          }
           break;
+
+        default:
+          AppLogger.warning('Unknown message type: $type', tag: 'ChatWebSocketDataSource');
       }
     } catch (e, stackTrace) {
-      print('💬 [ChatWebSocketDataSource] Error: $e');
-      print('💬 [ChatWebSocketDataSource] Stack trace: $stackTrace');
+      // Catch-all for any unexpected errors
+      AppLogger.error(
+        'Unexpected error handling WebSocket message',
+        error: e,
+        stackTrace: stackTrace,
+        tag: 'ChatWebSocketDataSource',
+      );
     }
   }
 
@@ -105,31 +168,27 @@ class ChatWebSocketDataSourceImpl implements ChatWebSocketDataSource {
   Future<void> connect(String accessToken) async {
     // Connection is managed by WebSocketService
     // This method is kept for interface compatibility but does nothing
-    print('💬 [ChatWebSocketDataSource] Connect called (handled by WebSocketService)');
+    AppLogger.debug('Connect called (handled by WebSocketService)', tag: 'ChatWebSocketDataSource');
   }
 
   @override
   Future<void> disconnect() async {
     // Disconnection is managed by WebSocketService
-    print('💬 [ChatWebSocketDataSource] Disconnect called (handled by WebSocketService)');
+    AppLogger.debug('Disconnect called (handled by WebSocketService)', tag: 'ChatWebSocketDataSource');
   }
 
   @override
-  void sendMessage({
-    required String conversationId,
-    required String content,
-    int? replyToMessageId,
-  }) {
-    final payload = {
+  void sendMessage(String conversationId, ChatMessageRequest request) {
+    final messageData = request.toJson();
+
+    messageData['conversationId'] = conversationId;
+
+    final wsPayload = {
       'type': _ChatWebSocketEvent.chatMessage,
-      'payload': {
-        'conversationId': conversationId,
-        'content': content,
-        if (replyToMessageId != null) 'replyToMessageId': replyToMessageId,
-      },
+      'payload': messageData,
     };
 
-    _webSocketService.send(payload);
+    _webSocketService.send(wsPayload);
   }
 
   @override

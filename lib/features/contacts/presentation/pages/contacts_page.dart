@@ -48,18 +48,10 @@ class _ContactsPageState extends ConsumerState<ContactsPage> {
       child: Scaffold(
         backgroundColor: colors.surface, // Đổi nền chính thành surface cho liền mạch
         appBar: AppBar(
-          title: Text(
-            'Contacts',
-            style: textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
-          ),
+          title: Text('Contacts', style: textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold)),
           backgroundColor: colors.surface,
           elevation: 0,
-          actions: [
-            IconButton(
-              onPressed: () {},
-              icon: const Icon(Icons.person_add_alt_1_rounded),
-            ),
-          ],
+          actions: [IconButton(onPressed: () {}, icon: const Icon(Icons.person_add_alt_1_rounded))],
         ),
         body: Column(
           children: [
@@ -80,20 +72,17 @@ class _ContactsPageState extends ConsumerState<ContactsPage> {
                   prefixIcon: Icon(Icons.search, color: colors.outline),
                   filled: true,
                   fillColor: colors.surfaceContainerLow,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide.none,
-                  ),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
                   contentPadding: const EdgeInsets.symmetric(vertical: 0),
                   // Thêm nút clear text khi đang gõ
                   suffixIcon: _searchQuery.isNotEmpty
                       ? IconButton(
-                    icon: const Icon(Icons.clear, size: 20),
-                    onPressed: () {
-                      _searchController.clear();
-                      setState(() => _searchQuery = "");
-                    },
-                  )
+                          icon: const Icon(Icons.clear, size: 20),
+                          onPressed: () {
+                            _searchController.clear();
+                            setState(() => _searchQuery = "");
+                          },
+                        )
                       : null,
                 ),
               ),
@@ -123,7 +112,7 @@ class _ContactsPageState extends ConsumerState<ContactsPage> {
                 child: TabBarView(
                   children: [
                     _FriendsTab(searchQuery: _searchQuery), // Truyền query
-                    _GroupsTab(searchQuery: _searchQuery),  // Truyền query
+                    _GroupsTab(searchQuery: _searchQuery), // Truyền query
                   ],
                 ),
               ),
@@ -184,7 +173,7 @@ class _FriendsTab extends StatelessWidget {
                   colors: colors,
                   textTheme: textTheme,
                   badgeCount: 3,
-                )
+                ),
               ],
             ),
 
@@ -196,20 +185,27 @@ class _FriendsTab extends StatelessWidget {
               child: Text("No friends found", style: TextStyle(color: colors.outline)),
             )
           else
-            ...sortedKeys.map((key) => Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.only(left: 32, bottom: 8),
-                  child: Text(key, style: TextStyle(color: colors.primary, fontWeight: FontWeight.bold)),
-                ),
-                _SectionCard(
-                  colors: colors,
-                  children: groupedContacts[key]!.map((c) => _ContactTile(contact: c, colors: colors, textTheme: textTheme)).toList(),
-                ),
-                const SizedBox(height: 16),
-              ],
-            )),
+            ...sortedKeys.map(
+              (key) => Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(left: 32, bottom: 8),
+                    child: Text(
+                      key,
+                      style: TextStyle(color: colors.primary, fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                  _SectionCard(
+                    colors: colors,
+                    children: groupedContacts[key]!
+                        .map((c) => _ContactTile(contact: c, colors: colors, textTheme: textTheme))
+                        .toList(),
+                  ),
+                  const SizedBox(height: 16),
+                ],
+              ),
+            ),
 
           const SizedBox(height: 40),
         ],
@@ -253,10 +249,7 @@ class _GroupsTab extends StatelessWidget {
                 onPressed: () {},
                 icon: const Icon(Icons.add),
                 label: const Text("Create New Group"),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: colors.primary,
-                  foregroundColor: colors.onPrimary,
-                ),
+                style: ElevatedButton.styleFrom(backgroundColor: colors.primary, foregroundColor: colors.onPrimary),
               ),
             ),
 
@@ -268,16 +261,24 @@ class _GroupsTab extends StatelessWidget {
           else
             _SectionCard(
               colors: colors,
-              children: filteredGroups.map((group) => ListTile(
-                leading: Container(
-                  width: 40, height: 40,
-                  decoration: BoxDecoration(color: colors.primaryContainer, borderRadius: BorderRadius.circular(8)),
-                  child: Icon(Icons.groups, color: colors.onPrimaryContainer),
-                ),
-                title: Text(group.name, style: const TextStyle(fontWeight: FontWeight.w600)),
-                subtitle: Text('${group.memberCount} members'),
-                trailing: Icon(Icons.chevron_right, color: colors.outline),
-              )).toList(),
+              children: filteredGroups
+                  .map(
+                    (group) => ListTile(
+                      leading: Container(
+                        width: 40,
+                        height: 40,
+                        decoration: BoxDecoration(
+                          color: colors.primaryContainer,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Icon(Icons.groups, color: colors.onPrimaryContainer),
+                      ),
+                      title: Text(group.name, style: const TextStyle(fontWeight: FontWeight.w600)),
+                      subtitle: Text('${group.memberCount} members'),
+                      trailing: Icon(Icons.chevron_right, color: colors.outline),
+                    ),
+                  )
+                  .toList(),
             ),
         ],
       ),
@@ -299,35 +300,52 @@ class _SectionCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.02), blurRadius: 10, offset: const Offset(0, 4))],
       ),
-      child: ClipRRect(borderRadius: BorderRadius.circular(16), child: Column(children: children)),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(16),
+        child: Column(children: children),
+      ),
     );
   }
 }
 
 class _MenuTile extends StatelessWidget {
-  final IconData icon; final String label; final ColorScheme colors; final TextTheme textTheme; final int badgeCount;
-  const _MenuTile({required this.icon, required this.label, required this.colors, required this.textTheme, this.badgeCount=0});
+  final IconData icon;
+  final String label;
+  final ColorScheme colors;
+  final TextTheme textTheme;
+  final int badgeCount;
+  const _MenuTile({
+    required this.icon,
+    required this.label,
+    required this.colors,
+    required this.textTheme,
+    this.badgeCount = 0,
+  });
   @override
   Widget build(BuildContext context) {
     return ListTile(
       leading: FaIcon(icon, size: 18),
       title: Text(label),
-      trailing: badgeCount > 0 ? CircleAvatar(radius: 10, backgroundColor: Colors.red, child: Text("$badgeCount", style: const TextStyle(fontSize: 10, color: Colors.white))) : null,
+      trailing: badgeCount > 0
+          ? CircleAvatar(
+              radius: 10,
+              backgroundColor: Colors.red,
+              child: Text("$badgeCount", style: const TextStyle(fontSize: 10, color: Colors.white)),
+            )
+          : null,
     );
   }
 }
 
 class _ContactTile extends StatelessWidget {
-  final ContactEntity contact; final ColorScheme colors; final TextTheme textTheme;
+  final ContactEntity contact;
+  final ColorScheme colors;
+  final TextTheme textTheme;
   const _ContactTile({required this.contact, required this.colors, required this.textTheme});
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      leading: UserAvatar(
-        displayName: contact.name,
-        avatarUrl: contact.avatarUrl,
-        radius: 20,
-      ),
+      leading: UserAvatar(displayName: contact.name, avatarUrl: contact.avatarUrl, radius: 20),
       title: Text(contact.name, style: const TextStyle(fontWeight: FontWeight.w600)),
       subtitle: Text(contact.status),
     );

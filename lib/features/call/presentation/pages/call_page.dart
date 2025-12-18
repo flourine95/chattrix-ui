@@ -163,11 +163,7 @@ class CallPage extends ConsumerWidget {
                 color: Colors.white,
                 boxShadow: [BoxShadow(color: Colors.grey.withOpacity(0.1), blurRadius: 30, spreadRadius: 10)],
               ),
-              child: UserAvatar(
-                displayName: name,
-                avatarUrl: avatar,
-                radius: 80,
-              ),
+              child: UserAvatar(displayName: name, avatarUrl: avatar, radius: 80),
             ),
           ],
         ),

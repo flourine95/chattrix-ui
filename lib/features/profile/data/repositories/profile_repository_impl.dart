@@ -1,46 +1,32 @@
-import 'package:chattrix_ui/core/errors/failures.dart';
-import 'package:chattrix_ui/features/profile/data/models/update_profile_request.dart';
-import 'package:chattrix_ui/features/profile/domain/datasources/profile_remote_datasource.dart';
-import 'package:chattrix_ui/features/profile/domain/entities/profile.dart';
-import 'package:chattrix_ui/features/profile/domain/entities/update_profile_params.dart';
-import 'package:chattrix_ui/features/profile/domain/repositories/profile_repository.dart';
-import 'package:dartz/dartz.dart';
-import 'package:dio/dio.dart';
+import 'package:fpdart/fpdart.dart';
+import '../../../../core/errors/failures.dart';
+import '../../../../core/repositories/base_repository.dart';
+import '../../../auth/data/mappers/user_mapper.dart';
+import '../../domain/entities/profile.dart';
+import '../../domain/entities/update_profile_params.dart';
+import '../../domain/repositories/profile_repository.dart';
+import '../datasources/profile_remote_datasource_impl.dart';
+import '../models/update_profile_request.dart';
 
-class ProfileRepositoryImpl implements ProfileRepository {
-  final ProfileRemoteDataSource remoteDataSource;
+class ProfileRepositoryImpl extends BaseRepository implements ProfileRepository {
+  final ProfileRemoteDataSourceImpl _remoteDataSource;
 
-  ProfileRepositoryImpl({required this.remoteDataSource});
+  ProfileRepositoryImpl(this._remoteDataSource);
 
   @override
   Future<Either<Failure, Profile>> getProfile() async {
-    try {
-      final profileModel = await remoteDataSource.getProfile();
-      return Right(profileModel.toEntity());
-    } on DioException catch (e) {
-      if (e.response?.statusCode == 401) {
-        return const Left(Failure.unauthorized(message: 'Unauthorized'));
-      }
-      return Left(Failure.server(message: e.response?.data['message'] ?? 'Failed to get profile'));
-    } catch (e) {
-      return Left(Failure.unknown(message: e.toString()));
-    }
+    return executeApiCall(() async {
+      final userDto = await _remoteDataSource.getProfile();
+      return userDto.toEntity();
+    });
   }
 
   @override
   Future<Either<Failure, Profile>> updateProfile(UpdateProfileParams params) async {
-    try {
+    return executeApiCall(() async {
       final request = UpdateProfileRequest.fromParams(params);
-      final profileModel = await remoteDataSource.updateProfile(request);
-      return Right(profileModel.toEntity());
-    } on DioException catch (e) {
-      if (e.response?.statusCode == 401) {
-        return const Left(Failure.unauthorized(message: 'Unauthorized'));
-      }
-      return Left(Failure.server(message: e.response?.data['message'] ?? 'Failed to update profile'));
-    } catch (e) {
-      return Left(Failure.unknown(message: e.toString()));
-    }
+      final userDto = await _remoteDataSource.updateProfile(request);
+      return userDto.toEntity();
+    });
   }
 }
-

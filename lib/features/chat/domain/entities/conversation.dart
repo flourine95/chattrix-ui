@@ -1,3 +1,4 @@
+import 'package:chattrix_ui/core/domain/enums/enums.dart';
 import 'package:chattrix_ui/features/chat/domain/entities/message.dart';
 import 'package:chattrix_ui/features/chat/domain/entities/participant.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -9,7 +10,7 @@ abstract class Conversation with _$Conversation {
   const factory Conversation({
     required int id,
     String? name,
-    required String type, // 'DIRECT' or 'GROUP'
+    required ConversationType type,
     String? avatarUrl,
     required DateTime createdAt,
     required DateTime updatedAt,

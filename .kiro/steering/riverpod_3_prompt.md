@@ -1,6 +1,5 @@
 ---
-inclusion: fileMatch
-fileMatchPattern: ['**/*.dart']
+inclusion: always
 ---
 
 # Riverpod 3 Code Generation Standards

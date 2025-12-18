@@ -60,4 +60,3 @@ String _userIdFromJson(dynamic value) {
   if (value is String) return value;
   throw FormatException('Invalid user id format: $value');
 }
-

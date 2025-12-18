@@ -18,13 +18,9 @@ FlutterSecureStorage secureStorage(Ref ref) {
   return const FlutterSecureStorage(
     aOptions: AndroidOptions(),
 
-    webOptions: WebOptions(
-      dbName: 'ChattrixDB',
-    ),
+    webOptions: WebOptions(dbName: 'ChattrixDB'),
 
-    wOptions: WindowsOptions(
-      useBackwardCompatibility: false,
-    ),
+    wOptions: WindowsOptions(useBackwardCompatibility: false),
   );
 }
 

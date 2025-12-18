@@ -1,78 +1,61 @@
-import 'package:chattrix_ui/core/utils/app_logger.dart';
-import 'package:chattrix_ui/features/notes/domain/datasources/notes_remote_datasource.dart';
-import 'package:chattrix_ui/features/notes/domain/entities/user_note.dart';
-import 'package:chattrix_ui/features/notes/domain/repositories/notes_repository.dart';
-import 'package:dartz/dartz.dart';
+import 'package:fpdart/fpdart.dart';
+import '../../../../core/errors/failures.dart';
+import '../../../../core/repositories/base_repository.dart';
+import '../../domain/entities/user_note.dart';
+import '../../domain/repositories/notes_repository.dart';
+import '../datasources/notes_remote_datasource_impl.dart';
 
-class NotesRepositoryImpl implements NotesRepository {
-  final NotesRemoteDatasource _remoteDatasource;
+class NotesRepositoryImpl extends BaseRepository implements NotesRepository {
+  final NotesRemoteDatasourceImpl _remoteDatasource;
 
   NotesRepositoryImpl(this._remoteDatasource);
 
   @override
-  Future<Either<String, UserNote>> createOrUpdateNote({
+  Future<Either<Failure, UserNote>> createOrUpdateNote({
     required String noteText,
     String? musicUrl,
     String? musicTitle,
     String? emoji,
   }) async {
-    try {
+    return executeApiCall(() async {
       final model = await _remoteDatasource.createOrUpdateNote(
         noteText: noteText,
         musicUrl: musicUrl,
         musicTitle: musicTitle,
         emoji: emoji,
       );
-      return Right(model.toEntity());
-    } catch (e, stackTrace) {
-      AppLogger.error('Failed to create/update note', error: e, stackTrace: stackTrace);
-      return Left(e.toString());
-    }
+      return model.toEntity();
+    });
   }
 
   @override
-  Future<Either<String, UserNote?>> getMyNote() async {
-    try {
+  Future<Either<Failure, UserNote?>> getMyNote() async {
+    return executeApiCall(() async {
       final model = await _remoteDatasource.getMyNote();
-      return Right(model?.toEntity());
-    } catch (e, stackTrace) {
-      AppLogger.error('Failed to get my note', error: e, stackTrace: stackTrace);
-      return Left(e.toString());
-    }
+      return model?.toEntity();
+    });
   }
 
   @override
-  Future<Either<String, void>> deleteMyNote() async {
-    try {
+  Future<Either<Failure, void>> deleteMyNote() async {
+    return executeApiCall(() async {
       await _remoteDatasource.deleteMyNote();
-      return const Right(null);
-    } catch (e, stackTrace) {
-      AppLogger.error('Failed to delete note', error: e, stackTrace: stackTrace);
-      return Left(e.toString());
-    }
+    });
   }
 
   @override
-  Future<Either<String, List<UserNote>>> getContactNotes() async {
-    try {
+  Future<Either<Failure, List<UserNote>>> getContactNotes() async {
+    return executeApiCall(() async {
       final models = await _remoteDatasource.getContactNotes();
-      final notes = models.map((m) => m.toEntity()).toList();
-      return Right(notes);
-    } catch (e, stackTrace) {
-      AppLogger.error('Failed to get contact notes', error: e, stackTrace: stackTrace);
-      return Left(e.toString());
-    }
+      return models.map((m) => m.toEntity()).toList();
+    });
   }
 
   @override
-  Future<Either<String, UserNote?>> getUserNote(int userId) async {
-    try {
+  Future<Either<Failure, UserNote?>> getUserNote(int userId) async {
+    return executeApiCall(() async {
       final model = await _remoteDatasource.getUserNote(userId);
-      return Right(model?.toEntity());
-    } catch (e, stackTrace) {
-      AppLogger.error('Failed to get user note', error: e, stackTrace: stackTrace);
-      return Left(e.toString());
-    }
+      return model?.toEntity();
+    });
   }
 }
-

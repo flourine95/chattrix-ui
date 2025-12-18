@@ -16,13 +16,7 @@ class UserContactMock {
   final bool isOnline;
   final String? bio;
 
-  UserContactMock({
-    required this.id,
-    required this.name,
-    required this.avatarUrl,
-    this.isOnline = false,
-    this.bio,
-  });
+  UserContactMock({required this.id, required this.name, required this.avatarUrl, this.isOnline = false, this.bio});
 }
 
 class FriendRequestMock {
@@ -31,12 +25,7 @@ class FriendRequestMock {
   final RequestStatus status;
   final int mutualFriends;
 
-  FriendRequestMock({
-    required this.user,
-    required this.time,
-    required this.status,
-    this.mutualFriends = 0,
-  });
+  FriendRequestMock({required this.user, required this.time, required this.status, this.mutualFriends = 0});
 }
 
 // Dữ liệu mẫu danh bạ
@@ -56,20 +45,23 @@ final List<UserContactMock> _allContacts = [
 // Dữ liệu mẫu lời mời
 final List<FriendRequestMock> _requests = [
   FriendRequestMock(
-      user: UserContactMock(id: 'r1', name: 'Sơn Tùng MTP', avatarUrl: 'https://i.pravatar.cc/150?u=201'),
-      time: '2 ngày trước',
-      status: RequestStatus.pending,
-      mutualFriends: 15),
+    user: UserContactMock(id: 'r1', name: 'Sơn Tùng MTP', avatarUrl: 'https://i.pravatar.cc/150?u=201'),
+    time: '2 ngày trước',
+    status: RequestStatus.pending,
+    mutualFriends: 15,
+  ),
   FriendRequestMock(
-      user: UserContactMock(id: 'r2', name: 'Jack 97', avatarUrl: 'https://i.pravatar.cc/150?u=202'),
-      time: '1 tuần trước',
-      status: RequestStatus.pending,
-      mutualFriends: 2),
+    user: UserContactMock(id: 'r2', name: 'Jack 97', avatarUrl: 'https://i.pravatar.cc/150?u=202'),
+    time: '1 tuần trước',
+    status: RequestStatus.pending,
+    mutualFriends: 2,
+  ),
   FriendRequestMock(
-      user: UserContactMock(id: 'r3', name: 'Đen Vâu', avatarUrl: 'https://i.pravatar.cc/150?u=203'),
-      time: 'Vừa xong',
-      status: RequestStatus.sent,
-      mutualFriends: 5),
+    user: UserContactMock(id: 'r3', name: 'Đen Vâu', avatarUrl: 'https://i.pravatar.cc/150?u=203'),
+    time: 'Vừa xong',
+    status: RequestStatus.sent,
+    mutualFriends: 5,
+  ),
 ];
 
 // Placeholder cho ChatMock để code chạy được độc lập
@@ -188,15 +180,12 @@ class _ContactListDemoPageState extends State<ContactListDemoPage> {
             actions: [
               Container(
                 margin: const EdgeInsets.only(right: 16),
-                decoration: BoxDecoration(
-                  color: surfaceColor,
-                  shape: BoxShape.circle,
-                ),
+                decoration: BoxDecoration(color: surfaceColor, shape: BoxShape.circle),
                 child: IconButton(
                   icon: Icon(Icons.person_add_rounded, color: isDark ? Colors.white : Colors.black),
                   onPressed: _showAddContactSheet,
                 ),
-              )
+              ),
             ],
           ),
 
@@ -234,8 +223,7 @@ class _ContactListDemoPageState extends State<ContactListDemoPage> {
                   color: Colors.blueAccent,
                   title: 'Lời mời kết bạn',
                   badgeCount: _requests.where((r) => r.status == RequestStatus.pending).length,
-                  onTap: () => Navigator.push(
-                      context, MaterialPageRoute(builder: (_) => const FriendRequestPage())),
+                  onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const FriendRequestPage())),
                   isDark: isDark,
                   surfaceColor: surfaceColor,
                 ),
@@ -244,8 +232,7 @@ class _ContactListDemoPageState extends State<ContactListDemoPage> {
                   icon: Icons.groups_rounded,
                   color: Colors.purpleAccent,
                   title: 'Nhóm chat',
-                  onTap: () => Navigator.push(
-                      context, MaterialPageRoute(builder: (_) => const GroupListPage())),
+                  onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const GroupListPage())),
                   isDark: isDark,
                   surfaceColor: surfaceColor,
                 ),
@@ -257,33 +244,26 @@ class _ContactListDemoPageState extends State<ContactListDemoPage> {
 
           // --- DANH SÁCH CONTACTS ---
           SliverList(
-            delegate: SliverChildBuilderDelegate(
-                  (context, index) {
-                final letter = sortedKeys[index];
-                final contacts = groupedData[letter]!;
+            delegate: SliverChildBuilderDelegate((context, index) {
+              final letter = sortedKeys[index];
+              final contacts = groupedData[letter]!;
 
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Header chữ cái
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                      child: Text(
-                        letter,
-                        style: TextStyle(
-                          color: Colors.grey.shade500,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 14,
-                        ),
-                      ),
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Header chữ cái
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    child: Text(
+                      letter,
+                      style: TextStyle(color: Colors.grey.shade500, fontWeight: FontWeight.bold, fontSize: 14),
                     ),
-                    // List contacts
-                    ...contacts.map((contact) => _buildContactItem(contact, isDark, surfaceColor)),
-                  ],
-                );
-              },
-              childCount: sortedKeys.length,
-            ),
+                  ),
+                  // List contacts
+                  ...contacts.map((contact) => _buildContactItem(contact, isDark, surfaceColor)),
+                ],
+              );
+            }, childCount: sortedKeys.length),
           ),
 
           const SliverPadding(padding: EdgeInsets.only(bottom: 40)),
@@ -293,14 +273,16 @@ class _ContactListDemoPageState extends State<ContactListDemoPage> {
   }
 
   // Widget Item cho Menu
-  Widget _buildMenuItem(BuildContext context,
-      {required IconData icon,
-        required Color color,
-        required String title,
-        int badgeCount = 0,
-        required VoidCallback onTap,
-        required bool isDark,
-        required Color surfaceColor}) {
+  Widget _buildMenuItem(
+    BuildContext context, {
+    required IconData icon,
+    required Color color,
+    required String title,
+    int badgeCount = 0,
+    required VoidCallback onTap,
+    required bool isDark,
+    required Color surfaceColor,
+  }) {
     return InkWell(
       onTap: onTap,
       splashColor: Colors.transparent,
@@ -312,10 +294,7 @@ class _ContactListDemoPageState extends State<ContactListDemoPage> {
             Container(
               width: 40,
               height: 40,
-              decoration: BoxDecoration(
-                color: color.withValues(alpha: 0.1),
-                shape: BoxShape.circle,
-              ),
+              decoration: BoxDecoration(color: color.withValues(alpha: 0.1), shape: BoxShape.circle),
               child: Icon(icon, color: color, size: 22),
             ),
             const SizedBox(width: 16),
@@ -332,10 +311,7 @@ class _ContactListDemoPageState extends State<ContactListDemoPage> {
             if (badgeCount > 0)
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFEF4444),
-                  borderRadius: BorderRadius.circular(10),
-                ),
+                decoration: BoxDecoration(color: const Color(0xFFEF4444), borderRadius: BorderRadius.circular(10)),
                 child: Text(
                   '$badgeCount',
                   style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
@@ -411,11 +387,23 @@ class _ContactListDemoPageState extends State<ContactListDemoPage> {
               children: [
                 _buildActionButton(Icons.message_rounded, Colors.blueAccent, isDark, surfaceColor, () {}),
                 const SizedBox(width: 8),
-                _buildActionButton(Icons.call_rounded, isDark ? Colors.white : Colors.black87, isDark, surfaceColor, () {}),
+                _buildActionButton(
+                  Icons.call_rounded,
+                  isDark ? Colors.white : Colors.black87,
+                  isDark,
+                  surfaceColor,
+                  () {},
+                ),
                 const SizedBox(width: 8),
-                _buildActionButton(Icons.videocam_rounded, isDark ? Colors.white : Colors.black87, isDark, surfaceColor, () {}),
+                _buildActionButton(
+                  Icons.videocam_rounded,
+                  isDark ? Colors.white : Colors.black87,
+                  isDark,
+                  surfaceColor,
+                  () {},
+                ),
               ],
-            )
+            ),
           ],
         ),
       ),
@@ -426,10 +414,7 @@ class _ContactListDemoPageState extends State<ContactListDemoPage> {
     return Container(
       width: 36,
       height: 36,
-      decoration: BoxDecoration(
-        color: isDark ? Colors.grey.shade800 : Colors.grey.shade200,
-        shape: BoxShape.circle,
-      ),
+      decoration: BoxDecoration(color: isDark ? Colors.grey.shade800 : Colors.grey.shade200, shape: BoxShape.circle),
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(18),
@@ -470,7 +455,10 @@ class _FriendRequestPageState extends State<FriendRequestPage> with SingleTicker
       backgroundColor: bgColor,
       appBar: AppBar(
         backgroundColor: bgColor,
-        title: Text('Lời mời kết bạn', style: TextStyle(color: isDark ? Colors.white : Colors.black, fontWeight: FontWeight.bold)),
+        title: Text(
+          'Lời mời kết bạn',
+          style: TextStyle(color: isDark ? Colors.white : Colors.black, fontWeight: FontWeight.bold),
+        ),
         leading: BackButton(color: isDark ? Colors.white : Colors.black),
         bottom: TabBar(
           controller: _tabController,
@@ -524,7 +512,14 @@ class _FriendRequestPageState extends State<FriendRequestPage> with SingleTicker
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(req.user.name, style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: isDark ? Colors.white : Colors.black)),
+                      Text(
+                        req.user.name,
+                        style: TextStyle(
+                          fontSize: 17,
+                          fontWeight: FontWeight.bold,
+                          color: isDark ? Colors.white : Colors.black,
+                        ),
+                      ),
                       Text(req.time, style: TextStyle(fontSize: 12, color: Colors.grey.shade500)),
                     ],
                   ),
@@ -543,7 +538,10 @@ class _FriendRequestPageState extends State<FriendRequestPage> with SingleTicker
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                             padding: const EdgeInsets.symmetric(vertical: 10),
                           ),
-                          child: Text(isReceived ? 'Chấp nhận' : 'Hủy lời mời', style: const TextStyle(fontWeight: FontWeight.bold)),
+                          child: Text(
+                            isReceived ? 'Chấp nhận' : 'Hủy lời mời',
+                            style: const TextStyle(fontWeight: FontWeight.bold),
+                          ),
                         ),
                       ),
                       if (isReceived) ...[
@@ -561,12 +559,12 @@ class _FriendRequestPageState extends State<FriendRequestPage> with SingleTicker
                             child: const Text('Xóa', style: TextStyle(fontWeight: FontWeight.bold)),
                           ),
                         ),
-                      ]
+                      ],
                     ],
-                  )
+                  ),
                 ],
               ),
-            )
+            ),
           ],
         );
       },
@@ -589,42 +587,54 @@ class GroupListPage extends StatelessWidget {
       backgroundColor: bgColor,
       appBar: AppBar(
         backgroundColor: bgColor,
-        title: Text('Nhóm của bạn', style: TextStyle(color: isDark ? Colors.white : Colors.black, fontWeight: FontWeight.bold)),
+        title: Text(
+          'Nhóm của bạn',
+          style: TextStyle(color: isDark ? Colors.white : Colors.black, fontWeight: FontWeight.bold),
+        ),
         leading: BackButton(color: isDark ? Colors.white : Colors.black),
         actions: [
           TextButton(
             onPressed: () {},
             child: const Text('Tạo mới', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-          )
+          ),
         ],
       ),
       body: _groups.isEmpty
-          ? Center(child: Text("Chưa tham gia nhóm nào", style: TextStyle(color: Colors.grey.shade500)))
+          ? Center(
+              child: Text("Chưa tham gia nhóm nào", style: TextStyle(color: Colors.grey.shade500)),
+            )
           : ListView.builder(
-        itemCount: _groups.length,
-        itemBuilder: (context, index) {
-          final group = _groups[index];
-          return ListTile(
-            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            leading: Stack(
-              children: [
-                CircleAvatar(radius: 28, backgroundImage: NetworkImage(group.avatarUrl)),
-                Positioned(
-                  right: 0,
-                  bottom: 0,
-                  child: Container(
-                    padding: const EdgeInsets.all(2),
-                    decoration: BoxDecoration(color: bgColor, shape: BoxShape.circle),
-                    child: const Icon(Icons.group_rounded, size: 14, color: Colors.blueAccent),
+              itemCount: _groups.length,
+              itemBuilder: (context, index) {
+                final group = _groups[index];
+                return ListTile(
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  leading: Stack(
+                    children: [
+                      CircleAvatar(radius: 28, backgroundImage: NetworkImage(group.avatarUrl)),
+                      Positioned(
+                        right: 0,
+                        bottom: 0,
+                        child: Container(
+                          padding: const EdgeInsets.all(2),
+                          decoration: BoxDecoration(color: bgColor, shape: BoxShape.circle),
+                          child: const Icon(Icons.group_rounded, size: 14, color: Colors.blueAccent),
+                        ),
+                      ),
+                    ],
                   ),
-                )
-              ],
+                  title: Text(
+                    group.name,
+                    style: TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 16,
+                      color: isDark ? Colors.white : Colors.black,
+                    ),
+                  ),
+                  subtitle: Text("Hoạt động gần đây: ${group.time}", style: TextStyle(color: Colors.grey.shade500)),
+                );
+              },
             ),
-            title: Text(group.name, style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16, color: isDark ? Colors.white : Colors.black)),
-            subtitle: Text("Hoạt động gần đây: ${group.time}", style: TextStyle(color: Colors.grey.shade500)),
-          );
-        },
-      ),
     );
   }
 }
@@ -654,9 +664,18 @@ class AddContactSheet extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                TextButton(onPressed: () => Navigator.pop(context), child: const Text('Hủy', style: TextStyle(fontSize: 16))),
-                Text('Thêm liên hệ mới', style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: textColor)),
-                TextButton(onPressed: () {}, child: const Text('Thêm', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold))),
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('Hủy', style: TextStyle(fontSize: 16)),
+                ),
+                Text(
+                  'Thêm liên hệ mới',
+                  style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: textColor),
+                ),
+                TextButton(
+                  onPressed: () {},
+                  child: const Text('Thêm', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                ),
               ],
             ),
           ),
@@ -689,10 +708,13 @@ class AddContactSheet extends StatelessWidget {
               decoration: BoxDecoration(color: Colors.blueAccent.withValues(alpha: 0.1), shape: BoxShape.circle),
               child: const Icon(Icons.qr_code_scanner_rounded, color: Colors.blueAccent),
             ),
-            title: Text('Quét mã QR', style: TextStyle(color: textColor, fontWeight: FontWeight.w500)),
+            title: Text(
+              'Quét mã QR',
+              style: TextStyle(color: textColor, fontWeight: FontWeight.w500),
+            ),
             trailing: Icon(Icons.arrow_forward_ios_rounded, size: 16, color: Colors.grey.shade400),
             onTap: () {},
-          )
+          ),
         ],
       ),
     );

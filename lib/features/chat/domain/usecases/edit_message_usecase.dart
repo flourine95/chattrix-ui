@@ -1,7 +1,7 @@
 import 'package:chattrix_ui/core/errors/failures.dart';
 import 'package:chattrix_ui/features/chat/domain/entities/message.dart';
 import 'package:chattrix_ui/features/chat/domain/repositories/chat_repository.dart';
-import 'package:dartz/dartz.dart';
+import 'package:fpdart/fpdart.dart';
 
 class EditMessageUsecase {
   final ChatRepository repository;

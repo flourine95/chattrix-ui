@@ -31,7 +31,5 @@ abstract class OutgoingMessageDto with _$OutgoingMessageDto {
     List<MentionedUserModel>? mentionedUsers,
   }) = _OutgoingMessageDto;
 
-  factory OutgoingMessageDto.fromJson(Map<String, dynamic> json) =>
-      _$OutgoingMessageDtoFromJson(json);
+  factory OutgoingMessageDto.fromJson(Map<String, dynamic> json) => _$OutgoingMessageDtoFromJson(json);
 }
-

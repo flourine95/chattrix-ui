@@ -42,4 +42,3 @@ abstract class UserNoteModel with _$UserNoteModel {
     );
   }
 }
-

@@ -15,7 +15,5 @@ abstract class CallInvitationDto with _$CallInvitationDto {
     required String callType,
   }) = _CallInvitationDto;
 
-  factory CallInvitationDto.fromJson(Map<String, dynamic> json) =>
-      _$CallInvitationDtoFromJson(json);
+  factory CallInvitationDto.fromJson(Map<String, dynamic> json) => _$CallInvitationDtoFromJson(json);
 }
-

@@ -1,7 +1,7 @@
-import 'package:chattrix_ui/core/errors/failures.dart';
-import 'package:chattrix_ui/features/contacts/domain/entities/friend_request.dart';
-import 'package:chattrix_ui/features/contacts/domain/repositories/contact_repository.dart';
-import 'package:dartz/dartz.dart';
+import 'package:fpdart/fpdart.dart';
+import '../../../../core/errors/failures.dart';
+import '../entities/friend_request.dart';
+import '../repositories/contact_repository.dart';
 
 class GetSentFriendRequestsUseCase {
   final ContactRepository repository;

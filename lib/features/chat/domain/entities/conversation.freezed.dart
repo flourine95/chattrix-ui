@@ -14,8 +14,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$Conversation {
 
- int get id; String? get name; String get type;// 'DIRECT' or 'GROUP'
- String? get avatarUrl; DateTime get createdAt; DateTime get updatedAt; List<Participant> get participants; Message? get lastMessage; int get unreadCount;
+ int get id; String? get name; ConversationType get type; String? get avatarUrl; DateTime get createdAt; DateTime get updatedAt; List<Participant> get participants; Message? get lastMessage; int get unreadCount;
 /// Create a copy of Conversation
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -46,7 +45,7 @@ abstract mixin class $ConversationCopyWith<$Res>  {
   factory $ConversationCopyWith(Conversation value, $Res Function(Conversation) _then) = _$ConversationCopyWithImpl;
 @useResult
 $Res call({
- int id, String? name, String type, String? avatarUrl, DateTime createdAt, DateTime updatedAt, List<Participant> participants, Message? lastMessage, int unreadCount
+ int id, String? name, ConversationType type, String? avatarUrl, DateTime createdAt, DateTime updatedAt, List<Participant> participants, Message? lastMessage, int unreadCount
 });
 
 
@@ -68,7 +67,7 @@ class _$ConversationCopyWithImpl<$Res>
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as int,name: freezed == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
 as String?,type: null == type ? _self.type : type // ignore: cast_nullable_to_non_nullable
-as String,avatarUrl: freezed == avatarUrl ? _self.avatarUrl : avatarUrl // ignore: cast_nullable_to_non_nullable
+as ConversationType,avatarUrl: freezed == avatarUrl ? _self.avatarUrl : avatarUrl // ignore: cast_nullable_to_non_nullable
 as String?,createdAt: null == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
 as DateTime,updatedAt: null == updatedAt ? _self.updatedAt : updatedAt // ignore: cast_nullable_to_non_nullable
 as DateTime,participants: null == participants ? _self.participants : participants // ignore: cast_nullable_to_non_nullable
@@ -171,7 +170,7 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int id,  String? name,  String type,  String? avatarUrl,  DateTime createdAt,  DateTime updatedAt,  List<Participant> participants,  Message? lastMessage,  int unreadCount)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int id,  String? name,  ConversationType type,  String? avatarUrl,  DateTime createdAt,  DateTime updatedAt,  List<Participant> participants,  Message? lastMessage,  int unreadCount)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Conversation() when $default != null:
 return $default(_that.id,_that.name,_that.type,_that.avatarUrl,_that.createdAt,_that.updatedAt,_that.participants,_that.lastMessage,_that.unreadCount);case _:
@@ -192,7 +191,7 @@ return $default(_that.id,_that.name,_that.type,_that.avatarUrl,_that.createdAt,_
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int id,  String? name,  String type,  String? avatarUrl,  DateTime createdAt,  DateTime updatedAt,  List<Participant> participants,  Message? lastMessage,  int unreadCount)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int id,  String? name,  ConversationType type,  String? avatarUrl,  DateTime createdAt,  DateTime updatedAt,  List<Participant> participants,  Message? lastMessage,  int unreadCount)  $default,) {final _that = this;
 switch (_that) {
 case _Conversation():
 return $default(_that.id,_that.name,_that.type,_that.avatarUrl,_that.createdAt,_that.updatedAt,_that.participants,_that.lastMessage,_that.unreadCount);case _:
@@ -212,7 +211,7 @@ return $default(_that.id,_that.name,_that.type,_that.avatarUrl,_that.createdAt,_
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int id,  String? name,  String type,  String? avatarUrl,  DateTime createdAt,  DateTime updatedAt,  List<Participant> participants,  Message? lastMessage,  int unreadCount)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int id,  String? name,  ConversationType type,  String? avatarUrl,  DateTime createdAt,  DateTime updatedAt,  List<Participant> participants,  Message? lastMessage,  int unreadCount)?  $default,) {final _that = this;
 switch (_that) {
 case _Conversation() when $default != null:
 return $default(_that.id,_that.name,_that.type,_that.avatarUrl,_that.createdAt,_that.updatedAt,_that.participants,_that.lastMessage,_that.unreadCount);case _:
@@ -232,8 +231,7 @@ class _Conversation implements Conversation {
 
 @override final  int id;
 @override final  String? name;
-@override final  String type;
-// 'DIRECT' or 'GROUP'
+@override final  ConversationType type;
 @override final  String? avatarUrl;
 @override final  DateTime createdAt;
 @override final  DateTime updatedAt;
@@ -277,7 +275,7 @@ abstract mixin class _$ConversationCopyWith<$Res> implements $ConversationCopyWi
   factory _$ConversationCopyWith(_Conversation value, $Res Function(_Conversation) _then) = __$ConversationCopyWithImpl;
 @override @useResult
 $Res call({
- int id, String? name, String type, String? avatarUrl, DateTime createdAt, DateTime updatedAt, List<Participant> participants, Message? lastMessage, int unreadCount
+ int id, String? name, ConversationType type, String? avatarUrl, DateTime createdAt, DateTime updatedAt, List<Participant> participants, Message? lastMessage, int unreadCount
 });
 
 
@@ -299,7 +297,7 @@ class __$ConversationCopyWithImpl<$Res>
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as int,name: freezed == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
 as String?,type: null == type ? _self.type : type // ignore: cast_nullable_to_non_nullable
-as String,avatarUrl: freezed == avatarUrl ? _self.avatarUrl : avatarUrl // ignore: cast_nullable_to_non_nullable
+as ConversationType,avatarUrl: freezed == avatarUrl ? _self.avatarUrl : avatarUrl // ignore: cast_nullable_to_non_nullable
 as String?,createdAt: null == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
 as DateTime,updatedAt: null == updatedAt ? _self.updatedAt : updatedAt // ignore: cast_nullable_to_non_nullable
 as DateTime,participants: null == participants ? _self._participants : participants // ignore: cast_nullable_to_non_nullable

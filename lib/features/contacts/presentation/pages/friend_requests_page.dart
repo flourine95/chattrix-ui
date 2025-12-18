@@ -65,11 +65,7 @@ class _FriendRequestsPageState extends ConsumerState<FriendRequestsPage> {
         return Card(
           margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           child: ListTile(
-            leading: UserAvatar(
-              displayName: request.senderFullName,
-              avatarUrl: request.senderAvatarUrl,
-              radius: 20,
-            ),
+            leading: UserAvatar(displayName: request.senderFullName, avatarUrl: request.senderAvatarUrl, radius: 20),
             title: Text(request.senderFullName),
             subtitle: Text('@${request.senderUsername}'),
             trailing: Row(

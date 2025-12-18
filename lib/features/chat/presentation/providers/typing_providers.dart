@@ -31,16 +31,17 @@ class TypingNotifier extends _$TypingNotifier {
       final dataSource = ref.read(chatWebSocketDataSourceProvider);
       _subscription = dataSource.typingStream.listen(
         (indicator) {
-          print('⌨️ [TypingNotifier] Received typing indicator: conversationId=${indicator.conversationId}, users=${indicator.typingUsers.length}');
+          print(
+            '⌨️ [TypingNotifier] Received typing indicator: conversationId=${indicator.conversationId}, users=${indicator.typingUsers.length}',
+          );
           if (indicator.typingUsers.isNotEmpty) {
-            print('⌨️ [TypingNotifier] Users: ${indicator.typingUsers.map((u) => '${u.fullName}(${u.id})').join(', ')}');
+            print(
+              '⌨️ [TypingNotifier] Users: ${indicator.typingUsers.map((u) => '${u.fullName}(${u.id})').join(', ')}',
+            );
           }
 
           // Update state with new typing users for this conversation
-          state = {
-            ...state,
-            indicator.conversationId: indicator.typingUsers,
-          };
+          state = {...state, indicator.conversationId: indicator.typingUsers};
 
           print('⌨️ [TypingNotifier] Updated state: ${state.keys.map((k) => '$k:${state[k]!.length}').join(', ')}');
 
@@ -100,27 +101,27 @@ class TypingNotifier extends _$TypingNotifier {
 
 /// Convenience provider to get typing users for a specific conversation
 @riverpod
-List<TypingUser> conversationTypingUsers(
-  Ref ref,
-  String conversationId,
-) {
+List<TypingUser> conversationTypingUsers(Ref ref, String conversationId) {
   final currentUser = ref.watch(currentUserProvider);
   final typingUsers = ref.watch(typingProvider);
 
   final users = typingUsers[conversationId] ?? [];
 
-  print('⌨️ [conversationTypingUsersProvider] conversationId=$conversationId, totalUsers=${users.length}, currentUserId=${currentUser?.id}');
+  print(
+    '⌨️ [conversationTypingUsersProvider] conversationId=$conversationId, totalUsers=${users.length}, currentUserId=${currentUser?.id}',
+  );
 
   // Exclude current user
   if (currentUser != null) {
     final filtered = users.where((user) => user.id != currentUser.id.toString()).toList();
     print('⌨️ [conversationTypingUsersProvider] After filtering: ${filtered.length} users');
     if (filtered.isNotEmpty) {
-      print('⌨️ [conversationTypingUsersProvider] Filtered users: ${filtered.map((u) => '${u.fullName}(${u.id})').join(', ')}');
+      print(
+        '⌨️ [conversationTypingUsersProvider] Filtered users: ${filtered.map((u) => '${u.fullName}(${u.id})').join(', ')}',
+      );
     }
     return filtered;
   }
 
   return users;
 }
-

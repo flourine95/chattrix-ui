@@ -24,4 +24,3 @@ final endCallUseCaseProvider = Provider<EndCallUseCase>((ref) {
   final repository = ref.watch(callRepositoryProvider);
   return EndCallUseCase(repository);
 });
-

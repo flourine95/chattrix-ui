@@ -13,7 +13,7 @@ This document defines the mandatory frameworks, libraries, and architectural rul
 
 2.  **Domain Purity:** The **Domain Layer** is the core and MUST be kept **framework-agnostic**. It is FORBIDDEN to import Flutter, Dio, or any serialization libraries (`freezed_annotation`, `json_annotation`) into the `lib/domain/` directory.
 3.  **Dependency Rule:** Dependencies MUST only flow inwards: **Presentation -> Domain -> Data**. Data Layer MUST only expose abstractions (interfaces) to the Domain Layer.
-4.  **Error Handling:** All asynchronous operations returning data from the Domain/Data layers MUST use the **`Either<Failure, T>`** type from **`dartz`** for explicit error handling.
+4.  **Error Handling:** All asynchronous operations returning data from the Domain/Data layers MUST use the **`Either<Failure, T>`** type from **`fpdart`** for explicit error handling. Use lowercase `right()` and `left()` functions (not `Right()` and `Left()` constructors).
 
 ---
 
@@ -36,7 +36,7 @@ This document defines the mandatory frameworks, libraries, and architectural rul
 
 | Library | Rule | Usage |
 | :--- | :--- | :--- |
-| **Immutability** | ALL Entities (Domain) and Models (Data) MUST be defined using **`freezed`**. | Classes MUST be declared with the **`abstract class`** keyword to ensure proper code generation and prevent direct instantiation. |
+| **Immutability** | ALL Entities (Domain) and Models (Data) MUST be defined using **`freezed`**. | **Freezed 3 Rules:** Use `abstract class` for union types (multiple factory constructors) or generic types. For single factory constructors without generics, `abstract class` is optional but recommended for consistency. |
 | **Serialization** | MUST use **`json_serializable`** for all Data Transfer Objects (DTOs) in the Data Layer. | Serialization logic (`@JsonSerializable`) MUST NOT leak into the Domain Layer Entities. |
 | **Error Handling** | The `analysis_options.yaml` file MUST include the rule to **ignore** the `invalid_annotation_target` warning to resolve conflicts between `freezed` and `json_serializable`. | `analyzer: errors: invalid_annotation_target: ignore` |
 | **Storage** | **`flutter_secure_storage`** MUST be used for storing sensitive data (e.g., `accessToken`, `refreshToken`). | Avoid storing credentials in local preferences or unencrypted storage. |

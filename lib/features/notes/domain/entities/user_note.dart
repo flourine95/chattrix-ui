@@ -20,4 +20,3 @@ abstract class UserNote with _$UserNote {
     @Default(0) int replyCount,
   }) = _UserNote;
 }
-

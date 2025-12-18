@@ -6,9 +6,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 final callWebSocketDataSourceProvider = Provider<CallWebSocketDataSource>((ref) {
   final webSocketService = ref.watch(webSocketServiceProvider);
 
-  final dataSource = CallWebSocketDataSourceImpl(
-    webSocketService: webSocketService,
-  );
+  final dataSource = CallWebSocketDataSourceImpl(webSocketService: webSocketService);
 
   ref.onDispose(() {
     dataSource.dispose();
@@ -16,4 +14,3 @@ final callWebSocketDataSourceProvider = Provider<CallWebSocketDataSource>((ref) 
 
   return dataSource;
 });
-

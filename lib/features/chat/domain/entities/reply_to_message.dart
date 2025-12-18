@@ -11,4 +11,3 @@ abstract class ReplyToMessage with _$ReplyToMessage {
     required String senderUsername,
   }) = _ReplyToMessage;
 }
-

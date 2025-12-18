@@ -1,7 +1,7 @@
 import 'package:chattrix_ui/core/errors/failures.dart';
 import 'package:chattrix_ui/features/auth/domain/entities/user.dart';
 import 'package:chattrix_ui/features/chat/domain/entities/user_status.dart';
-import 'package:dartz/dartz.dart';
+import 'package:fpdart/fpdart.dart';
 
 abstract class UserStatusRepository {
   /// Get all online users

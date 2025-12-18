@@ -1,14 +1,14 @@
-import 'package:chattrix_ui/features/notes/domain/entities/user_note.dart';
-import 'package:chattrix_ui/features/notes/domain/repositories/notes_repository.dart';
-import 'package:dartz/dartz.dart';
+import 'package:fpdart/fpdart.dart';
+import '../../../../core/errors/failures.dart';
+import '../entities/user_note.dart';
+import '../repositories/notes_repository.dart';
 
 class GetContactNotesUseCase {
   final NotesRepository _repository;
 
   GetContactNotesUseCase(this._repository);
 
-  Future<Either<String, List<UserNote>>> call() {
+  Future<Either<Failure, List<UserNote>>> call() {
     return _repository.getContactNotes();
   }
 }
-

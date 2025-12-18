@@ -9,20 +9,12 @@ part 'call_reject_model.g.dart';
 abstract class CallRejectModel with _$CallRejectModel {
   const CallRejectModel._();
 
-  const factory CallRejectModel({
-    required String callId,
-    required int rejectedBy,
-    required CallRejectReason reason,
-  }) = _CallRejectModel;
+  const factory CallRejectModel({required String callId, required int rejectedBy, required CallRejectReason reason}) =
+      _CallRejectModel;
 
-  factory CallRejectModel.fromJson(Map<String, dynamic> json) =>
-      _$CallRejectModelFromJson(json);
+  factory CallRejectModel.fromJson(Map<String, dynamic> json) => _$CallRejectModelFromJson(json);
 
   CallReject toEntity() {
-    return CallReject(
-      callId: callId,
-      rejectedBy: rejectedBy,
-      reason: reason,
-    );
+    return CallReject(callId: callId, rejectedBy: rejectedBy, reason: reason);
   }
 }

@@ -79,10 +79,7 @@ class ProfilePage extends ConsumerWidget {
             children: [
               Text(error.toString().replaceAll('Exception: ', ''), textAlign: TextAlign.center),
               const SizedBox(height: 16),
-              ElevatedButton(
-                onPressed: () => ref.refresh(profileControllerProvider),
-                child: const Text('Retry'),
-              ),
+              ElevatedButton(onPressed: () => ref.refresh(profileControllerProvider), child: const Text('Retry')),
             ],
           ),
         ),
@@ -201,11 +198,7 @@ class ProfilePage extends ConsumerWidget {
                         },
                       ),
                     if (profile.gender != null)
-                      ProfileInfoTile(
-                        icon: FontAwesomeIcons.venusMars,
-                        label: 'Gender',
-                        value: profile.gender!.label,
-                      ),
+                      ProfileInfoTile(icon: FontAwesomeIcons.venusMars, label: 'Gender', value: profile.gender!.label),
                     if (profile.dateOfBirth != null)
                       ProfileInfoTile(
                         icon: FontAwesomeIcons.cakeCandles,
@@ -213,11 +206,7 @@ class ProfilePage extends ConsumerWidget {
                         value: DateFormat('dd MMM, yyyy').format(profile.dateOfBirth!),
                       ),
                     if (profile.location != null)
-                      ProfileInfoTile(
-                        icon: FontAwesomeIcons.locationDot,
-                        label: 'Location',
-                        value: profile.location!,
-                      ),
+                      ProfileInfoTile(icon: FontAwesomeIcons.locationDot, label: 'Location', value: profile.location!),
                   ],
                 ),
 
@@ -251,12 +240,7 @@ class ProfilePage extends ConsumerWidget {
   }
 
   // Show logout confirmation dialog (changed from bottom sheet to avoid being covered)
-  void _showLogoutBottomSheet(
-    BuildContext context,
-    WidgetRef ref,
-    ColorScheme colors,
-    TextTheme textTheme,
-  ) {
+  void _showLogoutBottomSheet(BuildContext context, WidgetRef ref, ColorScheme colors, TextTheme textTheme) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -267,29 +251,16 @@ class ProfilePage extends ConsumerWidget {
           children: [
             Container(
               padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: colors.errorContainer,
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                FontAwesomeIcons.rightFromBracket,
-                color: colors.error,
-                size: 32,
-              ),
+              decoration: BoxDecoration(color: colors.errorContainer, shape: BoxShape.circle),
+              child: Icon(FontAwesomeIcons.rightFromBracket, color: colors.error, size: 32),
             ),
             const SizedBox(height: 20),
-            Text(
-              'Logout',
-              style: textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
-            ),
+            Text('Logout', style: textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
             const SizedBox(height: 12),
             Text(
               'Are you sure you want to logout from your account?',
               textAlign: TextAlign.center,
-              style: textTheme.bodyMedium?.copyWith(
-                color: colors.onSurfaceVariant,
-                height: 1.4,
-              ),
+              style: textTheme.bodyMedium?.copyWith(color: colors.onSurfaceVariant, height: 1.4),
             ),
             const SizedBox(height: 24),
             Row(
@@ -299,9 +270,7 @@ class ProfilePage extends ConsumerWidget {
                     onPressed: () => Navigator.pop(context),
                     style: OutlinedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 14),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                       side: BorderSide(color: colors.outline, width: 1.5),
                     ),
                     child: const Text('Cancel', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600)),
@@ -329,9 +298,7 @@ class ProfilePage extends ConsumerWidget {
                     style: FilledButton.styleFrom(
                       backgroundColor: colors.error,
                       padding: const EdgeInsets.symmetric(vertical: 14),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                     ),
                     child: const Text('Logout', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600)),
                   ),

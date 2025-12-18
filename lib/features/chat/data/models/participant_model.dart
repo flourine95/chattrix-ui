@@ -16,14 +16,14 @@ abstract class ParticipantModel with _$ParticipantModel {
     String? email,
     String? nickname,
     String? avatarUrl,
-    bool? isOnline,
+    bool? online,
     String? lastSeen,
   }) = _ParticipantModel;
 
   factory ParticipantModel.fromJson(Map<String, dynamic> json) => _$ParticipantModelFromJson(json);
 
   factory ParticipantModel.fromApi(Map<String, dynamic> json) {
-    final isOnline = json['isOnline'] as bool?;
+    final online = json['online'] as bool? ?? json['isOnline'] as bool?;
 
     final lastSeen = json['lastSeen']?.toString();
 
@@ -37,7 +37,7 @@ abstract class ParticipantModel with _$ParticipantModel {
       email: json['email']?.toString(),
       nickname: json['nickname']?.toString(),
       avatarUrl: json['avatarUrl']?.toString() ?? json['avatar_url']?.toString(),
-      isOnline: isOnline,
+      online: online,
       lastSeen: lastSeen,
     );
   }
@@ -51,7 +51,7 @@ abstract class ParticipantModel with _$ParticipantModel {
       email: email,
       nickname: nickname,
       avatarUrl: avatarUrl,
-      isOnline: isOnline,
+      online: online,
       lastSeen: lastSeen != null ? DateTime.parse(lastSeen!) : null,
     );
   }

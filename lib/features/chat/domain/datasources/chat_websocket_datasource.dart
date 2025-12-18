@@ -1,3 +1,4 @@
+import 'package:chattrix_ui/features/chat/data/models/chat_message_request.dart';
 import 'package:chattrix_ui/features/chat/domain/entities/conversation_update.dart';
 import 'package:chattrix_ui/features/chat/domain/entities/message.dart';
 import 'package:chattrix_ui/features/chat/domain/entities/typing_indicator.dart';
@@ -13,11 +14,7 @@ abstract class ChatWebSocketDataSource {
   Future<void> disconnect();
 
   /// Send a chat message
-  void sendMessage({
-    required String conversationId,
-    required String content,
-    int? replyToMessageId,
-  });
+  void sendMessage(String conversationId, ChatMessageRequest request);
 
   /// Send typing start indicator
   void sendTypingStart(String conversationId);
@@ -52,4 +49,3 @@ abstract class ChatWebSocketDataSource {
   /// Dispose resources
   void dispose();
 }
-

@@ -4,7 +4,7 @@ import 'package:chattrix_ui/features/call/domain/entities/call_end_reason.dart';
 import 'package:chattrix_ui/features/call/domain/entities/call_info.dart';
 import 'package:chattrix_ui/features/call/domain/entities/call_reject_reason.dart';
 import 'package:chattrix_ui/features/call/domain/entities/call_type.dart';
-import 'package:dartz/dartz.dart';
+import 'package:fpdart/fpdart.dart';
 
 abstract class CallRepository {
   Future<Either<Failure, CallConnection>> initiateCall({required int calleeId, required CallType callType});

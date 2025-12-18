@@ -4,21 +4,21 @@
 // coverage:ignore-file
 
 
-part of 'auth_tokens_model.dart';
+part of 'auth_tokens_dto.dart';
 
 // **************************************************************************
 // JsonSerializableGenerator
 // **************************************************************************
 
-_AuthTokensModel _$AuthTokensModelFromJson(Map<String, dynamic> json) =>
-    _AuthTokensModel(
+_AuthTokensDto _$AuthTokensDtoFromJson(Map<String, dynamic> json) =>
+    _AuthTokensDto(
       accessToken: json['accessToken'] as String,
       refreshToken: json['refreshToken'] as String,
       tokenType: json['tokenType'] as String,
       expiresIn: (json['expiresIn'] as num).toInt(),
     );
 
-Map<String, dynamic> _$AuthTokensModelToJson(_AuthTokensModel instance) =>
+Map<String, dynamic> _$AuthTokensDtoToJson(_AuthTokensDto instance) =>
     <String, dynamic>{
       'accessToken': instance.accessToken,
       'refreshToken': instance.refreshToken,

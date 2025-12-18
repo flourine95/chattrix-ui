@@ -9,18 +9,11 @@ part 'call_connection_model.g.dart';
 abstract class CallConnectionModel with _$CallConnectionModel {
   const CallConnectionModel._();
 
-  const factory CallConnectionModel({
-    required CallInfoModel callInfo,
-    required String token,
-  }) = _CallConnectionModel;
+  const factory CallConnectionModel({required CallInfoModel callInfo, required String token}) = _CallConnectionModel;
 
-  factory CallConnectionModel.fromJson(Map<String, dynamic> json) =>
-      _$CallConnectionModelFromJson(json);
+  factory CallConnectionModel.fromJson(Map<String, dynamic> json) => _$CallConnectionModelFromJson(json);
 
   CallConnection toEntity() {
-    return CallConnection(
-      callInfo: callInfo.toEntity(),
-      token: token,
-    );
+    return CallConnection(callInfo: callInfo.toEntity(), token: token);
   }
 }

@@ -1,3 +1,4 @@
+import 'package:chattrix_ui/core/domain/enums/enums.dart';
 import 'package:chattrix_ui/features/chat/domain/entities/conversation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -15,7 +16,7 @@ class SettingsSectionWidget extends HookConsumerWidget {
     final isBlocked = useState(false);
     final notificationsEnabled = useState(true);
 
-    final isGroup = conversation.type.toUpperCase() == 'GROUP';
+    final isGroup = conversation.type == ConversationType.group;
 
     return ListView(
       padding: const EdgeInsets.all(16),

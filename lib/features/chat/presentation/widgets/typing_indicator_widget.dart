@@ -5,10 +5,7 @@ import 'package:flutter/material.dart';
 class TypingIndicatorWidget extends StatelessWidget {
   final List<TypingUser> typingUsers;
 
-  const TypingIndicatorWidget({
-    super.key,
-    required this.typingUsers,
-  });
+  const TypingIndicatorWidget({super.key, required this.typingUsers});
 
   /// Generate typing text based on number of users
   String _getTypingText() {
@@ -28,21 +25,15 @@ class TypingIndicatorWidget extends StatelessWidget {
     if (typingUsers.isEmpty) return const SizedBox.shrink();
 
     final colors = Theme.of(context).colorScheme;
-    final textStyle = Theme.of(context).textTheme.bodySmall?.copyWith(
-          color: colors.onSurface.withOpacity(0.6),
-          fontStyle: FontStyle.italic,
-        );
+    final textStyle = Theme.of(
+      context,
+    ).textTheme.bodySmall?.copyWith(color: colors.onSurface.withOpacity(0.6), fontStyle: FontStyle.italic);
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
         color: colors.surface.withOpacity(0.5),
-        border: Border(
-          top: BorderSide(
-            color: colors.onSurface.withOpacity(0.1),
-            width: 1,
-          ),
-        ),
+        border: Border(top: BorderSide(color: colors.onSurface.withOpacity(0.1), width: 1)),
       ),
       child: Row(
         children: [
@@ -60,11 +51,7 @@ class TypingDotsAnimation extends StatefulWidget {
   final Color? color;
   final double dotSize;
 
-  const TypingDotsAnimation({
-    super.key,
-    this.color,
-    this.dotSize = 4,
-  });
+  const TypingDotsAnimation({super.key, this.color, this.dotSize = 4});
 
   @override
   State<TypingDotsAnimation> createState() => _TypingDotsAnimationState();
@@ -76,10 +63,7 @@ class _TypingDotsAnimationState extends State<TypingDotsAnimation> with SingleTi
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 1400),
-    )..repeat();
+    _controller = AnimationController(vsync: this, duration: const Duration(milliseconds: 1400))..repeat();
   }
 
   @override
@@ -135,4 +119,3 @@ class _TypingDotsAnimationState extends State<TypingDotsAnimation> with SingleTi
     );
   }
 }
-

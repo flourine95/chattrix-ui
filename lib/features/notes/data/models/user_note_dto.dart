@@ -17,4 +17,3 @@ abstract class UserNoteDto with _$UserNoteDto {
 
   factory UserNoteDto.fromJson(Map<String, dynamic> json) => _$UserNoteDtoFromJson(json);
 }
-

@@ -106,7 +106,7 @@ final class ProfileRepositoryProvider
   }
 }
 
-String _$profileRepositoryHash() => r'9be68215753cc2fab49868b850c1dd48b86a5fd2';
+String _$profileRepositoryHash() => r'f3f43c41459918d120abcc67af88fdfc559960f3';
 
 @ProviderFor(getProfileUseCase)
 const getProfileUseCaseProvider = GetProfileUseCaseProvider._();
@@ -227,7 +227,7 @@ final class ProfileControllerProvider
   ProfileController create() => ProfileController();
 }
 
-String _$profileControllerHash() => r'3b0e0cb9c8d0c9337ade4401130edb750cb7689a';
+String _$profileControllerHash() => r'9aa4d742d83d082f07478319df9d50feb7e77e41';
 
 abstract class _$ProfileController extends $AsyncNotifier<Profile> {
   FutureOr<Profile> build();

@@ -15,16 +15,9 @@ abstract class ReplyToMessageModel with _$ReplyToMessageModel {
     required String senderUsername,
   }) = _ReplyToMessageModel;
 
-  factory ReplyToMessageModel.fromJson(Map<String, dynamic> json) =>
-      _$ReplyToMessageModelFromJson(json);
+  factory ReplyToMessageModel.fromJson(Map<String, dynamic> json) => _$ReplyToMessageModelFromJson(json);
 
   ReplyToMessage toEntity() {
-    return ReplyToMessage(
-      id: id,
-      content: content,
-      senderId: senderId,
-      senderUsername: senderUsername,
-    );
+    return ReplyToMessage(id: id, content: content, senderId: senderId, senderUsername: senderUsername);
   }
 }
-

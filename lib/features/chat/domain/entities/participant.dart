@@ -12,7 +12,7 @@ abstract class Participant with _$Participant {
     String? email,
     String? nickname,
     String? avatarUrl,
-    bool? isOnline,
+    bool? online,
     DateTime? lastSeen,
   }) = _Participant;
 }

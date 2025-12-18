@@ -177,7 +177,7 @@ class CallNotifier extends _$CallNotifier {
     );
   }
 
-  void _handleRemoteVideoStateChanged( remoteVideoState) {
+  void _handleRemoteVideoStateChanged(remoteVideoState) {
     AppLogger.call('Remote video state changed: uid=${remoteVideoState.uid}, state=${remoteVideoState.state}');
 
     state.whenOrNull(
@@ -268,9 +268,10 @@ class CallNotifier extends _$CallNotifier {
 
       await result.fold(
         (failure) {
-          AppLogger.error('Failed to initiate call: ${failure.userMessage}', tag: 'Call');
-          ref.read(toastControllerProvider).show(title: failure.userMessage, type: ToastType.error);
-          state = CallState.error(message: failure.userMessage);
+          final message = _getFailureMessage(failure);
+          AppLogger.error('Failed to initiate call: $message', tag: 'Call');
+          ref.read(toastControllerProvider).show(title: message, type: ToastType.error);
+          state = CallState.error(message: message);
         },
         (connection) async {
           AppLogger.call('Call initiated successfully: ${connection.callInfo.id}');
@@ -316,9 +317,10 @@ class CallNotifier extends _$CallNotifier {
 
           await result.fold(
             (failure) {
-              AppLogger.error('Failed to accept call: ${failure.userMessage}', tag: 'Call');
-              ref.read(toastControllerProvider).show(title: failure.userMessage, type: ToastType.error);
-              state = CallState.error(message: failure.userMessage);
+              final message = _getFailureMessage(failure);
+              AppLogger.error('Failed to accept call: $message', tag: 'Call');
+              ref.read(toastControllerProvider).show(title: message, type: ToastType.error);
+              state = CallState.error(message: message);
             },
             (connection) async {
               AppLogger.call('Call accepted successfully: ${connection.callInfo.id}');
@@ -546,6 +548,19 @@ class CallNotifier extends _$CallNotifier {
               );
             }
           },
+    );
+  }
+
+  /// Map Failure to user-friendly error message
+  String _getFailureMessage(Failure failure) {
+    return failure.when(
+      server: (message, code, requestId) => message,
+      network: (message, code) => message,
+      validation: (message, code, details, requestId) => message,
+      auth: (message, code, requestId) => message,
+      notFound: (message, code, requestId) => message,
+      conflict: (message, code, requestId) => message,
+      rateLimit: (message, code, requestId) => message,
     );
   }
 }

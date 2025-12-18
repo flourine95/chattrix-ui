@@ -27,7 +27,7 @@ final contactRepositoryProvider = Provider<ContactRepository>((ref) {
   final currentUserId = authState.value?.user?.id ?? 0;
 
   return ContactRepositoryImpl(
-    remoteDataSource: ref.watch(contactRemoteDataSourceProvider),
+    remoteDataSource: ref.watch(contactRemoteDataSourceProvider) as ContactRemoteDataSourceImpl,
     currentUserId: currentUserId,
   );
 });
@@ -104,29 +104,18 @@ class ContactNotifier extends Notifier<ContactState> {
 
   String _getFailureMessage(Failure failure) {
     return failure.when(
-      server: (message, errorCode) => message,
-      network: (message) => 'Không có kết nối mạng. Vui lòng kiểm tra lại.',
-      validation: (message, errors) {
-        if (errors != null && errors.isNotEmpty) {
-          return errors.map((e) => e.message).join(', ');
+      server: (message, code, requestId) => message,
+      network: (message, code) => 'Không có kết nối mạng. Vui lòng kiểm tra lại.',
+      validation: (message, code, details, requestId) {
+        if (details != null && details.isNotEmpty) {
+          return details.values.join(', ');
         }
         return message;
       },
-      unauthorized: (message, errorCode) => message,
-      badRequest: (message, errorCode) => message,
-      forbidden: (message, errorCode) => message,
-      notFound: (message, errorCode) => message,
-      conflict: (message, errorCode) => message,
-      rateLimitExceeded: (message) => 'Quá nhiều yêu cầu. Vui lòng thử lại sau.',
-      unknown: (message) => message,
-      permission: (message) => message,
-      agoraEngine: (message, code) => message,
-      tokenExpired: (message) => message,
-      channelJoin: (message) => message,
-      webSocketNotConnected: (message) => message,
-      webSocketSendFailed: (message) => message,
-      callNotFound: (message) => message,
-      callAlreadyActive: (message) => message,
+      auth: (message, code, requestId) => message,
+      notFound: (message, code, requestId) => message,
+      conflict: (message, code, requestId) => message,
+      rateLimit: (message, code, requestId) => 'Quá nhiều yêu cầu. Vui lòng thử lại sau.',
     );
   }
 

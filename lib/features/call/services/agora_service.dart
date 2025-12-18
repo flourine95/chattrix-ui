@@ -47,10 +47,9 @@ class AgoraService {
       await _requestPermissions();
 
       _engine = createAgoraRtcEngine();
-      await _engine!.initialize(RtcEngineContext(
-        appId: appId,
-        channelProfile: ChannelProfileType.channelProfileCommunication,
-      ));
+      await _engine!.initialize(
+        RtcEngineContext(appId: appId, channelProfile: ChannelProfileType.channelProfileCommunication),
+      );
 
       _registerEventHandlers();
 
@@ -65,7 +64,6 @@ class AgoraService {
       rethrow;
     }
   }
-
 
   Future<void> _requestPermissions() async {
     final status = await [Permission.camera, Permission.microphone].request();
@@ -90,16 +88,31 @@ class AgoraService {
           AppLogger.info('Remote user offline: $remoteUid ($reason)', tag: 'Agora');
           _userOfflineController.add(remoteUid);
         },
-        onConnectionStateChanged: (RtcConnection connection, ConnectionStateType state, ConnectionChangedReasonType reason) {
-          AppLogger.info('Connection state: $state ($reason)', tag: 'Agora');
-          _connectionStateController.add(state);
-        },
-        onRemoteVideoStateChanged: (RtcConnection connection, int remoteUid, RemoteVideoState state, RemoteVideoStateReason reason, int elapsed) {
-          _remoteVideoStateController.add(RemoteVideoStateInfo(uid: remoteUid, state: state, reason: reason));
-        },
-        onRemoteAudioStateChanged: (RtcConnection connection, int remoteUid, RemoteAudioState state, RemoteAudioStateReason reason, int elapsed) {
-          _remoteAudioStateController.add(RemoteAudioStateInfo(uid: remoteUid, state: state, reason: reason));
-        },
+        onConnectionStateChanged:
+            (RtcConnection connection, ConnectionStateType state, ConnectionChangedReasonType reason) {
+              AppLogger.info('Connection state: $state ($reason)', tag: 'Agora');
+              _connectionStateController.add(state);
+            },
+        onRemoteVideoStateChanged:
+            (
+              RtcConnection connection,
+              int remoteUid,
+              RemoteVideoState state,
+              RemoteVideoStateReason reason,
+              int elapsed,
+            ) {
+              _remoteVideoStateController.add(RemoteVideoStateInfo(uid: remoteUid, state: state, reason: reason));
+            },
+        onRemoteAudioStateChanged:
+            (
+              RtcConnection connection,
+              int remoteUid,
+              RemoteAudioState state,
+              RemoteAudioStateReason reason,
+              int elapsed,
+            ) {
+              _remoteAudioStateController.add(RemoteAudioStateInfo(uid: remoteUid, state: state, reason: reason));
+            },
         onError: (ErrorCodeType err, String msg) {
           AppLogger.error('Agora Internal Error: $err - $msg', tag: 'Agora');
         },

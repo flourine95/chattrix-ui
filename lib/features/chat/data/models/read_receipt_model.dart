@@ -16,17 +16,9 @@ abstract class ReadReceiptModel with _$ReadReceiptModel {
     required DateTime readAt,
   }) = _ReadReceiptModel;
 
-  factory ReadReceiptModel.fromJson(Map<String, dynamic> json) =>
-      _$ReadReceiptModelFromJson(json);
+  factory ReadReceiptModel.fromJson(Map<String, dynamic> json) => _$ReadReceiptModelFromJson(json);
 
   ReadReceipt toEntity() {
-    return ReadReceipt(
-      userId: userId,
-      username: username,
-      fullName: fullName,
-      avatarUrl: avatarUrl,
-      readAt: readAt,
-    );
+    return ReadReceipt(userId: userId, username: username, fullName: fullName, avatarUrl: avatarUrl, readAt: readAt);
   }
 }
-

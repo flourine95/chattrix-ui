@@ -1,7 +1,9 @@
 import 'package:chattrix_ui/core/constants/api_constants.dart';
+import 'package:chattrix_ui/core/domain/enums/conversation_filter.dart';
 import 'package:chattrix_ui/core/errors/exceptions.dart';
 import 'package:chattrix_ui/core/utils/app_logger.dart';
-import 'package:chattrix_ui/features/auth/data/models/user_model.dart';
+import 'package:chattrix_ui/features/auth/data/models/user_dto.dart';
+import 'package:chattrix_ui/features/chat/data/models/chat_message_request.dart';
 import 'package:chattrix_ui/features/chat/data/models/conversation_model.dart';
 import 'package:chattrix_ui/features/chat/data/models/message_model.dart';
 import 'package:chattrix_ui/features/chat/data/models/search_user_model.dart';
@@ -38,46 +40,51 @@ class ChatRemoteDatasourceImpl implements ChatRemoteDatasource {
   }
 
   @override
-  Future<List<ConversationModel>> getConversations() async {
+  Future<List<ConversationModel>> getConversations({ConversationFilter filter = ConversationFilter.all}) async {
     try {
-      AppLogger.debug('📡 Fetching conversations from API...', tag: 'ChatRemoteDataSource');
+      AppLogger.debug('📡 Fetching conversations from API with filter: $filter', tag: 'ChatRemoteDataSource');
 
-      final response = await dio.get(ApiConstants.conversations);
+      // Map filter enum to API query parameter
+      String? filterParam;
+      switch (filter) {
+        case ConversationFilter.all:
+          filterParam = 'all';
+          break;
+        case ConversationFilter.unread:
+          filterParam = 'unread';
+          break;
+        case ConversationFilter.groups:
+          filterParam = 'group';
+          break;
+      }
 
-      AppLogger.debug(
-        '📥 Conversations API Response - Status: ${response.statusCode}',
-        tag: 'ChatRemoteDataSource',
-      );
+      final response = await dio.get(ApiConstants.conversations, queryParameters: {'filter': filterParam});
+
+      AppLogger.debug('📥 Conversations API Response - Status: ${response.statusCode}', tag: 'ChatRemoteDataSource');
 
       if (response.statusCode == 200) {
-        final data = response.data['data'] as List;
+        // API returns paginated response: { success, message, data: { data: [...], page, size, total, ... } }
+        final paginatedData = response.data['data'] as Map<String, dynamic>;
+        final conversationsData = paginatedData['data'] as List;
 
-        AppLogger.info(
-          '✅ Successfully fetched ${data.length} conversations',
-          tag: 'ChatRemoteDataSource',
-        );
+        AppLogger.info('✅ Successfully fetched ${conversationsData.length} conversations', tag: 'ChatRemoteDataSource');
 
-        return data.whereType<Map<String, dynamic>>().map((json) => ConversationModel.fromApi(json)).toList();
+        return conversationsData
+            .whereType<Map<String, dynamic>>()
+            .map((json) => ConversationModel.fromApi(json))
+            .toList();
       }
 
       throw ServerException(message: 'Failed to fetch conversations');
     } on DioException catch (e) {
-      AppLogger.error(
-        '❌ Failed to fetch conversations - DioException',
-        error: e,
-        tag: 'ChatRemoteDataSource',
-      );
+      AppLogger.error('❌ Failed to fetch conversations - DioException', error: e, tag: 'ChatRemoteDataSource');
       AppLogger.debug(
         'Status Code: ${e.response?.statusCode}, Message: ${e.response?.data}',
         tag: 'ChatRemoteDataSource',
       );
       throw ServerException(message: e.response?.data['message'] ?? 'Failed to fetch conversations');
     } catch (e) {
-      AppLogger.error(
-        '❌ Failed to fetch conversations - Unexpected error',
-        error: e,
-        tag: 'ChatRemoteDataSource',
-      );
+      AppLogger.error('❌ Failed to fetch conversations - Unexpected error', error: e, tag: 'ChatRemoteDataSource');
       throw ServerException(message: 'Failed to fetch conversations: $e');
     }
   }
@@ -131,13 +138,13 @@ class ChatRemoteDatasourceImpl implements ChatRemoteDatasource {
   }
 
   @override
-  Future<List<UserModel>> getOnlineUsers() async {
+  Future<List<UserDto>> getOnlineUsers() async {
     try {
       final response = await dio.get(ApiConstants.onlineUsers);
 
       if (response.statusCode == 200) {
         final data = response.data['data'] as List;
-        return data.map((json) => UserModel.fromJson(json)).toList();
+        return data.map((json) => UserDto.fromJson(json)).toList();
       }
 
       throw ServerException(message: 'Failed to fetch online users');
@@ -147,13 +154,13 @@ class ChatRemoteDatasourceImpl implements ChatRemoteDatasource {
   }
 
   @override
-  Future<List<UserModel>> getOnlineUsersInConversation(String conversationId) async {
+  Future<List<UserDto>> getOnlineUsersInConversation(String conversationId) async {
     try {
       final response = await dio.get(ApiConstants.onlineUsersInConversation(conversationId));
 
       if (response.statusCode == 200) {
         final data = response.data['data'] as List;
-        return data.map((json) => UserModel.fromJson(json)).toList();
+        return data.map((json) => UserDto.fromJson(json)).toList();
       }
 
       throw ServerException(message: 'Failed to fetch online users in conversation');
@@ -179,41 +186,11 @@ class ChatRemoteDatasourceImpl implements ChatRemoteDatasource {
   }
 
   @override
-  Future<MessageModel> sendMessage({
-    required String conversationId,
-    required String content,
-    String? type,
-    String? mediaUrl,
-    String? thumbnailUrl,
-    String? fileName,
-    int? fileSize,
-    int? duration,
-    double? latitude,
-    double? longitude,
-    String? locationName,
-    int? replyToMessageId,
-    String? mentions,
-  }) async {
+  Future<MessageModel> sendMessage(String conversationId, ChatMessageRequest request) async {
     try {
-      // Build request data with all fields
-      final data = <String, dynamic>{
-        'content': content,
-        if (type != null) 'type': type,
-        if (mediaUrl != null) 'mediaUrl': mediaUrl,
-        if (thumbnailUrl != null) 'thumbnailUrl': thumbnailUrl,
-        if (fileName != null) 'fileName': fileName,
-        if (fileSize != null) 'fileSize': fileSize,
-        if (duration != null) 'duration': duration,
-        if (latitude != null) 'latitude': latitude,
-        if (longitude != null) 'longitude': longitude,
-        if (locationName != null) 'locationName': locationName,
-        if (replyToMessageId != null) 'replyToMessageId': replyToMessageId,
-        if (mentions != null) 'mentions': mentions,
-      };
-
       final url = ApiConstants.messagesInConversation(conversationId);
 
-      final response = await dio.post(url, data: data);
+      final response = await dio.post(url, data: request.toJson());
 
       if (response.statusCode == 201) {
         final responseData = response.data['data'] as Map<String, dynamic>;
@@ -246,6 +223,38 @@ class ChatRemoteDatasourceImpl implements ChatRemoteDatasource {
       throw ServerException(message: e.response?.data['message'] ?? 'Failed to search users');
     } catch (e) {
       throw ServerException(message: 'Failed to search users: $e');
+    }
+  }
+
+  @override
+  Future<List<ConversationModel>> searchConversations({required String query}) async {
+    try {
+      AppLogger.debug('🔍 Searching conversations with query: $query', tag: 'ChatRemoteDataSource');
+
+      final response = await dio.get(ApiConstants.conversations, queryParameters: {'search': query});
+
+      AppLogger.debug('📥 Search API Response - Status: ${response.statusCode}', tag: 'ChatRemoteDataSource');
+
+      if (response.statusCode == 200) {
+        // API returns paginated response: { success, message, data: { data: [...], page, size, total, ... } }
+        final paginatedData = response.data['data'] as Map<String, dynamic>;
+        final conversationsData = paginatedData['data'] as List;
+
+        AppLogger.info('✅ Found ${conversationsData.length} conversations matching query', tag: 'ChatRemoteDataSource');
+
+        return conversationsData
+            .whereType<Map<String, dynamic>>()
+            .map((json) => ConversationModel.fromApi(json))
+            .toList();
+      }
+
+      throw ServerException(message: 'Failed to search conversations');
+    } on DioException catch (e) {
+      AppLogger.error('❌ Failed to search conversations - DioException', error: e, tag: 'ChatRemoteDataSource');
+      throw ServerException(message: e.response?.data['message'] ?? 'Failed to search conversations');
+    } catch (e) {
+      AppLogger.error('❌ Failed to search conversations - Unexpected error', error: e, tag: 'ChatRemoteDataSource');
+      throw ServerException(message: 'Failed to search conversations: $e');
     }
   }
 

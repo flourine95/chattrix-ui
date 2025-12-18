@@ -136,38 +136,24 @@ class AuthNotifier extends Notifier<AuthState> {
     // Lấy message trực tiếp từ Failure object
     if (failure is Failure) {
       return failure.when(
-        server: (message, errorCode) => message,
-        network: (message) => 'Không có kết nối mạng. Vui lòng kiểm tra lại.',
-        validation: (message, errors) {
-          if (errors != null && errors.isNotEmpty) {
-            return errors.map((e) => e.message).join(', ');
+        server: (message, code, requestId) => message,
+        network: (message, code) => 'Không có kết nối mạng. Vui lòng kiểm tra lại.',
+        validation: (message, code, details, requestId) {
+          if (details != null && details.isNotEmpty) {
+            return details.values.join(', ');
           }
           return message;
         },
-        badRequest: (message, errorCode) => message,
-        unauthorized: (message, errorCode) {
+        auth: (message, code, requestId) {
           // If token is expired/invalid, auto logout
           if (message.contains('Invalid or expired token') || message.contains('Token expired')) {
             _handleTokenExpired();
           }
           return message;
         },
-        forbidden: (message, errorCode) => message,
-        notFound: (message, errorCode) => message,
-        conflict: (message, errorCode) => message,
-        rateLimitExceeded: (message) => 'Quá nhiều yêu cầu. Vui lòng thử lại sau.',
-        unknown: (message) => message,
-        permission: (message) => message,
-        agoraEngine: (message, code) => message,
-        tokenExpired: (message) {
-          _handleTokenExpired();
-          return message;
-        },
-        webSocketNotConnected: (message) => message,
-        webSocketSendFailed: (message) => message,
-        callNotFound: (message) => message,
-        callAlreadyActive: (message) => message,
-        channelJoin: (message) => message,
+        notFound: (message, code, requestId) => message,
+        conflict: (message, code, requestId) => message,
+        rateLimit: (message, code, requestId) => 'Quá nhiều yêu cầu. Vui lòng thử lại sau.',
       );
     }
 

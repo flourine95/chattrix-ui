@@ -12,4 +12,3 @@ abstract class VerifyEmailRequest with _$VerifyEmailRequest {
 
   factory VerifyEmailRequest.fromJson(Map<String, dynamic> json) => _$VerifyEmailRequestFromJson(json);
 }
-

@@ -14,7 +14,5 @@ abstract class MessageUpdateDto with _$MessageUpdateDto {
     required DateTime updatedAt,
   }) = _MessageUpdateDto;
 
-  factory MessageUpdateDto.fromJson(Map<String, dynamic> json) =>
-      _$MessageUpdateDtoFromJson(json);
+  factory MessageUpdateDto.fromJson(Map<String, dynamic> json) => _$MessageUpdateDtoFromJson(json);
 }
-

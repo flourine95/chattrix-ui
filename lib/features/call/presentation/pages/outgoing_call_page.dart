@@ -21,13 +21,7 @@ class OutgoingCallPage extends ConsumerWidget {
         ringing: (_) => const SizedBox(),
         connecting: (connection, callType, isOutgoing) {
           if (isOutgoing) {
-            return _buildView(
-              context,
-              ref,
-              connection.callInfo.calleeName,
-              connection.callInfo.calleeAvatar,
-              callType,
-            );
+            return _buildView(context, ref, connection.callInfo.calleeName, connection.callInfo.calleeAvatar, callType);
           }
           return const SizedBox();
         },
@@ -38,13 +32,7 @@ class OutgoingCallPage extends ConsumerWidget {
     );
   }
 
-  Widget _buildView(
-      BuildContext context,
-      WidgetRef ref,
-      String name,
-      String? avatar,
-      CallType callType,
-      ) {
+  Widget _buildView(BuildContext context, WidgetRef ref, String name, String? avatar, CallType callType) {
     // 1. SizedBox.expand: Ép container chiếm toàn bộ màn hình
     return SizedBox.expand(
       child: Container(
@@ -73,11 +61,7 @@ class OutgoingCallPage extends ConsumerWidget {
                     border: Border.all(color: Colors.blue.withValues(alpha: 0.1), width: 1),
                     color: Colors.white,
                   ),
-                  child: UserAvatar(
-                    displayName: name,
-                    avatarUrl: avatar,
-                    radius: 72,
-                  ),
+                  child: UserAvatar(displayName: name, avatarUrl: avatar, radius: 72),
                 ),
                 const SizedBox(height: 24),
 
@@ -87,11 +71,7 @@ class OutgoingCallPage extends ConsumerWidget {
                   child: Text(
                     name,
                     textAlign: TextAlign.center,
-                    style: GoogleFonts.inter(
-                      fontSize: 32,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black87,
-                    ),
+                    style: GoogleFonts.inter(fontSize: 32, fontWeight: FontWeight.bold, color: Colors.black87),
                   ),
                 ),
                 const SizedBox(height: 12),
@@ -99,11 +79,7 @@ class OutgoingCallPage extends ConsumerWidget {
                 // Status Text
                 Text(
                   'Calling...',
-                  style: GoogleFonts.inter(
-                    fontSize: 16,
-                    color: Colors.black54,
-                    fontWeight: FontWeight.w500,
-                  ),
+                  style: GoogleFonts.inter(fontSize: 16, color: Colors.black54, fontWeight: FontWeight.w500),
                 ),
 
                 const Spacer(flex: 2),
@@ -135,11 +111,7 @@ class OutgoingCallPage extends ConsumerWidget {
                       const SizedBox(height: 12),
                       Text(
                         "Cancel",
-                        style: GoogleFonts.inter(
-                          color: Colors.black54,
-                          fontWeight: FontWeight.w600,
-                          fontSize: 14,
-                        ),
+                        style: GoogleFonts.inter(color: Colors.black54, fontWeight: FontWeight.w600, fontSize: 14),
                       ),
                     ],
                   ),

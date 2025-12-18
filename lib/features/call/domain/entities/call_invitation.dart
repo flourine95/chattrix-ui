@@ -14,4 +14,3 @@ abstract class CallInvitation with _$CallInvitation {
     required CallType callType,
   }) = _CallInvitation;
 }
-

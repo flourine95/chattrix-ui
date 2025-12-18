@@ -1,8 +1,10 @@
+import 'package:chattrix_ui/core/domain/enums/conversation_filter.dart';
 import 'package:chattrix_ui/core/errors/failures.dart';
+import 'package:chattrix_ui/features/chat/data/models/chat_message_request.dart';
 import 'package:chattrix_ui/features/chat/domain/entities/conversation.dart';
 import 'package:chattrix_ui/features/chat/domain/entities/message.dart';
 import 'package:chattrix_ui/features/chat/domain/entities/search_user.dart';
-import 'package:dartz/dartz.dart';
+import 'package:fpdart/fpdart.dart';
 
 abstract class ChatRepository {
   /// Create a new conversation
@@ -13,7 +15,7 @@ abstract class ChatRepository {
   });
 
   /// Get all conversations
-  Future<Either<Failure, List<Conversation>>> getConversations();
+  Future<Either<Failure, List<Conversation>>> getConversations({ConversationFilter filter = ConversationFilter.all});
 
   /// Get conversation by ID
   Future<Either<Failure, Conversation>> getConversation(String conversationId);
@@ -28,24 +30,13 @@ abstract class ChatRepository {
   });
 
   /// Send a message to a conversation
-  Future<Either<Failure, Message>> sendMessage({
-    required String conversationId,
-    required String content,
-    String? type,
-    String? mediaUrl,
-    String? thumbnailUrl,
-    String? fileName,
-    int? fileSize,
-    int? duration,
-    double? latitude,
-    double? longitude,
-    String? locationName,
-    int? replyToMessageId,
-    String? mentions,
-  });
+  Future<Either<Failure, Message>> sendMessage(String conversationId, ChatMessageRequest request);
 
   /// Search users by query
   Future<Either<Failure, List<SearchUser>>> searchUsers({required String query, int limit = 20});
+
+  /// Search conversations by query (name or last message content)
+  Future<Either<Failure, List<Conversation>>> searchConversations({required String query});
 
   /// Toggle reaction on a message
   Future<Either<Failure, Map<String, dynamic>>> toggleReaction({required String messageId, required String emoji});

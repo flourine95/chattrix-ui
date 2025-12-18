@@ -44,6 +44,7 @@ class ImageMessageBubble extends StatelessWidget {
   Widget build(BuildContext context) {
     final textColor = FormatUtils.getTextColor(context, isMe);
     final textTheme = Theme.of(context).textTheme;
+    final hasCaption = message.content.isNotEmpty;
 
     return BaseBubbleContainer(
       isMe: isMe,
@@ -72,7 +73,10 @@ class ImageMessageBubble extends StatelessWidget {
               child: GestureDetector(
                 onTap: () => _openFullScreenImage(context),
                 child: ClipRRect(
-                  borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+                  // Bo tròn tất cả các góc nếu không có caption, chỉ bo trên nếu có caption
+                  borderRadius: hasCaption
+                      ? const BorderRadius.vertical(top: Radius.circular(16))
+                      : BorderRadius.circular(16),
                   child: CachedNetworkImage(
                     imageUrl: message.mediaUrl!,
                     width: 280,
@@ -102,7 +106,7 @@ class ImageMessageBubble extends StatelessWidget {
             ),
 
           // Caption (if any)
-          if (message.content.isNotEmpty)
+          if (hasCaption)
             Padding(
               padding: const EdgeInsets.all(12),
               child: Text(message.content, style: textTheme.bodyMedium?.copyWith(color: textColor)),

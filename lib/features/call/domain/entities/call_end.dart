@@ -4,10 +4,5 @@ part 'call_end.freezed.dart';
 
 @freezed
 abstract class CallEnd with _$CallEnd {
-  const factory CallEnd({
-    required String callId,
-    required int endedBy,
-    int? durationSeconds,
-  }) = _CallEnd;
+  const factory CallEnd({required String callId, required int endedBy, int? durationSeconds}) = _CallEnd;
 }
-

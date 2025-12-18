@@ -39,17 +39,8 @@ class AppLogger {
     _logger.w('$_warningEmoji [${tag ?? 'App'}] $message');
   }
 
-  static void error(
-    String message, {
-    Object? error,
-    StackTrace? stackTrace,
-    String? tag,
-  }) {
-    _logger.e(
-      '$_errorEmoji [${tag ?? 'App'}] $message',
-      error: error,
-      stackTrace: stackTrace,
-    );
+  static void error(String message, {Object? error, StackTrace? stackTrace, String? tag}) {
+    _logger.e('$_errorEmoji [${tag ?? 'App'}] $message', error: error, stackTrace: stackTrace);
   }
 
   static void websocket(String message, {bool isError = false}) {
@@ -99,16 +90,3 @@ class _ProductionFilter extends LogFilter {
     return kDebugMode;
   }
 }
-
-@Deprecated('Use AppLogger instead')
-final appLogger = Logger(
-  printer: PrettyPrinter(
-    methodCount: 2,
-    errorMethodCount: 8,
-    lineLength: 120,
-    colors: true,
-    printEmojis: true,
-    dateTimeFormat: DateTimeFormat.onlyTimeAndSinceStart,
-  ),
-);
-

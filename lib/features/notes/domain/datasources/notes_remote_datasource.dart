@@ -22,4 +22,3 @@ abstract class NotesRemoteDatasource {
   /// GET /v1/notes/user/{userId} - Get note of specific user
   Future<UserNoteModel?> getUserNote(int userId);
 }
-

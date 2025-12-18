@@ -16,7 +16,5 @@ abstract class ReactionEventDto with _$ReactionEventDto {
     required DateTime timestamp,
   }) = _ReactionEventDto;
 
-  factory ReactionEventDto.fromJson(Map<String, dynamic> json) =>
-      _$ReactionEventDtoFromJson(json);
+  factory ReactionEventDto.fromJson(Map<String, dynamic> json) => _$ReactionEventDtoFromJson(json);
 }
-

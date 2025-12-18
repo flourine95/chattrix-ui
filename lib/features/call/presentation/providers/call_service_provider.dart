@@ -8,5 +8,3 @@ final agoraServiceProvider = Provider<AgoraService>((ref) {
   });
   return service;
 });
-
-

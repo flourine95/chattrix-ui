@@ -8,21 +8,12 @@ part 'mentioned_user_model.g.dart';
 abstract class MentionedUserModel with _$MentionedUserModel {
   const MentionedUserModel._();
 
-  const factory MentionedUserModel({
-    required int userId,
-    required String username,
-    required String fullName,
-  }) = _MentionedUserModel;
+  const factory MentionedUserModel({required int userId, required String username, required String fullName}) =
+      _MentionedUserModel;
 
-  factory MentionedUserModel.fromJson(Map<String, dynamic> json) =>
-      _$MentionedUserModelFromJson(json);
+  factory MentionedUserModel.fromJson(Map<String, dynamic> json) => _$MentionedUserModelFromJson(json);
 
   MentionedUser toEntity() {
-    return MentionedUser(
-      userId: userId,
-      username: username,
-      fullName: fullName,
-    );
+    return MentionedUser(userId: userId, username: username, fullName: fullName);
   }
 }
-

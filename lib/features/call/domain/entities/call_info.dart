@@ -21,4 +21,3 @@ abstract class CallInfo with _$CallInfo {
     int? durationSeconds,
   }) = _CallInfo;
 }
-

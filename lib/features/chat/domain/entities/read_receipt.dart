@@ -12,4 +12,3 @@ abstract class ReadReceipt with _$ReadReceipt {
     required DateTime readAt,
   }) = _ReadReceipt;
 }
-

@@ -18,8 +18,7 @@ abstract class CallInvitationModel with _$CallInvitationModel {
     required CallType callType,
   }) = _CallInvitationModel;
 
-  factory CallInvitationModel.fromJson(Map<String, dynamic> json) =>
-      _$CallInvitationModelFromJson(json);
+  factory CallInvitationModel.fromJson(Map<String, dynamic> json) => _$CallInvitationModelFromJson(json);
 
   CallInvitation toEntity() {
     return CallInvitation(

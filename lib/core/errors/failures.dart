@@ -2,86 +2,52 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'failures.freezed.dart';
 
+/// Base failure class for domain-level error handling
+///
+/// All failures include a code field matching API error codes:
+/// - VALIDATION_ERROR, UNAUTHORIZED, FORBIDDEN, RESOURCE_NOT_FOUND, CONFLICT, RATE_LIMIT_EXCEEDED
+/// - TIMEOUT, NO_CONNECTION, SERVER_ERROR, UNEXPECTED_ERROR
 @freezed
 abstract class Failure with _$Failure {
-  const factory Failure.server({required String message, String? errorCode}) = ServerFailure;
+  /// Server error (5xx or unexpected errors)
+  const factory Failure.server({required String message, required String code, String? requestId}) = ServerFailure;
 
-  const factory Failure.network({required String message}) = NetworkFailure;
+  /// Network connectivity error
+  const factory Failure.network({required String message, required String code}) = NetworkFailure;
 
-  const factory Failure.validation({required String message, List<ValidationError>? errors}) = ValidationFailure;
+  /// Validation error with field-specific details
+  const factory Failure.validation({
+    required String message,
+    required String code,
+    Map<String, String>? details,
+    String? requestId,
+  }) = ValidationFailure;
 
-  const factory Failure.badRequest({required String message, String? errorCode}) = BadRequestFailure;
+  /// Authentication/Authorization error (401, 403)
+  const factory Failure.auth({required String message, required String code, String? requestId}) = AuthFailure;
 
-  const factory Failure.unauthorized({required String message, String? errorCode}) = UnauthorizedFailure;
+  /// Resource not found error (404)
+  const factory Failure.notFound({required String message, required String code, String? requestId}) = NotFoundFailure;
 
-  const factory Failure.forbidden({required String message, String? errorCode}) = ForbiddenFailure;
+  /// Conflict error (409) - e.g., duplicate email/username
+  const factory Failure.conflict({required String message, required String code, String? requestId}) = ConflictFailure;
 
-  const factory Failure.notFound({required String message, String? errorCode}) = NotFoundFailure;
-
-  const factory Failure.conflict({required String message, String? errorCode}) = ConflictFailure;
-
-  const factory Failure.rateLimitExceeded({required String message}) = RateLimitFailure;
-
-  const factory Failure.unknown({required String message}) = UnknownFailure;
-
-  // Call feature specific failures
-  const factory Failure.permission({required String message}) = PermissionFailure;
-
-  const factory Failure.agoraEngine({required String message, int? code}) = AgoraEngineFailure;
-
-  const factory Failure.tokenExpired({required String message}) = TokenExpiredFailure;
-
-  const factory Failure.channelJoin({required String message}) = ChannelJoinFailure;
-
-  // WebSocket signaling failures
-  const factory Failure.webSocketNotConnected({required String message}) = WebSocketNotConnectedFailure;
-
-  const factory Failure.webSocketSendFailed({required String message}) = WebSocketSendFailure;
-
-  // Call-specific failures
-  const factory Failure.callNotFound({required String message}) = CallNotFoundFailure;
-
-  const factory Failure.callAlreadyActive({required String message}) = CallAlreadyActiveFailure;
-}
-
-class ValidationError {
-  final String? field;
-  final String errorCode;
-  final String message;
-
-  ValidationError({this.field, required this.errorCode, required this.message});
-
-  factory ValidationError.fromJson(Map<String, dynamic> json) {
-    return ValidationError(
-      field: json['field'] as String?,
-      errorCode: json['code'] as String,
-      message: json['message'] as String,
-    );
-  }
+  /// Rate limit exceeded error (429)
+  const factory Failure.rateLimit({required String message, required String code, String? requestId}) =
+      RateLimitFailure;
 }
 
 /// Extension to provide user-friendly error messages for all Failure types
 extension FailureMessage on Failure {
   String get userMessage {
     return when(
-      server: (message, errorCode) => 'Server error. Please try again later.',
-      network: (message) => 'Network error. Please check your internet connection.',
-      validation: (message, errors) => message,
-      badRequest: (message, errorCode) => 'Invalid request. Please check your input.',
-      unauthorized: (message, errorCode) => 'Authentication failed. Please login again.',
-      forbidden: (message, errorCode) => 'Access denied. You do not have permission to perform this action.',
-      notFound: (message, errorCode) => 'Resource not found. Please try again.',
-      conflict: (message, errorCode) => 'A conflict occurred. Please refresh and try again.',
-      rateLimitExceeded: (message) => 'Too many requests. Please wait a moment and try again.',
-      unknown: (message) => 'An unexpected error occurred. Please try again.',
-      permission: (message) => message,
-      agoraEngine: (message, code) => 'Failed to join call. Please check your connection and try again.',
-      tokenExpired: (message) => 'Session expired. Please login again.',
-      channelJoin: (message) => 'Failed to join call. Please try again.',
-      webSocketNotConnected: (message) => 'Connection lost. Please check your internet connection.',
-      webSocketSendFailed: (message) => 'Failed to send message. Please try again.',
-      callNotFound: (message) => 'Call not found. It may have already ended.',
-      callAlreadyActive: (message) => 'You are already in a call.',
+      server: (message, code, requestId) => 'Server error. Please try again later.',
+      network: (message, code) => 'Network error. Please check your internet connection.',
+      validation: (message, code, details, requestId) => message,
+      auth: (message, code, requestId) => 'Authentication failed. Please login again.',
+      notFound: (message, code, requestId) => 'Resource not found. Please try again.',
+      conflict: (message, code, requestId) => 'A conflict occurred. Please refresh and try again.',
+      rateLimit: (message, code, requestId) => 'Too many requests. Please wait a moment and try again.',
     );
   }
 }

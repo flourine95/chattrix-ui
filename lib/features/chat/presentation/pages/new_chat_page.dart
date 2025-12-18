@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:chattrix_ui/core/errors/failures.dart';
 import 'package:chattrix_ui/core/widgets/user_avatar.dart';
 import 'package:chattrix_ui/features/auth/presentation/providers/auth_providers.dart';
 import 'package:chattrix_ui/features/chat/domain/entities/search_user.dart';
@@ -31,7 +32,7 @@ class NewChatPage extends HookConsumerWidget {
   }
 
   Future<void> _handleUserTap(BuildContext context, WidgetRef ref, SearchUser user) async {
-    // If already has conversation, navigate to it
+    // If already has conversation, navigate to it (duplicate conversation handling)
     if (user.hasConversation && user.conversationId != null) {
       final userName = user.fullName.isNotEmpty ? user.fullName : user.username;
       context.pop();
@@ -41,9 +42,14 @@ class NewChatPage extends HookConsumerWidget {
 
     // Otherwise, create new conversation
     final currentUser = ref.read(currentUserProvider);
-    if (currentUser == null) return;
+    if (currentUser == null) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('User not logged in')));
+      }
+      return;
+    }
 
-    // Show loading
+    // Show loading dialog
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -60,12 +66,27 @@ class NewChatPage extends HookConsumerWidget {
 
     result.fold(
       (failure) {
+        // Handle conversation creation failure
         if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(failure.message)));
+          // Use the when method to handle different failure types
+          final errorMessage = failure.when(
+            validation: (message, code, details, requestId) => 'Invalid conversation: $message',
+            conflict: (message, code, requestId) => 'Conversation already exists',
+            network: (message, code) => 'Network error: $message',
+            auth: (message, code, requestId) => 'Authentication error: $message',
+            server: (message, code, requestId) => 'Server error: $message',
+            notFound: (message, code, requestId) => 'Not found: $message',
+            rateLimit: (message, code, requestId) => 'Too many requests: $message',
+          );
+
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(errorMessage), backgroundColor: Colors.red, duration: const Duration(seconds: 3)),
+          );
         }
       },
       (conversation) {
-        // Refresh conversations list
+        // Handle conversation creation success
+        // Refresh conversations list to show the new conversation
         ref.invalidate(conversationsProvider);
 
         // Navigate to chat view
@@ -295,16 +316,10 @@ class NewChatPage extends HookConsumerWidget {
   Widget _buildUserTile(BuildContext context, WidgetRef ref, TextTheme textTheme, SearchUser user) {
     final userName = user.fullName.isNotEmpty ? user.fullName : user.username;
     final avatarColor = _avatarColor(context, user.id);
-    final initial = userName.isNotEmpty ? userName.substring(0, 1) : '?';
 
     return ListTile(
       onTap: () => _handleUserTap(context, ref, user),
-      leading: UserAvatar(
-        displayName: userName,
-        avatarUrl: user.avatarUrl,
-        radius: 20,
-        backgroundColor: avatarColor,
-      ),
+      leading: UserAvatar(displayName: userName, avatarUrl: user.avatarUrl, radius: 20, backgroundColor: avatarColor),
       title: Row(
         children: [
           Expanded(child: Text(userName, style: textTheme.titleMedium)),

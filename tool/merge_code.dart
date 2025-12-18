@@ -1,26 +1,22 @@
+import 'dart:developer' as developer;
 import 'dart:io';
 
-const List<String> DEFAULT_SOURCE_FOLDERS = ['lib/features/profile','lib/features/auth','lib/core'];
-const int MAX_CHARS_PER_FILE = 2000000;
-const List<String> EXTENSIONS = ['.dart', '.yaml', '.json', '.gradle', '.xml', '.sql', '.prisma'];
-const List<String> IGNORE_PATTERNS = [
-  '.g.dart',
-  '.freezed.dart',
-  '.gen.dart',
-  'generated_plugin_registrant.dart'
-];
-const List<String> IGNORE_DIRS = ['.git', '.dart_tool', 'build', 'ios', 'android', 'web', 'tool', 'node_modules'];
+const List<String> defaultSourceFolders = ['lib'];
+const int maxCharsPerFile = 2000000;
+const List<String> extensions = ['.dart', '.yaml', '.json', '.gradle', '.xml', '.sql', '.prisma'];
+const List<String> ignorePatterns = ['.g.dart', '.freezed.dart', '.gen.dart', 'generated_plugin_registrant.dart'];
+const List<String> ignoreDirs = ['.git', '.dart_tool', 'build', 'ios', 'android', 'web', 'tool', 'node_modules'];
 
 void main(List<String> args) async {
   final scriptFile = File(Platform.script.toFilePath());
   final scriptDir = scriptFile.parent;
   final outputDir = Directory('${scriptDir.path}/merged_output');
 
-  final List<String> targetPaths = args.isNotEmpty ? args : DEFAULT_SOURCE_FOLDERS;
+  final List<String> targetPaths = args.isNotEmpty ? args : defaultSourceFolders;
 
-  print('📂 Script location: ${scriptDir.path}');
-  print('📂 Output location: ${outputDir.path}');
-  print('🔍 Targets: $targetPaths');
+  developer.log('Script location: ${scriptDir.path}', name: 'FileMerger');
+  developer.log('Output location: ${outputDir.path}', name: 'FileMerger');
+  developer.log('Targets: $targetPaths', name: 'FileMerger');
 
   final stopwatch = Stopwatch()..start();
 
@@ -34,7 +30,7 @@ void main(List<String> args) async {
   for (final path in targetPaths) {
     final dir = Directory(path);
     if (!await dir.exists()) {
-      print('⚠️ Warning: Folder not found: "$path"');
+      developer.log('Warning: Folder not found: "$path"', name: 'FileMerger', level: 900); // Mức độ cảnh báo
       continue;
     }
 
@@ -51,11 +47,11 @@ void main(List<String> args) async {
   allFiles.sort((a, b) => a.path.compareTo(b.path));
 
   if (allFiles.isEmpty) {
-    print('❌ No valid files found.');
+    developer.log('No valid files found.', name: 'FileMerger');
     return;
   }
 
-  print('📦 Found total ${allFiles.length} unique files. Merging...');
+  developer.log('Found total ${allFiles.length} unique files. Merging...', name: 'FileMerger');
 
   int partCount = 1;
   StringBuffer currentBuffer = StringBuffer();
@@ -76,7 +72,7 @@ void main(List<String> args) async {
     relative = relative.replaceAll('\\', '/');
     currentBuffer.writeln('- $relative');
   }
-  currentBuffer.writeln('\n' + ('=' * 50) + '\n');
+  currentBuffer.writeln('\n${'=' * 50}\n');
 
   for (var file in allFiles) {
     String content;
@@ -100,7 +96,7 @@ void main(List<String> args) async {
     entry.writeln(cleanedContent);
     entry.writeln('');
 
-    if (currentBuffer.length + entry.length > MAX_CHARS_PER_FILE && currentBuffer.isNotEmpty) {
+    if (currentBuffer.length + entry.length > maxCharsPerFile && currentBuffer.isNotEmpty) {
       await _saveFile(outputDir, partCount, currentBuffer.toString());
       partCount++;
       currentBuffer.clear();
@@ -114,7 +110,7 @@ void main(List<String> args) async {
   }
 
   stopwatch.stop();
-  print('✅ Done! Files saved in: ${outputDir.path}');
+  developer.log('Done! Files saved in: ${outputDir.path}', name: 'FileMerger');
 }
 
 Future<List<File>> _scanFiles(Directory dir) async {
@@ -122,9 +118,11 @@ Future<List<File>> _scanFiles(Directory dir) async {
 
   final files = entities.whereType<File>().where((file) {
     final path = file.path.replaceAll('\\', '/');
-    if (IGNORE_DIRS.any((d) => path.contains('/$d/'))) return false;
-    final isValidExt = EXTENSIONS.any((ext) => path.endsWith(ext));
-    final isIgnored = IGNORE_PATTERNS.any((pattern) => path.endsWith(pattern));
+
+    if (ignoreDirs.any((d) => path.contains('/$d/'))) return false;
+    final isValidExt = extensions.any((ext) => path.endsWith(ext));
+    final isIgnored = ignorePatterns.any((pattern) => path.endsWith(pattern));
+
     return isValidExt && !isIgnored;
   }).toList();
 
@@ -135,7 +133,10 @@ Future<void> _saveFile(Directory dir, int index, String content) async {
   final fileName = '${dir.path}/context_part_$index.txt';
   final file = File(fileName);
   await file.writeAsString(content);
-  print('   -> Saved: ${file.path.split(Platform.pathSeparator).last} (${(content.length / 1024).toStringAsFixed(1)} KB)');
+  developer.log(
+    '-> Saved: ${file.path.split(Platform.pathSeparator).last} (${(content.length / 1024).toStringAsFixed(1)} KB)',
+    name: 'FileMerger',
+  );
 }
 
 String _cleanContent(String content) {

@@ -184,7 +184,7 @@ class _BaseBubbleContainerState extends State<BaseBubbleContainer> with Automati
 
     return Container(
       key: _messageKey,
-      margin: EdgeInsets.only(left: widget.isMe ? 48 : 8, right: widget.isMe ? 8 : 48, top: 6, bottom: 6),
+      margin: EdgeInsets.only(left: widget.isMe ? 48 : 8, right: widget.isMe ? 8 : 48, top: 1, bottom: 1),
       constraints: BoxConstraints(maxWidth: widget.maxWidth),
       child: GestureDetector(
         onDoubleTap: () {
@@ -282,12 +282,7 @@ class _BaseBubbleContainerState extends State<BaseBubbleContainer> with Automati
                   Container(
                     decoration: BoxDecoration(
                       color: bg,
-                      borderRadius: BorderRadius.only(
-                        topLeft: const Radius.circular(16),
-                        topRight: const Radius.circular(16),
-                        bottomLeft: Radius.circular(widget.isMe ? 16 : 4),
-                        bottomRight: Radius.circular(widget.isMe ? 4 : 16),
-                      ),
+                      borderRadius: BorderRadius.circular(16),
                       border: widget.isMe ? Border.all(color: _greyBorder) : null,
                     ),
                     child: Column(

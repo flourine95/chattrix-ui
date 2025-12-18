@@ -14,7 +14,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$Failure {
 
- String get message;
+ String get message; String get code;
 /// Create a copy of Failure
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -25,16 +25,16 @@ $FailureCopyWith<Failure> get copyWith => _$FailureCopyWithImpl<Failure>(this as
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is Failure&&(identical(other.message, message) || other.message == message));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is Failure&&(identical(other.message, message) || other.message == message)&&(identical(other.code, code) || other.code == code));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,message);
+int get hashCode => Object.hash(runtimeType,message,code);
 
 @override
 String toString() {
-  return 'Failure(message: $message)';
+  return 'Failure(message: $message, code: $code)';
 }
 
 
@@ -45,7 +45,7 @@ abstract mixin class $FailureCopyWith<$Res>  {
   factory $FailureCopyWith(Failure value, $Res Function(Failure) _then) = _$FailureCopyWithImpl;
 @useResult
 $Res call({
- String message
+ String message, String code
 });
 
 
@@ -62,9 +62,10 @@ class _$FailureCopyWithImpl<$Res>
 
 /// Create a copy of Failure
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? message = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? message = null,Object? code = null,}) {
   return _then(_self.copyWith(
 message: null == message ? _self.message : message // ignore: cast_nullable_to_non_nullable
+as String,code: null == code ? _self.code : code // ignore: cast_nullable_to_non_nullable
 as String,
   ));
 }
@@ -86,28 +87,17 @@ extension FailurePatterns on Failure {
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( ServerFailure value)?  server,TResult Function( NetworkFailure value)?  network,TResult Function( ValidationFailure value)?  validation,TResult Function( BadRequestFailure value)?  badRequest,TResult Function( UnauthorizedFailure value)?  unauthorized,TResult Function( ForbiddenFailure value)?  forbidden,TResult Function( NotFoundFailure value)?  notFound,TResult Function( ConflictFailure value)?  conflict,TResult Function( RateLimitFailure value)?  rateLimitExceeded,TResult Function( UnknownFailure value)?  unknown,TResult Function( PermissionFailure value)?  permission,TResult Function( AgoraEngineFailure value)?  agoraEngine,TResult Function( TokenExpiredFailure value)?  tokenExpired,TResult Function( ChannelJoinFailure value)?  channelJoin,TResult Function( WebSocketNotConnectedFailure value)?  webSocketNotConnected,TResult Function( WebSocketSendFailure value)?  webSocketSendFailed,TResult Function( CallNotFoundFailure value)?  callNotFound,TResult Function( CallAlreadyActiveFailure value)?  callAlreadyActive,required TResult orElse(),}){
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( ServerFailure value)?  server,TResult Function( NetworkFailure value)?  network,TResult Function( ValidationFailure value)?  validation,TResult Function( AuthFailure value)?  auth,TResult Function( NotFoundFailure value)?  notFound,TResult Function( ConflictFailure value)?  conflict,TResult Function( RateLimitFailure value)?  rateLimit,required TResult orElse(),}){
 final _that = this;
 switch (_that) {
 case ServerFailure() when server != null:
 return server(_that);case NetworkFailure() when network != null:
 return network(_that);case ValidationFailure() when validation != null:
-return validation(_that);case BadRequestFailure() when badRequest != null:
-return badRequest(_that);case UnauthorizedFailure() when unauthorized != null:
-return unauthorized(_that);case ForbiddenFailure() when forbidden != null:
-return forbidden(_that);case NotFoundFailure() when notFound != null:
+return validation(_that);case AuthFailure() when auth != null:
+return auth(_that);case NotFoundFailure() when notFound != null:
 return notFound(_that);case ConflictFailure() when conflict != null:
-return conflict(_that);case RateLimitFailure() when rateLimitExceeded != null:
-return rateLimitExceeded(_that);case UnknownFailure() when unknown != null:
-return unknown(_that);case PermissionFailure() when permission != null:
-return permission(_that);case AgoraEngineFailure() when agoraEngine != null:
-return agoraEngine(_that);case TokenExpiredFailure() when tokenExpired != null:
-return tokenExpired(_that);case ChannelJoinFailure() when channelJoin != null:
-return channelJoin(_that);case WebSocketNotConnectedFailure() when webSocketNotConnected != null:
-return webSocketNotConnected(_that);case WebSocketSendFailure() when webSocketSendFailed != null:
-return webSocketSendFailed(_that);case CallNotFoundFailure() when callNotFound != null:
-return callNotFound(_that);case CallAlreadyActiveFailure() when callAlreadyActive != null:
-return callAlreadyActive(_that);case _:
+return conflict(_that);case RateLimitFailure() when rateLimit != null:
+return rateLimit(_that);case _:
   return orElse();
 
 }
@@ -125,28 +115,17 @@ return callAlreadyActive(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( ServerFailure value)  server,required TResult Function( NetworkFailure value)  network,required TResult Function( ValidationFailure value)  validation,required TResult Function( BadRequestFailure value)  badRequest,required TResult Function( UnauthorizedFailure value)  unauthorized,required TResult Function( ForbiddenFailure value)  forbidden,required TResult Function( NotFoundFailure value)  notFound,required TResult Function( ConflictFailure value)  conflict,required TResult Function( RateLimitFailure value)  rateLimitExceeded,required TResult Function( UnknownFailure value)  unknown,required TResult Function( PermissionFailure value)  permission,required TResult Function( AgoraEngineFailure value)  agoraEngine,required TResult Function( TokenExpiredFailure value)  tokenExpired,required TResult Function( ChannelJoinFailure value)  channelJoin,required TResult Function( WebSocketNotConnectedFailure value)  webSocketNotConnected,required TResult Function( WebSocketSendFailure value)  webSocketSendFailed,required TResult Function( CallNotFoundFailure value)  callNotFound,required TResult Function( CallAlreadyActiveFailure value)  callAlreadyActive,}){
+@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( ServerFailure value)  server,required TResult Function( NetworkFailure value)  network,required TResult Function( ValidationFailure value)  validation,required TResult Function( AuthFailure value)  auth,required TResult Function( NotFoundFailure value)  notFound,required TResult Function( ConflictFailure value)  conflict,required TResult Function( RateLimitFailure value)  rateLimit,}){
 final _that = this;
 switch (_that) {
 case ServerFailure():
 return server(_that);case NetworkFailure():
 return network(_that);case ValidationFailure():
-return validation(_that);case BadRequestFailure():
-return badRequest(_that);case UnauthorizedFailure():
-return unauthorized(_that);case ForbiddenFailure():
-return forbidden(_that);case NotFoundFailure():
+return validation(_that);case AuthFailure():
+return auth(_that);case NotFoundFailure():
 return notFound(_that);case ConflictFailure():
 return conflict(_that);case RateLimitFailure():
-return rateLimitExceeded(_that);case UnknownFailure():
-return unknown(_that);case PermissionFailure():
-return permission(_that);case AgoraEngineFailure():
-return agoraEngine(_that);case TokenExpiredFailure():
-return tokenExpired(_that);case ChannelJoinFailure():
-return channelJoin(_that);case WebSocketNotConnectedFailure():
-return webSocketNotConnected(_that);case WebSocketSendFailure():
-return webSocketSendFailed(_that);case CallNotFoundFailure():
-return callNotFound(_that);case CallAlreadyActiveFailure():
-return callAlreadyActive(_that);case _:
+return rateLimit(_that);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -163,28 +142,17 @@ return callAlreadyActive(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( ServerFailure value)?  server,TResult? Function( NetworkFailure value)?  network,TResult? Function( ValidationFailure value)?  validation,TResult? Function( BadRequestFailure value)?  badRequest,TResult? Function( UnauthorizedFailure value)?  unauthorized,TResult? Function( ForbiddenFailure value)?  forbidden,TResult? Function( NotFoundFailure value)?  notFound,TResult? Function( ConflictFailure value)?  conflict,TResult? Function( RateLimitFailure value)?  rateLimitExceeded,TResult? Function( UnknownFailure value)?  unknown,TResult? Function( PermissionFailure value)?  permission,TResult? Function( AgoraEngineFailure value)?  agoraEngine,TResult? Function( TokenExpiredFailure value)?  tokenExpired,TResult? Function( ChannelJoinFailure value)?  channelJoin,TResult? Function( WebSocketNotConnectedFailure value)?  webSocketNotConnected,TResult? Function( WebSocketSendFailure value)?  webSocketSendFailed,TResult? Function( CallNotFoundFailure value)?  callNotFound,TResult? Function( CallAlreadyActiveFailure value)?  callAlreadyActive,}){
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( ServerFailure value)?  server,TResult? Function( NetworkFailure value)?  network,TResult? Function( ValidationFailure value)?  validation,TResult? Function( AuthFailure value)?  auth,TResult? Function( NotFoundFailure value)?  notFound,TResult? Function( ConflictFailure value)?  conflict,TResult? Function( RateLimitFailure value)?  rateLimit,}){
 final _that = this;
 switch (_that) {
 case ServerFailure() when server != null:
 return server(_that);case NetworkFailure() when network != null:
 return network(_that);case ValidationFailure() when validation != null:
-return validation(_that);case BadRequestFailure() when badRequest != null:
-return badRequest(_that);case UnauthorizedFailure() when unauthorized != null:
-return unauthorized(_that);case ForbiddenFailure() when forbidden != null:
-return forbidden(_that);case NotFoundFailure() when notFound != null:
+return validation(_that);case AuthFailure() when auth != null:
+return auth(_that);case NotFoundFailure() when notFound != null:
 return notFound(_that);case ConflictFailure() when conflict != null:
-return conflict(_that);case RateLimitFailure() when rateLimitExceeded != null:
-return rateLimitExceeded(_that);case UnknownFailure() when unknown != null:
-return unknown(_that);case PermissionFailure() when permission != null:
-return permission(_that);case AgoraEngineFailure() when agoraEngine != null:
-return agoraEngine(_that);case TokenExpiredFailure() when tokenExpired != null:
-return tokenExpired(_that);case ChannelJoinFailure() when channelJoin != null:
-return channelJoin(_that);case WebSocketNotConnectedFailure() when webSocketNotConnected != null:
-return webSocketNotConnected(_that);case WebSocketSendFailure() when webSocketSendFailed != null:
-return webSocketSendFailed(_that);case CallNotFoundFailure() when callNotFound != null:
-return callNotFound(_that);case CallAlreadyActiveFailure() when callAlreadyActive != null:
-return callAlreadyActive(_that);case _:
+return conflict(_that);case RateLimitFailure() when rateLimit != null:
+return rateLimit(_that);case _:
   return null;
 
 }
@@ -201,27 +169,16 @@ return callAlreadyActive(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( String message,  String? errorCode)?  server,TResult Function( String message)?  network,TResult Function( String message,  List<ValidationError>? errors)?  validation,TResult Function( String message,  String? errorCode)?  badRequest,TResult Function( String message,  String? errorCode)?  unauthorized,TResult Function( String message,  String? errorCode)?  forbidden,TResult Function( String message,  String? errorCode)?  notFound,TResult Function( String message,  String? errorCode)?  conflict,TResult Function( String message)?  rateLimitExceeded,TResult Function( String message)?  unknown,TResult Function( String message)?  permission,TResult Function( String message,  int? code)?  agoraEngine,TResult Function( String message)?  tokenExpired,TResult Function( String message)?  channelJoin,TResult Function( String message)?  webSocketNotConnected,TResult Function( String message)?  webSocketSendFailed,TResult Function( String message)?  callNotFound,TResult Function( String message)?  callAlreadyActive,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( String message,  String code,  String? requestId)?  server,TResult Function( String message,  String code)?  network,TResult Function( String message,  String code,  Map<String, String>? details,  String? requestId)?  validation,TResult Function( String message,  String code,  String? requestId)?  auth,TResult Function( String message,  String code,  String? requestId)?  notFound,TResult Function( String message,  String code,  String? requestId)?  conflict,TResult Function( String message,  String code,  String? requestId)?  rateLimit,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case ServerFailure() when server != null:
-return server(_that.message,_that.errorCode);case NetworkFailure() when network != null:
-return network(_that.message);case ValidationFailure() when validation != null:
-return validation(_that.message,_that.errors);case BadRequestFailure() when badRequest != null:
-return badRequest(_that.message,_that.errorCode);case UnauthorizedFailure() when unauthorized != null:
-return unauthorized(_that.message,_that.errorCode);case ForbiddenFailure() when forbidden != null:
-return forbidden(_that.message,_that.errorCode);case NotFoundFailure() when notFound != null:
-return notFound(_that.message,_that.errorCode);case ConflictFailure() when conflict != null:
-return conflict(_that.message,_that.errorCode);case RateLimitFailure() when rateLimitExceeded != null:
-return rateLimitExceeded(_that.message);case UnknownFailure() when unknown != null:
-return unknown(_that.message);case PermissionFailure() when permission != null:
-return permission(_that.message);case AgoraEngineFailure() when agoraEngine != null:
-return agoraEngine(_that.message,_that.code);case TokenExpiredFailure() when tokenExpired != null:
-return tokenExpired(_that.message);case ChannelJoinFailure() when channelJoin != null:
-return channelJoin(_that.message);case WebSocketNotConnectedFailure() when webSocketNotConnected != null:
-return webSocketNotConnected(_that.message);case WebSocketSendFailure() when webSocketSendFailed != null:
-return webSocketSendFailed(_that.message);case CallNotFoundFailure() when callNotFound != null:
-return callNotFound(_that.message);case CallAlreadyActiveFailure() when callAlreadyActive != null:
-return callAlreadyActive(_that.message);case _:
+return server(_that.message,_that.code,_that.requestId);case NetworkFailure() when network != null:
+return network(_that.message,_that.code);case ValidationFailure() when validation != null:
+return validation(_that.message,_that.code,_that.details,_that.requestId);case AuthFailure() when auth != null:
+return auth(_that.message,_that.code,_that.requestId);case NotFoundFailure() when notFound != null:
+return notFound(_that.message,_that.code,_that.requestId);case ConflictFailure() when conflict != null:
+return conflict(_that.message,_that.code,_that.requestId);case RateLimitFailure() when rateLimit != null:
+return rateLimit(_that.message,_that.code,_that.requestId);case _:
   return orElse();
 
 }
@@ -239,27 +196,16 @@ return callAlreadyActive(_that.message);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( String message,  String? errorCode)  server,required TResult Function( String message)  network,required TResult Function( String message,  List<ValidationError>? errors)  validation,required TResult Function( String message,  String? errorCode)  badRequest,required TResult Function( String message,  String? errorCode)  unauthorized,required TResult Function( String message,  String? errorCode)  forbidden,required TResult Function( String message,  String? errorCode)  notFound,required TResult Function( String message,  String? errorCode)  conflict,required TResult Function( String message)  rateLimitExceeded,required TResult Function( String message)  unknown,required TResult Function( String message)  permission,required TResult Function( String message,  int? code)  agoraEngine,required TResult Function( String message)  tokenExpired,required TResult Function( String message)  channelJoin,required TResult Function( String message)  webSocketNotConnected,required TResult Function( String message)  webSocketSendFailed,required TResult Function( String message)  callNotFound,required TResult Function( String message)  callAlreadyActive,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( String message,  String code,  String? requestId)  server,required TResult Function( String message,  String code)  network,required TResult Function( String message,  String code,  Map<String, String>? details,  String? requestId)  validation,required TResult Function( String message,  String code,  String? requestId)  auth,required TResult Function( String message,  String code,  String? requestId)  notFound,required TResult Function( String message,  String code,  String? requestId)  conflict,required TResult Function( String message,  String code,  String? requestId)  rateLimit,}) {final _that = this;
 switch (_that) {
 case ServerFailure():
-return server(_that.message,_that.errorCode);case NetworkFailure():
-return network(_that.message);case ValidationFailure():
-return validation(_that.message,_that.errors);case BadRequestFailure():
-return badRequest(_that.message,_that.errorCode);case UnauthorizedFailure():
-return unauthorized(_that.message,_that.errorCode);case ForbiddenFailure():
-return forbidden(_that.message,_that.errorCode);case NotFoundFailure():
-return notFound(_that.message,_that.errorCode);case ConflictFailure():
-return conflict(_that.message,_that.errorCode);case RateLimitFailure():
-return rateLimitExceeded(_that.message);case UnknownFailure():
-return unknown(_that.message);case PermissionFailure():
-return permission(_that.message);case AgoraEngineFailure():
-return agoraEngine(_that.message,_that.code);case TokenExpiredFailure():
-return tokenExpired(_that.message);case ChannelJoinFailure():
-return channelJoin(_that.message);case WebSocketNotConnectedFailure():
-return webSocketNotConnected(_that.message);case WebSocketSendFailure():
-return webSocketSendFailed(_that.message);case CallNotFoundFailure():
-return callNotFound(_that.message);case CallAlreadyActiveFailure():
-return callAlreadyActive(_that.message);case _:
+return server(_that.message,_that.code,_that.requestId);case NetworkFailure():
+return network(_that.message,_that.code);case ValidationFailure():
+return validation(_that.message,_that.code,_that.details,_that.requestId);case AuthFailure():
+return auth(_that.message,_that.code,_that.requestId);case NotFoundFailure():
+return notFound(_that.message,_that.code,_that.requestId);case ConflictFailure():
+return conflict(_that.message,_that.code,_that.requestId);case RateLimitFailure():
+return rateLimit(_that.message,_that.code,_that.requestId);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -276,27 +222,16 @@ return callAlreadyActive(_that.message);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( String message,  String? errorCode)?  server,TResult? Function( String message)?  network,TResult? Function( String message,  List<ValidationError>? errors)?  validation,TResult? Function( String message,  String? errorCode)?  badRequest,TResult? Function( String message,  String? errorCode)?  unauthorized,TResult? Function( String message,  String? errorCode)?  forbidden,TResult? Function( String message,  String? errorCode)?  notFound,TResult? Function( String message,  String? errorCode)?  conflict,TResult? Function( String message)?  rateLimitExceeded,TResult? Function( String message)?  unknown,TResult? Function( String message)?  permission,TResult? Function( String message,  int? code)?  agoraEngine,TResult? Function( String message)?  tokenExpired,TResult? Function( String message)?  channelJoin,TResult? Function( String message)?  webSocketNotConnected,TResult? Function( String message)?  webSocketSendFailed,TResult? Function( String message)?  callNotFound,TResult? Function( String message)?  callAlreadyActive,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( String message,  String code,  String? requestId)?  server,TResult? Function( String message,  String code)?  network,TResult? Function( String message,  String code,  Map<String, String>? details,  String? requestId)?  validation,TResult? Function( String message,  String code,  String? requestId)?  auth,TResult? Function( String message,  String code,  String? requestId)?  notFound,TResult? Function( String message,  String code,  String? requestId)?  conflict,TResult? Function( String message,  String code,  String? requestId)?  rateLimit,}) {final _that = this;
 switch (_that) {
 case ServerFailure() when server != null:
-return server(_that.message,_that.errorCode);case NetworkFailure() when network != null:
-return network(_that.message);case ValidationFailure() when validation != null:
-return validation(_that.message,_that.errors);case BadRequestFailure() when badRequest != null:
-return badRequest(_that.message,_that.errorCode);case UnauthorizedFailure() when unauthorized != null:
-return unauthorized(_that.message,_that.errorCode);case ForbiddenFailure() when forbidden != null:
-return forbidden(_that.message,_that.errorCode);case NotFoundFailure() when notFound != null:
-return notFound(_that.message,_that.errorCode);case ConflictFailure() when conflict != null:
-return conflict(_that.message,_that.errorCode);case RateLimitFailure() when rateLimitExceeded != null:
-return rateLimitExceeded(_that.message);case UnknownFailure() when unknown != null:
-return unknown(_that.message);case PermissionFailure() when permission != null:
-return permission(_that.message);case AgoraEngineFailure() when agoraEngine != null:
-return agoraEngine(_that.message,_that.code);case TokenExpiredFailure() when tokenExpired != null:
-return tokenExpired(_that.message);case ChannelJoinFailure() when channelJoin != null:
-return channelJoin(_that.message);case WebSocketNotConnectedFailure() when webSocketNotConnected != null:
-return webSocketNotConnected(_that.message);case WebSocketSendFailure() when webSocketSendFailed != null:
-return webSocketSendFailed(_that.message);case CallNotFoundFailure() when callNotFound != null:
-return callNotFound(_that.message);case CallAlreadyActiveFailure() when callAlreadyActive != null:
-return callAlreadyActive(_that.message);case _:
+return server(_that.message,_that.code,_that.requestId);case NetworkFailure() when network != null:
+return network(_that.message,_that.code);case ValidationFailure() when validation != null:
+return validation(_that.message,_that.code,_that.details,_that.requestId);case AuthFailure() when auth != null:
+return auth(_that.message,_that.code,_that.requestId);case NotFoundFailure() when notFound != null:
+return notFound(_that.message,_that.code,_that.requestId);case ConflictFailure() when conflict != null:
+return conflict(_that.message,_that.code,_that.requestId);case RateLimitFailure() when rateLimit != null:
+return rateLimit(_that.message,_that.code,_that.requestId);case _:
   return null;
 
 }
@@ -308,11 +243,12 @@ return callAlreadyActive(_that.message);case _:
 
 
 class ServerFailure implements Failure {
-  const ServerFailure({required this.message, this.errorCode});
+  const ServerFailure({required this.message, required this.code, this.requestId});
   
 
 @override final  String message;
- final  String? errorCode;
+@override final  String code;
+ final  String? requestId;
 
 /// Create a copy of Failure
 /// with the given fields replaced by the non-null parameter values.
@@ -324,16 +260,16 @@ $ServerFailureCopyWith<ServerFailure> get copyWith => _$ServerFailureCopyWithImp
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ServerFailure&&(identical(other.message, message) || other.message == message)&&(identical(other.errorCode, errorCode) || other.errorCode == errorCode));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ServerFailure&&(identical(other.message, message) || other.message == message)&&(identical(other.code, code) || other.code == code)&&(identical(other.requestId, requestId) || other.requestId == requestId));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,message,errorCode);
+int get hashCode => Object.hash(runtimeType,message,code,requestId);
 
 @override
 String toString() {
-  return 'Failure.server(message: $message, errorCode: $errorCode)';
+  return 'Failure.server(message: $message, code: $code, requestId: $requestId)';
 }
 
 
@@ -344,7 +280,7 @@ abstract mixin class $ServerFailureCopyWith<$Res> implements $FailureCopyWith<$R
   factory $ServerFailureCopyWith(ServerFailure value, $Res Function(ServerFailure) _then) = _$ServerFailureCopyWithImpl;
 @override @useResult
 $Res call({
- String message, String? errorCode
+ String message, String code, String? requestId
 });
 
 
@@ -361,10 +297,11 @@ class _$ServerFailureCopyWithImpl<$Res>
 
 /// Create a copy of Failure
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? message = null,Object? errorCode = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? message = null,Object? code = null,Object? requestId = freezed,}) {
   return _then(ServerFailure(
 message: null == message ? _self.message : message // ignore: cast_nullable_to_non_nullable
-as String,errorCode: freezed == errorCode ? _self.errorCode : errorCode // ignore: cast_nullable_to_non_nullable
+as String,code: null == code ? _self.code : code // ignore: cast_nullable_to_non_nullable
+as String,requestId: freezed == requestId ? _self.requestId : requestId // ignore: cast_nullable_to_non_nullable
 as String?,
   ));
 }
@@ -376,10 +313,11 @@ as String?,
 
 
 class NetworkFailure implements Failure {
-  const NetworkFailure({required this.message});
+  const NetworkFailure({required this.message, required this.code});
   
 
 @override final  String message;
+@override final  String code;
 
 /// Create a copy of Failure
 /// with the given fields replaced by the non-null parameter values.
@@ -391,16 +329,16 @@ $NetworkFailureCopyWith<NetworkFailure> get copyWith => _$NetworkFailureCopyWith
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is NetworkFailure&&(identical(other.message, message) || other.message == message));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is NetworkFailure&&(identical(other.message, message) || other.message == message)&&(identical(other.code, code) || other.code == code));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,message);
+int get hashCode => Object.hash(runtimeType,message,code);
 
 @override
 String toString() {
-  return 'Failure.network(message: $message)';
+  return 'Failure.network(message: $message, code: $code)';
 }
 
 
@@ -411,7 +349,7 @@ abstract mixin class $NetworkFailureCopyWith<$Res> implements $FailureCopyWith<$
   factory $NetworkFailureCopyWith(NetworkFailure value, $Res Function(NetworkFailure) _then) = _$NetworkFailureCopyWithImpl;
 @override @useResult
 $Res call({
- String message
+ String message, String code
 });
 
 
@@ -428,9 +366,10 @@ class _$NetworkFailureCopyWithImpl<$Res>
 
 /// Create a copy of Failure
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? message = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? message = null,Object? code = null,}) {
   return _then(NetworkFailure(
 message: null == message ? _self.message : message // ignore: cast_nullable_to_non_nullable
+as String,code: null == code ? _self.code : code // ignore: cast_nullable_to_non_nullable
 as String,
   ));
 }
@@ -442,19 +381,21 @@ as String,
 
 
 class ValidationFailure implements Failure {
-  const ValidationFailure({required this.message, final  List<ValidationError>? errors}): _errors = errors;
+  const ValidationFailure({required this.message, required this.code, final  Map<String, String>? details, this.requestId}): _details = details;
   
 
 @override final  String message;
- final  List<ValidationError>? _errors;
- List<ValidationError>? get errors {
-  final value = _errors;
+@override final  String code;
+ final  Map<String, String>? _details;
+ Map<String, String>? get details {
+  final value = _details;
   if (value == null) return null;
-  if (_errors is EqualUnmodifiableListView) return _errors;
+  if (_details is EqualUnmodifiableMapView) return _details;
   // ignore: implicit_dynamic_type
-  return EqualUnmodifiableListView(value);
+  return EqualUnmodifiableMapView(value);
 }
 
+ final  String? requestId;
 
 /// Create a copy of Failure
 /// with the given fields replaced by the non-null parameter values.
@@ -466,16 +407,16 @@ $ValidationFailureCopyWith<ValidationFailure> get copyWith => _$ValidationFailur
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ValidationFailure&&(identical(other.message, message) || other.message == message)&&const DeepCollectionEquality().equals(other._errors, _errors));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ValidationFailure&&(identical(other.message, message) || other.message == message)&&(identical(other.code, code) || other.code == code)&&const DeepCollectionEquality().equals(other._details, _details)&&(identical(other.requestId, requestId) || other.requestId == requestId));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,message,const DeepCollectionEquality().hash(_errors));
+int get hashCode => Object.hash(runtimeType,message,code,const DeepCollectionEquality().hash(_details),requestId);
 
 @override
 String toString() {
-  return 'Failure.validation(message: $message, errors: $errors)';
+  return 'Failure.validation(message: $message, code: $code, details: $details, requestId: $requestId)';
 }
 
 
@@ -486,7 +427,7 @@ abstract mixin class $ValidationFailureCopyWith<$Res> implements $FailureCopyWit
   factory $ValidationFailureCopyWith(ValidationFailure value, $Res Function(ValidationFailure) _then) = _$ValidationFailureCopyWithImpl;
 @override @useResult
 $Res call({
- String message, List<ValidationError>? errors
+ String message, String code, Map<String, String>? details, String? requestId
 });
 
 
@@ -503,78 +444,12 @@ class _$ValidationFailureCopyWithImpl<$Res>
 
 /// Create a copy of Failure
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? message = null,Object? errors = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? message = null,Object? code = null,Object? details = freezed,Object? requestId = freezed,}) {
   return _then(ValidationFailure(
 message: null == message ? _self.message : message // ignore: cast_nullable_to_non_nullable
-as String,errors: freezed == errors ? _self._errors : errors // ignore: cast_nullable_to_non_nullable
-as List<ValidationError>?,
-  ));
-}
-
-
-}
-
-/// @nodoc
-
-
-class BadRequestFailure implements Failure {
-  const BadRequestFailure({required this.message, this.errorCode});
-  
-
-@override final  String message;
- final  String? errorCode;
-
-/// Create a copy of Failure
-/// with the given fields replaced by the non-null parameter values.
-@override @JsonKey(includeFromJson: false, includeToJson: false)
-@pragma('vm:prefer-inline')
-$BadRequestFailureCopyWith<BadRequestFailure> get copyWith => _$BadRequestFailureCopyWithImpl<BadRequestFailure>(this, _$identity);
-
-
-
-@override
-bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is BadRequestFailure&&(identical(other.message, message) || other.message == message)&&(identical(other.errorCode, errorCode) || other.errorCode == errorCode));
-}
-
-
-@override
-int get hashCode => Object.hash(runtimeType,message,errorCode);
-
-@override
-String toString() {
-  return 'Failure.badRequest(message: $message, errorCode: $errorCode)';
-}
-
-
-}
-
-/// @nodoc
-abstract mixin class $BadRequestFailureCopyWith<$Res> implements $FailureCopyWith<$Res> {
-  factory $BadRequestFailureCopyWith(BadRequestFailure value, $Res Function(BadRequestFailure) _then) = _$BadRequestFailureCopyWithImpl;
-@override @useResult
-$Res call({
- String message, String? errorCode
-});
-
-
-
-
-}
-/// @nodoc
-class _$BadRequestFailureCopyWithImpl<$Res>
-    implements $BadRequestFailureCopyWith<$Res> {
-  _$BadRequestFailureCopyWithImpl(this._self, this._then);
-
-  final BadRequestFailure _self;
-  final $Res Function(BadRequestFailure) _then;
-
-/// Create a copy of Failure
-/// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? message = null,Object? errorCode = freezed,}) {
-  return _then(BadRequestFailure(
-message: null == message ? _self.message : message // ignore: cast_nullable_to_non_nullable
-as String,errorCode: freezed == errorCode ? _self.errorCode : errorCode // ignore: cast_nullable_to_non_nullable
+as String,code: null == code ? _self.code : code // ignore: cast_nullable_to_non_nullable
+as String,details: freezed == details ? _self._details : details // ignore: cast_nullable_to_non_nullable
+as Map<String, String>?,requestId: freezed == requestId ? _self.requestId : requestId // ignore: cast_nullable_to_non_nullable
 as String?,
   ));
 }
@@ -585,44 +460,45 @@ as String?,
 /// @nodoc
 
 
-class UnauthorizedFailure implements Failure {
-  const UnauthorizedFailure({required this.message, this.errorCode});
+class AuthFailure implements Failure {
+  const AuthFailure({required this.message, required this.code, this.requestId});
   
 
 @override final  String message;
- final  String? errorCode;
+@override final  String code;
+ final  String? requestId;
 
 /// Create a copy of Failure
 /// with the given fields replaced by the non-null parameter values.
 @override @JsonKey(includeFromJson: false, includeToJson: false)
 @pragma('vm:prefer-inline')
-$UnauthorizedFailureCopyWith<UnauthorizedFailure> get copyWith => _$UnauthorizedFailureCopyWithImpl<UnauthorizedFailure>(this, _$identity);
+$AuthFailureCopyWith<AuthFailure> get copyWith => _$AuthFailureCopyWithImpl<AuthFailure>(this, _$identity);
 
 
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is UnauthorizedFailure&&(identical(other.message, message) || other.message == message)&&(identical(other.errorCode, errorCode) || other.errorCode == errorCode));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is AuthFailure&&(identical(other.message, message) || other.message == message)&&(identical(other.code, code) || other.code == code)&&(identical(other.requestId, requestId) || other.requestId == requestId));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,message,errorCode);
+int get hashCode => Object.hash(runtimeType,message,code,requestId);
 
 @override
 String toString() {
-  return 'Failure.unauthorized(message: $message, errorCode: $errorCode)';
+  return 'Failure.auth(message: $message, code: $code, requestId: $requestId)';
 }
 
 
 }
 
 /// @nodoc
-abstract mixin class $UnauthorizedFailureCopyWith<$Res> implements $FailureCopyWith<$Res> {
-  factory $UnauthorizedFailureCopyWith(UnauthorizedFailure value, $Res Function(UnauthorizedFailure) _then) = _$UnauthorizedFailureCopyWithImpl;
+abstract mixin class $AuthFailureCopyWith<$Res> implements $FailureCopyWith<$Res> {
+  factory $AuthFailureCopyWith(AuthFailure value, $Res Function(AuthFailure) _then) = _$AuthFailureCopyWithImpl;
 @override @useResult
 $Res call({
- String message, String? errorCode
+ String message, String code, String? requestId
 });
 
 
@@ -630,87 +506,20 @@ $Res call({
 
 }
 /// @nodoc
-class _$UnauthorizedFailureCopyWithImpl<$Res>
-    implements $UnauthorizedFailureCopyWith<$Res> {
-  _$UnauthorizedFailureCopyWithImpl(this._self, this._then);
+class _$AuthFailureCopyWithImpl<$Res>
+    implements $AuthFailureCopyWith<$Res> {
+  _$AuthFailureCopyWithImpl(this._self, this._then);
 
-  final UnauthorizedFailure _self;
-  final $Res Function(UnauthorizedFailure) _then;
+  final AuthFailure _self;
+  final $Res Function(AuthFailure) _then;
 
 /// Create a copy of Failure
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? message = null,Object? errorCode = freezed,}) {
-  return _then(UnauthorizedFailure(
+@override @pragma('vm:prefer-inline') $Res call({Object? message = null,Object? code = null,Object? requestId = freezed,}) {
+  return _then(AuthFailure(
 message: null == message ? _self.message : message // ignore: cast_nullable_to_non_nullable
-as String,errorCode: freezed == errorCode ? _self.errorCode : errorCode // ignore: cast_nullable_to_non_nullable
-as String?,
-  ));
-}
-
-
-}
-
-/// @nodoc
-
-
-class ForbiddenFailure implements Failure {
-  const ForbiddenFailure({required this.message, this.errorCode});
-  
-
-@override final  String message;
- final  String? errorCode;
-
-/// Create a copy of Failure
-/// with the given fields replaced by the non-null parameter values.
-@override @JsonKey(includeFromJson: false, includeToJson: false)
-@pragma('vm:prefer-inline')
-$ForbiddenFailureCopyWith<ForbiddenFailure> get copyWith => _$ForbiddenFailureCopyWithImpl<ForbiddenFailure>(this, _$identity);
-
-
-
-@override
-bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ForbiddenFailure&&(identical(other.message, message) || other.message == message)&&(identical(other.errorCode, errorCode) || other.errorCode == errorCode));
-}
-
-
-@override
-int get hashCode => Object.hash(runtimeType,message,errorCode);
-
-@override
-String toString() {
-  return 'Failure.forbidden(message: $message, errorCode: $errorCode)';
-}
-
-
-}
-
-/// @nodoc
-abstract mixin class $ForbiddenFailureCopyWith<$Res> implements $FailureCopyWith<$Res> {
-  factory $ForbiddenFailureCopyWith(ForbiddenFailure value, $Res Function(ForbiddenFailure) _then) = _$ForbiddenFailureCopyWithImpl;
-@override @useResult
-$Res call({
- String message, String? errorCode
-});
-
-
-
-
-}
-/// @nodoc
-class _$ForbiddenFailureCopyWithImpl<$Res>
-    implements $ForbiddenFailureCopyWith<$Res> {
-  _$ForbiddenFailureCopyWithImpl(this._self, this._then);
-
-  final ForbiddenFailure _self;
-  final $Res Function(ForbiddenFailure) _then;
-
-/// Create a copy of Failure
-/// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? message = null,Object? errorCode = freezed,}) {
-  return _then(ForbiddenFailure(
-message: null == message ? _self.message : message // ignore: cast_nullable_to_non_nullable
-as String,errorCode: freezed == errorCode ? _self.errorCode : errorCode // ignore: cast_nullable_to_non_nullable
+as String,code: null == code ? _self.code : code // ignore: cast_nullable_to_non_nullable
+as String,requestId: freezed == requestId ? _self.requestId : requestId // ignore: cast_nullable_to_non_nullable
 as String?,
   ));
 }
@@ -722,11 +531,12 @@ as String?,
 
 
 class NotFoundFailure implements Failure {
-  const NotFoundFailure({required this.message, this.errorCode});
+  const NotFoundFailure({required this.message, required this.code, this.requestId});
   
 
 @override final  String message;
- final  String? errorCode;
+@override final  String code;
+ final  String? requestId;
 
 /// Create a copy of Failure
 /// with the given fields replaced by the non-null parameter values.
@@ -738,16 +548,16 @@ $NotFoundFailureCopyWith<NotFoundFailure> get copyWith => _$NotFoundFailureCopyW
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is NotFoundFailure&&(identical(other.message, message) || other.message == message)&&(identical(other.errorCode, errorCode) || other.errorCode == errorCode));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is NotFoundFailure&&(identical(other.message, message) || other.message == message)&&(identical(other.code, code) || other.code == code)&&(identical(other.requestId, requestId) || other.requestId == requestId));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,message,errorCode);
+int get hashCode => Object.hash(runtimeType,message,code,requestId);
 
 @override
 String toString() {
-  return 'Failure.notFound(message: $message, errorCode: $errorCode)';
+  return 'Failure.notFound(message: $message, code: $code, requestId: $requestId)';
 }
 
 
@@ -758,7 +568,7 @@ abstract mixin class $NotFoundFailureCopyWith<$Res> implements $FailureCopyWith<
   factory $NotFoundFailureCopyWith(NotFoundFailure value, $Res Function(NotFoundFailure) _then) = _$NotFoundFailureCopyWithImpl;
 @override @useResult
 $Res call({
- String message, String? errorCode
+ String message, String code, String? requestId
 });
 
 
@@ -775,10 +585,11 @@ class _$NotFoundFailureCopyWithImpl<$Res>
 
 /// Create a copy of Failure
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? message = null,Object? errorCode = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? message = null,Object? code = null,Object? requestId = freezed,}) {
   return _then(NotFoundFailure(
 message: null == message ? _self.message : message // ignore: cast_nullable_to_non_nullable
-as String,errorCode: freezed == errorCode ? _self.errorCode : errorCode // ignore: cast_nullable_to_non_nullable
+as String,code: null == code ? _self.code : code // ignore: cast_nullable_to_non_nullable
+as String,requestId: freezed == requestId ? _self.requestId : requestId // ignore: cast_nullable_to_non_nullable
 as String?,
   ));
 }
@@ -790,11 +601,12 @@ as String?,
 
 
 class ConflictFailure implements Failure {
-  const ConflictFailure({required this.message, this.errorCode});
+  const ConflictFailure({required this.message, required this.code, this.requestId});
   
 
 @override final  String message;
- final  String? errorCode;
+@override final  String code;
+ final  String? requestId;
 
 /// Create a copy of Failure
 /// with the given fields replaced by the non-null parameter values.
@@ -806,16 +618,16 @@ $ConflictFailureCopyWith<ConflictFailure> get copyWith => _$ConflictFailureCopyW
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ConflictFailure&&(identical(other.message, message) || other.message == message)&&(identical(other.errorCode, errorCode) || other.errorCode == errorCode));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ConflictFailure&&(identical(other.message, message) || other.message == message)&&(identical(other.code, code) || other.code == code)&&(identical(other.requestId, requestId) || other.requestId == requestId));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,message,errorCode);
+int get hashCode => Object.hash(runtimeType,message,code,requestId);
 
 @override
 String toString() {
-  return 'Failure.conflict(message: $message, errorCode: $errorCode)';
+  return 'Failure.conflict(message: $message, code: $code, requestId: $requestId)';
 }
 
 
@@ -826,7 +638,7 @@ abstract mixin class $ConflictFailureCopyWith<$Res> implements $FailureCopyWith<
   factory $ConflictFailureCopyWith(ConflictFailure value, $Res Function(ConflictFailure) _then) = _$ConflictFailureCopyWithImpl;
 @override @useResult
 $Res call({
- String message, String? errorCode
+ String message, String code, String? requestId
 });
 
 
@@ -843,10 +655,11 @@ class _$ConflictFailureCopyWithImpl<$Res>
 
 /// Create a copy of Failure
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? message = null,Object? errorCode = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? message = null,Object? code = null,Object? requestId = freezed,}) {
   return _then(ConflictFailure(
 message: null == message ? _self.message : message // ignore: cast_nullable_to_non_nullable
-as String,errorCode: freezed == errorCode ? _self.errorCode : errorCode // ignore: cast_nullable_to_non_nullable
+as String,code: null == code ? _self.code : code // ignore: cast_nullable_to_non_nullable
+as String,requestId: freezed == requestId ? _self.requestId : requestId // ignore: cast_nullable_to_non_nullable
 as String?,
   ));
 }
@@ -858,10 +671,12 @@ as String?,
 
 
 class RateLimitFailure implements Failure {
-  const RateLimitFailure({required this.message});
+  const RateLimitFailure({required this.message, required this.code, this.requestId});
   
 
 @override final  String message;
+@override final  String code;
+ final  String? requestId;
 
 /// Create a copy of Failure
 /// with the given fields replaced by the non-null parameter values.
@@ -873,16 +688,16 @@ $RateLimitFailureCopyWith<RateLimitFailure> get copyWith => _$RateLimitFailureCo
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is RateLimitFailure&&(identical(other.message, message) || other.message == message));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is RateLimitFailure&&(identical(other.message, message) || other.message == message)&&(identical(other.code, code) || other.code == code)&&(identical(other.requestId, requestId) || other.requestId == requestId));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,message);
+int get hashCode => Object.hash(runtimeType,message,code,requestId);
 
 @override
 String toString() {
-  return 'Failure.rateLimitExceeded(message: $message)';
+  return 'Failure.rateLimit(message: $message, code: $code, requestId: $requestId)';
 }
 
 
@@ -893,7 +708,7 @@ abstract mixin class $RateLimitFailureCopyWith<$Res> implements $FailureCopyWith
   factory $RateLimitFailureCopyWith(RateLimitFailure value, $Res Function(RateLimitFailure) _then) = _$RateLimitFailureCopyWithImpl;
 @override @useResult
 $Res call({
- String message
+ String message, String code, String? requestId
 });
 
 
@@ -910,606 +725,12 @@ class _$RateLimitFailureCopyWithImpl<$Res>
 
 /// Create a copy of Failure
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? message = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? message = null,Object? code = null,Object? requestId = freezed,}) {
   return _then(RateLimitFailure(
 message: null == message ? _self.message : message // ignore: cast_nullable_to_non_nullable
-as String,
-  ));
-}
-
-
-}
-
-/// @nodoc
-
-
-class UnknownFailure implements Failure {
-  const UnknownFailure({required this.message});
-  
-
-@override final  String message;
-
-/// Create a copy of Failure
-/// with the given fields replaced by the non-null parameter values.
-@override @JsonKey(includeFromJson: false, includeToJson: false)
-@pragma('vm:prefer-inline')
-$UnknownFailureCopyWith<UnknownFailure> get copyWith => _$UnknownFailureCopyWithImpl<UnknownFailure>(this, _$identity);
-
-
-
-@override
-bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is UnknownFailure&&(identical(other.message, message) || other.message == message));
-}
-
-
-@override
-int get hashCode => Object.hash(runtimeType,message);
-
-@override
-String toString() {
-  return 'Failure.unknown(message: $message)';
-}
-
-
-}
-
-/// @nodoc
-abstract mixin class $UnknownFailureCopyWith<$Res> implements $FailureCopyWith<$Res> {
-  factory $UnknownFailureCopyWith(UnknownFailure value, $Res Function(UnknownFailure) _then) = _$UnknownFailureCopyWithImpl;
-@override @useResult
-$Res call({
- String message
-});
-
-
-
-
-}
-/// @nodoc
-class _$UnknownFailureCopyWithImpl<$Res>
-    implements $UnknownFailureCopyWith<$Res> {
-  _$UnknownFailureCopyWithImpl(this._self, this._then);
-
-  final UnknownFailure _self;
-  final $Res Function(UnknownFailure) _then;
-
-/// Create a copy of Failure
-/// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? message = null,}) {
-  return _then(UnknownFailure(
-message: null == message ? _self.message : message // ignore: cast_nullable_to_non_nullable
-as String,
-  ));
-}
-
-
-}
-
-/// @nodoc
-
-
-class PermissionFailure implements Failure {
-  const PermissionFailure({required this.message});
-  
-
-@override final  String message;
-
-/// Create a copy of Failure
-/// with the given fields replaced by the non-null parameter values.
-@override @JsonKey(includeFromJson: false, includeToJson: false)
-@pragma('vm:prefer-inline')
-$PermissionFailureCopyWith<PermissionFailure> get copyWith => _$PermissionFailureCopyWithImpl<PermissionFailure>(this, _$identity);
-
-
-
-@override
-bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is PermissionFailure&&(identical(other.message, message) || other.message == message));
-}
-
-
-@override
-int get hashCode => Object.hash(runtimeType,message);
-
-@override
-String toString() {
-  return 'Failure.permission(message: $message)';
-}
-
-
-}
-
-/// @nodoc
-abstract mixin class $PermissionFailureCopyWith<$Res> implements $FailureCopyWith<$Res> {
-  factory $PermissionFailureCopyWith(PermissionFailure value, $Res Function(PermissionFailure) _then) = _$PermissionFailureCopyWithImpl;
-@override @useResult
-$Res call({
- String message
-});
-
-
-
-
-}
-/// @nodoc
-class _$PermissionFailureCopyWithImpl<$Res>
-    implements $PermissionFailureCopyWith<$Res> {
-  _$PermissionFailureCopyWithImpl(this._self, this._then);
-
-  final PermissionFailure _self;
-  final $Res Function(PermissionFailure) _then;
-
-/// Create a copy of Failure
-/// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? message = null,}) {
-  return _then(PermissionFailure(
-message: null == message ? _self.message : message // ignore: cast_nullable_to_non_nullable
-as String,
-  ));
-}
-
-
-}
-
-/// @nodoc
-
-
-class AgoraEngineFailure implements Failure {
-  const AgoraEngineFailure({required this.message, this.code});
-  
-
-@override final  String message;
- final  int? code;
-
-/// Create a copy of Failure
-/// with the given fields replaced by the non-null parameter values.
-@override @JsonKey(includeFromJson: false, includeToJson: false)
-@pragma('vm:prefer-inline')
-$AgoraEngineFailureCopyWith<AgoraEngineFailure> get copyWith => _$AgoraEngineFailureCopyWithImpl<AgoraEngineFailure>(this, _$identity);
-
-
-
-@override
-bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is AgoraEngineFailure&&(identical(other.message, message) || other.message == message)&&(identical(other.code, code) || other.code == code));
-}
-
-
-@override
-int get hashCode => Object.hash(runtimeType,message,code);
-
-@override
-String toString() {
-  return 'Failure.agoraEngine(message: $message, code: $code)';
-}
-
-
-}
-
-/// @nodoc
-abstract mixin class $AgoraEngineFailureCopyWith<$Res> implements $FailureCopyWith<$Res> {
-  factory $AgoraEngineFailureCopyWith(AgoraEngineFailure value, $Res Function(AgoraEngineFailure) _then) = _$AgoraEngineFailureCopyWithImpl;
-@override @useResult
-$Res call({
- String message, int? code
-});
-
-
-
-
-}
-/// @nodoc
-class _$AgoraEngineFailureCopyWithImpl<$Res>
-    implements $AgoraEngineFailureCopyWith<$Res> {
-  _$AgoraEngineFailureCopyWithImpl(this._self, this._then);
-
-  final AgoraEngineFailure _self;
-  final $Res Function(AgoraEngineFailure) _then;
-
-/// Create a copy of Failure
-/// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? message = null,Object? code = freezed,}) {
-  return _then(AgoraEngineFailure(
-message: null == message ? _self.message : message // ignore: cast_nullable_to_non_nullable
-as String,code: freezed == code ? _self.code : code // ignore: cast_nullable_to_non_nullable
-as int?,
-  ));
-}
-
-
-}
-
-/// @nodoc
-
-
-class TokenExpiredFailure implements Failure {
-  const TokenExpiredFailure({required this.message});
-  
-
-@override final  String message;
-
-/// Create a copy of Failure
-/// with the given fields replaced by the non-null parameter values.
-@override @JsonKey(includeFromJson: false, includeToJson: false)
-@pragma('vm:prefer-inline')
-$TokenExpiredFailureCopyWith<TokenExpiredFailure> get copyWith => _$TokenExpiredFailureCopyWithImpl<TokenExpiredFailure>(this, _$identity);
-
-
-
-@override
-bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is TokenExpiredFailure&&(identical(other.message, message) || other.message == message));
-}
-
-
-@override
-int get hashCode => Object.hash(runtimeType,message);
-
-@override
-String toString() {
-  return 'Failure.tokenExpired(message: $message)';
-}
-
-
-}
-
-/// @nodoc
-abstract mixin class $TokenExpiredFailureCopyWith<$Res> implements $FailureCopyWith<$Res> {
-  factory $TokenExpiredFailureCopyWith(TokenExpiredFailure value, $Res Function(TokenExpiredFailure) _then) = _$TokenExpiredFailureCopyWithImpl;
-@override @useResult
-$Res call({
- String message
-});
-
-
-
-
-}
-/// @nodoc
-class _$TokenExpiredFailureCopyWithImpl<$Res>
-    implements $TokenExpiredFailureCopyWith<$Res> {
-  _$TokenExpiredFailureCopyWithImpl(this._self, this._then);
-
-  final TokenExpiredFailure _self;
-  final $Res Function(TokenExpiredFailure) _then;
-
-/// Create a copy of Failure
-/// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? message = null,}) {
-  return _then(TokenExpiredFailure(
-message: null == message ? _self.message : message // ignore: cast_nullable_to_non_nullable
-as String,
-  ));
-}
-
-
-}
-
-/// @nodoc
-
-
-class ChannelJoinFailure implements Failure {
-  const ChannelJoinFailure({required this.message});
-  
-
-@override final  String message;
-
-/// Create a copy of Failure
-/// with the given fields replaced by the non-null parameter values.
-@override @JsonKey(includeFromJson: false, includeToJson: false)
-@pragma('vm:prefer-inline')
-$ChannelJoinFailureCopyWith<ChannelJoinFailure> get copyWith => _$ChannelJoinFailureCopyWithImpl<ChannelJoinFailure>(this, _$identity);
-
-
-
-@override
-bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ChannelJoinFailure&&(identical(other.message, message) || other.message == message));
-}
-
-
-@override
-int get hashCode => Object.hash(runtimeType,message);
-
-@override
-String toString() {
-  return 'Failure.channelJoin(message: $message)';
-}
-
-
-}
-
-/// @nodoc
-abstract mixin class $ChannelJoinFailureCopyWith<$Res> implements $FailureCopyWith<$Res> {
-  factory $ChannelJoinFailureCopyWith(ChannelJoinFailure value, $Res Function(ChannelJoinFailure) _then) = _$ChannelJoinFailureCopyWithImpl;
-@override @useResult
-$Res call({
- String message
-});
-
-
-
-
-}
-/// @nodoc
-class _$ChannelJoinFailureCopyWithImpl<$Res>
-    implements $ChannelJoinFailureCopyWith<$Res> {
-  _$ChannelJoinFailureCopyWithImpl(this._self, this._then);
-
-  final ChannelJoinFailure _self;
-  final $Res Function(ChannelJoinFailure) _then;
-
-/// Create a copy of Failure
-/// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? message = null,}) {
-  return _then(ChannelJoinFailure(
-message: null == message ? _self.message : message // ignore: cast_nullable_to_non_nullable
-as String,
-  ));
-}
-
-
-}
-
-/// @nodoc
-
-
-class WebSocketNotConnectedFailure implements Failure {
-  const WebSocketNotConnectedFailure({required this.message});
-  
-
-@override final  String message;
-
-/// Create a copy of Failure
-/// with the given fields replaced by the non-null parameter values.
-@override @JsonKey(includeFromJson: false, includeToJson: false)
-@pragma('vm:prefer-inline')
-$WebSocketNotConnectedFailureCopyWith<WebSocketNotConnectedFailure> get copyWith => _$WebSocketNotConnectedFailureCopyWithImpl<WebSocketNotConnectedFailure>(this, _$identity);
-
-
-
-@override
-bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is WebSocketNotConnectedFailure&&(identical(other.message, message) || other.message == message));
-}
-
-
-@override
-int get hashCode => Object.hash(runtimeType,message);
-
-@override
-String toString() {
-  return 'Failure.webSocketNotConnected(message: $message)';
-}
-
-
-}
-
-/// @nodoc
-abstract mixin class $WebSocketNotConnectedFailureCopyWith<$Res> implements $FailureCopyWith<$Res> {
-  factory $WebSocketNotConnectedFailureCopyWith(WebSocketNotConnectedFailure value, $Res Function(WebSocketNotConnectedFailure) _then) = _$WebSocketNotConnectedFailureCopyWithImpl;
-@override @useResult
-$Res call({
- String message
-});
-
-
-
-
-}
-/// @nodoc
-class _$WebSocketNotConnectedFailureCopyWithImpl<$Res>
-    implements $WebSocketNotConnectedFailureCopyWith<$Res> {
-  _$WebSocketNotConnectedFailureCopyWithImpl(this._self, this._then);
-
-  final WebSocketNotConnectedFailure _self;
-  final $Res Function(WebSocketNotConnectedFailure) _then;
-
-/// Create a copy of Failure
-/// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? message = null,}) {
-  return _then(WebSocketNotConnectedFailure(
-message: null == message ? _self.message : message // ignore: cast_nullable_to_non_nullable
-as String,
-  ));
-}
-
-
-}
-
-/// @nodoc
-
-
-class WebSocketSendFailure implements Failure {
-  const WebSocketSendFailure({required this.message});
-  
-
-@override final  String message;
-
-/// Create a copy of Failure
-/// with the given fields replaced by the non-null parameter values.
-@override @JsonKey(includeFromJson: false, includeToJson: false)
-@pragma('vm:prefer-inline')
-$WebSocketSendFailureCopyWith<WebSocketSendFailure> get copyWith => _$WebSocketSendFailureCopyWithImpl<WebSocketSendFailure>(this, _$identity);
-
-
-
-@override
-bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is WebSocketSendFailure&&(identical(other.message, message) || other.message == message));
-}
-
-
-@override
-int get hashCode => Object.hash(runtimeType,message);
-
-@override
-String toString() {
-  return 'Failure.webSocketSendFailed(message: $message)';
-}
-
-
-}
-
-/// @nodoc
-abstract mixin class $WebSocketSendFailureCopyWith<$Res> implements $FailureCopyWith<$Res> {
-  factory $WebSocketSendFailureCopyWith(WebSocketSendFailure value, $Res Function(WebSocketSendFailure) _then) = _$WebSocketSendFailureCopyWithImpl;
-@override @useResult
-$Res call({
- String message
-});
-
-
-
-
-}
-/// @nodoc
-class _$WebSocketSendFailureCopyWithImpl<$Res>
-    implements $WebSocketSendFailureCopyWith<$Res> {
-  _$WebSocketSendFailureCopyWithImpl(this._self, this._then);
-
-  final WebSocketSendFailure _self;
-  final $Res Function(WebSocketSendFailure) _then;
-
-/// Create a copy of Failure
-/// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? message = null,}) {
-  return _then(WebSocketSendFailure(
-message: null == message ? _self.message : message // ignore: cast_nullable_to_non_nullable
-as String,
-  ));
-}
-
-
-}
-
-/// @nodoc
-
-
-class CallNotFoundFailure implements Failure {
-  const CallNotFoundFailure({required this.message});
-  
-
-@override final  String message;
-
-/// Create a copy of Failure
-/// with the given fields replaced by the non-null parameter values.
-@override @JsonKey(includeFromJson: false, includeToJson: false)
-@pragma('vm:prefer-inline')
-$CallNotFoundFailureCopyWith<CallNotFoundFailure> get copyWith => _$CallNotFoundFailureCopyWithImpl<CallNotFoundFailure>(this, _$identity);
-
-
-
-@override
-bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is CallNotFoundFailure&&(identical(other.message, message) || other.message == message));
-}
-
-
-@override
-int get hashCode => Object.hash(runtimeType,message);
-
-@override
-String toString() {
-  return 'Failure.callNotFound(message: $message)';
-}
-
-
-}
-
-/// @nodoc
-abstract mixin class $CallNotFoundFailureCopyWith<$Res> implements $FailureCopyWith<$Res> {
-  factory $CallNotFoundFailureCopyWith(CallNotFoundFailure value, $Res Function(CallNotFoundFailure) _then) = _$CallNotFoundFailureCopyWithImpl;
-@override @useResult
-$Res call({
- String message
-});
-
-
-
-
-}
-/// @nodoc
-class _$CallNotFoundFailureCopyWithImpl<$Res>
-    implements $CallNotFoundFailureCopyWith<$Res> {
-  _$CallNotFoundFailureCopyWithImpl(this._self, this._then);
-
-  final CallNotFoundFailure _self;
-  final $Res Function(CallNotFoundFailure) _then;
-
-/// Create a copy of Failure
-/// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? message = null,}) {
-  return _then(CallNotFoundFailure(
-message: null == message ? _self.message : message // ignore: cast_nullable_to_non_nullable
-as String,
-  ));
-}
-
-
-}
-
-/// @nodoc
-
-
-class CallAlreadyActiveFailure implements Failure {
-  const CallAlreadyActiveFailure({required this.message});
-  
-
-@override final  String message;
-
-/// Create a copy of Failure
-/// with the given fields replaced by the non-null parameter values.
-@override @JsonKey(includeFromJson: false, includeToJson: false)
-@pragma('vm:prefer-inline')
-$CallAlreadyActiveFailureCopyWith<CallAlreadyActiveFailure> get copyWith => _$CallAlreadyActiveFailureCopyWithImpl<CallAlreadyActiveFailure>(this, _$identity);
-
-
-
-@override
-bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is CallAlreadyActiveFailure&&(identical(other.message, message) || other.message == message));
-}
-
-
-@override
-int get hashCode => Object.hash(runtimeType,message);
-
-@override
-String toString() {
-  return 'Failure.callAlreadyActive(message: $message)';
-}
-
-
-}
-
-/// @nodoc
-abstract mixin class $CallAlreadyActiveFailureCopyWith<$Res> implements $FailureCopyWith<$Res> {
-  factory $CallAlreadyActiveFailureCopyWith(CallAlreadyActiveFailure value, $Res Function(CallAlreadyActiveFailure) _then) = _$CallAlreadyActiveFailureCopyWithImpl;
-@override @useResult
-$Res call({
- String message
-});
-
-
-
-
-}
-/// @nodoc
-class _$CallAlreadyActiveFailureCopyWithImpl<$Res>
-    implements $CallAlreadyActiveFailureCopyWith<$Res> {
-  _$CallAlreadyActiveFailureCopyWithImpl(this._self, this._then);
-
-  final CallAlreadyActiveFailure _self;
-  final $Res Function(CallAlreadyActiveFailure) _then;
-
-/// Create a copy of Failure
-/// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? message = null,}) {
-  return _then(CallAlreadyActiveFailure(
-message: null == message ? _self.message : message // ignore: cast_nullable_to_non_nullable
-as String,
+as String,code: null == code ? _self.code : code // ignore: cast_nullable_to_non_nullable
+as String,requestId: freezed == requestId ? _self.requestId : requestId // ignore: cast_nullable_to_non_nullable
+as String?,
   ));
 }
 

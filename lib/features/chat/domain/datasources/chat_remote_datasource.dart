@@ -1,4 +1,6 @@
-import 'package:chattrix_ui/features/auth/data/models/user_model.dart';
+import 'package:chattrix_ui/core/domain/enums/conversation_filter.dart';
+import 'package:chattrix_ui/features/auth/data/models/user_dto.dart';
+import 'package:chattrix_ui/features/chat/data/models/chat_message_request.dart';
 import 'package:chattrix_ui/features/chat/data/models/conversation_model.dart';
 import 'package:chattrix_ui/features/chat/data/models/message_model.dart';
 import 'package:chattrix_ui/features/chat/data/models/search_user_model.dart';
@@ -15,7 +17,7 @@ abstract class ChatRemoteDatasource {
   });
 
   /// Get all conversations for current user
-  Future<List<ConversationModel>> getConversations();
+  Future<List<ConversationModel>> getConversations({ConversationFilter filter = ConversationFilter.all});
 
   /// Get a specific conversation by ID
   Future<ConversationModel> getConversation(String conversationId);
@@ -30,33 +32,22 @@ abstract class ChatRemoteDatasource {
   });
 
   /// Send a message to a conversation
-  Future<MessageModel> sendMessage({
-    required String conversationId,
-    required String content,
-    String? type,
-    String? mediaUrl,
-    String? thumbnailUrl,
-    String? fileName,
-    int? fileSize,
-    int? duration,
-    double? latitude,
-    double? longitude,
-    String? locationName,
-    int? replyToMessageId,
-    String? mentions,
-  });
+  Future<MessageModel> sendMessage(String conversationId, ChatMessageRequest request);
 
   /// Get list of online users
-  Future<List<UserModel>> getOnlineUsers();
+  Future<List<UserDto>> getOnlineUsers();
 
   /// Get online users in a specific conversation
-  Future<List<UserModel>> getOnlineUsersInConversation(String conversationId);
+  Future<List<UserDto>> getOnlineUsersInConversation(String conversationId);
 
   /// Get status of a specific user
   Future<UserStatusModel> getUserStatus(String userId);
 
   /// Search users by query
   Future<List<SearchUserModel>> searchUsers({required String query, int limit = 20});
+
+  /// Search conversations by query (name or last message content)
+  Future<List<ConversationModel>> searchConversations({required String query});
 
   /// Add or toggle reaction to a message
   Future<Map<String, dynamic>> toggleReaction({required String messageId, required String emoji});

@@ -22,7 +22,7 @@ ProfileRemoteDataSource profileRemoteDataSource(Ref ref) {
 
 @riverpod
 ProfileRepository profileRepository(Ref ref) {
-  return ProfileRepositoryImpl(remoteDataSource: ref.watch(profileRemoteDataSourceProvider));
+  return ProfileRepositoryImpl(ref.watch(profileRemoteDataSourceProvider) as ProfileRemoteDataSourceImpl);
 }
 
 @riverpod
@@ -46,10 +46,7 @@ class ProfileController extends _$ProfileController {
     final useCase = ref.read(getProfileUseCaseProvider);
     final result = await useCase();
 
-    return result.fold(
-      (failure) => throw Exception(failure.userMessage),
-      (profile) => profile,
-    );
+    return result.fold((failure) => throw _mapFailureToException(failure), (profile) => profile);
   }
 
   Future<void> updateProfile({required UpdateProfileParams params, File? newAvatarFile}) async {
@@ -68,7 +65,87 @@ class ProfileController extends _$ProfileController {
       final updateUseCase = ref.read(updateProfileUseCaseProvider);
       final result = await updateUseCase(updatedParams);
 
-      return result.fold((failure) => throw Exception(failure.userMessage), (newProfile) => newProfile);
+      return result.fold((failure) => throw _mapFailureToException(failure), (newProfile) => newProfile);
     });
   }
+
+  /// Map Failure to Exception for AsyncValue.guard
+  Exception _mapFailureToException(Failure failure) {
+    return failure.when(
+      server: (message, code, requestId) => ServerException(message, code),
+      network: (message, code) => NetworkException(message),
+      validation: (message, code, details, requestId) => ValidationException(message, details),
+      auth: (message, code, requestId) => AuthException(message, code),
+      notFound: (message, code, requestId) => NotFoundException(message, code),
+      conflict: (message, code, requestId) => ConflictException(message, code),
+      rateLimit: (message, code, requestId) => RateLimitException(message),
+    );
+  }
+}
+
+/// Custom exceptions matching Failure types
+class ServerException implements Exception {
+  final String message;
+  final String? code;
+  ServerException(this.message, [this.code]);
+
+  @override
+  String toString() => message;
+}
+
+class NetworkException implements Exception {
+  final String message;
+  NetworkException(this.message);
+
+  @override
+  String toString() => message;
+}
+
+class ValidationException implements Exception {
+  final String message;
+  final Map<String, String>? details;
+  ValidationException(this.message, [this.details]);
+
+  @override
+  String toString() {
+    if (details != null && details!.isNotEmpty) {
+      return details!.values.join(', ');
+    }
+    return message;
+  }
+}
+
+class AuthException implements Exception {
+  final String message;
+  final String? code;
+  AuthException(this.message, [this.code]);
+
+  @override
+  String toString() => message;
+}
+
+class NotFoundException implements Exception {
+  final String message;
+  final String? code;
+  NotFoundException(this.message, [this.code]);
+
+  @override
+  String toString() => message;
+}
+
+class ConflictException implements Exception {
+  final String message;
+  final String? code;
+  ConflictException(this.message, [this.code]);
+
+  @override
+  String toString() => message;
+}
+
+class RateLimitException implements Exception {
+  final String message;
+  RateLimitException(this.message);
+
+  @override
+  String toString() => message;
 }

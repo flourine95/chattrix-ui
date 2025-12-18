@@ -28,4 +28,3 @@ abstract class LastMessageInfoDto with _$LastMessageInfoDto {
 
   factory LastMessageInfoDto.fromJson(Map<String, dynamic> json) => _$LastMessageInfoDtoFromJson(json);
 }
-

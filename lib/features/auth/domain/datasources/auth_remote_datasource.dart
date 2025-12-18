@@ -1,5 +1,5 @@
-import 'package:chattrix_ui/features/auth/data/models/auth_tokens_model.dart';
-import 'package:chattrix_ui/features/auth/data/models/user_model.dart';
+import 'package:chattrix_ui/features/auth/data/models/auth_tokens_dto.dart';
+import 'package:chattrix_ui/features/auth/data/models/user_dto.dart';
 
 abstract class AuthRemoteDataSource {
   Future<void> register({
@@ -13,11 +13,11 @@ abstract class AuthRemoteDataSource {
 
   Future<void> resendVerification({required String email});
 
-  Future<AuthTokensModel> login({required String usernameOrEmail, required String password});
+  Future<AuthTokensDto> login({required String usernameOrEmail, required String password});
 
-  Future<UserModel> getCurrentUser(String accessToken);
+  Future<UserDto> getCurrentUser(String accessToken);
 
-  Future<AuthTokensModel> refreshToken(String refreshToken);
+  Future<AuthTokensDto> refreshToken(String refreshToken);
 
   Future<void> changePassword({
     required String accessToken,

@@ -25,8 +25,7 @@ abstract class CallInfoModel with _$CallInfoModel {
     int? durationSeconds,
   }) = _CallInfoModel;
 
-  factory CallInfoModel.fromJson(Map<String, dynamic> json) =>
-      _$CallInfoModelFromJson(json);
+  factory CallInfoModel.fromJson(Map<String, dynamic> json) => _$CallInfoModelFromJson(json);
 
   CallInfo toEntity() {
     return CallInfo(

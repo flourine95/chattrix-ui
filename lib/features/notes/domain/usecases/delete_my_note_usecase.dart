@@ -1,13 +1,13 @@
-import 'package:chattrix_ui/features/notes/domain/repositories/notes_repository.dart';
-import 'package:dartz/dartz.dart';
+import 'package:fpdart/fpdart.dart';
+import '../../../../core/errors/failures.dart';
+import '../repositories/notes_repository.dart';
 
 class DeleteMyNoteUseCase {
   final NotesRepository _repository;
 
   DeleteMyNoteUseCase(this._repository);
 
-  Future<Either<String, void>> call() {
+  Future<Either<Failure, void>> call() {
     return _repository.deleteMyNote();
   }
 }
-

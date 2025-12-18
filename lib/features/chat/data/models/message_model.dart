@@ -59,12 +59,10 @@ abstract class MessageModel with _$MessageModel {
         : int.tryParse((json['senderId'] ?? json['sender']?['id'] ?? 0).toString()) ?? 0;
 
     // Parse senderUsername
-    final senderUsername = json['senderUsername']?.toString() ??
-                          json['sender']?['username']?.toString();
+    final senderUsername = json['senderUsername']?.toString() ?? json['sender']?['username']?.toString();
 
     // Parse senderFullName
-    final senderFullName = json['senderFullName']?.toString() ??
-                          json['sender']?['fullName']?.toString();
+    final senderFullName = json['senderFullName']?.toString() ?? json['sender']?['fullName']?.toString();
 
     // Keep backward compatibility with old sender object
     final senderJson = (json['sender'] is Map<String, dynamic>)
@@ -95,9 +93,7 @@ abstract class MessageModel with _$MessageModel {
     // Parse readBy
     List<ReadReceiptModel> readBy = [];
     if (json['readBy'] != null && json['readBy'] is List) {
-      readBy = (json['readBy'] as List)
-          .map((e) => ReadReceiptModel.fromJson(e as Map<String, dynamic>))
-          .toList();
+      readBy = (json['readBy'] as List).map((e) => ReadReceiptModel.fromJson(e as Map<String, dynamic>)).toList();
     }
 
     return MessageModel(

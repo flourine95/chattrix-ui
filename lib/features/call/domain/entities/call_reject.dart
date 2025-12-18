@@ -5,10 +5,6 @@ part 'call_reject.freezed.dart';
 
 @freezed
 abstract class CallReject with _$CallReject {
-  const factory CallReject({
-    required String callId,
-    required int rejectedBy,
-    required CallRejectReason reason,
-  }) = _CallReject;
+  const factory CallReject({required String callId, required int rejectedBy, required CallRejectReason reason}) =
+      _CallReject;
 }
-

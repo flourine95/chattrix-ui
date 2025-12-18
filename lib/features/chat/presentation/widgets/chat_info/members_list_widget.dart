@@ -309,7 +309,7 @@ class _MemberListItem extends StatelessWidget {
               radius: 20,
               backgroundColor: colors.primary,
             ),
-            if (member.isOnline ?? false)
+            if (member.online ?? false)
               Positioned(
                 right: 0,
                 bottom: 0,
@@ -358,7 +358,7 @@ class _MemberListItem extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text('@${member.username}'),
-            if (member.isOnline ?? false)
+            if (member.online ?? false)
               Text('Active now', style: textTheme.labelSmall?.copyWith(color: Colors.green))
             else if (member.lastSeen != null)
               Text(

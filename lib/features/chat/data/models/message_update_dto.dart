@@ -16,4 +16,3 @@ abstract class MessageUpdateDto with _$MessageUpdateDto {
 
   factory MessageUpdateDto.fromJson(Map<String, dynamic> json) => _$MessageUpdateDtoFromJson(json);
 }
-

@@ -11,14 +11,9 @@ class CallState with _$CallState {
 
   const factory CallState.idle() = _Idle;
 
-  const factory CallState.initiating({
-    required int calleeId,
-    required CallType callType,
-  }) = _Initiating;
+  const factory CallState.initiating({required int calleeId, required CallType callType}) = _Initiating;
 
-  const factory CallState.ringing({
-    required CallInvitation invitation,
-  }) = _Ringing;
+  const factory CallState.ringing({required CallInvitation invitation}) = _Ringing;
 
   const factory CallState.connecting({
     required CallConnection connection,
@@ -39,12 +34,7 @@ class CallState with _$CallState {
     @Default(true) bool remoteIsVideoEnabled,
   }) = _Connected;
 
-  const factory CallState.ended({
-    String? reason,
-  }) = _Ended;
+  const factory CallState.ended({String? reason}) = _Ended;
 
-  const factory CallState.error({
-    required String message,
-  }) = _Error;
+  const factory CallState.error({required String message}) = _Error;
 }
-

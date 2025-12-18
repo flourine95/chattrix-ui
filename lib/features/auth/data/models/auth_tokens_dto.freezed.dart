@@ -3,7 +3,7 @@
 // ignore_for_file: type=lint
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
-part of 'auth_tokens_model.dart';
+part of 'auth_tokens_dto.dart';
 
 // **************************************************************************
 // FreezedGenerator
@@ -13,22 +13,22 @@ part of 'auth_tokens_model.dart';
 T _$identity<T>(T value) => value;
 
 /// @nodoc
-mixin _$AuthTokensModel {
+mixin _$AuthTokensDto {
 
  String get accessToken; String get refreshToken; String get tokenType; int get expiresIn;
-/// Create a copy of AuthTokensModel
+/// Create a copy of AuthTokensDto
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
 @pragma('vm:prefer-inline')
-$AuthTokensModelCopyWith<AuthTokensModel> get copyWith => _$AuthTokensModelCopyWithImpl<AuthTokensModel>(this as AuthTokensModel, _$identity);
+$AuthTokensDtoCopyWith<AuthTokensDto> get copyWith => _$AuthTokensDtoCopyWithImpl<AuthTokensDto>(this as AuthTokensDto, _$identity);
 
-  /// Serializes this AuthTokensModel to a JSON map.
+  /// Serializes this AuthTokensDto to a JSON map.
   Map<String, dynamic> toJson();
 
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is AuthTokensModel&&(identical(other.accessToken, accessToken) || other.accessToken == accessToken)&&(identical(other.refreshToken, refreshToken) || other.refreshToken == refreshToken)&&(identical(other.tokenType, tokenType) || other.tokenType == tokenType)&&(identical(other.expiresIn, expiresIn) || other.expiresIn == expiresIn));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is AuthTokensDto&&(identical(other.accessToken, accessToken) || other.accessToken == accessToken)&&(identical(other.refreshToken, refreshToken) || other.refreshToken == refreshToken)&&(identical(other.tokenType, tokenType) || other.tokenType == tokenType)&&(identical(other.expiresIn, expiresIn) || other.expiresIn == expiresIn));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -37,15 +37,15 @@ int get hashCode => Object.hash(runtimeType,accessToken,refreshToken,tokenType,e
 
 @override
 String toString() {
-  return 'AuthTokensModel(accessToken: $accessToken, refreshToken: $refreshToken, tokenType: $tokenType, expiresIn: $expiresIn)';
+  return 'AuthTokensDto(accessToken: $accessToken, refreshToken: $refreshToken, tokenType: $tokenType, expiresIn: $expiresIn)';
 }
 
 
 }
 
 /// @nodoc
-abstract mixin class $AuthTokensModelCopyWith<$Res>  {
-  factory $AuthTokensModelCopyWith(AuthTokensModel value, $Res Function(AuthTokensModel) _then) = _$AuthTokensModelCopyWithImpl;
+abstract mixin class $AuthTokensDtoCopyWith<$Res>  {
+  factory $AuthTokensDtoCopyWith(AuthTokensDto value, $Res Function(AuthTokensDto) _then) = _$AuthTokensDtoCopyWithImpl;
 @useResult
 $Res call({
  String accessToken, String refreshToken, String tokenType, int expiresIn
@@ -56,14 +56,14 @@ $Res call({
 
 }
 /// @nodoc
-class _$AuthTokensModelCopyWithImpl<$Res>
-    implements $AuthTokensModelCopyWith<$Res> {
-  _$AuthTokensModelCopyWithImpl(this._self, this._then);
+class _$AuthTokensDtoCopyWithImpl<$Res>
+    implements $AuthTokensDtoCopyWith<$Res> {
+  _$AuthTokensDtoCopyWithImpl(this._self, this._then);
 
-  final AuthTokensModel _self;
-  final $Res Function(AuthTokensModel) _then;
+  final AuthTokensDto _self;
+  final $Res Function(AuthTokensDto) _then;
 
-/// Create a copy of AuthTokensModel
+/// Create a copy of AuthTokensDto
 /// with the given fields replaced by the non-null parameter values.
 @pragma('vm:prefer-inline') @override $Res call({Object? accessToken = null,Object? refreshToken = null,Object? tokenType = null,Object? expiresIn = null,}) {
   return _then(_self.copyWith(
@@ -78,8 +78,8 @@ as int,
 }
 
 
-/// Adds pattern-matching-related methods to [AuthTokensModel].
-extension AuthTokensModelPatterns on AuthTokensModel {
+/// Adds pattern-matching-related methods to [AuthTokensDto].
+extension AuthTokensDtoPatterns on AuthTokensDto {
 /// A variant of `map` that fallback to returning `orElse`.
 ///
 /// It is equivalent to doing:
@@ -92,10 +92,10 @@ extension AuthTokensModelPatterns on AuthTokensModel {
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _AuthTokensModel value)?  $default,{required TResult orElse(),}){
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _AuthTokensDto value)?  $default,{required TResult orElse(),}){
 final _that = this;
 switch (_that) {
-case _AuthTokensModel() when $default != null:
+case _AuthTokensDto() when $default != null:
 return $default(_that);case _:
   return orElse();
 
@@ -114,10 +114,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _AuthTokensModel value)  $default,){
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _AuthTokensDto value)  $default,){
 final _that = this;
 switch (_that) {
-case _AuthTokensModel():
+case _AuthTokensDto():
 return $default(_that);case _:
   throw StateError('Unexpected subclass');
 
@@ -135,10 +135,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _AuthTokensModel value)?  $default,){
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _AuthTokensDto value)?  $default,){
 final _that = this;
 switch (_that) {
-case _AuthTokensModel() when $default != null:
+case _AuthTokensDto() when $default != null:
 return $default(_that);case _:
   return null;
 
@@ -158,7 +158,7 @@ return $default(_that);case _:
 
 @optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String accessToken,  String refreshToken,  String tokenType,  int expiresIn)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
-case _AuthTokensModel() when $default != null:
+case _AuthTokensDto() when $default != null:
 return $default(_that.accessToken,_that.refreshToken,_that.tokenType,_that.expiresIn);case _:
   return orElse();
 
@@ -179,7 +179,7 @@ return $default(_that.accessToken,_that.refreshToken,_that.tokenType,_that.expir
 
 @optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String accessToken,  String refreshToken,  String tokenType,  int expiresIn)  $default,) {final _that = this;
 switch (_that) {
-case _AuthTokensModel():
+case _AuthTokensDto():
 return $default(_that.accessToken,_that.refreshToken,_that.tokenType,_that.expiresIn);case _:
   throw StateError('Unexpected subclass');
 
@@ -199,7 +199,7 @@ return $default(_that.accessToken,_that.refreshToken,_that.tokenType,_that.expir
 
 @optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String accessToken,  String refreshToken,  String tokenType,  int expiresIn)?  $default,) {final _that = this;
 switch (_that) {
-case _AuthTokensModel() when $default != null:
+case _AuthTokensDto() when $default != null:
 return $default(_that.accessToken,_that.refreshToken,_that.tokenType,_that.expiresIn);case _:
   return null;
 
@@ -211,29 +211,29 @@ return $default(_that.accessToken,_that.refreshToken,_that.tokenType,_that.expir
 /// @nodoc
 @JsonSerializable()
 
-class _AuthTokensModel extends AuthTokensModel {
-  const _AuthTokensModel({required this.accessToken, required this.refreshToken, required this.tokenType, required this.expiresIn}): super._();
-  factory _AuthTokensModel.fromJson(Map<String, dynamic> json) => _$AuthTokensModelFromJson(json);
+class _AuthTokensDto implements AuthTokensDto {
+  const _AuthTokensDto({required this.accessToken, required this.refreshToken, required this.tokenType, required this.expiresIn});
+  factory _AuthTokensDto.fromJson(Map<String, dynamic> json) => _$AuthTokensDtoFromJson(json);
 
 @override final  String accessToken;
 @override final  String refreshToken;
 @override final  String tokenType;
 @override final  int expiresIn;
 
-/// Create a copy of AuthTokensModel
+/// Create a copy of AuthTokensDto
 /// with the given fields replaced by the non-null parameter values.
 @override @JsonKey(includeFromJson: false, includeToJson: false)
 @pragma('vm:prefer-inline')
-_$AuthTokensModelCopyWith<_AuthTokensModel> get copyWith => __$AuthTokensModelCopyWithImpl<_AuthTokensModel>(this, _$identity);
+_$AuthTokensDtoCopyWith<_AuthTokensDto> get copyWith => __$AuthTokensDtoCopyWithImpl<_AuthTokensDto>(this, _$identity);
 
 @override
 Map<String, dynamic> toJson() {
-  return _$AuthTokensModelToJson(this, );
+  return _$AuthTokensDtoToJson(this, );
 }
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _AuthTokensModel&&(identical(other.accessToken, accessToken) || other.accessToken == accessToken)&&(identical(other.refreshToken, refreshToken) || other.refreshToken == refreshToken)&&(identical(other.tokenType, tokenType) || other.tokenType == tokenType)&&(identical(other.expiresIn, expiresIn) || other.expiresIn == expiresIn));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _AuthTokensDto&&(identical(other.accessToken, accessToken) || other.accessToken == accessToken)&&(identical(other.refreshToken, refreshToken) || other.refreshToken == refreshToken)&&(identical(other.tokenType, tokenType) || other.tokenType == tokenType)&&(identical(other.expiresIn, expiresIn) || other.expiresIn == expiresIn));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -242,15 +242,15 @@ int get hashCode => Object.hash(runtimeType,accessToken,refreshToken,tokenType,e
 
 @override
 String toString() {
-  return 'AuthTokensModel(accessToken: $accessToken, refreshToken: $refreshToken, tokenType: $tokenType, expiresIn: $expiresIn)';
+  return 'AuthTokensDto(accessToken: $accessToken, refreshToken: $refreshToken, tokenType: $tokenType, expiresIn: $expiresIn)';
 }
 
 
 }
 
 /// @nodoc
-abstract mixin class _$AuthTokensModelCopyWith<$Res> implements $AuthTokensModelCopyWith<$Res> {
-  factory _$AuthTokensModelCopyWith(_AuthTokensModel value, $Res Function(_AuthTokensModel) _then) = __$AuthTokensModelCopyWithImpl;
+abstract mixin class _$AuthTokensDtoCopyWith<$Res> implements $AuthTokensDtoCopyWith<$Res> {
+  factory _$AuthTokensDtoCopyWith(_AuthTokensDto value, $Res Function(_AuthTokensDto) _then) = __$AuthTokensDtoCopyWithImpl;
 @override @useResult
 $Res call({
  String accessToken, String refreshToken, String tokenType, int expiresIn
@@ -261,17 +261,17 @@ $Res call({
 
 }
 /// @nodoc
-class __$AuthTokensModelCopyWithImpl<$Res>
-    implements _$AuthTokensModelCopyWith<$Res> {
-  __$AuthTokensModelCopyWithImpl(this._self, this._then);
+class __$AuthTokensDtoCopyWithImpl<$Res>
+    implements _$AuthTokensDtoCopyWith<$Res> {
+  __$AuthTokensDtoCopyWithImpl(this._self, this._then);
 
-  final _AuthTokensModel _self;
-  final $Res Function(_AuthTokensModel) _then;
+  final _AuthTokensDto _self;
+  final $Res Function(_AuthTokensDto) _then;
 
-/// Create a copy of AuthTokensModel
+/// Create a copy of AuthTokensDto
 /// with the given fields replaced by the non-null parameter values.
 @override @pragma('vm:prefer-inline') $Res call({Object? accessToken = null,Object? refreshToken = null,Object? tokenType = null,Object? expiresIn = null,}) {
-  return _then(_AuthTokensModel(
+  return _then(_AuthTokensDto(
 accessToken: null == accessToken ? _self.accessToken : accessToken // ignore: cast_nullable_to_non_nullable
 as String,refreshToken: null == refreshToken ? _self.refreshToken : refreshToken // ignore: cast_nullable_to_non_nullable
 as String,tokenType: null == tokenType ? _self.tokenType : tokenType // ignore: cast_nullable_to_non_nullable

@@ -8,18 +8,11 @@ part 'call_timeout_model.g.dart';
 abstract class CallTimeoutModel with _$CallTimeoutModel {
   const CallTimeoutModel._();
 
-  const factory CallTimeoutModel({
-    required String callId,
-    required String reason,
-  }) = _CallTimeoutModel;
+  const factory CallTimeoutModel({required String callId, required String reason}) = _CallTimeoutModel;
 
-  factory CallTimeoutModel.fromJson(Map<String, dynamic> json) =>
-      _$CallTimeoutModelFromJson(json);
+  factory CallTimeoutModel.fromJson(Map<String, dynamic> json) => _$CallTimeoutModelFromJson(json);
 
   CallTimeout toEntity() {
-    return CallTimeout(
-      callId: callId,
-      reason: reason,
-    );
+    return CallTimeout(callId: callId, reason: reason);
   }
 }

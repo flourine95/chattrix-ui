@@ -11,10 +11,6 @@ extension ApiResponseUtils<T> on ApiResponse<T> {
       return data as T;
     }
 
-    throw ServerException(
-      message: message ?? 'Unknown error occurred',
-      errorCode: code,
-      errors: details,
-    );
+    throw ServerException(message: message ?? 'Unknown error occurred', errorCode: code);
   }
 }

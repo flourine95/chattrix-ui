@@ -1,3 +1,4 @@
+import 'package:chattrix_ui/core/domain/enums/enums.dart';
 import 'package:chattrix_ui/features/auth/domain/entities/user.dart';
 import 'package:chattrix_ui/features/chat/domain/entities/conversation.dart';
 import 'package:chattrix_ui/features/chat/domain/entities/message.dart';
@@ -11,7 +12,7 @@ class ConversationUtils {
   /// - GROUP: Use conversation.name if available, otherwise combine participant names (max 3)
   /// - DIRECT: Use contact.nickname → contactUser.fullName → contactUser.username (priority order)
   static String getConversationTitle(Conversation conversation, User? currentUser) {
-    if (conversation.type.toUpperCase() == 'GROUP') {
+    if (conversation.type == ConversationType.group) {
       // For GROUP conversations
       if (conversation.name != null && conversation.name!.isNotEmpty) {
         return conversation.name!;
@@ -76,39 +77,68 @@ class ConversationUtils {
     return content;
   }
 
-  /// Format time ago from DateTime
+  /// Format time ago from DateTime for conversation list
+  ///
+  /// Rules (Requirements 11.1-11.5):
+  /// - < 1 hour: relative time (e.g., "2m", "45m")
+  /// - Today: time (e.g., "14:30")
+  /// - Yesterday: "Yesterday"
+  /// - This week: day name (e.g., "Mon", "Tue")
+  /// - Earlier: date (e.g., "Dec 10")
   ///
   /// Examples:
-  /// - "Just now"
-  /// - "5 minutes ago"
-  /// - "2 hours ago"
-  /// - "3 days ago"
-  /// - "1 week ago"
+  /// - "2m" (2 minutes ago)
+  /// - "45m" (45 minutes ago)
+  /// - "14:30" (today at 14:30)
+  /// - "Yesterday"
+  /// - "Mon" (this week)
+  /// - "Dec 10" (earlier)
   static String formatTimeAgo(DateTime dateTime) {
     final now = DateTime.now();
     final difference = now.difference(dateTime);
 
-    if (difference.inSeconds < 60) {
-      return 'Just now';
-    } else if (difference.inMinutes < 60) {
+    // < 1 hour: relative time (e.g., "2m", "45m")
+    if (difference.inMinutes < 60) {
       final minutes = difference.inMinutes;
-      return '$minutes ${minutes == 1 ? 'minute' : 'minutes'} ago';
-    } else if (difference.inHours < 24) {
-      final hours = difference.inHours;
-      return '$hours ${hours == 1 ? 'hour' : 'hours'} ago';
-    } else if (difference.inDays < 7) {
-      final days = difference.inDays;
-      return '$days ${days == 1 ? 'day' : 'days'} ago';
-    } else if (difference.inDays < 30) {
-      final weeks = (difference.inDays / 7).floor();
-      return '$weeks ${weeks == 1 ? 'week' : 'weeks'} ago';
-    } else if (difference.inDays < 365) {
-      final months = (difference.inDays / 30).floor();
-      return '$months ${months == 1 ? 'month' : 'months'} ago';
-    } else {
-      final years = (difference.inDays / 365).floor();
-      return '$years ${years == 1 ? 'year' : 'years'} ago';
+      if (minutes < 1) {
+        return '0m';
+      }
+      return '${minutes}m';
     }
+
+    // Check if it's today
+    final isToday = now.year == dateTime.year && now.month == dateTime.month && now.day == dateTime.day;
+
+    if (isToday) {
+      // Today: time (e.g., "14:30")
+      final hour = dateTime.hour.toString().padLeft(2, '0');
+      final minute = dateTime.minute.toString().padLeft(2, '0');
+      return '$hour:$minute';
+    }
+
+    // Check if it's yesterday
+    final yesterday = now.subtract(const Duration(days: 1));
+    final isYesterday =
+        yesterday.year == dateTime.year && yesterday.month == dateTime.month && yesterday.day == dateTime.day;
+
+    if (isYesterday) {
+      // Yesterday: "Yesterday"
+      return 'Yesterday';
+    }
+
+    // Check if it's this week (within last 7 days)
+    if (difference.inDays < 7) {
+      // This week: day name (e.g., "Mon", "Tue")
+      const dayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+      // DateTime.weekday returns 1-7 (Monday-Sunday)
+      return dayNames[dateTime.weekday - 1];
+    }
+
+    // Earlier: date (e.g., "Dec 10")
+    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    final month = monthNames[dateTime.month - 1];
+    final day = dateTime.day;
+    return '$month $day';
   }
 
   /// Format last seen status
@@ -131,7 +161,7 @@ class ConversationUtils {
 
   /// Get other participant in DIRECT conversation
   static Participant? getOtherParticipant(Conversation conversation, User? currentUser) {
-    if (conversation.type.toUpperCase() != 'DIRECT') {
+    if (conversation.type != ConversationType.direct) {
       return null;
     }
 
@@ -155,7 +185,7 @@ class ConversationUtils {
   /// Check if user is online in DIRECT conversation
   static bool isUserOnline(Conversation conversation, User? currentUser) {
     final otherParticipant = getOtherParticipant(conversation, currentUser);
-    return otherParticipant?.isOnline ?? false;
+    return otherParticipant?.online ?? false;
   }
 
   /// Get last seen of other user in DIRECT conversation
@@ -179,7 +209,7 @@ class ConversationUtils {
       email: otherParticipant.email ?? '', // Use participant email if available
       fullName: otherParticipant.fullName,
       avatarUrl: otherParticipant.avatarUrl, // Now available in Participant
-      online: otherParticipant.isOnline ?? false,
+      online: otherParticipant.online ?? false,
       lastSeen: otherParticipant.lastSeen,
       emailVerified: false, // Not available in Participant
       createdAt: DateTime.now(), // Not available in Participant

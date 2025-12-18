@@ -1,3 +1,4 @@
+import 'package:chattrix_ui/core/domain/enums/enums.dart';
 import 'package:chattrix_ui/core/widgets/user_avatar.dart';
 import 'package:chattrix_ui/features/auth/presentation/providers/auth_providers.dart';
 import 'package:chattrix_ui/features/chat/domain/entities/conversation.dart';
@@ -16,7 +17,7 @@ class ChatInfoHeader extends ConsumerWidget {
     final colors = Theme.of(context).colorScheme;
     final me = ref.watch(currentUserProvider);
 
-    final isGroup = conversation.type.toUpperCase() == 'GROUP';
+    final isGroup = conversation.type == ConversationType.group;
     final displayName = isGroup
         ? (conversation.name ?? 'Group ${conversation.id}')
         : ConversationUtils.getConversationTitle(conversation, me);
