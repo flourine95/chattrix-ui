@@ -64,7 +64,9 @@ class CallRemoteDataSourceImpl implements CallRemoteDataSource {
   @override
   Future<CallInfoModel> endCall({required String callId, required CallEndReason reason}) async {
     try {
-      final response = await dio.post(ApiConstants.endCall(callId), data: {'reason': reason.name});
+      // Serialize enum to JSON value (e.g., "network error" instead of "networkError")
+      final reasonValue = _serializeCallEndReason(reason);
+      final response = await dio.post(ApiConstants.endCall(callId), data: {'reason': reasonValue});
 
       if (response.statusCode == 200) {
         return CallInfoModel.fromJson(response.data['data']);
@@ -73,6 +75,20 @@ class CallRemoteDataSourceImpl implements CallRemoteDataSource {
       }
     } on DioException catch (e) {
       throw ServerException(message: e.response?.data['message'] ?? 'Network error occurred');
+    }
+  }
+
+  /// Serialize CallEndReason enum to JSON value
+  String _serializeCallEndReason(CallEndReason reason) {
+    switch (reason) {
+      case CallEndReason.hangup:
+        return 'hangup';
+      case CallEndReason.networkError:
+        return 'network error';
+      case CallEndReason.deviceError:
+        return 'device error';
+      case CallEndReason.timeout:
+        return 'timeout';
     }
   }
 }

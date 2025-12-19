@@ -47,7 +47,7 @@ final class PipStateProvider extends $NotifierProvider<PipState, bool> {
   }
 }
 
-String _$pipStateHash() => r'd4b4bf4e3300305541d620da9795b5ed07faba64';
+String _$pipStateHash() => r'd5f7885f78b15893c43b69611c14d4e868aeadc1';
 
 /// Provider to manage Picture-in-Picture state
 

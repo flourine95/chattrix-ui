@@ -6,6 +6,7 @@ import 'core/router/app_router.dart';
 import 'core/theme/app_theme.dart';
 import 'core/toast/toast_overlay.dart';
 import 'features/call/presentation/state/call_notifier.dart';
+import 'features/call/presentation/widgets/global_pip_overlay.dart';
 import 'features/chat/presentation/providers/chat_websocket_provider_new.dart';
 
 void main() async {
@@ -29,7 +30,7 @@ class MyApp extends ConsumerWidget {
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
       themeMode: ThemeMode.light,
-      builder: (context, child) => ToastOverlay(child: child ?? const SizedBox.shrink()),
+      builder: (context, child) => GlobalPipOverlay(child: ToastOverlay(child: child ?? const SizedBox.shrink())),
       routerConfig: AppRouter.router(ref),
     );
   }

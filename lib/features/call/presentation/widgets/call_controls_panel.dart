@@ -1,6 +1,5 @@
 import 'package:chattrix_ui/features/call/domain/entities/call_type.dart';
 import 'package:chattrix_ui/features/call/presentation/providers/call_control_state_providers.dart';
-import 'package:chattrix_ui/features/call/presentation/providers/pip_state_provider.dart';
 import 'package:chattrix_ui/features/call/presentation/state/call_notifier.dart';
 import 'package:chattrix_ui/features/call/presentation/state/call_state.dart';
 import 'package:chattrix_ui/features/call/presentation/widgets/call_control_button.dart';
@@ -16,10 +15,7 @@ class CallControlsPanel extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     // Chỉ watch để biết có đang connected không
     final callState = ref.watch(callProvider);
-    final isConnected = callState.maybeWhen(
-      connected: (_, _, _, _, _, _, _, _, _, _) => true,
-      orElse: () => false,
-    );
+    final isConnected = callState.maybeWhen(connected: (_, _, _, _, _, _, _, _, _, _) => true, orElse: () => false);
 
     if (!isConnected) return const SizedBox.shrink();
 
@@ -41,7 +37,6 @@ class CallControlsPanel extends ConsumerWidget {
           if (isVideoCall) const _CameraButton(),
           if (isVideoCall) const _FlipCameraButton(),
           const _SpeakerButton(),
-          const _MinimizeButton(),
           const _EndCallButton(),
         ],
       ),
@@ -111,20 +106,6 @@ class _SpeakerButton extends ConsumerWidget {
       isActive: speakerEnabled,
       activeColor: Colors.blue[100],
       onPressed: () => ref.read(callProvider.notifier).toggleSpeaker(),
-    );
-  }
-}
-
-// Minimize Button - Thu nhỏ màn hình call
-class _MinimizeButton extends ConsumerWidget {
-  const _MinimizeButton();
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return ModernCallButton(
-      icon: Icons.picture_in_picture_alt,
-      label: "PiP",
-      onPressed: () => ref.read(pipStateProvider.notifier).enable(),
     );
   }
 }

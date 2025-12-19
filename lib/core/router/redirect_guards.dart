@@ -1,5 +1,6 @@
 import 'package:chattrix_ui/core/router/route_paths.dart';
 import 'package:chattrix_ui/features/auth/presentation/providers/auth_providers.dart';
+import 'package:chattrix_ui/features/call/presentation/providers/pip_state_provider.dart';
 import 'package:chattrix_ui/features/call/presentation/state/call_notifier.dart';
 import 'package:chattrix_ui/features/call/presentation/state/call_state.dart';
 import 'package:flutter/foundation.dart';
@@ -30,14 +31,15 @@ class AuthRedirectGuard {
 class CallRedirectGuard {
   static String? redirect(WidgetRef ref, String currentLocation) {
     final callState = ref.read(callProvider);
+    final isPipMode = ref.read(pipStateProvider);
     final callRoutes = {RoutePaths.incomingCall, RoutePaths.outgoingCall, RoutePaths.activeCall};
 
     return callState.when(
       idle: () => _handleIdleState(currentLocation, callRoutes),
       initiating: (_, _, _, _) => _handleInitiatingState(currentLocation),
       ringing: (_) => _handleRingingState(currentLocation),
-      connecting: (_, _, isOutgoing) => _handleConnectingState(currentLocation, isOutgoing),
-      connected: (_, _, isOutgoing, _, _, _, _, _, _, _) => _handleConnectedState(currentLocation),
+      connecting: (_, _, isOutgoing) => _handleConnectingState(currentLocation, isOutgoing, isPipMode),
+      connected: (_, _, isOutgoing, _, _, _, _, _, _, _) => _handleConnectedState(currentLocation, isPipMode),
       ended: (_) => _handleEndedState(currentLocation, callRoutes),
       error: (_) => _handleErrorState(currentLocation, callRoutes),
     );
@@ -55,7 +57,12 @@ class CallRedirectGuard {
     return location != RoutePaths.incomingCall ? RoutePaths.incomingCall : null;
   }
 
-  static String? _handleConnectingState(String location, bool isOutgoing) {
+  static String? _handleConnectingState(String location, bool isOutgoing, bool isPipMode) {
+    // Allow navigation when PiP mode is enabled
+    if (isPipMode) {
+      return null;
+    }
+
     if (isOutgoing && location != RoutePaths.outgoingCall) {
       debugPrint('[Router] 🔀 Redirecting to ${RoutePaths.outgoingCall} (outgoing call connecting)');
       return RoutePaths.outgoingCall;
@@ -66,7 +73,12 @@ class CallRedirectGuard {
     return null;
   }
 
-  static String? _handleConnectedState(String location) {
+  static String? _handleConnectedState(String location, bool isPipMode) {
+    // Allow navigation when PiP mode is enabled
+    if (isPipMode) {
+      return null;
+    }
+
     final shouldRedirect = location != RoutePaths.activeCall;
     if (shouldRedirect) {
       debugPrint('[Router] 🔀 Redirecting from $location to ${RoutePaths.activeCall} (call connected)');

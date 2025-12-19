@@ -15,8 +15,15 @@ class PipCallOverlay extends ConsumerStatefulWidget {
   final CallType callType;
   final String remoteName;
   final String? remoteAvatar;
+  final String channelId;
 
-  const PipCallOverlay({super.key, required this.callType, required this.remoteName, required this.remoteAvatar});
+  const PipCallOverlay({
+    super.key,
+    required this.callType,
+    required this.remoteName,
+    required this.remoteAvatar,
+    required this.channelId,
+  });
 
   @override
   ConsumerState<PipCallOverlay> createState() => _PipCallOverlayState();
@@ -61,8 +68,8 @@ class _PipCallOverlayState extends ConsumerState<PipCallOverlay> {
           ref.read(pipPositionProvider.notifier).update(_xPosition, _yPosition);
         },
         onTap: () {
-          // Expand back to full screen
-          ref.read(pipStateProvider.notifier).disable();
+          debugPrint('[PiP] Overlay tapped - expanding to full screen');
+          ref.read(pipStateProvider.notifier).expandToFullScreen('/call');
         },
         child: Container(
           width: pipWidth,
@@ -78,7 +85,7 @@ class _PipCallOverlayState extends ConsumerState<PipCallOverlay> {
               children: [
                 // Video or Avatar
                 if (widget.callType == CallType.video)
-                  _PipVideoView()
+                  _PipVideoView(channelId: widget.channelId)
                 else
                   _PipAudioView(name: widget.remoteName, avatar: widget.remoteAvatar),
 
@@ -161,6 +168,10 @@ class _PipMuteIndicator extends ConsumerWidget {
 }
 
 class _PipVideoView extends ConsumerWidget {
+  final String channelId;
+
+  const _PipVideoView({required this.channelId});
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final remoteUid = ref.watch(remoteUidStateProvider);
@@ -172,7 +183,7 @@ class _PipVideoView extends ConsumerWidget {
         controller: VideoViewController.remote(
           rtcEngine: agoraService.engine!,
           canvas: VideoCanvas(uid: remoteUid),
-          connection: const RtcConnection(channelId: ''),
+          connection: RtcConnection(channelId: channelId),
         ),
       );
     }

@@ -7,8 +7,8 @@ import 'package:chattrix_ui/features/call/presentation/providers/call_timer_prov
 import 'package:chattrix_ui/features/call/presentation/providers/pip_state_provider.dart';
 import 'package:chattrix_ui/features/call/presentation/state/call_notifier.dart';
 import 'package:chattrix_ui/features/call/presentation/state/call_state.dart';
-import 'package:chattrix_ui/features/call/presentation/widgets/pip_call_overlay.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
@@ -19,9 +19,7 @@ class CallPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // Chỉ watch để biết state type, KHÔNG rebuild khi connected state fields thay đổi
     final callState = ref.watch(callProvider);
-    final isPipMode = ref.watch(pipStateProvider);
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -40,20 +38,6 @@ class CallPage extends ConsumerWidget {
               final remoteAvatar = state.isOutgoing
                   ? state.connection.callInfo.calleeAvatar
                   : state.connection.callInfo.callerAvatar;
-
-              // Show PiP overlay if enabled
-              if (isPipMode) {
-                return Stack(
-                  children: [
-                    // Empty background - user can navigate to other screens
-                    Container(color: Colors.transparent),
-                    // PiP overlay
-                    PipCallOverlay(callType: state.callType,
-                        remoteName: remoteName,
-                        remoteAvatar: remoteAvatar),
-                  ],
-                );
-              }
 
               // Key này giữ widget stable khi state fields thay đổi
               return _ConnectedCallView(
@@ -78,8 +62,7 @@ class _ConnectedCallView extends ConsumerWidget {
   final String remoteName;
   final String? remoteAvatar;
 
-  const _ConnectedCallView(
-      {super.key, required this.callType, required this.remoteName, required this.remoteAvatar});
+  const _ConnectedCallView({super.key, required this.callType, required this.remoteName, required this.remoteAvatar});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -95,17 +78,17 @@ class _ConnectedCallView extends ConsumerWidget {
             child: _AudioContentView(name: remoteName, avatar: remoteAvatar),
           ),
 
-        // 2. LAYER HEADER (Tên + Thời gian + Mute Indicator)
+        // 2. LAYER MINIMIZE BUTTON (Top Left)
+        const _MinimizeButton(),
+
+        // 3. LAYER HEADER (Tên + Thời gian + Mute Indicator)
         _CallHeader(remoteName: remoteName, isVideoCall: isVideoCall),
 
-        // 3. LAYER LOCAL VIDEO (Góc màn hình)
+        // 4. LAYER LOCAL VIDEO (Góc màn hình)
         if (isVideoCall) const _LocalVideoLayer(),
 
-        // 4. LAYER CONTROLS (Bottom Sheet)
-        Positioned(bottom: 0,
-            left: 0,
-            right: 0,
-            child: CallControlsPanel(callType: callType)),
+        // 5. LAYER CONTROLS (Bottom Sheet)
+        Positioned(bottom: 0, left: 0, right: 0, child: CallControlsPanel(callType: callType)),
       ],
     );
   }
@@ -116,8 +99,7 @@ class _RemoteVideoLayer extends ConsumerWidget {
   final String remoteName;
   final String? remoteAvatar;
 
-  const _RemoteVideoLayer(
-      {required this.remoteName, required this.remoteAvatar});
+  const _RemoteVideoLayer({required this.remoteName, required this.remoteAvatar});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -162,9 +144,7 @@ class _CallHeader extends ConsumerWidget {
                       color: isVideoCall ? Colors.white : Colors.black87,
                       fontSize: 20,
                       fontWeight: FontWeight.w600,
-                      shadows: isVideoCall ? [
-                        const Shadow(blurRadius: 4, color: Colors.black54)
-                      ] : null,
+                      shadows: isVideoCall ? [const Shadow(blurRadius: 4, color: Colors.black54)] : null,
                     ),
                   ),
                   if (remoteMuted) ...[
@@ -175,8 +155,7 @@ class _CallHeader extends ConsumerWidget {
                         color: Colors.red.withValues(alpha: 0.9),
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      child: const Icon(
-                          Icons.mic_off, size: 16, color: Colors.white),
+                      child: const Icon(Icons.mic_off, size: 16, color: Colors.white),
                     ),
                   ],
                 ],
@@ -210,9 +189,9 @@ class _LocalVideoLayer extends ConsumerWidget {
           child: videoEnabled
               ? const _LocalVideoPreview()
               : Container(
-            color: Colors.grey[300],
-            child: const Icon(Icons.videocam_off, color: Colors.black54),
-          ),
+                  color: Colors.grey[300],
+                  child: const Icon(Icons.videocam_off, color: Colors.black54),
+                ),
         ),
       ),
     );
@@ -235,8 +214,7 @@ class _CallTimer extends ConsumerWidget {
         color: isVideoCall ? Colors.black26 : Colors.grey[200],
         borderRadius: BorderRadius.circular(16),
       ),
-      child: Text(time, style: GoogleFonts.inter(
-          color: isVideoCall ? Colors.white : Colors.black54, fontSize: 12)),
+      child: Text(time, style: GoogleFonts.inter(color: isVideoCall ? Colors.white : Colors.black54, fontSize: 12)),
     );
   }
 }
@@ -261,14 +239,9 @@ class _AudioContentView extends StatelessWidget {
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 color: Colors.white,
-                boxShadow: [
-                  BoxShadow(color: Colors.grey.withValues(alpha: 0.1),
-                      blurRadius: 30,
-                      spreadRadius: 10)
-                ],
+                boxShadow: [BoxShadow(color: Colors.grey.withValues(alpha: 0.1), blurRadius: 30, spreadRadius: 10)],
               ),
-              child: UserAvatar(
-                  displayName: name, avatarUrl: avatar, radius: 80),
+              child: UserAvatar(displayName: name, avatarUrl: avatar, radius: 80),
             ),
           ],
         ),
@@ -300,8 +273,7 @@ class _RemoteVideoView extends ConsumerWidget {
     // Fallback: Đang kết nối hoặc chưa có hình
     return Container(
       color: const Color(0xFF2C2C2E),
-      child: const Center(
-          child: CircularProgressIndicator(color: Colors.white)),
+      child: const Center(child: CircularProgressIndicator(color: Colors.white)),
     );
   }
 }
@@ -315,8 +287,57 @@ class _LocalVideoPreview extends ConsumerWidget {
     if (agoraService.engine == null) return const SizedBox();
 
     return AgoraVideoView(
-      controller: VideoViewController(
-          rtcEngine: agoraService.engine!, canvas: const VideoCanvas(uid: 0)),
+      controller: VideoViewController(rtcEngine: agoraService.engine!, canvas: const VideoCanvas(uid: 0)),
+    );
+  }
+}
+
+// Minimize Button - Góc trên bên trái
+class _MinimizeButton extends ConsumerWidget {
+  const _MinimizeButton();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return Positioned(
+      top: 0,
+      left: 0,
+      child: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Material(
+            color: Colors.black.withValues(alpha: 0.5),
+            borderRadius: BorderRadius.circular(12),
+            child: InkWell(
+              onTap: () {
+                debugPrint('[PiP] Minimize button tapped');
+
+                // Enable PiP mode first (synchronous)
+                ref.read(pipStateProvider.notifier).enable();
+                debugPrint('[PiP] PiP mode enabled');
+
+                // Navigate back to previous page
+                // The redirect guard will allow navigation because isPipMode is now true
+                if (context.mounted) {
+                  debugPrint('[PiP] Navigating back to previous page');
+                  if (context.canPop()) {
+                    context.pop();
+                  } else {
+                    // If can't pop, go to home
+                    context.go('/');
+                  }
+                } else {
+                  debugPrint('[PiP] Context not mounted, cannot navigate');
+                }
+              },
+              borderRadius: BorderRadius.circular(12),
+              child: Container(
+                padding: const EdgeInsets.all(12),
+                child: const Icon(Icons.chevron_left, color: Colors.white, size: 28),
+              ),
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

@@ -15,18 +15,31 @@ class GlobalPipOverlay extends ConsumerWidget {
     final isPipMode = ref.watch(pipStateProvider);
     final callState = ref.watch(callProvider);
 
+    debugPrint('[GlobalPipOverlay] isPipMode: $isPipMode, callState: ${callState.runtimeType}');
+
     return Stack(
       children: [
         child,
         if (isPipMode)
           callState.maybeWhen(
             connected: (connection, callType, isOutgoing, _, _, _, _, _, _, _) {
+              debugPrint('[GlobalPipOverlay] Rendering PiP overlay for call: ${connection.callInfo.id}');
+
               final remoteName = isOutgoing ? connection.callInfo.calleeName : connection.callInfo.callerName;
               final remoteAvatar = isOutgoing ? connection.callInfo.calleeAvatar : connection.callInfo.callerAvatar;
+              final channelId = connection.callInfo.channelId;
 
-              return PipCallOverlay(callType: callType, remoteName: remoteName, remoteAvatar: remoteAvatar);
+              return PipCallOverlay(
+                callType: callType,
+                remoteName: remoteName,
+                remoteAvatar: remoteAvatar,
+                channelId: channelId,
+              );
             },
-            orElse: () => const SizedBox.shrink(),
+            orElse: () {
+              debugPrint('[GlobalPipOverlay] Call not connected, not showing PiP overlay');
+              return const SizedBox.shrink();
+            },
           ),
       ],
     );

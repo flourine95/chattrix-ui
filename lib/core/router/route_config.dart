@@ -1,5 +1,6 @@
 import 'package:chattrix_ui/core/router/route_paths.dart';
 import 'package:chattrix_ui/core/router/widgets/nav_shell.dart';
+import 'package:chattrix_ui/core/router/widgets/router_setup.dart';
 import 'package:chattrix_ui/features/auth/presentation/pages/forgot_password_screen.dart';
 import 'package:chattrix_ui/features/auth/presentation/pages/login_screen.dart';
 import 'package:chattrix_ui/features/auth/presentation/pages/otp_verification_screen.dart';
@@ -19,8 +20,6 @@ import 'package:chattrix_ui/features/contacts/presentation/pages/contacts_demo_p
 import 'package:chattrix_ui/features/profile/presentation/pages/edit_profile_page.dart';
 import 'package:chattrix_ui/features/profile/presentation/pages/profile_page.dart';
 import 'package:chattrix_ui/features/profile/presentation/pages/settings_page.dart';
-import 'package:chattrix_ui/features/debug/presentation/pages/websocket_debug_page.dart';
-import 'package:chattrix_ui/features/debug/presentation/pages/participant_debug_page.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -29,14 +28,18 @@ class RouteConfig {
     GoRoute(
       path: RoutePaths.incomingCall,
       name: 'incoming-call',
-      builder: (context, state) => const IncomingCallPage(),
+      builder: (context, state) => RouterSetup(child: const IncomingCallPage()),
     ),
     GoRoute(
       path: RoutePaths.outgoingCall,
       name: 'outgoing-call',
-      builder: (context, state) => const OutgoingCallPage(),
+      builder: (context, state) => RouterSetup(child: const OutgoingCallPage()),
     ),
-    GoRoute(path: RoutePaths.activeCall, name: 'call', builder: (context, state) => const CallPage()),
+    GoRoute(
+      path: RoutePaths.activeCall,
+      name: 'call',
+      builder: (context, state) => RouterSetup(child: const CallPage()),
+    ),
   ];
 
   static List<RouteBase> get authRoutes => [
@@ -51,7 +54,7 @@ class RouteConfig {
   ];
 
   static ShellRoute get mainRoutes => ShellRoute(
-    builder: (context, state, child) => NavShell(child: child),
+    builder: (context, state, child) => RouterSetup(child: NavShell(child: child)),
     routes: [
       GoRoute(
         path: RoutePaths.chats,
@@ -91,20 +94,7 @@ class RouteConfig {
     ),
   ];
 
-  static List<RouteBase> get debugRoutes => [
-    GoRoute(
-      path: RoutePaths.websocketDebug,
-      name: 'websocket-debug',
-      builder: (context, state) => const WebSocketDebugPage(),
-    ),
-    GoRoute(
-      path: RoutePaths.participantDebug,
-      name: 'participant-debug',
-      builder: (context, state) => const ParticipantDebugPage(),
-    ),
-  ];
-
-  static List<RouteBase> get allRoutes => [...callRoutes, ...authRoutes, ...profileRoutes, ...debugRoutes, mainRoutes];
+  static List<RouteBase> get allRoutes => [...callRoutes, ...authRoutes, ...profileRoutes, mainRoutes];
 
   static Widget _buildOtpScreen(GoRouterState state) {
     String? email;
