@@ -4,7 +4,7 @@ import 'voice_recorder_service.dart';
 
 part 'voice_recorder_provider.g.dart';
 
-@riverpod
+@Riverpod(keepAlive: true)
 VoiceRecorderService voiceRecorderService(Ref ref) {
   final service = VoiceRecorderService();
   ref.onDispose(() => service.dispose());

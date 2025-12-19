@@ -210,10 +210,12 @@ class ChatRemoteDatasourceImpl implements ChatRemoteDatasource {
     try {
       final url = ApiConstants.searchUsers;
 
-      final response = await dio.get(url, queryParameters: {'query': query, 'limit': limit});
+      final response = await dio.get(url, queryParameters: {'query': query, 'size': limit});
 
       if (response.statusCode == 200) {
-        final data = response.data['data'] as List;
+        // API returns paginated response: { success, message, data: { data: [...], page, size, total } }
+        final paginatedData = response.data['data'] as Map<String, dynamic>;
+        final data = paginatedData['data'] as List;
 
         return data.whereType<Map<String, dynamic>>().map((json) => SearchUserModel.fromJson(json)).toList();
       }

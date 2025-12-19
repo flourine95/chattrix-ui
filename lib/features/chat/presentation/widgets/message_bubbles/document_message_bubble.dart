@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:chattrix_ui/features/chat/domain/entities/message.dart';
 import 'package:chattrix_ui/features/chat/presentation/utils/format_utils.dart';
 import 'package:chattrix_ui/features/chat/presentation/widgets/message_bubble.dart';
@@ -30,6 +31,11 @@ class DocumentMessageBubble extends StatelessWidget {
   final VoidCallback? onEdit;
   final VoidCallback? onDelete;
 
+  bool _isUrl(String? text) {
+    if (text == null) return false;
+    return text.startsWith('http://') || text.startsWith('https://');
+  }
+
   IconData _getFileIcon(String? fileName) {
     if (fileName == null) return FontAwesomeIcons.file;
 
@@ -49,8 +55,36 @@ class DocumentMessageBubble extends StatelessWidget {
       case 'zip':
       case 'rar':
         return FontAwesomeIcons.fileZipper;
+      case 'txt':
+        return FontAwesomeIcons.fileLines;
       default:
         return FontAwesomeIcons.file;
+    }
+  }
+
+  Color _getFileColor(String? fileName) {
+    if (fileName == null) return Colors.grey;
+
+    final ext = fileName.split('.').last.toLowerCase();
+    switch (ext) {
+      case 'pdf':
+        return Colors.red;
+      case 'doc':
+      case 'docx':
+        return Colors.blue;
+      case 'xls':
+      case 'xlsx':
+        return Colors.green;
+      case 'ppt':
+      case 'pptx':
+        return Colors.orange;
+      case 'zip':
+      case 'rar':
+        return Colors.purple;
+      case 'txt':
+        return Colors.grey;
+      default:
+        return Colors.grey;
     }
   }
 
@@ -77,10 +111,15 @@ class DocumentMessageBubble extends StatelessWidget {
   Widget build(BuildContext context) {
     final textColor = FormatUtils.getTextColor(context, isMe);
     final textTheme = Theme.of(context).textTheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    // Check if this is a link
+    final isLink = _isUrl(message.content);
 
     return BaseBubbleContainer(
       isMe: isMe,
       message: message,
+      maxWidth: isLink ? 320.0 : 280.0,
       onReply: onReply,
       onReactionTap: onReactionTap,
       onAddReaction: onAddReaction,
@@ -91,53 +130,170 @@ class DocumentMessageBubble extends StatelessWidget {
       child: InkWell(
         onTap: () => _openDocument(context),
         borderRadius: BorderRadius.circular(16),
-        child: Padding(
-          padding: const EdgeInsets.all(12),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // File icon
-              Container(
-                width: 48,
-                height: 48,
-                decoration: BoxDecoration(
-                  color: textColor.withValues(alpha: 0.2),
-                  borderRadius: BorderRadius.circular(8),
+        child: isLink
+            ? _buildLinkPreview(context, textColor, textTheme, isDark)
+            : _buildFilePreview(context, textColor, textTheme),
+      ),
+    );
+  }
+
+  Widget _buildFilePreview(BuildContext context, Color textColor, TextTheme textTheme) {
+    final fileColor = _getFileColor(message.fileName);
+
+    return Padding(
+      padding: const EdgeInsets.all(12),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // File icon with color
+          Container(
+            width: 48,
+            height: 48,
+            decoration: BoxDecoration(color: fileColor.withValues(alpha: 0.15), borderRadius: BorderRadius.circular(8)),
+            child: Icon(_getFileIcon(message.fileName), color: fileColor, size: 24),
+          ),
+          const SizedBox(width: 12),
+
+          // File info
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // File name
+                Text(
+                  message.content.isNotEmpty ? message.content : (message.fileName ?? 'Document'),
+                  style: textTheme.bodyMedium?.copyWith(color: textColor, fontWeight: FontWeight.w600),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                 ),
-                child: Icon(_getFileIcon(message.fileName), color: textColor, size: 24),
-              ),
-              const SizedBox(width: 12),
+                const SizedBox(height: 4),
 
-              // File info
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                // File size and type
+                Row(
                   children: [
-                    // File name
-                    Text(
-                      message.fileName ?? 'Document',
-                      style: textTheme.bodyMedium?.copyWith(color: textColor, fontWeight: FontWeight.w500),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: 4),
-
-                    // File size
-                    if (message.fileSize != null)
+                    if (message.fileSize != null) ...[
                       Text(
                         FormatUtils.formatFileSize(message.fileSize!),
                         style: textTheme.bodySmall?.copyWith(color: textColor.withValues(alpha: 0.7)),
                       ),
+                      if (message.fileName != null) ...[
+                        Text(' • ', style: textTheme.bodySmall?.copyWith(color: textColor.withValues(alpha: 0.7))),
+                        Text(
+                          message.fileName!.split('.').last.toUpperCase(),
+                          style: textTheme.bodySmall?.copyWith(
+                            color: textColor.withValues(alpha: 0.7),
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ] else if (message.fileName != null)
+                      Text(
+                        message.fileName!.split('.').last.toUpperCase(),
+                        style: textTheme.bodySmall?.copyWith(
+                          color: textColor.withValues(alpha: 0.7),
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
                   ],
                 ),
+              ],
+            ),
+          ),
+
+          const SizedBox(width: 8),
+
+          // Download icon
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(color: fileColor.withValues(alpha: 0.15), shape: BoxShape.circle),
+            child: Icon(Icons.download_rounded, color: fileColor, size: 20),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLinkPreview(BuildContext context, Color textColor, TextTheme textTheme, bool isDark) {
+    final uri = Uri.tryParse(message.content);
+    final domain = uri?.host ?? '';
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Link preview image (if available from mediaUrl)
+        if (message.mediaUrl != null && message.mediaUrl!.isNotEmpty)
+          ClipRRect(
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+            child: CachedNetworkImage(
+              imageUrl: message.mediaUrl!,
+              height: 160,
+              width: double.infinity,
+              fit: BoxFit.cover,
+              placeholder: (context, url) => Container(
+                height: 160,
+                color: Colors.grey.shade300,
+                child: const Center(child: CircularProgressIndicator()),
+              ),
+              errorWidget: (context, url, error) => Container(
+                height: 160,
+                color: isDark ? Colors.grey.shade800 : Colors.grey.shade200,
+                child: Icon(Icons.link, size: 48, color: textColor.withValues(alpha: 0.5)),
+              ),
+            ),
+          ),
+
+        // Link info
+        Padding(
+          padding: const EdgeInsets.all(12),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Domain with icon
+              Row(
+                children: [
+                  Icon(Icons.link, size: 16, color: textColor.withValues(alpha: 0.7)),
+                  const SizedBox(width: 6),
+                  Expanded(
+                    child: Text(
+                      domain,
+                      style: textTheme.bodySmall?.copyWith(
+                        color: textColor.withValues(alpha: 0.7),
+                        fontWeight: FontWeight.w500,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+
+              // Link URL
+              Text(
+                message.content,
+                style: textTheme.bodyMedium?.copyWith(
+                  color: textColor,
+                  fontWeight: FontWeight.w600,
+                  decoration: TextDecoration.underline,
+                ),
+                maxLines: 3,
+                overflow: TextOverflow.ellipsis,
               ),
 
-              // Download icon
-              Icon(Icons.download, color: textColor, size: 20),
+              // File name if available
+              if (message.fileName != null && message.fileName!.isNotEmpty) ...[
+                const SizedBox(height: 6),
+                Text(
+                  message.fileName!,
+                  style: textTheme.bodySmall?.copyWith(color: textColor.withValues(alpha: 0.7)),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
             ],
           ),
         ),
-      ),
+      ],
     );
   }
 }

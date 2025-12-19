@@ -11,8 +11,7 @@ class TokenCacheService {
     try {
       return await _secureStorage.read(key: AppConstants.accessTokenKey);
     } catch (e) {
-      debugPrint('⚠️ [TokenCache] Storage corrupted. Resetting... Error: $e');
-      await clearTokens();
+      debugPrint('⚠️ [TokenCache] Failed to read access token: $e');
       return null;
     }
   }
@@ -21,13 +20,12 @@ class TokenCacheService {
     try {
       return await _secureStorage.read(key: AppConstants.refreshTokenKey);
     } catch (e) {
-      debugPrint('⚠️ [TokenCache] Refresh token corrupted: $e');
+      debugPrint('⚠️ [TokenCache] Failed to read refresh token: $e');
       return null;
     }
   }
 
   Future<void> setTokens(String accessToken, String refreshToken) async {
-    debugPrint('🔄 [TokenCache] Updating tokens...');
     try {
       await Future.wait([
         _secureStorage.write(key: AppConstants.accessTokenKey, value: accessToken),
@@ -35,18 +33,18 @@ class TokenCacheService {
       ]);
     } catch (e) {
       debugPrint('❌ [TokenCache] Failed to write tokens: $e');
+      rethrow;
     }
   }
 
   Future<void> clearTokens() async {
-    debugPrint('🧹 [TokenCache] Clearing tokens...');
     try {
       await Future.wait([
         _secureStorage.delete(key: AppConstants.accessTokenKey),
         _secureStorage.delete(key: AppConstants.refreshTokenKey),
       ]);
     } catch (e) {
-      debugPrint('⚠️ [TokenCache] Failed to clear storage (might be already empty): $e');
+      debugPrint('⚠️ [TokenCache] Failed to clear storage: $e');
     }
   }
 }

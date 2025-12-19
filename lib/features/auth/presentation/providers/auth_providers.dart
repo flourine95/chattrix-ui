@@ -20,6 +20,7 @@ import 'package:chattrix_ui/features/auth/domain/usecases/reset_password_usecase
 import 'package:chattrix_ui/features/auth/domain/usecases/verify_email_usecase.dart';
 import 'package:chattrix_ui/features/auth/presentation/providers/auth_repository_provider.dart';
 import 'package:chattrix_ui/features/chat/presentation/providers/chat_providers.dart';
+import 'package:flutter/foundation.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 // Export providers from auth_repository_provider to avoid duplication
@@ -185,12 +186,27 @@ class AuthNotifier extends Notifier<AuthState> {
 
     return result.fold(
       (failure) {
-        state = state.copyWith(isLoading: false, errorMessage: _getFailureMessage(failure));
+        final errorMessage = _getFailureMessage(failure);
+        debugPrint('❌ [Auth] Login failed: $errorMessage');
+        state = state.copyWith(isLoading: false, errorMessage: errorMessage);
         return false;
       },
       (tokens) async {
+        debugPrint('✅ [Auth] Login successful, loading user profile...');
         await loadCurrentUser();
-        return true;
+
+        // Check if user was loaded successfully
+        if (state.user != null) {
+          debugPrint('✅ [Auth] User profile loaded: ${state.user!.username}');
+          return true;
+        } else {
+          debugPrint('⚠️ [Auth] Login succeeded but failed to load user profile');
+          state = state.copyWith(
+            isLoading: false,
+            errorMessage: 'Đăng nhập thành công nhưng không thể tải thông tin người dùng',
+          );
+          return false;
+        }
       },
     );
   }

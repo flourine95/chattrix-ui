@@ -50,7 +50,7 @@ final class OnlineUsersNotifierProvider
 }
 
 String _$onlineUsersNotifierHash() =>
-    r'b6f7a1adfce5463ea6fdca67336be6cfd8a600be';
+    r'0b3cc450e803a0cb1271e4527ee4fdc02d9f8043';
 
 /// Notifier for managing online users list
 ///

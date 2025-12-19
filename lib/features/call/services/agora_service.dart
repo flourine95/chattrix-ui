@@ -1,4 +1,5 @@
 import 'dart:async';
+
 import 'package:agora_rtc_engine/agora_rtc_engine.dart';
 import 'package:chattrix_ui/core/utils/app_logger.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -23,9 +24,13 @@ class AgoraService {
   }
 
   Stream<int> get userJoinedStream => _userJoinedController.stream;
+
   Stream<int> get userOfflineStream => _userOfflineController.stream;
+
   Stream<ConnectionStateType> get connectionStateStream => _connectionStateController.stream;
+
   Stream<RemoteVideoStateInfo> get remoteVideoStateStream => _remoteVideoStateController.stream;
+
   Stream<RemoteAudioStateInfo> get remoteAudioStateStream => _remoteAudioStateController.stream;
 
   bool get isInitialized => _isInitialized;
@@ -66,11 +71,19 @@ class AgoraService {
   }
 
   Future<void> _requestPermissions() async {
-    final status = await [Permission.camera, Permission.microphone].request();
+    try {
+      final status = await [Permission.camera, Permission.microphone].request();
 
-    if (status[Permission.camera] != PermissionStatus.granted ||
-        status[Permission.microphone] != PermissionStatus.granted) {
-      AppLogger.warning('Camera or Microphone permission denied', tag: 'Agora');
+      if (status[Permission.camera] != PermissionStatus.granted ||
+          status[Permission.microphone] != PermissionStatus.granted) {
+        AppLogger.warning('Camera or Microphone permission denied', tag: 'Agora');
+      } else {
+        AppLogger.success('Camera and Microphone permissions granted', tag: 'Agora');
+      }
+    } catch (e) {
+      // On web, permission_handler might not work as expected
+      // Permissions are requested by browser when accessing media
+      AppLogger.warning('Permission request error (may be normal on web): $e', tag: 'Agora');
     }
   }
 
@@ -78,19 +91,22 @@ class AgoraService {
     _engine!.registerEventHandler(
       RtcEngineEventHandler(
         onJoinChannelSuccess: (RtcConnection connection, int elapsed) {
-          AppLogger.success('Joined channel: ${connection.channelId}', tag: 'Agora');
+          AppLogger.success(
+            '✅ Joined channel: ${connection.channelId}, localUid: ${connection.localUid}',
+            tag: 'Agora',
+          );
         },
         onUserJoined: (RtcConnection connection, int remoteUid, int elapsed) {
-          AppLogger.info('Remote user joined: $remoteUid', tag: 'Agora');
+          AppLogger.success('🎉 Remote user joined: $remoteUid in channel ${connection.channelId}', tag: 'Agora');
           _userJoinedController.add(remoteUid);
         },
         onUserOffline: (RtcConnection connection, int remoteUid, UserOfflineReasonType reason) {
-          AppLogger.info('Remote user offline: $remoteUid ($reason)', tag: 'Agora');
+          AppLogger.info('👋 Remote user offline: $remoteUid ($reason)', tag: 'Agora');
           _userOfflineController.add(remoteUid);
         },
         onConnectionStateChanged:
             (RtcConnection connection, ConnectionStateType state, ConnectionChangedReasonType reason) {
-              AppLogger.info('Connection state: $state ($reason)', tag: 'Agora');
+              AppLogger.info('🔄 Connection state: $state ($reason)', tag: 'Agora');
               _connectionStateController.add(state);
             },
         onRemoteVideoStateChanged:
@@ -101,6 +117,7 @@ class AgoraService {
               RemoteVideoStateReason reason,
               int elapsed,
             ) {
+              AppLogger.info('📹 Remote video state: uid=$remoteUid, state=$state, reason=$reason', tag: 'Agora');
               _remoteVideoStateController.add(RemoteVideoStateInfo(uid: remoteUid, state: state, reason: reason));
             },
         onRemoteAudioStateChanged:
@@ -111,10 +128,11 @@ class AgoraService {
               RemoteAudioStateReason reason,
               int elapsed,
             ) {
+              AppLogger.info('🎤 Remote audio state: uid=$remoteUid, state=$state, reason=$reason', tag: 'Agora');
               _remoteAudioStateController.add(RemoteAudioStateInfo(uid: remoteUid, state: state, reason: reason));
             },
         onError: (ErrorCodeType err, String msg) {
-          AppLogger.error('Agora Internal Error: $err - $msg', tag: 'Agora');
+          AppLogger.error('❌ Agora Internal Error: $err - $msg', tag: 'Agora');
         },
       ),
     );

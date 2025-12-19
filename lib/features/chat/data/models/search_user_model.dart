@@ -14,10 +14,10 @@ abstract class SearchUserModel with _$SearchUserModel {
     required String email,
     required String fullName,
     String? avatarUrl,
-    required bool isOnline,
+    @Default(false) bool isOnline,
     String? lastSeen,
-    @JsonKey(name: 'contact') required bool isContact,
-    required bool hasConversation,
+    @JsonKey(name: 'contact') @Default(false) bool isContact,
+    @Default(false) bool hasConversation,
     int? conversationId,
   }) = _SearchUserModel;
 

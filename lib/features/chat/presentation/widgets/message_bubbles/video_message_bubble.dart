@@ -177,10 +177,16 @@ class _VideoMessageBubbleState extends State<VideoMessageBubble> with AutomaticK
                     // Play/Pause button overlay
                     if (!_isPlaying)
                       Container(
-                        width: 60,
-                        height: 60,
-                        decoration: BoxDecoration(color: Colors.black.withValues(alpha: 0.6), shape: BoxShape.circle),
-                        child: const Icon(Icons.play_arrow, color: Colors.white, size: 36),
+                        width: 64,
+                        height: 64,
+                        decoration: BoxDecoration(
+                          color: Colors.black.withValues(alpha: 0.7),
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(color: Colors.black.withValues(alpha: 0.3), blurRadius: 8, spreadRadius: 2),
+                          ],
+                        ),
+                        child: const Icon(Icons.play_arrow, color: Colors.white, size: 40),
                       ),
                     // Duration badge
                     if (widget.message.duration != null && !_isPlaying)

@@ -113,19 +113,22 @@ class LoginScreen extends HookConsumerWidget {
   }
 
   Widget _buildSignUpLink(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Text(
-          "Don't have an account? ",
-          style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6)),
-        ),
-        TextButton(
-          onPressed: () => context.go(AppRouter.registerPath),
-          style: TextButton.styleFrom(padding: EdgeInsets.zero),
-          child: const Text('Sign Up'),
-        ),
-      ],
+    return FittedBox(
+      fit: BoxFit.scaleDown,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            "Don't have an account? ",
+            style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6)),
+          ),
+          TextButton(
+            onPressed: () => context.go(AppRouter.registerPath),
+            style: TextButton.styleFrom(padding: EdgeInsets.zero),
+            child: const Text('Sign Up'),
+          ),
+        ],
+      ),
     );
   }
 }

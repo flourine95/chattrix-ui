@@ -4,7 +4,7 @@
 // coverage:ignore-file
 
 
-part of 'call_notifier.dart';
+part of 'call_timer_provider.dart';
 
 // **************************************************************************
 // RiverpodGenerator
@@ -13,52 +13,51 @@ part of 'call_notifier.dart';
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
 
-@ProviderFor(CallNotifier)
-const callProvider = CallNotifierProvider._();
+@ProviderFor(CallTimer)
+const callTimerProvider = CallTimerProvider._();
 
-final class CallNotifierProvider
-    extends $NotifierProvider<CallNotifier, CallState> {
-  const CallNotifierProvider._()
+final class CallTimerProvider extends $NotifierProvider<CallTimer, String> {
+  const CallTimerProvider._()
     : super(
         from: null,
         argument: null,
         retry: null,
-        name: r'callProvider',
-        isAutoDispose: true,
+        name: r'callTimerProvider',
+        isAutoDispose: false,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
 
   @override
-  String debugGetCreateSourceHash() => _$callNotifierHash();
+  String debugGetCreateSourceHash() => _$callTimerHash();
 
   @$internal
   @override
-  CallNotifier create() => CallNotifier();
+  CallTimer create() => CallTimer();
 
   /// {@macro riverpod.override_with_value}
-  Override overrideWithValue(CallState value) {
+  Override overrideWithValue(String value) {
     return $ProviderOverride(
       origin: this,
-      providerOverride: $SyncValueProvider<CallState>(value),
+      providerOverride: $SyncValueProvider<String>(value),
     );
   }
 }
 
-String _$callNotifierHash() => r'78e1e1301faa94107966ac89761acd569a913830';
+String _$callTimerHash() => r'117f330ae8259b0d618448f2672d71bc5e6cbe13';
 
-abstract class _$CallNotifier extends $Notifier<CallState> {
-  CallState build();
+abstract class _$CallTimer extends $Notifier<String> {
+  String build();
   @$mustCallSuper
   @override
   void runBuild() {
     final created = build();
-    final ref = this.ref as $Ref<CallState, CallState>;
+    final ref = this.ref as $Ref<String, String>;
     final element =
         ref.element
             as $ClassProviderElement<
-              AnyNotifier<CallState, CallState>,
-              CallState,
+              AnyNotifier<String, String>,
+              String,
               Object?,
               Object?
             >;

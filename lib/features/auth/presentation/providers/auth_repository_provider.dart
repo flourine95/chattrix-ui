@@ -17,9 +17,7 @@ part 'auth_repository_provider.g.dart';
 FlutterSecureStorage secureStorage(Ref ref) {
   return const FlutterSecureStorage(
     aOptions: AndroidOptions(),
-
     webOptions: WebOptions(dbName: 'ChattrixDB'),
-
     wOptions: WindowsOptions(useBackwardCompatibility: false),
   );
 }

@@ -11,7 +11,12 @@ class CallState with _$CallState {
 
   const factory CallState.idle() = _Idle;
 
-  const factory CallState.initiating({required int calleeId, required CallType callType}) = _Initiating;
+  const factory CallState.initiating({
+    required int calleeId,
+    required CallType callType,
+    String? calleeName,
+    String? calleeAvatar,
+  }) = _Initiating;
 
   const factory CallState.ringing({required CallInvitation invitation}) = _Ringing;
 

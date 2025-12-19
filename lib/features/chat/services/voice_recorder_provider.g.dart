@@ -30,7 +30,7 @@ final class VoiceRecorderServiceProvider
         argument: null,
         retry: null,
         name: r'voiceRecorderServiceProvider',
-        isAutoDispose: true,
+        isAutoDispose: false,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
@@ -59,4 +59,4 @@ final class VoiceRecorderServiceProvider
 }
 
 String _$voiceRecorderServiceHash() =>
-    r'f93e9e0f51fac4f242674e05d3ad2eba06cb8879';
+    r'a5bc32d019693e58d7eb6812a55054b77bef95b9';

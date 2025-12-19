@@ -5,6 +5,8 @@ import 'dart:typed_data';
 import 'package:chattrix_ui/core/domain/enums/enums.dart';
 import 'package:chattrix_ui/core/widgets/user_avatar.dart';
 import 'package:chattrix_ui/features/auth/presentation/providers/auth_providers.dart';
+import 'package:chattrix_ui/features/call/domain/entities/call_type.dart';
+import 'package:chattrix_ui/features/call/presentation/state/call_notifier.dart';
 import 'package:chattrix_ui/features/chat/data/models/chat_message_request.dart';
 import 'package:chattrix_ui/features/chat/domain/entities/message.dart';
 import 'package:chattrix_ui/features/chat/presentation/providers/chat_providers.dart';
@@ -13,6 +15,8 @@ import 'package:chattrix_ui/features/chat/presentation/widgets/message_bubble.da
 import 'package:chattrix_ui/features/chat/presentation/widgets/reply_message_preview.dart';
 import 'package:chattrix_ui/features/chat/services/cloudinary_provider.dart';
 import 'package:chattrix_ui/features/chat/services/media_picker_provider.dart';
+import 'package:chattrix_ui/features/chat/services/voice_recorder_provider.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
@@ -45,6 +49,7 @@ class ChatViewPage extends HookConsumerWidget {
     // Chat Logic State
     final replyToMessage = useState<Message?>(null);
     final isRecording = useState(false);
+    final recordingDuration = useState(Duration.zero);
 
     // --- DATA ---
     final theme = Theme.of(context);
@@ -61,6 +66,12 @@ class ChatViewPage extends HookConsumerWidget {
 
     // --- LOGIC LOAD ẢNH ---
     Future<void> loadImages() async {
+      // Skip photo_manager on web platform (not supported)
+      if (kIsWeb) {
+        debugPrint('⚠️ Photo gallery not supported on web platform');
+        return;
+      }
+
       final PermissionState ps = await PhotoManager.requestPermissionExtend();
       if (ps.isAuth) {
         await PhotoManager.clearFileCache();
@@ -81,12 +92,16 @@ class ChatViewPage extends HookConsumerWidget {
     }
 
     useEffect(() {
-      loadImages();
+      if (!kIsWeb) {
+        loadImages();
+      }
       return null;
     }, []);
 
     useEffect(() {
-      if (appLifecycleState == AppLifecycleState.resumed) loadImages();
+      if (!kIsWeb && appLifecycleState == AppLifecycleState.resumed) {
+        loadImages();
+      }
       return null;
     }, [appLifecycleState]);
 
@@ -118,6 +133,14 @@ class ChatViewPage extends HookConsumerWidget {
 
     // --- HANDLERS ---
     void toggleGallery() {
+      // Disable gallery on web platform
+      if (kIsWeb) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Thư viện ảnh chưa hỗ trợ trên web. Vui lòng sử dụng nút Camera hoặc Files.')),
+        );
+        return;
+      }
+
       if (showGallery.value) {
         showGallery.value = false;
         focusNode.requestFocus();
@@ -193,6 +216,157 @@ class ChatViewPage extends HookConsumerWidget {
       }
     }
 
+    Future<void> handleFilePicker() async {
+      try {
+        final mediaPicker = ref.read(mediaPickerServiceProvider);
+        final pickedFile = await mediaPicker.pickDocument();
+
+        if (pickedFile != null) {
+          // Upload file to Cloudinary
+          final cloudinary = ref.read(cloudinaryServiceProvider);
+          final response = await cloudinary.uploadDocument(pickedFile.file, fileName: pickedFile.name);
+
+          // Send file message with metadata
+          sendMessage(specificContent: pickedFile.name, type: 'FILE', mediaUrl: response.url);
+        }
+      } catch (e) {
+        debugPrint('Error picking file: $e');
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Không thể chọn file: $e')));
+        }
+      }
+    }
+
+    Future<void> handleVoiceRecording() async {
+      final voiceRecorder = ref.read(voiceRecorderServiceProvider);
+
+      if (isRecording.value) {
+        // Stop recording and send
+        final duration = recordingDuration.value; // Save duration before reset
+        final file = await voiceRecorder.stopRecording();
+        isRecording.value = false;
+        recordingDuration.value = Duration.zero;
+
+        if (file != null) {
+          try {
+            // Upload to Cloudinary
+            final cloudinary = ref.read(cloudinaryServiceProvider);
+            final response = await cloudinary.uploadAudio(file);
+
+            // Send voice message
+            sendMessage(specificContent: '', type: 'VOICE', mediaUrl: response.url, duration: duration.inSeconds);
+          } catch (e) {
+            debugPrint('Error uploading voice: $e');
+            if (context.mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Không thể gửi voice message: $e')));
+            }
+          }
+        }
+      } else {
+        // Start recording
+        try {
+          final path = await voiceRecorder.startRecording();
+          if (path != null) {
+            isRecording.value = true;
+          } else {
+            if (context.mounted) {
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(const SnackBar(content: Text('Không thể bắt đầu ghi âm. Vui lòng cấp quyền microphone.')));
+            }
+          }
+        } catch (e) {
+          debugPrint('Error starting recording: $e');
+          if (context.mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Lỗi khi ghi âm: $e')));
+          }
+        }
+      }
+    }
+
+    Future<void> handleCancelRecording() async {
+      final voiceRecorder = ref.read(voiceRecorderServiceProvider);
+      await voiceRecorder.cancelRecording();
+      isRecording.value = false;
+      recordingDuration.value = Duration.zero;
+    }
+
+    // Listen to recording duration
+    useEffect(() {
+      if (isRecording.value) {
+        final voiceRecorder = ref.read(voiceRecorderServiceProvider);
+        final subscription = voiceRecorder.durationStream.listen((duration) {
+          recordingDuration.value = duration;
+
+          // Auto-stop at 5 minutes
+          if (duration.inMinutes >= 5) {
+            handleVoiceRecording();
+          }
+        });
+        return subscription.cancel;
+      }
+      return null;
+    }, [isRecording.value]);
+
+    void handleAudioCall() {
+      if (conversation == null || me == null) return;
+
+      // For group calls, show not supported message
+      if (conversation.type == ConversationType.group) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Group calls are not supported yet')));
+        return;
+      }
+
+      // Get the other participant's ID
+      final otherParticipant = ConversationUtils.getOtherParticipant(conversation, me);
+      if (otherParticipant == null) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Cannot find participant to call')));
+        return;
+      }
+
+      // Get callee name and avatar
+      final calleeName = ConversationUtils.getConversationTitle(conversation, me);
+      final calleeAvatar = ConversationUtils.getOtherParticipantAvatarUrl(conversation, me);
+
+      // Initiate audio call
+      ref
+          .read(callProvider.notifier)
+          .initiateCall(otherParticipant.userId, CallType.audio, calleeName: calleeName, calleeAvatar: calleeAvatar);
+    }
+
+    void handleVideoCall() {
+      if (conversation == null || me == null) return;
+
+      // For group calls, show not supported message
+      if (conversation.type == ConversationType.group) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Group calls are not supported yet')));
+        return;
+      }
+
+      // Get the other participant's ID
+      final otherParticipant = ConversationUtils.getOtherParticipant(conversation, me);
+      if (otherParticipant == null) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Cannot find participant to call')));
+        return;
+      }
+
+      // Get callee name and avatar
+      final calleeName = ConversationUtils.getConversationTitle(conversation, me);
+      final calleeAvatar = ConversationUtils.getOtherParticipantAvatarUrl(conversation, me);
+
+      // Initiate video call
+      ref
+          .read(callProvider.notifier)
+          .initiateCall(otherParticipant.userId, CallType.video, calleeName: calleeName, calleeAvatar: calleeAvatar);
+    }
+
+    void handleConversationInfo() {
+      if (conversation == null) return;
+
+      // Navigate to conversation info page
+      context.push('/chat/$chatId/info', extra: conversation);
+    }
+
     // --- UI ---
     return PopScope(
       canPop: !showGallery.value,
@@ -203,7 +377,15 @@ class ChatViewPage extends HookConsumerWidget {
       child: Scaffold(
         backgroundColor: backgroundColor,
         // HEADER
-        appBar: _buildFullAppBar(context, conversation, me, isDark),
+        appBar: _buildFullAppBar(
+          context,
+          conversation,
+          me,
+          isDark,
+          onAudioCall: handleAudioCall,
+          onVideoCall: handleVideoCall,
+          onInfo: handleConversationInfo,
+        ),
         body: GestureDetector(
           onTap: () {
             if (showGallery.value) showGallery.value = false;
@@ -272,6 +454,10 @@ class ChatViewPage extends HookConsumerWidget {
                     canSendMessage: controller.text.trim().isNotEmpty || selectedAssets.value.isNotEmpty,
                     onToggleGallery: toggleGallery,
                     isRecording: isRecording,
+                    recordingDuration: recordingDuration.value,
+                    onVoiceRecord: handleVoiceRecording,
+                    onCancelRecording: handleCancelRecording,
+                    onFilePick: handleFilePicker,
                   ),
                 ],
               ),
@@ -304,7 +490,15 @@ class ChatViewPage extends HookConsumerWidget {
     );
   }
 
-  PreferredSizeWidget _buildFullAppBar(BuildContext context, dynamic conversation, dynamic me, bool isDark) {
+  PreferredSizeWidget _buildFullAppBar(
+    BuildContext context,
+    dynamic conversation,
+    dynamic me,
+    bool isDark, {
+    required VoidCallback onAudioCall,
+    required VoidCallback onVideoCall,
+    required VoidCallback onInfo,
+  }) {
     final color = isDark ? Colors.white : Colors.black;
     final appBarColor = isDark ? const Color(0xFF1E1E1E) : Colors.white;
 
@@ -373,28 +567,19 @@ class ChatViewPage extends HookConsumerWidget {
         // Audio call button
         IconButton(
           icon: Icon(Icons.call_outlined, color: color, size: 24),
-          onPressed: () {
-            // TODO: Implement audio call
-            debugPrint('Audio call pressed');
-          },
+          onPressed: onAudioCall,
           tooltip: 'Audio call',
         ),
         // Video call button
         IconButton(
           icon: Icon(Icons.videocam_outlined, color: color, size: 26),
-          onPressed: () {
-            // TODO: Implement video call
-            debugPrint('Video call pressed');
-          },
+          onPressed: onVideoCall,
           tooltip: 'Video call',
         ),
         // Info button
         IconButton(
           icon: Icon(Icons.info_outline, color: color, size: 24),
-          onPressed: () {
-            // TODO: Navigate to conversation info
-            debugPrint('Info pressed');
-          },
+          onPressed: onInfo,
           tooltip: 'Thông tin',
         ),
       ],
@@ -682,6 +867,10 @@ class _InputBar extends StatelessWidget {
     required this.canSendMessage,
     required this.onToggleGallery,
     required this.isRecording,
+    required this.recordingDuration,
+    required this.onVoiceRecord,
+    required this.onCancelRecording,
+    required this.onFilePick,
   });
 
   final TextEditingController controller;
@@ -694,6 +883,10 @@ class _InputBar extends StatelessWidget {
   final bool canSendMessage;
   final VoidCallback onToggleGallery;
   final ValueNotifier<bool> isRecording;
+  final Duration recordingDuration;
+  final VoidCallback onVoiceRecord;
+  final VoidCallback onCancelRecording;
+  final VoidCallback onFilePick;
 
   void _showMenu(BuildContext context) {
     final RenderBox button = context.findRenderObject() as RenderBox;
@@ -732,11 +925,97 @@ class _InputBar extends StatelessWidget {
           ),
         ),
       ],
-    );
+    ).then((value) {
+      if (value == 'file') {
+        onFilePick();
+      }
+    });
+  }
+
+  String _formatDuration(Duration duration) {
+    final minutes = duration.inMinutes.toString().padLeft(2, '0');
+    final seconds = (duration.inSeconds % 60).toString().padLeft(2, '0');
+    return '$minutes:$seconds';
   }
 
   @override
   Widget build(BuildContext context) {
+    // Show recording overlay when recording
+    if (isRecording.value) {
+      return Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        decoration: BoxDecoration(
+          color: Theme.of(context).scaffoldBackgroundColor,
+          border: Border(top: BorderSide(color: Colors.grey.withValues(alpha: 0.1), width: 0.5)),
+        ),
+        child: SafeArea(
+          top: false,
+          child: Row(
+            children: [
+              // Recording indicator
+              Container(
+                width: 12,
+                height: 12,
+                decoration: const BoxDecoration(color: Colors.red, shape: BoxShape.circle),
+              ),
+              const SizedBox(width: 12),
+              // Duration and hint - use Expanded to take remaining space
+              Expanded(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      _formatDuration(recordingDuration),
+                      style: TextStyle(
+                        color: isDark ? Colors.white : Colors.black,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    Text(
+                      'Recording...',
+                      style: TextStyle(
+                        color: (isDark ? Colors.white : Colors.black).withValues(alpha: 0.6),
+                        fontSize: 12,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              // Cancel button
+              TextButton(
+                onPressed: onCancelRecording,
+                style: TextButton.styleFrom(
+                  foregroundColor: Colors.red,
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  minimumSize: Size.zero,
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                ),
+                child: const Text('Cancel'),
+              ),
+              const SizedBox(width: 8),
+              // Send button - use simple ElevatedButton without icon
+              ElevatedButton(
+                onPressed: onVoiceRecord,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: primaryColor,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                  minimumSize: const Size(70, 40),
+                ),
+                child: const Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [Icon(Icons.send, size: 18), SizedBox(width: 6), Text('Send')],
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
@@ -771,20 +1050,16 @@ class _InputBar extends StatelessWidget {
                 constraints: const BoxConstraints(minWidth: 40, minHeight: 40),
               ),
             ),
-            // Mic button (when no text)
+            // Mic button (when no text) - Long press to record
             if (!canSendMessage)
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 4),
                 child: GestureDetector(
-                  onLongPressStart: (_) => isRecording.value = true,
-                  onLongPressEnd: (_) => isRecording.value = false,
+                  onTap: onVoiceRecord,
                   child: Container(
                     width: 40,
                     height: 40,
-                    decoration: BoxDecoration(
-                      color: isRecording.value ? primaryColor.withOpacity(0.1) : Colors.transparent,
-                      shape: BoxShape.circle,
-                    ),
+                    decoration: BoxDecoration(color: Colors.transparent, shape: BoxShape.circle),
                     alignment: Alignment.center,
                     child: Icon(Icons.mic_none, color: primaryColor, size: 26),
                   ),
@@ -806,7 +1081,7 @@ class _InputBar extends StatelessWidget {
                   textCapitalization: TextCapitalization.sentences,
                   style: TextStyle(color: isDark ? Colors.white : Colors.black, fontSize: 16),
                   decoration: InputDecoration(
-                    hintText: isRecording.value ? 'Đang ghi âm...' : 'Aa',
+                    hintText: 'Aa',
                     hintStyle: TextStyle(color: Colors.grey[600]),
                     border: InputBorder.none,
                     enabledBorder: InputBorder.none,

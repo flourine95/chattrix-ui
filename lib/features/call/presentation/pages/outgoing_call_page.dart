@@ -17,7 +17,8 @@ class OutgoingCallPage extends ConsumerWidget {
       backgroundColor: Colors.white,
       body: callState.when(
         idle: () => const SizedBox(),
-        initiating: (_, callType) => _buildView(context, ref, "Connecting...", null, callType),
+        initiating: (_, callType, calleeName, calleeAvatar) =>
+            _buildView(context, ref, calleeName ?? "Connecting...", calleeAvatar, callType),
         ringing: (_) => const SizedBox(),
         connecting: (connection, callType, isOutgoing) {
           if (isOutgoing) {

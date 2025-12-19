@@ -145,14 +145,25 @@ class _AudioMessageBubbleState extends State<AudioMessageBubble> with AutomaticK
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
+            // Microphone icon for voice messages
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: textColor.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Icon(Icons.mic, color: textColor.withValues(alpha: 0.7), size: 20),
+            ),
+            const SizedBox(width: 12),
+
             // Play/Pause button
             GestureDetector(
               onTap: _togglePlayPause,
               child: Container(
-                width: 40,
-                height: 40,
+                width: 36,
+                height: 36,
                 decoration: BoxDecoration(color: textColor.withValues(alpha: 0.2), shape: BoxShape.circle),
-                child: Icon(_isPlaying ? Icons.pause : Icons.play_arrow, color: textColor, size: 24),
+                child: Icon(_isPlaying ? Icons.pause : Icons.play_arrow, color: textColor, size: 20),
               ),
             ),
             const SizedBox(width: 12),
@@ -164,33 +175,41 @@ class _AudioMessageBubbleState extends State<AudioMessageBubble> with AutomaticK
                 children: [
                   // Waveform visualization (simplified)
                   Row(
-                    children: List.generate(20, (index) {
+                    children: List.generate(25, (index) {
                       // Calculate progress for visual feedback
                       final progress = displayDuration.inSeconds > 0
                           ? _currentPosition.inSeconds / displayDuration.inSeconds
                           : 0.0;
-                      final isActive = (index / 20) <= progress;
+                      final isActive = (index / 25) <= progress;
+
+                      // Create varied heights for waveform effect
+                      final heights = [12.0, 18.0, 14.0, 20.0, 16.0];
+                      final height = heights[index % heights.length];
 
                       return Expanded(
                         child: Container(
-                          margin: const EdgeInsets.symmetric(horizontal: 1),
-                          height: (index % 3 + 1) * 8.0,
+                          margin: const EdgeInsets.symmetric(horizontal: 0.5),
+                          height: height,
                           decoration: BoxDecoration(
-                            color: textColor.withValues(alpha: isActive ? 0.8 : 0.3),
+                            color: textColor.withValues(alpha: isActive ? 0.8 : 0.25),
                             borderRadius: BorderRadius.circular(2),
                           ),
                         ),
                       );
                     }),
                   ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: 6),
 
                   // Duration display
                   Text(
                     _isPlaying
                         ? '${FormatUtils.formatDuration(_currentPosition.inSeconds)} / ${FormatUtils.formatDuration(displayDuration.inSeconds)}'
                         : FormatUtils.formatDuration(displayDuration.inSeconds),
-                    style: textTheme.bodySmall?.copyWith(color: textColor.withValues(alpha: 0.7)),
+                    style: textTheme.bodySmall?.copyWith(
+                      color: textColor.withValues(alpha: 0.7),
+                      fontSize: 11,
+                      fontWeight: FontWeight.w500,
+                    ),
                   ),
                 ],
               ),

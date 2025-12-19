@@ -17,10 +17,10 @@ _SearchUserModel _$SearchUserModelFromJson(Map<String, dynamic> json) =>
       email: json['email'] as String,
       fullName: json['fullName'] as String,
       avatarUrl: json['avatarUrl'] as String?,
-      isOnline: json['isOnline'] as bool,
+      isOnline: json['isOnline'] as bool? ?? false,
       lastSeen: json['lastSeen'] as String?,
-      isContact: json['contact'] as bool,
-      hasConversation: json['hasConversation'] as bool,
+      isContact: json['contact'] as bool? ?? false,
+      hasConversation: json['hasConversation'] as bool? ?? false,
       conversationId: (json['conversationId'] as num?)?.toInt(),
     );
 

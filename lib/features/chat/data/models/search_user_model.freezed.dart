@@ -218,7 +218,7 @@ return $default(_that.id,_that.username,_that.email,_that.fullName,_that.avatarU
 @JsonSerializable()
 
 class _SearchUserModel extends SearchUserModel {
-  const _SearchUserModel({required this.id, required this.username, required this.email, required this.fullName, this.avatarUrl, required this.isOnline, this.lastSeen, @JsonKey(name: 'contact') required this.isContact, required this.hasConversation, this.conversationId}): super._();
+  const _SearchUserModel({required this.id, required this.username, required this.email, required this.fullName, this.avatarUrl, this.isOnline = false, this.lastSeen, @JsonKey(name: 'contact') this.isContact = false, this.hasConversation = false, this.conversationId}): super._();
   factory _SearchUserModel.fromJson(Map<String, dynamic> json) => _$SearchUserModelFromJson(json);
 
 @override final  int id;
@@ -226,10 +226,10 @@ class _SearchUserModel extends SearchUserModel {
 @override final  String email;
 @override final  String fullName;
 @override final  String? avatarUrl;
-@override final  bool isOnline;
+@override@JsonKey() final  bool isOnline;
 @override final  String? lastSeen;
 @override@JsonKey(name: 'contact') final  bool isContact;
-@override final  bool hasConversation;
+@override@JsonKey() final  bool hasConversation;
 @override final  int? conversationId;
 
 /// Create a copy of SearchUserModel

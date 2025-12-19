@@ -16,7 +16,7 @@ class RoutePaths {
   static const String chatView = '/chat/:id';
   static const String newChat = '/new-chat';
   static const String newGroup = '/new-group';
-  static const String chatInfo = '/chat-info';
+  static const String chatInfo = '/chat/:id/info';
   static const String searchConversations = '/search-conversations';
   // chatListDemo removed - production ChatListPage is now used at '/' route
   static const String contactsDemo = '/contacts-demo';

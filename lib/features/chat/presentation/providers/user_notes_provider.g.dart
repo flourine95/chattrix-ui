@@ -57,7 +57,7 @@ final class UserNotesProvider
   }
 }
 
-String _$userNotesHash() => r'7f36fbd0071600f12902622eda0be38f2b505dd4';
+String _$userNotesHash() => r'5e116bb62395e0b29816a2a92218fca0f17965f0';
 
 /// Provider for user notes/stories
 ///

@@ -137,11 +137,11 @@ return error(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  idle,TResult Function( int calleeId,  CallType callType)?  initiating,TResult Function( CallInvitation invitation)?  ringing,TResult Function( CallConnection connection,  CallType callType,  bool isOutgoing)?  connecting,TResult Function( CallConnection connection,  CallType callType,  bool isOutgoing,  bool isMuted,  bool isVideoEnabled,  bool isSpeakerEnabled,  bool isFrontCamera,  int? remoteUid,  bool remoteIsMuted,  bool remoteIsVideoEnabled)?  connected,TResult Function( String? reason)?  ended,TResult Function( String message)?  error,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  idle,TResult Function( int calleeId,  CallType callType,  String? calleeName,  String? calleeAvatar)?  initiating,TResult Function( CallInvitation invitation)?  ringing,TResult Function( CallConnection connection,  CallType callType,  bool isOutgoing)?  connecting,TResult Function( CallConnection connection,  CallType callType,  bool isOutgoing,  bool isMuted,  bool isVideoEnabled,  bool isSpeakerEnabled,  bool isFrontCamera,  int? remoteUid,  bool remoteIsMuted,  bool remoteIsVideoEnabled)?  connected,TResult Function( String? reason)?  ended,TResult Function( String message)?  error,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Idle() when idle != null:
 return idle();case _Initiating() when initiating != null:
-return initiating(_that.calleeId,_that.callType);case _Ringing() when ringing != null:
+return initiating(_that.calleeId,_that.callType,_that.calleeName,_that.calleeAvatar);case _Ringing() when ringing != null:
 return ringing(_that.invitation);case _Connecting() when connecting != null:
 return connecting(_that.connection,_that.callType,_that.isOutgoing);case _Connected() when connected != null:
 return connected(_that.connection,_that.callType,_that.isOutgoing,_that.isMuted,_that.isVideoEnabled,_that.isSpeakerEnabled,_that.isFrontCamera,_that.remoteUid,_that.remoteIsMuted,_that.remoteIsVideoEnabled);case _Ended() when ended != null:
@@ -164,11 +164,11 @@ return error(_that.message);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  idle,required TResult Function( int calleeId,  CallType callType)  initiating,required TResult Function( CallInvitation invitation)  ringing,required TResult Function( CallConnection connection,  CallType callType,  bool isOutgoing)  connecting,required TResult Function( CallConnection connection,  CallType callType,  bool isOutgoing,  bool isMuted,  bool isVideoEnabled,  bool isSpeakerEnabled,  bool isFrontCamera,  int? remoteUid,  bool remoteIsMuted,  bool remoteIsVideoEnabled)  connected,required TResult Function( String? reason)  ended,required TResult Function( String message)  error,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  idle,required TResult Function( int calleeId,  CallType callType,  String? calleeName,  String? calleeAvatar)  initiating,required TResult Function( CallInvitation invitation)  ringing,required TResult Function( CallConnection connection,  CallType callType,  bool isOutgoing)  connecting,required TResult Function( CallConnection connection,  CallType callType,  bool isOutgoing,  bool isMuted,  bool isVideoEnabled,  bool isSpeakerEnabled,  bool isFrontCamera,  int? remoteUid,  bool remoteIsMuted,  bool remoteIsVideoEnabled)  connected,required TResult Function( String? reason)  ended,required TResult Function( String message)  error,}) {final _that = this;
 switch (_that) {
 case _Idle():
 return idle();case _Initiating():
-return initiating(_that.calleeId,_that.callType);case _Ringing():
+return initiating(_that.calleeId,_that.callType,_that.calleeName,_that.calleeAvatar);case _Ringing():
 return ringing(_that.invitation);case _Connecting():
 return connecting(_that.connection,_that.callType,_that.isOutgoing);case _Connected():
 return connected(_that.connection,_that.callType,_that.isOutgoing,_that.isMuted,_that.isVideoEnabled,_that.isSpeakerEnabled,_that.isFrontCamera,_that.remoteUid,_that.remoteIsMuted,_that.remoteIsVideoEnabled);case _Ended():
@@ -190,11 +190,11 @@ return error(_that.message);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  idle,TResult? Function( int calleeId,  CallType callType)?  initiating,TResult? Function( CallInvitation invitation)?  ringing,TResult? Function( CallConnection connection,  CallType callType,  bool isOutgoing)?  connecting,TResult? Function( CallConnection connection,  CallType callType,  bool isOutgoing,  bool isMuted,  bool isVideoEnabled,  bool isSpeakerEnabled,  bool isFrontCamera,  int? remoteUid,  bool remoteIsMuted,  bool remoteIsVideoEnabled)?  connected,TResult? Function( String? reason)?  ended,TResult? Function( String message)?  error,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  idle,TResult? Function( int calleeId,  CallType callType,  String? calleeName,  String? calleeAvatar)?  initiating,TResult? Function( CallInvitation invitation)?  ringing,TResult? Function( CallConnection connection,  CallType callType,  bool isOutgoing)?  connecting,TResult? Function( CallConnection connection,  CallType callType,  bool isOutgoing,  bool isMuted,  bool isVideoEnabled,  bool isSpeakerEnabled,  bool isFrontCamera,  int? remoteUid,  bool remoteIsMuted,  bool remoteIsVideoEnabled)?  connected,TResult? Function( String? reason)?  ended,TResult? Function( String message)?  error,}) {final _that = this;
 switch (_that) {
 case _Idle() when idle != null:
 return idle();case _Initiating() when initiating != null:
-return initiating(_that.calleeId,_that.callType);case _Ringing() when ringing != null:
+return initiating(_that.calleeId,_that.callType,_that.calleeName,_that.calleeAvatar);case _Ringing() when ringing != null:
 return ringing(_that.invitation);case _Connecting() when connecting != null:
 return connecting(_that.connection,_that.callType,_that.isOutgoing);case _Connected() when connected != null:
 return connected(_that.connection,_that.callType,_that.isOutgoing,_that.isMuted,_that.isVideoEnabled,_that.isSpeakerEnabled,_that.isFrontCamera,_that.remoteUid,_that.remoteIsMuted,_that.remoteIsVideoEnabled);case _Ended() when ended != null:
@@ -243,11 +243,13 @@ String toString() {
 
 
 class _Initiating extends CallState {
-  const _Initiating({required this.calleeId, required this.callType}): super._();
+  const _Initiating({required this.calleeId, required this.callType, this.calleeName, this.calleeAvatar}): super._();
   
 
  final  int calleeId;
  final  CallType callType;
+ final  String? calleeName;
+ final  String? calleeAvatar;
 
 /// Create a copy of CallState
 /// with the given fields replaced by the non-null parameter values.
@@ -259,16 +261,16 @@ _$InitiatingCopyWith<_Initiating> get copyWith => __$InitiatingCopyWithImpl<_Ini
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Initiating&&(identical(other.calleeId, calleeId) || other.calleeId == calleeId)&&(identical(other.callType, callType) || other.callType == callType));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Initiating&&(identical(other.calleeId, calleeId) || other.calleeId == calleeId)&&(identical(other.callType, callType) || other.callType == callType)&&(identical(other.calleeName, calleeName) || other.calleeName == calleeName)&&(identical(other.calleeAvatar, calleeAvatar) || other.calleeAvatar == calleeAvatar));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,calleeId,callType);
+int get hashCode => Object.hash(runtimeType,calleeId,callType,calleeName,calleeAvatar);
 
 @override
 String toString() {
-  return 'CallState.initiating(calleeId: $calleeId, callType: $callType)';
+  return 'CallState.initiating(calleeId: $calleeId, callType: $callType, calleeName: $calleeName, calleeAvatar: $calleeAvatar)';
 }
 
 
@@ -279,7 +281,7 @@ abstract mixin class _$InitiatingCopyWith<$Res> implements $CallStateCopyWith<$R
   factory _$InitiatingCopyWith(_Initiating value, $Res Function(_Initiating) _then) = __$InitiatingCopyWithImpl;
 @useResult
 $Res call({
- int calleeId, CallType callType
+ int calleeId, CallType callType, String? calleeName, String? calleeAvatar
 });
 
 
@@ -296,11 +298,13 @@ class __$InitiatingCopyWithImpl<$Res>
 
 /// Create a copy of CallState
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') $Res call({Object? calleeId = null,Object? callType = null,}) {
+@pragma('vm:prefer-inline') $Res call({Object? calleeId = null,Object? callType = null,Object? calleeName = freezed,Object? calleeAvatar = freezed,}) {
   return _then(_Initiating(
 calleeId: null == calleeId ? _self.calleeId : calleeId // ignore: cast_nullable_to_non_nullable
 as int,callType: null == callType ? _self.callType : callType // ignore: cast_nullable_to_non_nullable
-as CallType,
+as CallType,calleeName: freezed == calleeName ? _self.calleeName : calleeName // ignore: cast_nullable_to_non_nullable
+as String?,calleeAvatar: freezed == calleeAvatar ? _self.calleeAvatar : calleeAvatar // ignore: cast_nullable_to_non_nullable
+as String?,
   ));
 }
 
