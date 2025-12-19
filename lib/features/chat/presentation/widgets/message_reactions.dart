@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_emoji/flutter_emoji.dart';
 
@@ -12,7 +11,7 @@ class MessageReactions extends StatelessWidget {
     required this.onAddReaction,
   }) : emojiParser = EmojiParser();
 
-  final String? reactions; // JSON string: {"👍": [1, 2, 3], "❤️": [4, 5]}
+  final Map<String, List<int>>? reactions; // Map of emoji to user IDs: {"👍": [1, 2, 3], "❤️": [4, 5]}
   final int currentUserId;
   final Function(String emoji) onReactionTap;
   final VoidCallback onAddReaction;
@@ -24,12 +23,6 @@ class MessageReactions extends StatelessWidget {
       return const SizedBox.shrink();
     }
 
-    final reactionsMap = _parseReactions(reactions!);
-
-    if (reactionsMap.isEmpty) {
-      return const SizedBox.shrink();
-    }
-
     final colors = Theme.of(context).colorScheme;
 
     return Padding(
@@ -38,7 +31,7 @@ class MessageReactions extends StatelessWidget {
         spacing: 4,
         runSpacing: 4,
         children: [
-          ...reactionsMap.entries.map((entry) {
+          ...reactions!.entries.map((entry) {
             final emoji = entry.key;
             final userIds = entry.value;
             final hasReacted = userIds.contains(currentUserId);
@@ -92,23 +85,6 @@ class MessageReactions extends StatelessWidget {
         ],
       ),
     );
-  }
-
-  Map<String, List<int>> _parseReactions(String reactionsJson) {
-    try {
-      final decoded = jsonDecode(reactionsJson) as Map<String, dynamic>;
-      final result = <String, List<int>>{};
-
-      decoded.forEach((emoji, userIds) {
-        if (userIds is List) {
-          result[emoji] = userIds.cast<int>();
-        }
-      });
-
-      return result;
-    } catch (e) {
-      return {};
-    }
   }
 }
 

@@ -12,13 +12,10 @@ part of 'search_conversations_provider.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
-/// Provider for SearchConversationsUseCase
 
 @ProviderFor(searchConversationsUseCase)
 const searchConversationsUseCaseProvider =
     SearchConversationsUseCaseProvider._();
-
-/// Provider for SearchConversationsUseCase
 
 final class SearchConversationsUseCaseProvider
     extends
@@ -28,7 +25,6 @@ final class SearchConversationsUseCaseProvider
           SearchConversationsUseCase
         >
     with $Provider<SearchConversationsUseCase> {
-  /// Provider for SearchConversationsUseCase
   const SearchConversationsUseCaseProvider._()
     : super(
         from: null,
@@ -66,24 +62,11 @@ final class SearchConversationsUseCaseProvider
 String _$searchConversationsUseCaseHash() =>
     r'006379fb70760276f44b0a0037f4a8fb2bfde371';
 
-/// Provider for search conversations state
-///
-/// **State**: AsyncValue<List<Conversation>>
-/// **Lifecycle**: Auto-dispose
-
 @ProviderFor(SearchConversations)
 const searchConversationsProvider = SearchConversationsProvider._();
 
-/// Provider for search conversations state
-///
-/// **State**: AsyncValue<List<Conversation>>
-/// **Lifecycle**: Auto-dispose
 final class SearchConversationsProvider
     extends $AsyncNotifierProvider<SearchConversations, List<Conversation>> {
-  /// Provider for search conversations state
-  ///
-  /// **State**: AsyncValue<List<Conversation>>
-  /// **Lifecycle**: Auto-dispose
   const SearchConversationsProvider._()
     : super(
         from: null,
@@ -105,11 +88,6 @@ final class SearchConversationsProvider
 
 String _$searchConversationsHash() =>
     r'6c35f481b0e397b123274fba9395972939efdfeb';
-
-/// Provider for search conversations state
-///
-/// **State**: AsyncValue<List<Conversation>>
-/// **Lifecycle**: Auto-dispose
 
 abstract class _$SearchConversations
     extends $AsyncNotifier<List<Conversation>> {

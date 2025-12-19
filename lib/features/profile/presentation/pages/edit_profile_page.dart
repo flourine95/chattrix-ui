@@ -300,7 +300,7 @@ class EditProfilePage extends HookConsumerWidget {
 
     void showDatePickerDialog() {
       BottomPicker.date(
-        pickerTitle: const Text('Select Birthday', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+        headerBuilder: (_) => const Text('Select Birthday', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
         dateOrder: DatePickerDateOrder.dmy,
         initialDateTime: dob.value ?? DateTime(2000),
         maxDateTime: DateTime.now(),

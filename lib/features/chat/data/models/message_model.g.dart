@@ -20,9 +20,6 @@ _MessageModel _$MessageModelFromJson(Map<String, dynamic> json) =>
       content: json['content'] as String,
       type: json['type'] as String,
       createdAt: json['createdAt'] as String,
-      sender: json['sender'] == null
-          ? null
-          : MessageSenderModel.fromJson(json['sender'] as Map<String, dynamic>),
       mediaUrl: json['mediaUrl'] as String?,
       thumbnailUrl: json['thumbnailUrl'] as String?,
       fileName: json['fileName'] as String?,
@@ -37,8 +34,15 @@ _MessageModel _$MessageModelFromJson(Map<String, dynamic> json) =>
           : ReplyToMessageModel.fromJson(
               json['replyToMessage'] as Map<String, dynamic>,
             ),
-      reactions: json['reactions'] as String?,
-      mentions: json['mentions'] as String?,
+      reactions: (json['reactions'] as Map<String, dynamic>?)?.map(
+        (k, e) => MapEntry(
+          k,
+          (e as List<dynamic>).map((e) => (e as num).toInt()).toList(),
+        ),
+      ),
+      mentions: (json['mentions'] as List<dynamic>?)
+          ?.map((e) => (e as num).toInt())
+          .toList(),
       mentionedUsers:
           (json['mentionedUsers'] as List<dynamic>?)
               ?.map(
@@ -73,7 +77,6 @@ Map<String, dynamic> _$MessageModelToJson(_MessageModel instance) =>
       'content': instance.content,
       'type': instance.type,
       'createdAt': instance.createdAt,
-      'sender': instance.sender,
       'mediaUrl': instance.mediaUrl,
       'thumbnailUrl': instance.thumbnailUrl,
       'fileName': instance.fileName,

@@ -17,7 +17,7 @@ class IncomingCallPage extends ConsumerWidget {
       backgroundColor: Colors.white,
       body: callState.when(
         idle: () => const SizedBox(),
-        initiating: (_, __, ___, ____) => const SizedBox(),
+        initiating: (_, _, _, _) => const SizedBox(),
         ringing: (invitation) => _buildRingingView(
           context,
           ref,

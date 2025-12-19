@@ -113,9 +113,9 @@ class CallNotifier extends _$CallNotifier {
 
     final shouldHandle = state.when(
       idle: () => false,
-      initiating: (_, __, ___, ____) => false,
+      initiating: (_, _, _, _) => false,
       ringing: (invitation) => invitation.callId == end.callId,
-      connecting: (connection, _, __) => connection.callInfo.id == end.callId,
+      connecting: (connection, _, _) => connection.callInfo.id == end.callId,
       connected: (connection, p1, p2, p3, p4, p5, p6, p7, p8, p9) => connection.callInfo.id == end.callId,
       ended: (_) => false,
       error: (_) => false,
@@ -128,7 +128,7 @@ class CallNotifier extends _$CallNotifier {
     }
   }
 
-  void _handleCallTimeout(timeout) {
+  void _handleCallTimeout(dynamic timeout) {
     AppLogger.call('Call timeout: ${timeout.callId}');
     _endCallCleanup();
     state = CallState.ended(reason: 'Call timeout: ${timeout.reason}');
@@ -196,7 +196,7 @@ class CallNotifier extends _$CallNotifier {
             isFrontCamera,
             currentRemoteUid,
             _,
-            __,
+            _,
           ) {
             if (currentRemoteUid == remoteUid) {
               _endCallCleanup();
@@ -206,7 +206,7 @@ class CallNotifier extends _$CallNotifier {
     );
   }
 
-  void _handleRemoteVideoStateChanged(remoteVideoState) {
+  void _handleRemoteVideoStateChanged(dynamic remoteVideoState) {
     AppLogger.call('Remote video state changed: uid=${remoteVideoState.uid}, state=${remoteVideoState.state}');
 
     final currentRemoteUid = ref.read(remoteUidStateProvider);
@@ -220,7 +220,7 @@ class CallNotifier extends _$CallNotifier {
     }
   }
 
-  void _handleRemoteAudioStateChanged(remoteAudioState) {
+  void _handleRemoteAudioStateChanged(dynamic remoteAudioState) {
     AppLogger.call('Remote audio state changed: uid=${remoteAudioState.uid}, state=${remoteAudioState.state}');
 
     final currentRemoteUid = ref.read(remoteUidStateProvider);
@@ -421,7 +421,7 @@ class CallNotifier extends _$CallNotifier {
 
   Future<void> toggleVideo() async {
     await state.whenOrNull(
-      connected: (_, callType, __, ___, ____, _____, ______, _______, ________, _________) async {
+      connected: (_, callType, _, _, _, _, _, _, _, _) async {
         if (callType == CallType.video) {
           try {
             final agoraService = ref.read(agoraServiceProvider);
@@ -451,7 +451,7 @@ class CallNotifier extends _$CallNotifier {
 
   Future<void> switchCamera() async {
     await state.whenOrNull(
-      connected: (_, callType, __, ___, ____, _____, ______, _______, ________, _________) async {
+      connected: (_, callType, _, _, _, _, _, _, _, _) async {
         if (callType == CallType.video) {
           try {
             final agoraService = ref.read(agoraServiceProvider);

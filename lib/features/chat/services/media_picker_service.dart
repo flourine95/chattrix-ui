@@ -1,4 +1,5 @@
 import 'dart:io';
+
 import 'package:chattrix_ui/core/utils/app_logger.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -62,6 +63,9 @@ class MediaPickerService {
   Future<File?> takePhoto(BuildContext context) async {
     try {
       final status = await Permission.camera.request();
+
+      if (!context.mounted) return null;
+
       if (!status.isGranted) {
         AppLogger.warning('Camera permission denied', tag: 'MediaPicker');
         return null;
@@ -124,6 +128,9 @@ class MediaPickerService {
   Future<File?> recordVideo(BuildContext context) async {
     try {
       final status = await Permission.camera.request();
+
+      if (!context.mounted) return null;
+
       if (!status.isGranted) {
         AppLogger.warning('Camera permission denied', tag: 'MediaPicker');
         return null;

@@ -34,7 +34,7 @@ class CallRedirectGuard {
 
     return callState.when(
       idle: () => _handleIdleState(currentLocation, callRoutes),
-      initiating: (_, __, ___, ____) => _handleInitiatingState(currentLocation),
+      initiating: (_, _, _, _) => _handleInitiatingState(currentLocation),
       ringing: (_) => _handleRingingState(currentLocation),
       connecting: (_, _, isOutgoing) => _handleConnectingState(currentLocation, isOutgoing),
       connected: (_, _, isOutgoing, _, _, _, _, _, _, _) => _handleConnectedState(currentLocation),

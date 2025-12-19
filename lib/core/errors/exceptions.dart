@@ -1,7 +1,3 @@
-/// API Exception thrown by Dio interceptor when parsing error response
-///
-/// This exception is thrown when the API returns an error response with structure:
-/// {success: false, message: string, code: string, details?: Map<String, String>, requestId: string}
 class ApiException implements Exception {
   final String message;
   final String code;
@@ -15,7 +11,6 @@ class ApiException implements Exception {
   String toString() => 'ApiException($code): $message${requestId != null ? ' [RequestID: $requestId]' : ''}';
 }
 
-/// Server Exception for unexpected server errors
 class ServerException implements Exception {
   final String message;
   final String? errorCode;
@@ -27,7 +22,6 @@ class ServerException implements Exception {
   String toString() => 'ServerException: $message (Code: $errorCode)';
 }
 
-/// Network Exception for connectivity issues
 class NetworkException implements Exception {
   final String message;
 

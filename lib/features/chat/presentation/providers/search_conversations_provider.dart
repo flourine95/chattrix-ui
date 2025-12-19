@@ -7,7 +7,6 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'search_conversations_provider.g.dart';
 
-/// Provider for SearchConversationsUseCase
 @riverpod
 SearchConversationsUseCase searchConversationsUseCase(Ref ref) {
   final dio = ref.watch(dioProvider);
@@ -16,10 +15,6 @@ SearchConversationsUseCase searchConversationsUseCase(Ref ref) {
   return SearchConversationsUseCase(repository);
 }
 
-/// Provider for search conversations state
-///
-/// **State**: AsyncValue<List<Conversation>>
-/// **Lifecycle**: Auto-dispose
 @riverpod
 class SearchConversations extends _$SearchConversations {
   late final SearchConversationsUseCase _useCase;
@@ -28,26 +23,20 @@ class SearchConversations extends _$SearchConversations {
   Future<List<Conversation>> build() async {
     _useCase = ref.read(searchConversationsUseCaseProvider);
 
-    // Initial state - empty list
     return [];
   }
 
-  /// Execute search with query
   Future<void> search(String query) async {
-    // Set loading state
     state = const AsyncValue.loading();
 
-    // Execute use case
     final result = await _useCase(query: query);
 
-    // Update state based on result
     state = result.fold(
       (failure) => AsyncValue.error(Exception(failure.message), StackTrace.current),
       (conversations) => AsyncValue.data(conversations),
     );
   }
 
-  /// Clear search results
   void clear() {
     state = const AsyncValue.data([]);
   }

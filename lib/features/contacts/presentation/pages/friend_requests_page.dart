@@ -39,9 +39,7 @@ class _FriendRequestsPageState extends ConsumerState<FriendRequestsPage> {
         ),
         body: TabBarView(
           children: [
-            // Received requests tab
             _buildReceivedRequestsList(state, colorScheme),
-            // Sent requests tab
             _buildSentRequestsList(state, colorScheme),
           ],
         ),
@@ -74,22 +72,24 @@ class _FriendRequestsPageState extends ConsumerState<FriendRequestsPage> {
                 IconButton(
                   icon: const Icon(Icons.check, color: Colors.green),
                   onPressed: () async {
+                    final messenger = ScaffoldMessenger.of(context);
+
                     final success = await ref.read(contactProvider.notifier).acceptFriendRequest(request.id);
-                    if (success && mounted) {
-                      ScaffoldMessenger.of(
-                        context,
-                      ).showSnackBar(const SnackBar(content: Text('Friend request accepted')));
+
+                    if (success) {
+                      messenger.showSnackBar(const SnackBar(content: Text('Friend request accepted')));
                     }
                   },
                 ),
                 IconButton(
                   icon: const Icon(Icons.close, color: Colors.red),
                   onPressed: () async {
+                    final messenger = ScaffoldMessenger.of(context);
+
                     final success = await ref.read(contactProvider.notifier).rejectFriendRequest(request.id);
-                    if (success && mounted) {
-                      ScaffoldMessenger.of(
-                        context,
-                      ).showSnackBar(const SnackBar(content: Text('Friend request rejected')));
+
+                    if (success) {
+                      messenger.showSnackBar(const SnackBar(content: Text('Friend request rejected')));
                     }
                   },
                 ),
@@ -138,11 +138,12 @@ class _FriendRequestsPageState extends ConsumerState<FriendRequestsPage> {
                 IconButton(
                   icon: const Icon(Icons.cancel, color: Colors.red),
                   onPressed: () async {
+                    final messenger = ScaffoldMessenger.of(context);
+
                     final success = await ref.read(contactProvider.notifier).cancelFriendRequest(request.id);
-                    if (success && mounted) {
-                      ScaffoldMessenger.of(
-                        context,
-                      ).showSnackBar(const SnackBar(content: Text('Friend request cancelled')));
+
+                    if (success) {
+                      messenger.showSnackBar(const SnackBar(content: Text('Friend request cancelled')));
                     }
                   },
                 ),

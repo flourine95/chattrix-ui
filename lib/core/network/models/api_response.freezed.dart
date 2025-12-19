@@ -15,10 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$ApiResponse<T> {
 
- bool get success; String? get message; T? get data;// Error fields (flat structure, NOT nested)
- String? get code;// Error code: VALIDATION_ERROR, UNAUTHORIZED, etc.
- Map<String, dynamic>? get details;// Field-level validation errors
- String? get requestId;
+ bool get success; String? get message; T? get data; String? get code; Map<String, dynamic>? get details; String? get requestId;
 /// Create a copy of ApiResponse
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -223,11 +220,8 @@ class _ApiResponse<T> implements ApiResponse<T> {
 @override final  bool success;
 @override final  String? message;
 @override final  T? data;
-// Error fields (flat structure, NOT nested)
 @override final  String? code;
-// Error code: VALIDATION_ERROR, UNAUTHORIZED, etc.
  final  Map<String, dynamic>? _details;
-// Error code: VALIDATION_ERROR, UNAUTHORIZED, etc.
 @override Map<String, dynamic>? get details {
   final value = _details;
   if (value == null) return null;
@@ -236,7 +230,6 @@ class _ApiResponse<T> implements ApiResponse<T> {
   return EqualUnmodifiableMapView(value);
 }
 
-// Field-level validation errors
 @override final  String? requestId;
 
 /// Create a copy of ApiResponse

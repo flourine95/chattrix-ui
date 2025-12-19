@@ -1,10 +1,7 @@
-import 'dart:convert';
 import 'package:chattrix_ui/features/chat/data/models/mentioned_user_model.dart';
-import 'package:chattrix_ui/features/chat/data/models/message_sender_model.dart';
 import 'package:chattrix_ui/features/chat/data/models/read_receipt_model.dart';
 import 'package:chattrix_ui/features/chat/data/models/reply_to_message_model.dart';
 import 'package:chattrix_ui/features/chat/domain/entities/message.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'message_model.freezed.dart';
@@ -23,22 +20,28 @@ abstract class MessageModel with _$MessageModel {
     required String content,
     required String type,
     required String createdAt,
-    @Deprecated('Use senderId, senderUsername, senderFullName instead') MessageSenderModel? sender,
+    // Rich media fields
     String? mediaUrl,
     String? thumbnailUrl,
     String? fileName,
     int? fileSize,
     int? duration,
+    // Location fields
     double? latitude,
     double? longitude,
     String? locationName,
+    // Reply/Thread fields
     int? replyToMessageId,
     ReplyToMessageModel? replyToMessage,
-    String? reactions,
-    String? mentions,
+    // Reactions: Map of emoji to array of user IDs
+    Map<String, List<int>>? reactions,
+    // Mentions: Array of user IDs
+    List<int>? mentions,
     @Default([]) List<MentionedUserModel> mentionedUsers,
+    // Timestamps
     String? sentAt,
     String? updatedAt,
+    // Edit/Delete/Forward
     @Default(false) bool edited,
     String? editedAt,
     @Default(false) bool deleted,
@@ -46,36 +49,16 @@ abstract class MessageModel with _$MessageModel {
     @Default(false) bool forwarded,
     int? originalMessageId,
     @Default(0) int forwardCount,
+    // Read receipts
     @Default(0) int readCount,
     @Default([]) List<ReadReceiptModel> readBy,
   }) = _MessageModel;
 
   factory MessageModel.fromJson(Map<String, dynamic> json) => _$MessageModelFromJson(json);
 
+  /// Parse message from API response
+  /// Handles both REST API and WebSocket message formats
   factory MessageModel.fromApi(Map<String, dynamic> json) {
-    // Parse senderId
-    final senderId = (json['senderId'] ?? json['sender']?['id'] ?? 0) is int
-        ? (json['senderId'] ?? json['sender']?['id'] ?? 0)
-        : int.tryParse((json['senderId'] ?? json['sender']?['id'] ?? 0).toString()) ?? 0;
-
-    // Parse senderUsername
-    final senderUsername = json['senderUsername']?.toString() ?? json['sender']?['username']?.toString();
-
-    // Parse senderFullName
-    final senderFullName = json['senderFullName']?.toString() ?? json['sender']?['fullName']?.toString();
-
-    // Keep backward compatibility with old sender object
-    final senderJson = (json['sender'] is Map<String, dynamic>)
-        ? json['sender'] as Map<String, dynamic>
-        : <String, dynamic>{
-            'id': senderId,
-            'userId': senderId,
-            'senderId': senderId,
-            'username': senderUsername,
-            'senderUsername': senderUsername,
-            'fullName': senderFullName ?? '',
-          };
-
     // Parse replyToMessage
     ReplyToMessageModel? replyToMessage;
     if (json['replyToMessage'] != null && json['replyToMessage'] is Map<String, dynamic>) {
@@ -96,20 +79,29 @@ abstract class MessageModel with _$MessageModel {
       readBy = (json['readBy'] as List).map((e) => ReadReceiptModel.fromJson(e as Map<String, dynamic>)).toList();
     }
 
+    // Parse reactions - API returns Map<String, List<int>>
+    Map<String, List<int>>? reactions;
+    if (json['reactions'] != null && json['reactions'] is Map) {
+      reactions = (json['reactions'] as Map).map(
+        (key, value) => MapEntry(key.toString(), (value as List).map((e) => (e as num).toInt()).toList()),
+      );
+    }
+
+    // Parse mentions - API returns List<int>
+    List<int>? mentions;
+    if (json['mentions'] != null && json['mentions'] is List) {
+      mentions = (json['mentions'] as List).map((e) => (e as num).toInt()).toList();
+    }
+
     return MessageModel(
-      id: (json['id'] ?? json['messageId'] ?? 0) is int
-          ? (json['id'] ?? json['messageId'] ?? 0)
-          : int.tryParse((json['id'] ?? json['messageId'] ?? 0).toString()) ?? 0,
-      conversationId: (json['conversationId'] ?? json['conversation_id'] ?? 0) is int
-          ? (json['conversationId'] ?? json['conversation_id'] ?? 0)
-          : int.tryParse((json['conversationId'] ?? json['conversation_id'] ?? '0').toString()) ?? 0,
-      senderId: senderId,
-      senderUsername: senderUsername,
-      senderFullName: senderFullName,
+      id: (json['id'] ?? json['messageId'] ?? 0) as int,
+      conversationId: (json['conversationId'] ?? json['conversation_id'] ?? 0) as int,
+      senderId: (json['senderId'] ?? json['sender']?['id'] ?? 0) as int,
+      senderUsername: json['senderUsername']?.toString() ?? json['sender']?['username']?.toString(),
+      senderFullName: json['senderFullName']?.toString() ?? json['sender']?['fullName']?.toString(),
       content: (json['content'] ?? '').toString(),
-      type: (json['type'] ?? '').toString(),
+      type: (json['type'] ?? 'TEXT').toString(),
       createdAt: (json['createdAt'] ?? json['sentAt'] ?? DateTime.now().toIso8601String()).toString(),
-      sender: MessageSenderModel.fromApi(senderJson),
       mediaUrl: json['mediaUrl']?.toString(),
       thumbnailUrl: json['thumbnailUrl']?.toString(),
       fileName: json['fileName']?.toString(),
@@ -120,8 +112,8 @@ abstract class MessageModel with _$MessageModel {
       locationName: json['locationName']?.toString(),
       replyToMessageId: json['replyToMessageId'] != null ? (json['replyToMessageId'] as num).toInt() : null,
       replyToMessage: replyToMessage,
-      reactions: _convertReactionsToJson(json['reactions']),
-      mentions: _convertMentionsToJson(json['mentions']),
+      reactions: reactions,
+      mentions: mentions,
       mentionedUsers: mentionedUsers,
       sentAt: json['sentAt']?.toString(),
       updatedAt: json['updatedAt']?.toString(),
@@ -137,41 +129,7 @@ abstract class MessageModel with _$MessageModel {
     );
   }
 
-  /// Convert reactions from API format to JSON string
-  /// API returns: {"👍": [1, 5], "❤️": [7]} (object)
-  /// We need: "{\"👍\": [1, 5], \"❤️\": [7]}" (JSON string)
-  static String? _convertReactionsToJson(dynamic reactions) {
-    if (reactions == null) return null;
-    if (reactions is String) return reactions;
-    if (reactions is Map) {
-      try {
-        return jsonEncode(reactions);
-      } catch (e) {
-        debugPrint('Error converting reactions to JSON: $e');
-        return null;
-      }
-    }
-    return null;
-  }
-
-  /// Convert mentions from API format to JSON string
-  /// API returns: [1, 2, 3] (array)
-  /// We need: "[1, 2, 3]" (JSON string)
-  static String? _convertMentionsToJson(dynamic mentions) {
-    if (mentions == null) return null;
-    if (mentions is String) return mentions;
-    if (mentions is List) {
-      try {
-        // Convert List to JSON string
-        return jsonEncode(mentions);
-      } catch (e) {
-        debugPrint('Error converting mentions to JSON: $e');
-        return null;
-      }
-    }
-    return null;
-  }
-
+  /// Convert to domain entity
   Message toEntity() {
     return Message(
       id: id,
@@ -182,7 +140,6 @@ abstract class MessageModel with _$MessageModel {
       content: content,
       type: type,
       createdAt: DateTime.parse(createdAt),
-      sender: sender?.toEntity(),
       mediaUrl: mediaUrl,
       thumbnailUrl: thumbnailUrl,
       fileName: fileName,

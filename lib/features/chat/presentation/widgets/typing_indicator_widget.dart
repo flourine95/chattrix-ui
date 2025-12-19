@@ -27,13 +27,13 @@ class TypingIndicatorWidget extends StatelessWidget {
     final colors = Theme.of(context).colorScheme;
     final textStyle = Theme.of(
       context,
-    ).textTheme.bodySmall?.copyWith(color: colors.onSurface.withOpacity(0.6), fontStyle: FontStyle.italic);
+    ).textTheme.bodySmall?.copyWith(color: colors.onSurface.withValues(alpha: 0.6), fontStyle: FontStyle.italic);
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
-        color: colors.surface.withOpacity(0.5),
-        border: Border(top: BorderSide(color: colors.onSurface.withOpacity(0.1), width: 1)),
+        color: colors.surface.withValues(alpha: 0.5),
+        border: Border(top: BorderSide(color: colors.onSurface.withValues(alpha: 0.1), width: 1)),
       ),
       child: Row(
         children: [

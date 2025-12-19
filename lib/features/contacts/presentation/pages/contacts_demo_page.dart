@@ -497,7 +497,7 @@ class _FriendRequestPageState extends State<FriendRequestPage> with SingleTicker
     return ListView.separated(
       padding: const EdgeInsets.all(16),
       itemCount: list.length,
-      separatorBuilder: (_, __) => const SizedBox(height: 20),
+      separatorBuilder: (_, _) => const SizedBox(height: 20),
       itemBuilder: (context, index) {
         final req = list[index];
         return Row(

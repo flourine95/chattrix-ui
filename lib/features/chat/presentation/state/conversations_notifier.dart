@@ -201,7 +201,7 @@ class ConversationsNotifier extends _$ConversationsNotifier {
       shouldRetry: (error) {
         // Only retry network errors (timeout, connection issues)
         if (error is Failure) {
-          return error.maybeWhen(network: (_, __) => true, orElse: () => false);
+          return error.maybeWhen(network: (_, _) => true, orElse: () => false);
         }
         return RetryHelper.isNetworkError(error);
       },

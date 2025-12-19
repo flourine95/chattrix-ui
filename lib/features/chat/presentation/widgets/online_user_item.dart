@@ -48,7 +48,7 @@ class OnlineUserItem extends StatelessWidget {
                     borderRadius: BorderRadius.circular(8),
                     // Có thể dùng border màu khác tùy theme
                     border: Border.all(
-                      color: isDark ? Colors.transparent : Colors.white.withOpacity(0.8),
+                      color: isDark ? Colors.transparent : Colors.white.withValues(alpha: 0.8),
                       width: 0.5,
                     ),
                   ),

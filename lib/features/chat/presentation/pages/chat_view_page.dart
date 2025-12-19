@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:io';
-import 'dart:typed_data';
 
 import 'package:chattrix_ui/core/domain/enums/enums.dart';
 import 'package:chattrix_ui/core/widgets/user_avatar.dart';
@@ -399,6 +398,7 @@ class ChatViewPage extends HookConsumerWidget {
                     _MessageList(
                       messagesAsync: messagesAsync,
                       me: me,
+                      conversation: conversation,
                       scrollController: scrollController,
                       onReply: (m) => replyToMessage.value = m,
                       onReactionTap: (m, e) =>
@@ -528,7 +528,7 @@ class ChatViewPage extends HookConsumerWidget {
       backgroundColor: appBarColor,
       surfaceTintColor: Colors.transparent,
       elevation: 0,
-      shadowColor: Colors.black.withOpacity(0.1),
+      shadowColor: Colors.black.withValues(alpha: 0.1),
       scrolledUnderElevation: 2,
       leadingWidth: 40,
       leading: BackButton(color: color, onPressed: () => context.pop()),
@@ -593,6 +593,7 @@ class ChatViewPage extends HookConsumerWidget {
 class _MessageList extends HookConsumerWidget {
   final AsyncValue<List<Message>> messagesAsync;
   final dynamic me;
+  final dynamic conversation;
   final ScrollController scrollController;
   final Function(Message) onReply;
   final Function(Message, String) onReactionTap;
@@ -603,6 +604,7 @@ class _MessageList extends HookConsumerWidget {
   const _MessageList({
     required this.messagesAsync,
     required this.me,
+    required this.conversation,
     required this.scrollController,
     required this.onReply,
     required this.onReactionTap,
@@ -610,6 +612,17 @@ class _MessageList extends HookConsumerWidget {
     required this.onEdit,
     required this.onDelete,
   });
+
+  /// Get avatar URL for a sender from conversation participants
+  String? _getSenderAvatar(int senderId) {
+    if (conversation == null) return null;
+    try {
+      final participant = conversation.participants.firstWhere((p) => p.userId == senderId, orElse: () => null);
+      return participant?.avatarUrl;
+    } catch (e) {
+      return null;
+    }
+  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -641,8 +654,7 @@ class _MessageList extends HookConsumerWidget {
                       child: showAvatar
                           ? UserAvatar(
                               displayName: m.senderFullName ?? 'U',
-                              // ignore: deprecated_member_use
-                              avatarUrl: m.sender?.avatarUrl,
+                              avatarUrl: _getSenderAvatar(m.senderId),
                               radius: 14,
                             )
                           : null,
@@ -668,7 +680,7 @@ class _MessageList extends HookConsumerWidget {
         );
       },
       loading: () => const Center(child: CircularProgressIndicator()),
-      error: (_, __) => const SizedBox(),
+      error: (_, _) => const SizedBox(),
     );
   }
 }
@@ -749,7 +761,7 @@ class _RealMediaGallery extends StatelessWidget {
             ),
             itemCount: assets.length + 1,
             itemBuilder: (context, index) {
-              if (index == 0)
+              if (index == 0) {
                 return GestureDetector(
                   onTap: onCameraTap,
                   child: Container(
@@ -763,6 +775,7 @@ class _RealMediaGallery extends StatelessWidget {
                     ),
                   ),
                 );
+              }
               final asset = assets[index - 1];
               return _MediaGridItem(
                 asset: asset,
@@ -1040,7 +1053,7 @@ class _InputBar extends StatelessWidget {
             // Gallery button
             Container(
               decoration: BoxDecoration(
-                color: showGallery ? primaryColor.withOpacity(0.1) : Colors.transparent,
+                color: showGallery ? primaryColor.withValues(alpha: 0.1) : Colors.transparent,
                 shape: BoxShape.circle,
               ),
               child: IconButton(

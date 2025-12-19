@@ -55,7 +55,7 @@ class SearchConversationsPage extends HookConsumerWidget {
           decoration: InputDecoration(
             hintText: 'Tìm kiếm tin nhắn...',
             border: InputBorder.none,
-            hintStyle: TextStyle(color: colors.onSurface.withOpacity(0.5)),
+            hintStyle: TextStyle(color: colors.onSurface.withValues(alpha: 0.5)),
           ),
           style: const TextStyle(fontSize: 16),
         ),
@@ -118,7 +118,7 @@ class SearchConversationsPage extends HookConsumerWidget {
           const SizedBox(height: 8),
           Text(
             error.toString(),
-            style: TextStyle(fontSize: 14, color: colors.onSurface.withOpacity(0.7)),
+            style: TextStyle(fontSize: 14, color: colors.onSurface.withValues(alpha: 0.7)),
             textAlign: TextAlign.center,
           ),
         ],
@@ -133,11 +133,11 @@ class SearchConversationsPage extends HookConsumerWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.search, size: 64, color: colors.onSurface.withOpacity(0.3)),
+          Icon(Icons.search, size: 64, color: colors.onSurface.withValues(alpha: 0.3)),
           const SizedBox(height: 16),
           Text(
             message,
-            style: TextStyle(fontSize: 16, color: colors.onSurface.withOpacity(0.7)),
+            style: TextStyle(fontSize: 16, color: colors.onSurface.withValues(alpha: 0.7)),
             textAlign: TextAlign.center,
           ),
         ],

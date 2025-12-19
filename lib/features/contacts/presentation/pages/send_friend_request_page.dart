@@ -29,10 +29,13 @@ class _SendFriendRequestPageState extends ConsumerState<SendFriendRequestPage> {
 
     setState(() => _isLoading = true);
 
+    final messenger = ScaffoldMessenger.of(context);
+    final navigator = Navigator.of(context);
+
     final receiverUserId = int.tryParse(_userIdController.text);
     if (receiverUserId == null) {
       setState(() => _isLoading = false);
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Invalid user ID')));
+      messenger.showSnackBar(const SnackBar(content: Text('Invalid user ID')));
       return;
     }
 
@@ -45,12 +48,12 @@ class _SendFriendRequestPageState extends ConsumerState<SendFriendRequestPage> {
 
     setState(() => _isLoading = false);
 
-    if (success && context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Friend request sent successfully')));
-      Navigator.pop(context);
-    } else if (context.mounted) {
+    if (success) {
+      messenger.showSnackBar(const SnackBar(content: Text('Friend request sent successfully')));
+      navigator.pop();
+    } else {
       final errorMessage = ref.read(contactProvider).errorMessage ?? 'Failed to send request';
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(errorMessage)));
+      messenger.showSnackBar(SnackBar(content: Text(errorMessage)));
     }
   }
 

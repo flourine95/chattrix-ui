@@ -12,15 +12,12 @@ part of 'typing_providers.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
-/// Provider to manage typing indicators across all conversations
 
 @ProviderFor(TypingNotifier)
 const typingProvider = TypingNotifierProvider._();
 
-/// Provider to manage typing indicators across all conversations
 final class TypingNotifierProvider
     extends $NotifierProvider<TypingNotifier, Map<String, List<TypingUser>>> {
-  /// Provider to manage typing indicators across all conversations
   const TypingNotifierProvider._()
     : super(
         from: null,
@@ -50,9 +47,7 @@ final class TypingNotifierProvider
   }
 }
 
-String _$typingNotifierHash() => r'dc109d245ddbf2c302eca54cfb84d5cd23760e11';
-
-/// Provider to manage typing indicators across all conversations
+String _$typingNotifierHash() => r'57c751eee2a4e426914f0160f47079250d5b399a';
 
 abstract class _$TypingNotifier
     extends $Notifier<Map<String, List<TypingUser>>> {
@@ -151,7 +146,7 @@ final class ConversationTypingUsersProvider
 }
 
 String _$conversationTypingUsersHash() =>
-    r'd8c3c9462cba7b0b82c978a2cc8710bc689583a7';
+    r'7f013bfab34f8151f3b6cccc790da79b8b495e65';
 
 /// Convenience provider to get typing users for a specific conversation
 
