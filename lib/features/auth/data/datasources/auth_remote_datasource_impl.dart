@@ -22,24 +22,21 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       ApiConstants.register,
       data: {'username': username, 'email': email, 'password': password, 'fullName': fullName},
     );
-    final apiResponse = ApiResponse<void>.fromJson(response.data, (data) => null);
-    // SỬA: Bỏ từ khóa 'return', chỉ gọi hàm để check lỗi
+    final apiResponse = ApiResponse<void>.fromJson(response.data, (data) {});
     apiResponse.getDataOrThrow();
   }
 
   @override
   Future<void> verifyEmail({required String email, required String otp}) async {
     final response = await dio.post(ApiConstants.verifyEmail, data: {'email': email, 'otp': otp});
-    final apiResponse = ApiResponse<void>.fromJson(response.data, (data) => null);
-    // SỬA: Bỏ 'return'
+    final apiResponse = ApiResponse<void>.fromJson(response.data, (data) {});
     apiResponse.getDataOrThrow();
   }
 
   @override
   Future<void> resendVerification({required String email}) async {
     final response = await dio.post(ApiConstants.resendVerification, data: {'email': email});
-    final apiResponse = ApiResponse<void>.fromJson(response.data, (data) => null);
-    // SỬA: Bỏ 'return'
+    final apiResponse = ApiResponse<void>.fromJson(response.data, (data) {});
     apiResponse.getDataOrThrow();
   }
 
@@ -86,16 +83,14 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       ApiConstants.changePassword,
       data: {'currentPassword': currentPassword, 'newPassword': newPassword},
     );
-    final apiResponse = ApiResponse<void>.fromJson(response.data, (data) => null);
-    // SỬA: Bỏ 'return'
+    final apiResponse = ApiResponse<void>.fromJson(response.data, (data) {});
     apiResponse.getDataOrThrow();
   }
 
   @override
   Future<void> forgotPassword({required String email}) async {
     final response = await dio.post(ApiConstants.forgotPassword, data: {'email': email});
-    final apiResponse = ApiResponse<void>.fromJson(response.data, (data) => null);
-    // SỬA: Bỏ 'return'
+    final apiResponse = ApiResponse<void>.fromJson(response.data, (data) {});
     apiResponse.getDataOrThrow();
   }
 
@@ -105,23 +100,21 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       ApiConstants.resetPassword,
       data: {'email': email, 'otp': otp, 'newPassword': newPassword},
     );
-    final apiResponse = ApiResponse<void>.fromJson(response.data, (data) => null);
-    // SỬA: Bỏ 'return'
+    final apiResponse = ApiResponse<void>.fromJson(response.data, (data) {});
     apiResponse.getDataOrThrow();
   }
 
   @override
   Future<void> logout(String accessToken) async {
     final response = await dio.post(ApiConstants.logout);
-    final apiResponse = ApiResponse<void>.fromJson(response.data, (data) => null);
-    // SỬA: Bỏ 'return'
+    final apiResponse = ApiResponse<void>.fromJson(response.data, (data) {});
     apiResponse.getDataOrThrow();
   }
 
   @override
   Future<void> logoutAll(String accessToken) async {
     final response = await dio.post(ApiConstants.logoutAll);
-    final apiResponse = ApiResponse<void>.fromJson(response.data, (data) => null);
+    final apiResponse = ApiResponse<void>.fromJson(response.data, (data) {});
     apiResponse.getDataOrThrow();
   }
 }
