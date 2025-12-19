@@ -147,16 +147,59 @@ class ConversationUtils {
   /// - "Active now" (if online)
   /// - "Active 5 minutes ago"
   /// - "Active 2 hours ago"
+  /// - "Active yesterday"
+  /// - "Active on Dec 10"
   static String formatLastSeen(bool isOnline, DateTime? lastSeen) {
     if (isOnline) {
       return 'Active now';
     }
 
+    // Debug: Check if lastSeen is null
     if (lastSeen == null) {
+      // Backend chưa gửi lastSeen, hiển thị "Offline" thôi
       return 'Offline';
     }
 
-    return 'Active ${formatTimeAgo(lastSeen)}';
+    final now = DateTime.now();
+    final difference = now.difference(lastSeen);
+
+    // < 1 minute: "Active just now"
+    if (difference.inMinutes < 1) {
+      return 'Active just now';
+    }
+
+    // < 1 hour: "Active X minutes ago"
+    if (difference.inMinutes < 60) {
+      final minutes = difference.inMinutes;
+      return 'Active $minutes ${minutes == 1 ? 'minute' : 'minutes'} ago';
+    }
+
+    // < 24 hours: "Active X hours ago"
+    if (difference.inHours < 24) {
+      final hours = difference.inHours;
+      return 'Active $hours ${hours == 1 ? 'hour' : 'hours'} ago';
+    }
+
+    // Yesterday
+    final yesterday = now.subtract(const Duration(days: 1));
+    final isYesterday =
+        yesterday.year == lastSeen.year && yesterday.month == lastSeen.month && yesterday.day == lastSeen.day;
+
+    if (isYesterday) {
+      return 'Active yesterday';
+    }
+
+    // < 7 days: "Active on Monday"
+    if (difference.inDays < 7) {
+      const dayNames = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+      return 'Active on ${dayNames[lastSeen.weekday - 1]}';
+    }
+
+    // Older: "Active on Dec 10"
+    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    final month = monthNames[lastSeen.month - 1];
+    final day = lastSeen.day;
+    return 'Active on $month $day';
   }
 
   /// Get other participant in DIRECT conversation
@@ -221,5 +264,47 @@ class ConversationUtils {
   static String? getOtherParticipantAvatarUrl(Conversation conversation, User? currentUser) {
     final otherParticipant = getOtherParticipant(conversation, currentUser);
     return otherParticipant?.avatarUrl;
+  }
+
+  /// Format last seen as short badge text (for avatar overlay)
+  ///
+  /// Examples:
+  /// - "45m" (45 minutes ago)
+  /// - "2h" (2 hours ago)
+  /// - "3d" (3 days ago)
+  /// - "1w" (1 week ago)
+  /// - null (if online or > 1 week)
+  static String? formatLastSeenBadge(bool isOnline, DateTime? lastSeen) {
+    if (isOnline || lastSeen == null) {
+      return null;
+    }
+
+    final now = DateTime.now();
+    final difference = now.difference(lastSeen);
+
+    // < 1 hour: "Xm"
+    if (difference.inMinutes < 60) {
+      final minutes = difference.inMinutes;
+      if (minutes < 1) return null; // Just now - don't show badge
+      return '${minutes}m';
+    }
+
+    // < 24 hours: "Xh"
+    if (difference.inHours < 24) {
+      return '${difference.inHours}h';
+    }
+
+    // < 7 days: "Xd"
+    if (difference.inDays < 7) {
+      return '${difference.inDays}d';
+    }
+
+    // < 4 weeks: "Xw"
+    if (difference.inDays < 28) {
+      return '${(difference.inDays / 7).floor()}w';
+    }
+
+    // > 4 weeks: don't show badge
+    return null;
   }
 }

@@ -224,18 +224,21 @@ class _ConversationList extends ConsumerWidget {
 
     return conversationsAsync.when(
       data: (conversations) {
-        if (conversations.isEmpty) {
+        // Filter out conversations without last message
+        final conversationsWithMessages = conversations.where((c) => c.lastMessage != null).toList();
+
+        if (conversationsWithMessages.isEmpty) {
           return const SliverFillRemaining(child: Center(child: Text('No conversations yet')));
         }
         return SliverList(
           delegate: SliverChildBuilderDelegate((context, index) {
-            final conversation = conversations[index];
+            final conversation = conversationsWithMessages[index];
             return ConversationListItem(
               conversation: conversation,
               currentUser: me,
               onTap: () => context.push('/chat/${conversation.id}'),
             );
-          }, childCount: conversations.length),
+          }, childCount: conversationsWithMessages.length),
         );
       },
       loading: () => const SliverFillRemaining(child: Center(child: CircularProgressIndicator())),

@@ -15,8 +15,8 @@ _UserStatusUpdateModel _$UserStatusUpdateModelFromJson(
 ) => _UserStatusUpdateModel(
   userId: json['userId'] as String,
   username: json['username'] as String,
-  displayName: json['displayName'] as String,
-  isOnline: json['isOnline'] as bool,
+  displayName: json['fullName'] as String,
+  isOnline: json['online'] as bool,
   lastSeen: json['lastSeen'] as String?,
 );
 
@@ -25,7 +25,7 @@ Map<String, dynamic> _$UserStatusUpdateModelToJson(
 ) => <String, dynamic>{
   'userId': instance.userId,
   'username': instance.username,
-  'displayName': instance.displayName,
-  'isOnline': instance.isOnline,
+  'fullName': instance.displayName,
+  'online': instance.isOnline,
   'lastSeen': instance.lastSeen,
 };

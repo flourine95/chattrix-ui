@@ -23,6 +23,7 @@ class ApiConstants {
 
     return _host;
   }
+
   static bool get _useSecureProtocol {
     final useSecure = dotenv.env['USE_SECURE_PROTOCOL'];
     if (useSecure != null) {
@@ -89,7 +90,6 @@ class ApiConstants {
 
   static String profileByUsername(String username) => '$_baseUrl/$_v1/profile/username/$username';
 
-
   // Conversation endpoints
   static String get conversations => '$_baseUrl/$_v1/conversations';
 
@@ -120,6 +120,12 @@ class ApiConstants {
   static String messageEditHistory(String messageId) => '$_baseUrl/$_v1/messages/$messageId/edit-history';
 
   static String messageRead(String messageId) => '$_baseUrl/$_v1/messages/$messageId/read';
+
+  // Read Receipts endpoints
+  static String markConversationAsRead(int conversationId) =>
+      '$_baseUrl/$_v1/read-receipts/conversations/$conversationId';
+
+  static String get globalUnreadCount => '$_baseUrl/$_v1/read-receipts/unread-count';
 
   // Typing endpoints
   static String get typingStart => '$_baseUrl/$_v1/typing/start';

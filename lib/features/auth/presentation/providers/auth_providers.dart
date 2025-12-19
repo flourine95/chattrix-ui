@@ -20,6 +20,7 @@ import 'package:chattrix_ui/features/auth/domain/usecases/reset_password_usecase
 import 'package:chattrix_ui/features/auth/domain/usecases/verify_email_usecase.dart';
 import 'package:chattrix_ui/features/auth/presentation/providers/auth_repository_provider.dart';
 import 'package:chattrix_ui/features/chat/presentation/providers/chat_providers.dart';
+import 'package:chattrix_ui/features/chat/presentation/providers/chat_websocket_provider_new.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
@@ -198,6 +199,11 @@ class AuthNotifier extends Notifier<AuthState> {
         // Check if user was loaded successfully
         if (state.user != null) {
           debugPrint('✅ [Auth] User profile loaded: ${state.user!.username}');
+
+          // ✅ Invalidate WebSocket provider to trigger reconnect with new token
+          ref.invalidate(webSocketConnectionProvider);
+          debugPrint('🔌 [Auth] WebSocket provider invalidated - will reconnect with new token');
+
           return true;
         } else {
           debugPrint('⚠️ [Auth] Login succeeded but failed to load user profile');

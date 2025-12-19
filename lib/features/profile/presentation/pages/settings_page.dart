@@ -154,6 +154,27 @@ class SettingsPage extends ConsumerWidget {
             ),
 
             const SizedBox(height: 24),
+
+            // --- GROUP 4: DEBUG ---
+            const ProfileSectionLabel(title: 'Developer Tools'),
+            ProfileSectionCard(
+              children: [
+                ProfileNavigationTile(
+                  icon: FontAwesomeIcons.bug,
+                  iconColor: Colors.orange,
+                  label: 'WebSocket Debug',
+                  onTap: () => context.push('/debug/websocket'),
+                ),
+                ProfileNavigationTile(
+                  icon: FontAwesomeIcons.users,
+                  iconColor: Colors.blue,
+                  label: 'Participant Data',
+                  onTap: () => context.push('/debug/participants'),
+                ),
+              ],
+            ),
+
+            const SizedBox(height: 24),
           ],
         ),
       ),

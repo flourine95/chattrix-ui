@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:chattrix_ui/core/network/websocket_client.dart';
 import 'package:chattrix_ui/core/utils/app_logger.dart';
+import 'package:flutter/cupertino.dart';
 
 class WebSocketConnectionManager {
   final WebSocketClient _client;
@@ -71,7 +72,7 @@ class WebSocketConnectionManager {
 
     _heartbeatTimer = Timer.periodic(heartbeatInterval, (timer) {
       if (_client.isConnected) {
-        AppLogger.debug('Sending heartbeat', tag: 'WebSocket');
+        debugPrint('Sending heartbeat');
         _client.send('{"type":"heartbeat","payload":{}}');
       }
     });

@@ -49,4 +49,16 @@ abstract class ChatRepository {
 
   /// Delete a message
   Future<Either<Failure, void>> deleteMessage(String messageId);
+
+  /// Mark conversation as read
+  ///
+  /// Marks all unread messages in a conversation as read.
+  /// Creates read receipts and resets unread count.
+  ///
+  /// **Parameters:**
+  /// - [conversationId]: ID of the conversation
+  /// - [lastMessageId]: Optional - ID of last message to mark as read
+  ///
+  /// **API:** `POST /v1/read-receipts/conversations/{conversationId}`
+  Future<Either<Failure, void>> markConversationAsRead({required int conversationId, int? lastMessageId});
 }

@@ -20,4 +20,8 @@ class RoutePaths {
   static const String searchConversations = '/search-conversations';
   // chatListDemo removed - production ChatListPage is now used at '/' route
   static const String contactsDemo = '/contacts-demo';
+
+  // Debug routes
+  static const String websocketDebug = '/debug/websocket';
+  static const String participantDebug = '/debug/participants';
 }

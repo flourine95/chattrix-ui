@@ -15,23 +15,9 @@ T _$identity<T>(T value) => value;
 mixin _$Message {
 
  int get id; int get conversationId; int get senderId; String? get senderUsername; String? get senderFullName; String get content; String get type;// 'TEXT', 'IMAGE', 'VIDEO', 'AUDIO', 'FILE', 'LOCATION'
- DateTime get createdAt;// Rich media fields
- String? get mediaUrl;// URL for image, video, audio, or document
- String? get thumbnailUrl;// Thumbnail for video or document preview
- String? get fileName;// Original file name for documents
- int? get fileSize;// File size in bytes
- int? get duration;// Duration in seconds for audio/video
-// Location fields
- double? get latitude; double? get longitude; String? get locationName;// Human-readable location name
-// Reply/Thread fields
- int? get replyToMessageId;// ID of message being replied to
- ReplyToMessage? get replyToMessage;// Full reply message details
-// Reactions: Map of emoji to array of user IDs (e.g., {"👍": [1, 2], "❤️": [3]})
+ DateTime get createdAt; String? get mediaUrl; String? get thumbnailUrl; String? get fileName; int? get fileSize; int? get duration; double? get latitude; double? get longitude; String? get locationName; int? get replyToMessageId; ReplyToMessage? get replyToMessage;// Reactions: Map of emoji to array of user IDs (e.g., {"👍": [1, 2], "❤️": [3]})
  Map<String, List<int>>? get reactions;// Mentions: Array of user IDs mentioned in message (e.g., [1, 2, 3])
- List<int>? get mentions; List<MentionedUser> get mentionedUsers;// Timestamps
- DateTime? get sentAt; DateTime? get updatedAt;// Edit/Delete/Forward
- bool get edited; DateTime? get editedAt; bool get deleted; DateTime? get deletedAt; bool get forwarded; int? get originalMessageId; int get forwardCount;// Read receipts
- int get readCount; List<ReadReceipt> get readBy;
+ List<int>? get mentions; List<MentionedUser> get mentionedUsers; DateTime? get sentAt; DateTime? get updatedAt; bool get edited; DateTime? get editedAt; bool get deleted; DateTime? get deletedAt; bool get forwarded; int? get originalMessageId; int get forwardCount; int get readCount; List<ReadReceipt> get readBy;
 /// Create a copy of Message
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -278,30 +264,18 @@ class _Message implements Message {
 @override final  String type;
 // 'TEXT', 'IMAGE', 'VIDEO', 'AUDIO', 'FILE', 'LOCATION'
 @override final  DateTime createdAt;
-// Rich media fields
 @override final  String? mediaUrl;
-// URL for image, video, audio, or document
 @override final  String? thumbnailUrl;
-// Thumbnail for video or document preview
 @override final  String? fileName;
-// Original file name for documents
 @override final  int? fileSize;
-// File size in bytes
 @override final  int? duration;
-// Duration in seconds for audio/video
-// Location fields
 @override final  double? latitude;
 @override final  double? longitude;
 @override final  String? locationName;
-// Human-readable location name
-// Reply/Thread fields
 @override final  int? replyToMessageId;
-// ID of message being replied to
 @override final  ReplyToMessage? replyToMessage;
-// Full reply message details
 // Reactions: Map of emoji to array of user IDs (e.g., {"👍": [1, 2], "❤️": [3]})
  final  Map<String, List<int>>? _reactions;
-// Full reply message details
 // Reactions: Map of emoji to array of user IDs (e.g., {"👍": [1, 2], "❤️": [3]})
 @override Map<String, List<int>>? get reactions {
   final value = _reactions;
@@ -329,10 +303,8 @@ class _Message implements Message {
   return EqualUnmodifiableListView(_mentionedUsers);
 }
 
-// Timestamps
 @override final  DateTime? sentAt;
 @override final  DateTime? updatedAt;
-// Edit/Delete/Forward
 @override@JsonKey() final  bool edited;
 @override final  DateTime? editedAt;
 @override@JsonKey() final  bool deleted;
@@ -340,7 +312,6 @@ class _Message implements Message {
 @override@JsonKey() final  bool forwarded;
 @override final  int? originalMessageId;
 @override@JsonKey() final  int forwardCount;
-// Read receipts
 @override@JsonKey() final  int readCount;
  final  List<ReadReceipt> _readBy;
 @override@JsonKey() List<ReadReceipt> get readBy {

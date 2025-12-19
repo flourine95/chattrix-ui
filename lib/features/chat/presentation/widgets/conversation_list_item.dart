@@ -4,6 +4,7 @@ import 'package:chattrix_ui/core/domain/enums/enums.dart';
 import 'package:chattrix_ui/features/auth/domain/entities/user.dart';
 import 'package:chattrix_ui/features/chat/domain/entities/conversation.dart';
 import 'package:chattrix_ui/features/chat/presentation/utils/conversation_utils.dart';
+import 'package:chattrix_ui/features/chat/presentation/widgets/seen_status_widget.dart';
 
 /// Widget to display a conversation item in the list
 ///
@@ -59,29 +60,10 @@ class ConversationListItem extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              // Avatar with online indicator
-              Stack(
-                children: [
-                  _buildAvatar(title),
-
-                  // Online indicator (only for DIRECT conversations)
-                  if (isOnline)
-                    Positioned(
-                      bottom: 0,
-                      right: 0,
-                      child: Container(
-                        width: 14,
-                        height: 14,
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF31A24C),
-                          shape: BoxShape.circle,
-                          border: Border.all(color: theme.scaffoldBackgroundColor, width: 2),
-                        ),
-                      ),
-                    ),
-                ],
-              ),
+              // Avatar with online indicator or last seen badge
+              _buildAvatarWithBadge(title, isOnline, theme),
 
               const SizedBox(width: 12),
 
@@ -89,8 +71,9 @@ class ConversationListItem extends StatelessWidget {
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    // Title and timestamp row
+                    // Row 1: Name + Unread badge
                     Row(
                       children: [
                         Expanded(
@@ -102,35 +85,7 @@ class ConversationListItem extends StatelessWidget {
                           ),
                         ),
 
-                        const SizedBox(width: 8),
-
-                        // Timestamp
-                        Text(
-                          timestamp,
-                          style: TextStyle(fontSize: 12, color: isDark ? Colors.grey[400] : Colors.grey[600]),
-                        ),
-                      ],
-                    ),
-
-                    const SizedBox(height: 4),
-
-                    // Last message and unread badge row
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            lastMessagePreview,
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: isDark ? Colors.grey[400] : Colors.grey[600],
-                              fontStyle: isTyping ? FontStyle.italic : FontStyle.normal,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-
-                        // Unread count badge
+                        // Unread count badge (top right)
                         if (conversation.unreadCount > 0) ...[
                           const SizedBox(width: 8),
                           Container(
@@ -147,6 +102,48 @@ class ConversationListItem extends StatelessWidget {
                         ],
                       ],
                     ),
+
+                    const SizedBox(height: 4),
+
+                    // Row 2: Last message + Time + Avatar seen
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        // Last message
+                        Expanded(
+                          child: Text(
+                            lastMessagePreview,
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: isDark ? Colors.grey[400] : Colors.grey[600],
+                              fontStyle: isTyping ? FontStyle.italic : FontStyle.normal,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+
+                        const SizedBox(width: 4),
+
+                        // Timestamp
+                        Text(
+                          '• $timestamp',
+                          style: TextStyle(fontSize: 12, color: isDark ? Colors.grey[400] : Colors.grey[600]),
+                        ),
+
+                        // Avatar seen (bottom right) - show all avatars for groups
+                        if (_isLastMessageFromMe() &&
+                            conversation.lastMessage != null &&
+                            conversation.lastMessage!.readCount > 0) ...[
+                          const SizedBox(width: 8),
+                          SeenStatusWidget(
+                            message: conversation.lastMessage!,
+                            isGroup: conversation.type == ConversationType.group,
+                            compact: true,
+                          ),
+                        ],
+                      ],
+                    ),
                   ],
                 ),
               ),
@@ -154,6 +151,61 @@ class ConversationListItem extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+
+  /// Build avatar with badge (online indicator or last seen time)
+  Widget _buildAvatarWithBadge(String title, bool isOnline, ThemeData theme) {
+    // Get last seen badge text for offline users
+    final lastSeenBadge = conversation.type == ConversationType.direct && !isOnline
+        ? ConversationUtils.formatLastSeenBadge(false, ConversationUtils.getLastSeen(conversation, currentUser))
+        : null;
+
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        _buildAvatar(title),
+
+        // Online indicator (green dot) - only for DIRECT conversations
+        if (conversation.type == ConversationType.direct && isOnline)
+          Positioned(
+            bottom: 0,
+            right: 0,
+            child: Container(
+              width: 14,
+              height: 14,
+              decoration: BoxDecoration(
+                color: const Color(0xFF31A24C),
+                shape: BoxShape.circle,
+                border: Border.all(color: theme.scaffoldBackgroundColor, width: 2),
+              ),
+            ),
+          ),
+
+        // Last seen badge (time ago) - only for offline DIRECT conversations
+        if (lastSeenBadge != null)
+          Positioned(
+            bottom: -4,
+            right: -4,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+              decoration: BoxDecoration(
+                color: const Color(0xFFE8F5E9), // Light green background
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: theme.scaffoldBackgroundColor, width: 1.5),
+              ),
+              child: Text(
+                lastSeenBadge,
+                style: const TextStyle(
+                  fontSize: 10,
+                  fontWeight: FontWeight.w600,
+                  color: Color(0xFF2E7D32), // Dark green text
+                  height: 1.2,
+                ),
+              ),
+            ),
+          ),
+      ],
     );
   }
 
@@ -177,9 +229,9 @@ class ConversationListItem extends StatelessWidget {
       return 'Đang soạn tin...';
     }
 
-    // If no last message
+    // If no last message, return empty string
     if (conversation.lastMessage == null) {
-      return 'No messages yet';
+      return '';
     }
 
     final lastMessage = conversation.lastMessage!;
@@ -222,6 +274,14 @@ class ConversationListItem extends StatelessWidget {
     return content;
   }
 
+  /// Check if last message was sent by current user
+  bool _isLastMessageFromMe() {
+    if (conversation.lastMessage == null || currentUser == null) {
+      return false;
+    }
+    return conversation.lastMessage!.senderId == currentUser!.id;
+  }
+
   /// Get sender name for group messages
   String? _getSenderName(dynamic lastMessage) {
     // Check if sender is current user
@@ -261,7 +321,14 @@ class ConversationListItem extends StatelessWidget {
 
     // Online status for direct conversations
     if (conversation.type == ConversationType.direct) {
-      buffer.write(isOnline ? 'Online. ' : 'Offline. ');
+      if (isOnline) {
+        buffer.write('Online. ');
+      } else {
+        // Add last seen info for offline users
+        final lastSeen = ConversationUtils.getLastSeen(conversation, currentUser);
+        final lastSeenText = ConversationUtils.formatLastSeen(false, lastSeen);
+        buffer.write('$lastSeenText. ');
+      }
     }
 
     // Last message

@@ -21,6 +21,7 @@ part 'conversations_notifier.g.dart';
 class ConversationsNotifier extends _$ConversationsNotifier {
   late final _getConversationsUsecase = ref.read(getConversationsUsecaseProvider);
   Timer? _pollingTimer;
+  Timer? _uiRefreshTimer;
   StreamSubscription<bool>? _connectionSubscription;
   StreamSubscription<Message>? _messageSubscription;
   StreamSubscription<ConversationUpdate>? _conversationUpdateSubscription;
@@ -106,6 +107,9 @@ class ConversationsNotifier extends _$ConversationsNotifier {
       _startPolling();
     }
 
+    // Start UI refresh timer to update last seen badges every minute
+    _startUiRefreshTimer();
+
     ref.onDispose(() {
       AppLogger.debug('🧹 Disposing ConversationsNotifier...', tag: 'ConversationsNotifier');
       _messageSubscription?.cancel();
@@ -114,6 +118,7 @@ class ConversationsNotifier extends _$ConversationsNotifier {
       _typingSubscription?.cancel();
       _connectionSubscription?.cancel();
       _stopPolling();
+      _stopUiRefreshTimer();
       _typingStates.clear();
     });
 
@@ -135,6 +140,35 @@ class ConversationsNotifier extends _$ConversationsNotifier {
       _pollingTimer?.cancel();
       _pollingTimer = null;
     }
+  }
+
+  void _startUiRefreshTimer() {
+    _stopUiRefreshTimer();
+    AppLogger.debug('⏰ Starting UI refresh timer (every 60s) for last seen badges', tag: 'ConversationsNotifier');
+    _uiRefreshTimer = Timer.periodic(const Duration(seconds: 60), (timer) {
+      AppLogger.debug('⏰ UI refresh timer triggered - updating last seen badges', tag: 'ConversationsNotifier');
+      _refreshUi();
+    });
+  }
+
+  void _stopUiRefreshTimer() {
+    if (_uiRefreshTimer != null) {
+      AppLogger.debug('⏸️ Stopping UI refresh timer', tag: 'ConversationsNotifier');
+      _uiRefreshTimer?.cancel();
+      _uiRefreshTimer = null;
+    }
+  }
+
+  /// Trigger a lightweight UI refresh without fetching new data
+  /// This updates the UI to reflect time-based changes (e.g., "2m" → "3m")
+  void _refreshUi() {
+    final currentState = state.value;
+    if (currentState == null) return;
+
+    // Trigger rebuild by creating a new list reference
+    // The UI will recalculate time-based displays (badges, timestamps)
+    state = AsyncValue.data(List.of(currentState));
+    AppLogger.debug('✅ UI refreshed for time-based updates', tag: 'ConversationsNotifier');
   }
 
   Future<List<Conversation>> _fetchConversations() async {
@@ -237,10 +271,21 @@ class ConversationsNotifier extends _$ConversationsNotifier {
   /// **Requirements**: 1.3, 1.4, 12.3
   void _handleMessageEvent(Message message) {
     final currentState = state.value;
-    if (currentState == null) return;
+    if (currentState == null) {
+      AppLogger.warning('⚠️ No current state, cannot handle message event', tag: 'ConversationsNotifier');
+      return;
+    }
 
     final currentUser = ref.read(currentUserProvider);
-    if (currentUser == null) return;
+    if (currentUser == null) {
+      AppLogger.warning('⚠️ No current user, cannot handle message event', tag: 'ConversationsNotifier');
+      return;
+    }
+
+    AppLogger.debug(
+      '📨 Processing message event: conversationId=${message.conversationId}, senderId=${message.senderId}, currentUserId=${currentUser.id}',
+      tag: 'ConversationsNotifier',
+    );
 
     // Find the conversation
     final conversationIndex = currentState.indexWhere((c) => c.id == message.conversationId);
@@ -259,12 +304,21 @@ class ConversationsNotifier extends _$ConversationsNotifier {
     // Clear typing state for this conversation when message arrives
     _typingStates.remove(conversation.id);
 
+    // Calculate new unread count
+    final isFromMe = message.senderId == currentUser.id;
+    final newUnreadCount = isFromMe ? conversation.unreadCount : conversation.unreadCount + 1;
+
+    AppLogger.debug(
+      '📊 Unread count update: isFromMe=$isFromMe, oldCount=${conversation.unreadCount}, newCount=$newUnreadCount',
+      tag: 'ConversationsNotifier',
+    );
+
     // Update conversation with new last message
     final updatedConversation = conversation.copyWith(
       lastMessage: message,
       updatedAt: message.createdAt,
       // Increment unread count if message is not from current user
-      unreadCount: message.senderId == currentUser.id ? conversation.unreadCount : conversation.unreadCount + 1,
+      unreadCount: newUnreadCount,
     );
 
     // Create new list with updated conversation moved to top
@@ -272,7 +326,10 @@ class ConversationsNotifier extends _$ConversationsNotifier {
 
     // Update state
     state = AsyncValue.data(updatedList);
-    AppLogger.debug('Updated conversation ${conversation.id} with new message', tag: 'ConversationsNotifier');
+    AppLogger.info(
+      '✅ Updated conversation ${conversation.id} with new message (unread: $newUnreadCount)',
+      tag: 'ConversationsNotifier',
+    );
   }
 
   /// Handle conversation update events from WebSocket
@@ -309,7 +366,10 @@ class ConversationsNotifier extends _$ConversationsNotifier {
   /// **Requirements**: 3.5, 7.3, 12.5
   void _handleUserStatusEvent(UserStatusUpdate statusUpdate) {
     final currentState = state.value;
-    if (currentState == null) return;
+    if (currentState == null) {
+      AppLogger.debug('No current state, skipping user status update', tag: 'ConversationsNotifier');
+      return;
+    }
 
     final userId = int.tryParse(statusUpdate.userId);
     if (userId == null) {
@@ -317,13 +377,26 @@ class ConversationsNotifier extends _$ConversationsNotifier {
       return;
     }
 
+    AppLogger.debug(
+      '🔄 Processing user status update: userId=$userId, online=${statusUpdate.isOnline}, lastSeen=${statusUpdate.lastSeen}',
+      tag: 'ConversationsNotifier',
+    );
+
     bool hasChanges = false;
+    int conversationsUpdated = 0;
+
     final updatedList = currentState.map((conversation) {
       // Find if this user is a participant in this conversation
       final participantIndex = conversation.participants.indexWhere((p) => p.userId == userId);
       if (participantIndex == -1) return conversation;
 
-      // Update participant's online status
+      final oldParticipant = conversation.participants[participantIndex];
+      AppLogger.debug(
+        '  📝 Found user $userId in conversation ${conversation.id}: old online=${oldParticipant.online}, new online=${statusUpdate.isOnline}',
+        tag: 'ConversationsNotifier',
+      );
+
+      // Update participant's online status and lastSeen
       final updatedParticipants = List.of(conversation.participants);
       updatedParticipants[participantIndex] = updatedParticipants[participantIndex].copyWith(
         online: statusUpdate.isOnline,
@@ -331,15 +404,18 @@ class ConversationsNotifier extends _$ConversationsNotifier {
       );
 
       hasChanges = true;
+      conversationsUpdated++;
       return conversation.copyWith(participants: updatedParticipants);
     }).toList();
 
     if (hasChanges) {
       state = AsyncValue.data(updatedList);
-      AppLogger.debug(
-        'Updated online status for user $userId to ${statusUpdate.isOnline}',
+      AppLogger.info(
+        '✅ Updated online status for user $userId to ${statusUpdate.isOnline} in $conversationsUpdated conversation(s)',
         tag: 'ConversationsNotifier',
       );
+    } else {
+      AppLogger.debug('⚠️ No conversations found with user $userId as participant', tag: 'ConversationsNotifier');
     }
   }
 
@@ -417,5 +493,27 @@ class ConversationsNotifier extends _$ConversationsNotifier {
       'Updated typing indicator for conversation $conversationId: ${typingUsers.length} users typing',
       tag: 'ConversationsNotifier',
     );
+  }
+
+  /// Reset unread count for a conversation
+  ///
+  /// Called after marking conversation as read via API.
+  /// Updates the local state immediately for better UX.
+  ///
+  /// **Parameters:**
+  /// - [conversationId]: ID of the conversation to reset unread count
+  void resetUnreadCount(int conversationId) {
+    final currentState = state.value;
+    if (currentState == null) return;
+
+    final updatedList = currentState.map((conversation) {
+      if (conversation.id == conversationId) {
+        return conversation.copyWith(unreadCount: 0);
+      }
+      return conversation;
+    }).toList();
+
+    state = AsyncValue.data(updatedList);
+    AppLogger.debug('✅ Reset unread count for conversation $conversationId', tag: 'ConversationsNotifier');
   }
 }

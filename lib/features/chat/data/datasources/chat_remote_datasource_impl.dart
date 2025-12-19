@@ -336,4 +336,51 @@ class ChatRemoteDatasourceImpl implements ChatRemoteDatasource {
       throw ServerException(message: 'Failed to delete message: $e');
     }
   }
+
+  @override
+  Future<void> markConversationAsRead({required int conversationId, int? lastMessageId}) async {
+    try {
+      AppLogger.debug(
+        '📡 Marking conversation $conversationId as read${lastMessageId != null ? ' up to message $lastMessageId' : ''}',
+        tag: 'ChatRemoteDataSource',
+      );
+
+      final url = ApiConstants.markConversationAsRead(conversationId);
+      final queryParams = lastMessageId != null ? {'lastMessageId': lastMessageId.toString()} : null;
+
+      AppLogger.debug('📡 Request URL: $url', tag: 'ChatRemoteDataSource');
+
+      final response = await dio.post(url, queryParameters: queryParams);
+
+      AppLogger.debug(
+        '📥 Mark as read response - Status: ${response.statusCode}, Data: ${response.data}',
+        tag: 'ChatRemoteDataSource',
+      );
+
+      if (response.statusCode == 204 || response.statusCode == 200) {
+        AppLogger.info('✅ Successfully marked conversation $conversationId as read', tag: 'ChatRemoteDataSource');
+        return;
+      }
+
+      throw ServerException(message: 'Failed to mark conversation as read', statusCode: response.statusCode);
+    } on DioException catch (e) {
+      AppLogger.error(
+        '❌ DioException - Status: ${e.response?.statusCode}, Data: ${e.response?.data}, Message: ${e.message}',
+        tag: 'ChatRemoteDataSource',
+      );
+
+      // Handle null response data safely
+      String errorMessage = 'Failed to mark conversation as read';
+      if (e.response?.data != null && e.response!.data is Map) {
+        errorMessage = e.response!.data['message'] ?? errorMessage;
+      } else if (e.message != null) {
+        errorMessage = e.message!;
+      }
+
+      throw ServerException(message: errorMessage, statusCode: e.response?.statusCode);
+    } catch (e) {
+      AppLogger.error('❌ Unexpected error: $e', tag: 'ChatRemoteDataSource');
+      throw ServerException(message: 'Failed to mark conversation as read: $e');
+    }
+  }
 }

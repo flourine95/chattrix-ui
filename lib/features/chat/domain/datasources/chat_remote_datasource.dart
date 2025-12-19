@@ -60,4 +60,9 @@ abstract class ChatRemoteDatasource {
 
   /// Delete a message
   Future<void> deleteMessage(String messageId);
+
+  /// Mark conversation as read
+  ///
+  /// **API:** `POST /v1/read-receipts/conversations/{conversationId}`
+  Future<void> markConversationAsRead({required int conversationId, int? lastMessageId});
 }

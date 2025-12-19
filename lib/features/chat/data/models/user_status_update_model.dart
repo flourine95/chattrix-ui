@@ -12,8 +12,8 @@ abstract class UserStatusUpdateModel with _$UserStatusUpdateModel {
   const factory UserStatusUpdateModel({
     required String userId,
     required String username,
-    required String displayName,
-    required bool isOnline,
+    @JsonKey(name: 'fullName') required String displayName,
+    @JsonKey(name: 'online') required bool isOnline,
     String? lastSeen,
   }) = _UserStatusUpdateModel;
 

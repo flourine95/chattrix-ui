@@ -19,6 +19,8 @@ import 'package:chattrix_ui/features/contacts/presentation/pages/contacts_demo_p
 import 'package:chattrix_ui/features/profile/presentation/pages/edit_profile_page.dart';
 import 'package:chattrix_ui/features/profile/presentation/pages/profile_page.dart';
 import 'package:chattrix_ui/features/profile/presentation/pages/settings_page.dart';
+import 'package:chattrix_ui/features/debug/presentation/pages/websocket_debug_page.dart';
+import 'package:chattrix_ui/features/debug/presentation/pages/participant_debug_page.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -89,7 +91,20 @@ class RouteConfig {
     ),
   ];
 
-  static List<RouteBase> get allRoutes => [...callRoutes, ...authRoutes, ...profileRoutes, mainRoutes];
+  static List<RouteBase> get debugRoutes => [
+    GoRoute(
+      path: RoutePaths.websocketDebug,
+      name: 'websocket-debug',
+      builder: (context, state) => const WebSocketDebugPage(),
+    ),
+    GoRoute(
+      path: RoutePaths.participantDebug,
+      name: 'participant-debug',
+      builder: (context, state) => const ParticipantDebugPage(),
+    ),
+  ];
+
+  static List<RouteBase> get allRoutes => [...callRoutes, ...authRoutes, ...profileRoutes, ...debugRoutes, mainRoutes];
 
   static Widget _buildOtpScreen(GoRouterState state) {
     String? email;

@@ -19,6 +19,8 @@ class VideoMessageBubble extends StatefulWidget {
     this.replyToMessage,
     this.onEdit,
     this.onDelete,
+    this.isGroup = false,
+    this.isLastMessage = false,
   });
 
   final Message message;
@@ -30,6 +32,8 @@ class VideoMessageBubble extends StatefulWidget {
   final Message? replyToMessage;
   final VoidCallback? onEdit;
   final VoidCallback? onDelete;
+  final bool isGroup;
+  final bool isLastMessage;
 
   @override
   State<VideoMessageBubble> createState() => _VideoMessageBubbleState();
@@ -121,6 +125,8 @@ class _VideoMessageBubbleState extends State<VideoMessageBubble> with AutomaticK
       replyToMessage: widget.replyToMessage,
       onEdit: widget.onEdit,
       onDelete: widget.onDelete,
+      isGroup: widget.isGroup,
+      isLastMessage: widget.isLastMessage,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

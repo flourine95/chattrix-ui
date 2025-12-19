@@ -9,6 +9,7 @@ import 'package:chattrix_ui/features/call/presentation/state/call_notifier.dart'
 import 'package:chattrix_ui/features/chat/data/models/chat_message_request.dart';
 import 'package:chattrix_ui/features/chat/domain/entities/message.dart';
 import 'package:chattrix_ui/features/chat/presentation/providers/chat_providers.dart';
+import 'package:chattrix_ui/features/chat/presentation/providers/chat_usecase_provider.dart';
 import 'package:chattrix_ui/features/chat/presentation/utils/conversation_utils.dart';
 import 'package:chattrix_ui/features/chat/presentation/widgets/message_bubble.dart';
 import 'package:chattrix_ui/features/chat/presentation/widgets/reply_message_preview.dart';
@@ -62,6 +63,36 @@ class ChatViewPage extends HookConsumerWidget {
     final wsDataSource = ref.watch(chatWebSocketDataSourceProvider);
     final conversationsAsync = ref.watch(conversationsProvider);
     final conversation = conversationsAsync.value?.lookup(chatId);
+
+    // --- MARK AS READ WHEN OPENING CONVERSATION ---
+    useEffect(() {
+      Future.microtask(() async {
+        final conversationId = int.tryParse(chatId);
+        if (conversationId == null) return;
+
+        try {
+          // Call API to mark conversation as read
+          final markAsReadUseCase = ref.read(markConversationAsReadUsecaseProvider);
+          final result = await markAsReadUseCase(conversationId: conversationId);
+
+          result.fold(
+            (failure) {
+              // Log error but don't show to user (non-critical)
+              debugPrint('❌ Failed to mark conversation as read: ${failure.message}');
+            },
+            (_) {
+              // Success - update local unread count
+              debugPrint('✅ Marked conversation $conversationId as read');
+              ref.read(conversationsProvider.notifier).resetUnreadCount(conversationId);
+            },
+          );
+        } catch (e) {
+          debugPrint('❌ Error marking conversation as read: $e');
+        }
+      });
+
+      return null;
+    }, [chatId]);
 
     // --- LOGIC LOAD ẢNH ---
     Future<void> loadImages() async {
@@ -550,7 +581,7 @@ class ChatViewPage extends HookConsumerWidget {
                 if (!isGroup) ...[
                   const SizedBox(height: 2),
                   Text(
-                    isOnline ? "Đang hoạt động" : "Offline",
+                    ConversationUtils.formatLastSeen(isOnline, ConversationUtils.getLastSeen(conversation, me)),
                     style: TextStyle(
                       color: isOnline ? Colors.green : Colors.grey,
                       fontSize: 12,
@@ -628,6 +659,20 @@ class _MessageList extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return messagesAsync.when(
       data: (messages) {
+        // Determine if this is a group conversation
+        final isGroup = conversation?.type == ConversationType.group;
+
+        // Find the last message from current user (for seen status display)
+        int? lastMessageFromMeIndex;
+        if (me != null) {
+          for (int i = 0; i < messages.length; i++) {
+            if (messages[i].senderId == me!.id) {
+              lastMessageFromMeIndex = i;
+              break; // Found the most recent message from me (list is reversed)
+            }
+          }
+        }
+
         return ListView.builder(
           controller: scrollController,
           reverse: true,
@@ -636,6 +681,8 @@ class _MessageList extends HookConsumerWidget {
           itemBuilder: (context, index) {
             final m = messages[index];
             final isMe = m.senderId == me?.id;
+            final isLastMessageFromMe = isMe && index == lastMessageFromMeIndex;
+
             bool showAvatar = !isMe;
             if (index > 0 && messages[index - 1].senderId == m.senderId) showAvatar = false;
             // Khoảng cách giữa các tin nhắn
@@ -671,6 +718,8 @@ class _MessageList extends HookConsumerWidget {
                       onAddReaction: () => onAddReaction(m),
                       onEdit: isMe ? () => onEdit(m) : null,
                       onDelete: isMe ? () => onDelete(m) : null,
+                      isGroup: isGroup,
+                      isLastMessage: isLastMessageFromMe,
                     ),
                   ),
                 ],

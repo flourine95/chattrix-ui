@@ -115,4 +115,11 @@ class ChatRepositoryImpl extends BaseRepository implements ChatRepository {
       await remoteDatasource.deleteMessage(messageId);
     });
   }
+
+  @override
+  Future<Either<Failure, void>> markConversationAsRead({required int conversationId, int? lastMessageId}) async {
+    return executeApiCall(() async {
+      await remoteDatasource.markConversationAsRead(conversationId: conversationId, lastMessageId: lastMessageId);
+    });
+  }
 }

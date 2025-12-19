@@ -20,6 +20,8 @@ class LocationMessageBubble extends StatelessWidget {
     this.replyToMessage,
     this.onEdit,
     this.onDelete,
+    this.isGroup = false,
+    this.isLastMessage = false,
   });
 
   final Message message;
@@ -31,6 +33,8 @@ class LocationMessageBubble extends StatelessWidget {
   final Message? replyToMessage;
   final VoidCallback? onEdit;
   final VoidCallback? onDelete;
+  final bool isGroup;
+  final bool isLastMessage;
 
   /// Open location in Google Maps
   Future<void> _openInMaps() async {
@@ -69,6 +73,8 @@ class LocationMessageBubble extends StatelessWidget {
         replyToMessage: replyToMessage,
         onEdit: onEdit,
         onDelete: onDelete,
+        isGroup: isGroup,
+        isLastMessage: isLastMessage,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

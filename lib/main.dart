@@ -1,4 +1,3 @@
-import 'package:chattrix_ui/core/utils/riverpod_logger.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -12,7 +11,7 @@ import 'features/chat/presentation/providers/chat_websocket_provider_new.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await dotenv.load(fileName: ".env");
-  runApp(ProviderScope(observers: [RiverpodLogger()], child: const MyApp()));
+  runApp(ProviderScope(child: const MyApp()));
 }
 
 class MyApp extends ConsumerWidget {

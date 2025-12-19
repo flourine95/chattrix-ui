@@ -19,6 +19,8 @@ class DocumentMessageBubble extends StatelessWidget {
     this.replyToMessage,
     this.onEdit,
     this.onDelete,
+    this.isGroup = false,
+    this.isLastMessage = false,
   });
 
   final Message message;
@@ -30,6 +32,8 @@ class DocumentMessageBubble extends StatelessWidget {
   final Message? replyToMessage;
   final VoidCallback? onEdit;
   final VoidCallback? onDelete;
+  final bool isGroup;
+  final bool isLastMessage;
 
   bool _isUrl(String? text) {
     if (text == null) return false;
@@ -127,6 +131,8 @@ class DocumentMessageBubble extends StatelessWidget {
       replyToMessage: replyToMessage,
       onEdit: onEdit,
       onDelete: onDelete,
+      isGroup: isGroup,
+      isLastMessage: isLastMessage,
       child: InkWell(
         onTap: () => _openDocument(context),
         borderRadius: BorderRadius.circular(16),

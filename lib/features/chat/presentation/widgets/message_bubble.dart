@@ -8,6 +8,7 @@ import 'package:chattrix_ui/features/chat/presentation/widgets/message_bubbles/v
 import 'package:chattrix_ui/features/chat/presentation/widgets/message_long_press_overlay.dart';
 import 'package:chattrix_ui/features/chat/presentation/widgets/message_reactions.dart';
 import 'package:chattrix_ui/features/chat/presentation/widgets/reply_message_preview.dart';
+import 'package:chattrix_ui/features/chat/presentation/widgets/seen_status_widget.dart';
 import 'package:flutter/material.dart';
 
 /// Main message bubble widget that renders different types of messages
@@ -23,6 +24,8 @@ class MessageBubble extends StatelessWidget {
     this.replyToMessage,
     this.onEdit,
     this.onDelete,
+    this.isGroup = false,
+    this.isLastMessage = false,
   });
 
   final Message message;
@@ -34,6 +37,8 @@ class MessageBubble extends StatelessWidget {
   final Message? replyToMessage;
   final VoidCallback? onEdit;
   final VoidCallback? onDelete;
+  final bool isGroup;
+  final bool isLastMessage;
 
   @override
   Widget build(BuildContext context) {
@@ -53,6 +58,8 @@ class MessageBubble extends StatelessWidget {
           replyToMessage: replyToMessage,
           onEdit: onEdit,
           onDelete: onDelete,
+          isGroup: isGroup,
+          isLastMessage: isLastMessage,
         ),
         'VIDEO' => VideoMessageBubble(
           message: message,
@@ -64,6 +71,8 @@ class MessageBubble extends StatelessWidget {
           replyToMessage: replyToMessage,
           onEdit: onEdit,
           onDelete: onDelete,
+          isGroup: isGroup,
+          isLastMessage: isLastMessage,
         ),
         'AUDIO' || 'VOICE' => AudioMessageBubble(
           message: message,
@@ -75,6 +84,8 @@ class MessageBubble extends StatelessWidget {
           replyToMessage: replyToMessage,
           onEdit: onEdit,
           onDelete: onDelete,
+          isGroup: isGroup,
+          isLastMessage: isLastMessage,
         ),
         'DOCUMENT' || 'FILE' => DocumentMessageBubble(
           message: message,
@@ -86,6 +97,8 @@ class MessageBubble extends StatelessWidget {
           replyToMessage: replyToMessage,
           onEdit: onEdit,
           onDelete: onDelete,
+          isGroup: isGroup,
+          isLastMessage: isLastMessage,
         ),
         'LOCATION' => LocationMessageBubble(
           message: message,
@@ -97,6 +110,8 @@ class MessageBubble extends StatelessWidget {
           replyToMessage: replyToMessage,
           onEdit: onEdit,
           onDelete: onDelete,
+          isGroup: isGroup,
+          isLastMessage: isLastMessage,
         ),
         _ => TextMessageBubble(
           message: message,
@@ -108,6 +123,8 @@ class MessageBubble extends StatelessWidget {
           replyToMessage: replyToMessage,
           onEdit: onEdit,
           onDelete: onDelete,
+          isGroup: isGroup,
+          isLastMessage: isLastMessage,
         ),
       },
     );
@@ -129,6 +146,8 @@ class BaseBubbleContainer extends StatefulWidget {
     this.replyToMessage,
     this.onEdit,
     this.onDelete,
+    this.isGroup = false,
+    this.isLastMessage = false,
   });
 
   final bool isMe;
@@ -142,6 +161,8 @@ class BaseBubbleContainer extends StatefulWidget {
   final Message? replyToMessage;
   final VoidCallback? onEdit;
   final VoidCallback? onDelete;
+  final bool isGroup;
+  final bool isLastMessage;
 
   @override
   State<BaseBubbleContainer> createState() => _BaseBubbleContainerState();
@@ -305,6 +326,12 @@ class _BaseBubbleContainerState extends State<BaseBubbleContainer> with Automati
                       currentUserId: widget.currentUserId!,
                       onReactionTap: widget.onReactionTap ?? (_) {},
                       onAddReaction: widget.onAddReaction ?? () {},
+                    ),
+                  // Seen Status - Only show for messages sent by current user AND only on last message
+                  if (widget.isMe && widget.message != null && widget.isLastMessage)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 4),
+                      child: SeenStatusWidget(message: widget.message!, isGroup: widget.isGroup, compact: false),
                     ),
                 ],
               ),

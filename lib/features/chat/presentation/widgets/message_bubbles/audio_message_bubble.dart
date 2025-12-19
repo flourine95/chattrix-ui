@@ -17,6 +17,8 @@ class AudioMessageBubble extends StatefulWidget {
     this.replyToMessage,
     this.onEdit,
     this.onDelete,
+    this.isGroup = false,
+    this.isLastMessage = false,
   });
 
   final Message message;
@@ -28,6 +30,8 @@ class AudioMessageBubble extends StatefulWidget {
   final Message? replyToMessage;
   final VoidCallback? onEdit;
   final VoidCallback? onDelete;
+  final bool isGroup;
+  final bool isLastMessage;
 
   @override
   State<AudioMessageBubble> createState() => _AudioMessageBubbleState();
@@ -140,6 +144,8 @@ class _AudioMessageBubbleState extends State<AudioMessageBubble> with AutomaticK
       replyToMessage: widget.replyToMessage,
       onEdit: widget.onEdit,
       onDelete: widget.onDelete,
+      isGroup: widget.isGroup,
+      isLastMessage: widget.isLastMessage,
       child: Padding(
         padding: const EdgeInsets.all(12),
         child: Row(

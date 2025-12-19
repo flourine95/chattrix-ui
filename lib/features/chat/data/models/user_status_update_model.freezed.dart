@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$UserStatusUpdateModel {
 
- String get userId; String get username; String get displayName; bool get isOnline; String? get lastSeen;
+ String get userId; String get username;@JsonKey(name: 'fullName') String get displayName;@JsonKey(name: 'online') bool get isOnline; String? get lastSeen;
 /// Create a copy of UserStatusUpdateModel
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -48,7 +48,7 @@ abstract mixin class $UserStatusUpdateModelCopyWith<$Res>  {
   factory $UserStatusUpdateModelCopyWith(UserStatusUpdateModel value, $Res Function(UserStatusUpdateModel) _then) = _$UserStatusUpdateModelCopyWithImpl;
 @useResult
 $Res call({
- String userId, String username, String displayName, bool isOnline, String? lastSeen
+ String userId, String username,@JsonKey(name: 'fullName') String displayName,@JsonKey(name: 'online') bool isOnline, String? lastSeen
 });
 
 
@@ -157,7 +157,7 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String userId,  String username,  String displayName,  bool isOnline,  String? lastSeen)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String userId,  String username, @JsonKey(name: 'fullName')  String displayName, @JsonKey(name: 'online')  bool isOnline,  String? lastSeen)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _UserStatusUpdateModel() when $default != null:
 return $default(_that.userId,_that.username,_that.displayName,_that.isOnline,_that.lastSeen);case _:
@@ -178,7 +178,7 @@ return $default(_that.userId,_that.username,_that.displayName,_that.isOnline,_th
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String userId,  String username,  String displayName,  bool isOnline,  String? lastSeen)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String userId,  String username, @JsonKey(name: 'fullName')  String displayName, @JsonKey(name: 'online')  bool isOnline,  String? lastSeen)  $default,) {final _that = this;
 switch (_that) {
 case _UserStatusUpdateModel():
 return $default(_that.userId,_that.username,_that.displayName,_that.isOnline,_that.lastSeen);case _:
@@ -198,7 +198,7 @@ return $default(_that.userId,_that.username,_that.displayName,_that.isOnline,_th
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String userId,  String username,  String displayName,  bool isOnline,  String? lastSeen)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String userId,  String username, @JsonKey(name: 'fullName')  String displayName, @JsonKey(name: 'online')  bool isOnline,  String? lastSeen)?  $default,) {final _that = this;
 switch (_that) {
 case _UserStatusUpdateModel() when $default != null:
 return $default(_that.userId,_that.username,_that.displayName,_that.isOnline,_that.lastSeen);case _:
@@ -213,13 +213,13 @@ return $default(_that.userId,_that.username,_that.displayName,_that.isOnline,_th
 @JsonSerializable()
 
 class _UserStatusUpdateModel extends UserStatusUpdateModel {
-  const _UserStatusUpdateModel({required this.userId, required this.username, required this.displayName, required this.isOnline, this.lastSeen}): super._();
+  const _UserStatusUpdateModel({required this.userId, required this.username, @JsonKey(name: 'fullName') required this.displayName, @JsonKey(name: 'online') required this.isOnline, this.lastSeen}): super._();
   factory _UserStatusUpdateModel.fromJson(Map<String, dynamic> json) => _$UserStatusUpdateModelFromJson(json);
 
 @override final  String userId;
 @override final  String username;
-@override final  String displayName;
-@override final  bool isOnline;
+@override@JsonKey(name: 'fullName') final  String displayName;
+@override@JsonKey(name: 'online') final  bool isOnline;
 @override final  String? lastSeen;
 
 /// Create a copy of UserStatusUpdateModel
@@ -255,7 +255,7 @@ abstract mixin class _$UserStatusUpdateModelCopyWith<$Res> implements $UserStatu
   factory _$UserStatusUpdateModelCopyWith(_UserStatusUpdateModel value, $Res Function(_UserStatusUpdateModel) _then) = __$UserStatusUpdateModelCopyWithImpl;
 @override @useResult
 $Res call({
- String userId, String username, String displayName, bool isOnline, String? lastSeen
+ String userId, String username,@JsonKey(name: 'fullName') String displayName,@JsonKey(name: 'online') bool isOnline, String? lastSeen
 });
 
 

@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:chattrix_ui/core/utils/app_logger.dart';
+import 'package:flutter/material.dart';
 
 class WebSocketMessageRouter {
   final Map<String, StreamController<Map<String, dynamic>>> _controllers = {};
@@ -31,7 +32,7 @@ class WebSocketMessageRouter {
     if (controller != null && !controller.isClosed) {
       controller.add(message);
     } else {
-      AppLogger.debug('No handler registered for type: $type', tag: 'WebSocketRouter');
+      debugPrint('No handler registered for type: $type');
     }
   }
 
