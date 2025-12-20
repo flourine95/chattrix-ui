@@ -1,63 +1,20 @@
-import 'package:chattrix_ui/features/chat/domain/entities/typing_indicator.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:chattrix_ui/features/chat/domain/entities/typing_indicator.dart';
 
-/// Widget to display typing indicator with animated dots
-class TypingIndicatorWidget extends StatelessWidget {
-  final List<TypingUser> typingUsers;
+/// Messenger-style typing indicator widget
+/// Shows animated dots when users are typing
+class TypingIndicatorWidget extends StatefulWidget {
+  final TypingIndicator typingIndicator;
+  final int? currentUserId;
 
-  const TypingIndicatorWidget({super.key, required this.typingUsers});
-
-  /// Generate typing text based on number of users
-  String _getTypingText() {
-    if (typingUsers.isEmpty) return '';
-
-    if (typingUsers.length == 1) {
-      return '${typingUsers[0].fullName} is typing';
-    } else if (typingUsers.length == 2) {
-      return '${typingUsers[0].fullName} and ${typingUsers[1].fullName} are typing';
-    } else {
-      return '${typingUsers[0].fullName} and ${typingUsers.length - 1} others are typing';
-    }
-  }
+  const TypingIndicatorWidget({super.key, required this.typingIndicator, this.currentUserId});
 
   @override
-  Widget build(BuildContext context) {
-    if (typingUsers.isEmpty) return const SizedBox.shrink();
-
-    final colors = Theme.of(context).colorScheme;
-    final textStyle = Theme.of(
-      context,
-    ).textTheme.bodySmall?.copyWith(color: colors.onSurface.withValues(alpha: 0.6), fontStyle: FontStyle.italic);
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      decoration: BoxDecoration(
-        color: colors.surface.withValues(alpha: 0.5),
-        border: Border(top: BorderSide(color: colors.onSurface.withValues(alpha: 0.1), width: 1)),
-      ),
-      child: Row(
-        children: [
-          Text(_getTypingText(), style: textStyle),
-          const SizedBox(width: 4),
-          const TypingDotsAnimation(),
-        ],
-      ),
-    );
-  }
+  State<TypingIndicatorWidget> createState() => _TypingIndicatorWidgetState();
 }
 
-/// Animated dots for typing indicator
-class TypingDotsAnimation extends StatefulWidget {
-  final Color? color;
-  final double dotSize;
-
-  const TypingDotsAnimation({super.key, this.color, this.dotSize = 4});
-
-  @override
-  State<TypingDotsAnimation> createState() => _TypingDotsAnimationState();
-}
-
-class _TypingDotsAnimationState extends State<TypingDotsAnimation> with SingleTickerProviderStateMixin {
+class _TypingIndicatorWidgetState extends State<TypingIndicatorWidget> with SingleTickerProviderStateMixin {
   late AnimationController _controller;
 
   @override
@@ -72,49 +29,97 @@ class _TypingDotsAnimationState extends State<TypingDotsAnimation> with SingleTi
     super.dispose();
   }
 
-  @override
-  Widget build(BuildContext context) {
-    final color = widget.color ?? Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6);
+  String _getTypingText() {
+    final typingUsers = widget.typingIndicator.typingUsers
+        .where((user) => user.id != widget.currentUserId?.toString())
+        .toList();
 
-    return AnimatedBuilder(
-      animation: _controller,
-      builder: (context, child) {
-        return Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            _buildDot(color, 0),
-            const SizedBox(width: 3),
-            _buildDot(color, 1),
-            const SizedBox(width: 3),
-            _buildDot(color, 2),
-          ],
-        );
-      },
-    );
+    if (typingUsers.isEmpty) return '';
+
+    if (typingUsers.length == 1) {
+      return '${typingUsers.first.fullName} is typing';
+    } else if (typingUsers.length == 2) {
+      return '${typingUsers[0].fullName} and ${typingUsers[1].fullName} are typing';
+    } else {
+      return '${typingUsers[0].fullName} and ${typingUsers.length - 1} others are typing';
+    }
   }
 
-  Widget _buildDot(Color color, int index) {
-    // Calculate opacity based on animation progress
-    // Each dot animates with a delay
-    final delay = index * 0.2;
-    final progress = (_controller.value + delay) % 1.0;
+  @override
+  Widget build(BuildContext context) {
+    final typingUsers = widget.typingIndicator.typingUsers
+        .where((user) => user.id != widget.currentUserId?.toString())
+        .toList();
 
-    // Fade in and out
-    double opacity;
-    if (progress < 0.5) {
-      opacity = progress * 2; // Fade in
-    } else {
-      opacity = 2 - (progress * 2); // Fade out
+    if (typingUsers.isEmpty) {
+      return const SizedBox.shrink();
     }
 
-    opacity = opacity.clamp(0.2, 1.0);
+    debugPrint('👁️ [Typing Widget] Showing typing indicator for ${typingUsers.length} user(s)');
 
-    return Container(
-      width: widget.dotSize,
-      height: widget.dotSize,
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: opacity),
-        shape: BoxShape.circle,
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final textColor = isDark ? Colors.white70 : Colors.black54;
+
+    return Padding(
+      padding: const EdgeInsets.only(left: 44, right: 16, bottom: 8),
+      child: Row(
+        children: [
+          // Animated typing dots
+          _TypingDots(controller: _controller, isDark: isDark),
+          const SizedBox(width: 8),
+          // Typing text
+          Flexible(
+            child: Text(
+              _getTypingText(),
+              style: TextStyle(color: textColor, fontSize: 13, fontStyle: FontStyle.italic),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Animated typing dots (Messenger-style)
+class _TypingDots extends StatelessWidget {
+  final AnimationController controller;
+  final bool isDark;
+
+  const _TypingDots({required this.controller, required this.isDark});
+
+  @override
+  Widget build(BuildContext context) {
+    final dotColor = isDark ? Colors.white70 : Colors.black54;
+
+    return SizedBox(
+      width: 40,
+      height: 20,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: List.generate(3, (index) {
+          return AnimatedBuilder(
+            animation: controller,
+            builder: (context, child) {
+              // Stagger the animation for each dot
+              final delay = index * 0.2;
+              final value = (controller.value - delay).clamp(0.0, 1.0);
+
+              // Create a bounce effect
+              final scale = 1.0 + (0.5 * (1.0 - (value * 2 - 1).abs()));
+
+              return Transform.scale(
+                scale: scale,
+                child: Container(
+                  width: 6,
+                  height: 6,
+                  margin: const EdgeInsets.symmetric(horizontal: 2),
+                  decoration: BoxDecoration(color: dotColor, shape: BoxShape.circle),
+                ),
+              );
+            },
+          );
+        }),
       ),
     );
   }

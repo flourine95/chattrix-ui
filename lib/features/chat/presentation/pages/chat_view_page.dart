@@ -8,11 +8,14 @@ import 'package:chattrix_ui/features/call/domain/entities/call_type.dart';
 import 'package:chattrix_ui/features/call/presentation/state/call_notifier.dart';
 import 'package:chattrix_ui/features/chat/data/models/chat_message_request.dart';
 import 'package:chattrix_ui/features/chat/domain/entities/message.dart';
+import 'package:chattrix_ui/features/chat/domain/entities/typing_indicator.dart';
 import 'package:chattrix_ui/features/chat/presentation/providers/chat_providers.dart';
 import 'package:chattrix_ui/features/chat/presentation/providers/chat_usecase_provider.dart';
 import 'package:chattrix_ui/features/chat/presentation/utils/conversation_utils.dart';
 import 'package:chattrix_ui/features/chat/presentation/widgets/message_bubble.dart';
 import 'package:chattrix_ui/features/chat/presentation/widgets/reply_message_preview.dart';
+import 'package:chattrix_ui/features/chat/presentation/widgets/typing_indicator_widget.dart';
+import 'package:chattrix_ui/features/chat/presentation/providers/typing_indicator_provider.dart';
 import 'package:chattrix_ui/features/chat/services/cloudinary_provider.dart';
 import 'package:chattrix_ui/features/chat/services/media_picker_provider.dart';
 import 'package:chattrix_ui/features/chat/services/voice_recorder_provider.dart';
@@ -36,6 +39,10 @@ class ChatViewPage extends HookConsumerWidget {
     final scrollController = useScrollController();
     final focusNode = useFocusNode();
     final appLifecycleState = useAppLifecycleState();
+
+    // Typing indicator state
+    final isTyping = useState(false);
+    final typingIndicator = ref.watch(typingIndicatorProvider(chatId));
 
     final showScrollButton = useState(false);
 
@@ -93,6 +100,44 @@ class ChatViewPage extends HookConsumerWidget {
 
       return null;
     }, [chatId]);
+
+    // --- TYPING INDICATOR LOGIC ---
+    useEffect(() {
+      Timer? debounceTimer;
+
+      void onTextChanged() {
+        final text = controller.text.trim();
+
+        if (text.isNotEmpty && !isTyping.value) {
+          // Start typing
+          debugPrint('⌨️ [Chat] User started typing in conversation: $chatId');
+          isTyping.value = true;
+          ref.read(typingIndicatorProvider(chatId).notifier).startTyping();
+        }
+
+        // Debounce: stop typing after 2 seconds of no input
+        debounceTimer?.cancel();
+        debounceTimer = Timer(const Duration(seconds: 2), () {
+          if (isTyping.value) {
+            debugPrint('⌨️ [Chat] User stopped typing (debounce) in conversation: $chatId');
+            isTyping.value = false;
+            ref.read(typingIndicatorProvider(chatId).notifier).stopTyping();
+          }
+        });
+      }
+
+      controller.addListener(onTextChanged);
+
+      return () {
+        controller.removeListener(onTextChanged);
+        debounceTimer?.cancel();
+        // Stop typing when leaving the screen
+        if (isTyping.value) {
+          debugPrint('⌨️ [Chat] User left screen, stopping typing for conversation: $chatId');
+          ref.read(typingIndicatorProvider(chatId).notifier).stopTyping();
+        }
+      };
+    }, [controller, chatId]);
 
     // --- LOGIC LOAD ẢNH ---
     Future<void> loadImages() async {
@@ -215,6 +260,13 @@ class ChatViewPage extends HookConsumerWidget {
       replyToMessage.value = null;
       showGallery.value = false;
       scrollToBottom();
+
+      // Stop typing indicator when sending message
+      if (isTyping.value) {
+        debugPrint('⌨️ [Chat] User sent message, stopping typing for conversation: $chatId');
+        isTyping.value = false;
+        ref.read(typingIndicatorProvider(chatId).notifier).stopTyping();
+      }
 
       final request = ChatMessageRequest(
         content: content,
@@ -431,6 +483,7 @@ class ChatViewPage extends HookConsumerWidget {
                       me: me,
                       conversation: conversation,
                       scrollController: scrollController,
+                      typingIndicator: typingIndicator,
                       onReply: (m) => replyToMessage.value = m,
                       onReactionTap: (m, e) =>
                           ref.read(toggleReactionUsecaseProvider)(messageId: m.id.toString(), emoji: e),
@@ -626,6 +679,7 @@ class _MessageList extends HookConsumerWidget {
   final dynamic me;
   final dynamic conversation;
   final ScrollController scrollController;
+  final TypingIndicator typingIndicator;
   final Function(Message) onReply;
   final Function(Message, String) onReactionTap;
   final Function(Message) onAddReaction;
@@ -637,6 +691,7 @@ class _MessageList extends HookConsumerWidget {
     required this.me,
     required this.conversation,
     required this.scrollController,
+    required this.typingIndicator,
     required this.onReply,
     required this.onReactionTap,
     required this.onAddReaction,
@@ -677,16 +732,23 @@ class _MessageList extends HookConsumerWidget {
           controller: scrollController,
           reverse: true,
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-          itemCount: messages.length,
+          itemCount: messages.length + 1, // +1 for typing indicator
           itemBuilder: (context, index) {
-            final m = messages[index];
+            // Show typing indicator at the bottom (index 0 in reversed list)
+            if (index == 0) {
+              return TypingIndicatorWidget(typingIndicator: typingIndicator, currentUserId: me?.id);
+            }
+
+            // Adjust index for messages (subtract 1 because of typing indicator)
+            final messageIndex = index - 1;
+            final m = messages[messageIndex];
             final isMe = m.senderId == me?.id;
-            final isLastMessageFromMe = isMe && index == lastMessageFromMeIndex;
+            final isLastMessageFromMe = isMe && messageIndex == lastMessageFromMeIndex;
 
             bool showAvatar = !isMe;
-            if (index > 0 && messages[index - 1].senderId == m.senderId) showAvatar = false;
+            if (messageIndex > 0 && messages[messageIndex - 1].senderId == m.senderId) showAvatar = false;
             // Khoảng cách giữa các tin nhắn
-            double marginBottom = (index > 0 && messages[index - 1].senderId != m.senderId) ? 8.0 : 0.0;
+            double marginBottom = (messageIndex > 0 && messages[messageIndex - 1].senderId != m.senderId) ? 8.0 : 0.0;
 
             return Padding(
               padding: EdgeInsets.only(bottom: marginBottom),
