@@ -3,6 +3,8 @@ import 'package:chattrix_ui/features/chat/presentation/widgets/message_bubbles/a
 import 'package:chattrix_ui/features/chat/presentation/widgets/message_bubbles/document_message_bubble.dart';
 import 'package:chattrix_ui/features/chat/presentation/widgets/message_bubbles/image_message_bubble.dart';
 import 'package:chattrix_ui/features/chat/presentation/widgets/message_bubbles/location_message_bubble.dart';
+import 'package:chattrix_ui/features/chat/presentation/widgets/message_bubbles/scheduled_message_bubble.dart';
+import 'package:chattrix_ui/features/chat/presentation/widgets/message_bubbles/system_message_bubble.dart';
 import 'package:chattrix_ui/features/chat/presentation/widgets/message_bubbles/text_message_bubble.dart';
 import 'package:chattrix_ui/features/chat/presentation/widgets/message_bubbles/video_message_bubble.dart';
 import 'package:chattrix_ui/features/chat/presentation/widgets/message_long_press_overlay.dart';
@@ -26,6 +28,7 @@ class MessageBubble extends StatelessWidget {
     this.onDelete,
     this.isGroup = false,
     this.isLastMessage = false,
+    this.isHighlighted = false,
   });
 
   final Message message;
@@ -39,15 +42,22 @@ class MessageBubble extends StatelessWidget {
   final VoidCallback? onDelete;
   final bool isGroup;
   final bool isLastMessage;
+  final bool isHighlighted;
 
   @override
   Widget build(BuildContext context) {
+    // Check if this is a scheduled message - render as centered system-like message
+    if (message.scheduled) {
+      return ScheduledMessageBubble(message: message, isMe: isMe, isHighlighted: isHighlighted);
+    }
+
     // Determine message type and render appropriate bubble
     final messageType = message.type.toUpperCase();
 
     // Wrap in RepaintBoundary to isolate repaints and improve scroll performance
     return RepaintBoundary(
       child: switch (messageType) {
+        'SYSTEM' => SystemMessageBubble(message: message),
         'IMAGE' => ImageMessageBubble(
           message: message,
           isMe: isMe,

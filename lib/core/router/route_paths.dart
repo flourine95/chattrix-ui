@@ -18,6 +18,8 @@ class RoutePaths {
   static const String newGroup = '/new-group';
   static const String chatInfo = '/chat/:id/info';
   static const String searchConversations = '/search-conversations';
+  static const String scheduledMessages = '/scheduled-messages';
+  static const String scheduleMessage = '/schedule-message';
   // chatListDemo removed - production ChatListPage is now used at '/' route
   static const String contactsDemo = '/contacts-demo';
 }

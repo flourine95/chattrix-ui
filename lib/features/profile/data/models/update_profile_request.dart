@@ -22,12 +22,20 @@ abstract class UpdateProfileRequest with _$UpdateProfileRequest {
   factory UpdateProfileRequest.fromJson(Map<String, dynamic> json) => _$UpdateProfileRequestFromJson(json);
 
   factory UpdateProfileRequest.fromParams(UpdateProfileParams params) {
+    // Convert dateOfBirth to noon UTC to avoid timezone issues
+    String? dateOfBirthString;
+    if (params.dateOfBirth != null) {
+      final date = params.dateOfBirth!;
+      final noonUtc = DateTime.utc(date.year, date.month, date.day, 12, 0, 0);
+      dateOfBirthString = noonUtc.toIso8601String();
+    }
+
     return UpdateProfileRequest(
       fullName: params.fullName,
       avatarUrl: params.avatarUrl,
       phone: params.phone,
       bio: params.bio,
-      dateOfBirth: params.dateOfBirth?.toIso8601String().split('T')[0],
+      dateOfBirth: dateOfBirthString,
       gender: params.gender,
       location: params.location,
     );

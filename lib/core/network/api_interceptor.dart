@@ -18,21 +18,29 @@ class ApiInterceptor extends Interceptor {
           details = (data['details'] as Map).map((key, value) => MapEntry(key.toString(), value.toString()));
         }
 
-        debugPrint('API Error: $code - $message${requestId != null ? ' [RequestID: $requestId]' : ''}');
+        debugPrint('🔴 API Error: $code - $message${requestId != null ? ' [RequestID: $requestId]' : ''}');
         if (details != null) {
-          debugPrint('Details: $details');
+          debugPrint('   Details: $details');
         }
 
-        throw ApiException(
+        // Create ApiException and reject it through handler
+        final apiException = ApiException(
           message: message,
           code: code,
           statusCode: err.response!.statusCode ?? 500,
           details: details,
           requestId: requestId,
         );
+
+        // Reject with the ApiException instead of throwing
+        handler.reject(
+          DioException(requestOptions: err.requestOptions, response: err.response, type: err.type, error: apiException),
+        );
+        return;
       }
     }
 
-    super.onError(err, handler);
+    // Pass through other errors
+    handler.next(err);
   }
 }

@@ -7,6 +7,8 @@ import 'package:chattrix_ui/features/chat/data/models/message_model.dart';
 import 'package:chattrix_ui/features/chat/data/models/conversation_update_model.dart';
 import 'package:chattrix_ui/features/chat/data/models/typing_indicator_model.dart';
 import 'package:chattrix_ui/features/chat/data/models/user_status_update_model.dart';
+import 'package:chattrix_ui/features/chat/data/models/websocket/scheduled_message_sent_dto.dart';
+import 'package:chattrix_ui/features/chat/data/models/websocket/scheduled_message_failed_dto.dart';
 import 'package:chattrix_ui/features/chat/domain/datasources/chat_websocket_datasource.dart';
 import 'package:chattrix_ui/features/chat/domain/entities/conversation_update.dart';
 import 'package:chattrix_ui/features/chat/domain/entities/message.dart';
@@ -26,6 +28,8 @@ class _ChatWebSocketResponse {
   static const String typingIndicator = 'typing.indicator';
   static const String userStatus = 'user.status';
   static const String conversationUpdate = 'conversation.update';
+  static const String scheduledMessageSent = 'scheduled.message.sent';
+  static const String scheduledMessageFailed = 'scheduled.message.failed';
 }
 
 /// Implementation of ChatWebSocketDataSource
@@ -38,6 +42,8 @@ class ChatWebSocketDataSourceImpl implements ChatWebSocketDataSource {
   final _typingController = StreamController<TypingIndicator>.broadcast();
   final _userStatusController = StreamController<UserStatusUpdate>.broadcast();
   final _conversationUpdateController = StreamController<ConversationUpdate>.broadcast();
+  final _scheduledMessageSentController = StreamController<ScheduledMessageSentDto>.broadcast();
+  final _scheduledMessageFailedController = StreamController<ScheduledMessageFailedDto>.broadcast();
 
   ChatWebSocketDataSourceImpl({required WebSocketService webSocketService}) : _webSocketService = webSocketService {
     _startListening();
@@ -50,6 +56,8 @@ class ChatWebSocketDataSourceImpl implements ChatWebSocketDataSource {
       _ChatWebSocketResponse.typingIndicator,
       _ChatWebSocketResponse.userStatus,
       _ChatWebSocketResponse.conversationUpdate,
+      _ChatWebSocketResponse.scheduledMessageSent,
+      _ChatWebSocketResponse.scheduledMessageFailed,
     ];
 
     _subscription = _webSocketService.messageRouter
@@ -150,6 +158,42 @@ class ChatWebSocketDataSourceImpl implements ChatWebSocketDataSource {
           }
           break;
 
+        case _ChatWebSocketResponse.scheduledMessageSent:
+          try {
+            final dto = ScheduledMessageSentDto.fromJson(payload as Map<String, dynamic>);
+            _scheduledMessageSentController.add(dto);
+            AppLogger.debug(
+              'Scheduled message sent: scheduledMessageId=${dto.scheduledMessageId}',
+              tag: 'ChatWebSocketDataSource',
+            );
+          } catch (e, st) {
+            AppLogger.error(
+              'Failed to parse scheduled message sent event',
+              error: e,
+              stackTrace: st,
+              tag: 'ChatWebSocketDataSource',
+            );
+          }
+          break;
+
+        case _ChatWebSocketResponse.scheduledMessageFailed:
+          try {
+            final dto = ScheduledMessageFailedDto.fromJson(payload as Map<String, dynamic>);
+            _scheduledMessageFailedController.add(dto);
+            AppLogger.debug(
+              'Scheduled message failed: scheduledMessageId=${dto.scheduledMessageId}, reason=${dto.failedReason}',
+              tag: 'ChatWebSocketDataSource',
+            );
+          } catch (e, st) {
+            AppLogger.error(
+              'Failed to parse scheduled message failed event',
+              error: e,
+              stackTrace: st,
+              tag: 'ChatWebSocketDataSource',
+            );
+          }
+          break;
+
         default:
           AppLogger.warning('Unknown message type: $type', tag: 'ChatWebSocketDataSource');
       }
@@ -183,10 +227,7 @@ class ChatWebSocketDataSourceImpl implements ChatWebSocketDataSource {
 
     messageData['conversationId'] = conversationId;
 
-    final wsPayload = {
-      'type': _ChatWebSocketEvent.chatMessage,
-      'payload': messageData,
-    };
+    final wsPayload = {'type': _ChatWebSocketEvent.chatMessage, 'payload': messageData};
 
     _webSocketService.send(wsPayload);
   }
@@ -228,6 +269,12 @@ class ChatWebSocketDataSourceImpl implements ChatWebSocketDataSource {
   @override
   Stream<ConversationUpdate> get conversationUpdateStream => _conversationUpdateController.stream;
 
+  /// Stream for scheduled message sent events
+  Stream<ScheduledMessageSentDto> get scheduledMessageSentStream => _scheduledMessageSentController.stream;
+
+  /// Stream for scheduled message failed events
+  Stream<ScheduledMessageFailedDto> get scheduledMessageFailedStream => _scheduledMessageFailedController.stream;
+
   @override
   Stream<bool> get connectionStream => _webSocketService.connectionStream;
 
@@ -244,5 +291,7 @@ class ChatWebSocketDataSourceImpl implements ChatWebSocketDataSource {
     _typingController.close();
     _userStatusController.close();
     _conversationUpdateController.close();
+    _scheduledMessageSentController.close();
+    _scheduledMessageFailedController.close();
   }
 }

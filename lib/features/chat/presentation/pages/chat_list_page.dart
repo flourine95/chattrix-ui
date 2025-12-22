@@ -1,12 +1,18 @@
-import 'package:chattrix_ui/core/domain/enums/conversation_filter.dart';
+import 'package:chattrix_ui/core/domain/enums/enums.dart';
 import 'package:chattrix_ui/core/errors/failures.dart';
 import 'package:chattrix_ui/features/auth/presentation/providers/auth_providers.dart';
+import 'package:chattrix_ui/features/birthday/presentation/providers/birthday_providers.dart';
+import 'package:chattrix_ui/features/birthday/presentation/widgets/birthday_banner.dart';
+import 'package:chattrix_ui/features/birthday/presentation/widgets/birthday_list_sheet.dart';
+import 'package:chattrix_ui/features/birthday/presentation/widgets/birthday_wishes_dialog.dart';
 import 'package:chattrix_ui/features/chat/presentation/providers/chat_websocket_provider_new.dart';
+import 'package:chattrix_ui/features/chat/presentation/providers/marked_unread_provider.dart';
 import 'package:chattrix_ui/features/chat/presentation/providers/user_notes_provider.dart';
 import 'package:chattrix_ui/features/chat/presentation/state/conversations_notifier.dart';
 import 'package:chattrix_ui/features/chat/presentation/state/filter_notifier.dart';
 import 'package:chattrix_ui/features/chat/presentation/state/online_users_notifier.dart';
 import 'package:chattrix_ui/features/chat/presentation/widgets/conversation_list_item.dart';
+import 'package:chattrix_ui/features/chat/presentation/widgets/conversation_options_bottom_sheet.dart';
 import 'package:chattrix_ui/features/chat/presentation/widgets/filter_chip_widget.dart';
 import 'package:chattrix_ui/features/chat/presentation/widgets/note_dialog.dart';
 import 'package:flutter/material.dart';
@@ -22,15 +28,15 @@ class ChatListPage extends HookConsumerWidget {
     ref.watch(webSocketConnectionProvider);
 
     return Scaffold(
-      appBar: _buildAppBar(context),
+      appBar: _buildAppBar(context, ref),
       body: const CustomScrollView(
         physics: ClampingScrollPhysics(),
-        slivers: [_HeaderSearch(), _FilterBar(), _OnlineStoryList(), _ConversationList()],
+        slivers: [_HeaderSearch(), _BirthdayBannerSliver(), _FilterBar(), _OnlineStoryList(), _ConversationList()],
       ),
     );
   }
 
-  AppBar _buildAppBar(BuildContext context) {
+  AppBar _buildAppBar(BuildContext context, WidgetRef ref) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     return AppBar(
       elevation: 0,
@@ -43,6 +49,20 @@ class ChatListPage extends HookConsumerWidget {
         style: TextStyle(fontSize: 24, fontWeight: FontWeight.w700, color: isDark ? Colors.white : Colors.black),
       ),
       actions: [
+        // DEBUG: Refresh birthdays button
+        Padding(
+          padding: const EdgeInsets.only(right: 8),
+          child: IconButton(
+            icon: Icon(Icons.cake, color: Theme.of(context).colorScheme.primary),
+            onPressed: () {
+              ref.read(todayBirthdaysProvider.notifier).refresh();
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(const SnackBar(content: Text('🎂 Refreshed birthdays'), duration: Duration(seconds: 1)));
+            },
+            tooltip: 'Refresh birthdays',
+          ),
+        ),
         Padding(
           padding: const EdgeInsets.only(right: 8),
           child: IconButton(
@@ -221,6 +241,8 @@ class _ConversationList extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final conversationsAsync = ref.watch(conversationsProvider);
     final me = ref.watch(currentUserProvider);
+    final markedUnreadNotifier = ref.read(markedUnreadConversationsProvider.notifier);
+    final markedUnreadSet = ref.watch(markedUnreadConversationsProvider);
 
     return conversationsAsync.when(
       data: (conversations) {
@@ -233,16 +255,66 @@ class _ConversationList extends ConsumerWidget {
         return SliverList(
           delegate: SliverChildBuilderDelegate((context, index) {
             final conversation = conversationsWithMessages[index];
+            final isMarkedUnread = markedUnreadSet.contains(conversation.id);
+
             return ConversationListItem(
               conversation: conversation,
               currentUser: me,
-              onTap: () => context.push('/chat/${conversation.id}'),
+              isMarkedUnread: isMarkedUnread,
+              onTap: () {
+                // Remove unread mark when opening conversation
+                if (isMarkedUnread) {
+                  markedUnreadNotifier.removeUnreadMark(conversation.id);
+                }
+                context.push('/chat/${conversation.id}');
+              },
+              onLongPress: () {
+                _showConversationOptions(context, ref, conversation, isMarkedUnread);
+              },
             );
           }, childCount: conversationsWithMessages.length),
         );
       },
       loading: () => const SliverFillRemaining(child: Center(child: CircularProgressIndicator())),
       error: (error, _) => SliverFillRemaining(child: _ErrorView(error: error)),
+    );
+  }
+
+  /// Show conversation options bottom sheet
+  void _showConversationOptions(BuildContext context, WidgetRef ref, dynamic conversation, bool isMarkedUnread) {
+    final markedUnreadNotifier = ref.read(markedUnreadConversationsProvider.notifier);
+    final hasUnreadMessages = conversation.unreadCount > 0;
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      enableDrag: true,
+      isDismissible: true,
+      useRootNavigator: true,
+      builder: (context) => ConversationOptionsBottomSheet(
+        conversation: conversation,
+        isMarkedUnread: isMarkedUnread,
+        hasUnreadMessages: hasUnreadMessages,
+        onMarkAsUnread: () {
+          markedUnreadNotifier.markAsUnread(conversation.id);
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(const SnackBar(content: Text('Marked as unread'), duration: Duration(seconds: 2)));
+        },
+        onMarkAsRead: () {
+          markedUnreadNotifier.removeUnreadMark(conversation.id);
+          // TODO: Also mark actual unread messages as read via API
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(const SnackBar(content: Text('Marked as read'), duration: Duration(seconds: 2)));
+        },
+        // Future features - pass null for now
+        onPin: null,
+        onMute: null,
+        onDelete: null,
+        onBlock: null,
+      ),
     );
   }
 }
@@ -535,4 +607,85 @@ class _BubblePainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
+
+// ============================================================================
+// BIRTHDAY BANNER SLIVER
+// ============================================================================
+
+class _BirthdayBannerSliver extends ConsumerWidget {
+  const _BirthdayBannerSliver();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final birthdaysAsync = ref.watch(todayBirthdaysProvider);
+
+    return birthdaysAsync.when(
+      data: (birthdays) {
+        if (birthdays.isEmpty) {
+          return const SliverToBoxAdapter(child: SizedBox.shrink());
+        }
+
+        return SliverToBoxAdapter(
+          child: BirthdayBanner(users: birthdays, onTap: () => _showBirthdayList(context, ref, birthdays)),
+        );
+      },
+      loading: () => const SliverToBoxAdapter(child: SizedBox.shrink()),
+      error: (_, _) => const SliverToBoxAdapter(child: SizedBox.shrink()),
+    );
+  }
+
+  void _showBirthdayList(BuildContext context, WidgetRef ref, List<dynamic> birthdays) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      enableDrag: true,
+      isDismissible: true,
+      useRootNavigator: true,
+      builder: (context) => Container(
+        decoration: BoxDecoration(
+          color: Theme.of(context).scaffoldBackgroundColor,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+        ),
+        child: BirthdayListSheet(
+          users: birthdays.cast(),
+          onSendWishes: (user) {
+            Navigator.pop(context);
+            _showBirthdayWishesDialog(context, ref, user);
+          },
+        ),
+      ),
+    );
+  }
+
+  void _showBirthdayWishesDialog(BuildContext context, WidgetRef ref, dynamic user) async {
+    // Get user's conversations
+    final conversationsAsync = ref.read(conversationsProvider);
+    final conversations = conversationsAsync.value ?? [];
+
+    // Filter GROUP conversations where the birthday user is a member
+    final groupConversations = conversations.where((c) {
+      // Must be a group conversation
+      if (c.type != ConversationType.group) return false;
+
+      // Check if birthday user is a participant in this conversation
+      final isMember = c.participants.any((p) => p.userId == user.userId);
+      return isMember;
+    }).toList();
+
+    if (!context.mounted) return;
+
+    showDialog(
+      context: context,
+      builder: (context) => BirthdayWishesDialog(
+        user: user,
+        conversations: groupConversations,
+        onSendDirect: () {
+          // Navigate to direct message with the birthday user
+          context.push('/chat/${user.userId}');
+        },
+      ),
+    );
+  }
 }

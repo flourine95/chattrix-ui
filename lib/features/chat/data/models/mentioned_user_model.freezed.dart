@@ -11,7 +11,6 @@ part of 'mentioned_user_model.dart';
 
 // dart format off
 T _$identity<T>(T value) => value;
-
 /// @nodoc
 mixin _$MentionedUserModel {
 
@@ -22,8 +21,6 @@ mixin _$MentionedUserModel {
 @pragma('vm:prefer-inline')
 $MentionedUserModelCopyWith<MentionedUserModel> get copyWith => _$MentionedUserModelCopyWithImpl<MentionedUserModel>(this as MentionedUserModel, _$identity);
 
-  /// Serializes this MentionedUserModel to a JSON map.
-  Map<String, dynamic> toJson();
 
 
 @override
@@ -31,7 +28,7 @@ bool operator ==(Object other) {
   return identical(this, other) || (other.runtimeType == runtimeType&&other is MentionedUserModel&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.username, username) || other.username == username)&&(identical(other.fullName, fullName) || other.fullName == fullName));
 }
 
-@JsonKey(includeFromJson: false, includeToJson: false)
+
 @override
 int get hashCode => Object.hash(runtimeType,userId,username,fullName);
 
@@ -208,11 +205,11 @@ return $default(_that.userId,_that.username,_that.fullName);case _:
 }
 
 /// @nodoc
-@JsonSerializable()
+
 
 class _MentionedUserModel extends MentionedUserModel {
   const _MentionedUserModel({required this.userId, required this.username, required this.fullName}): super._();
-  factory _MentionedUserModel.fromJson(Map<String, dynamic> json) => _$MentionedUserModelFromJson(json);
+  
 
 @override final  int userId;
 @override final  String username;
@@ -224,17 +221,14 @@ class _MentionedUserModel extends MentionedUserModel {
 @pragma('vm:prefer-inline')
 _$MentionedUserModelCopyWith<_MentionedUserModel> get copyWith => __$MentionedUserModelCopyWithImpl<_MentionedUserModel>(this, _$identity);
 
-@override
-Map<String, dynamic> toJson() {
-  return _$MentionedUserModelToJson(this, );
-}
+
 
 @override
 bool operator ==(Object other) {
   return identical(this, other) || (other.runtimeType == runtimeType&&other is _MentionedUserModel&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.username, username) || other.username == username)&&(identical(other.fullName, fullName) || other.fullName == fullName));
 }
 
-@JsonKey(includeFromJson: false, includeToJson: false)
+
 @override
 int get hashCode => Object.hash(runtimeType,userId,username,fullName);
 

@@ -15,6 +15,8 @@ import 'package:chattrix_ui/features/chat/presentation/pages/chat_view_page.dart
 import 'package:chattrix_ui/features/chat/presentation/pages/new_chat_page.dart';
 import 'package:chattrix_ui/features/chat/presentation/pages/new_group_chat_page.dart';
 import 'package:chattrix_ui/features/chat/presentation/pages/search_conversations_page.dart';
+import 'package:chattrix_ui/features/chat/presentation/pages/schedule_message_page.dart';
+import 'package:chattrix_ui/features/chat/presentation/pages/scheduled_messages_page.dart';
 import 'package:chattrix_ui/features/contacts/presentation/pages/contacts_page.dart';
 import 'package:chattrix_ui/features/contacts/presentation/pages/contacts_demo_page.dart';
 import 'package:chattrix_ui/features/profile/presentation/pages/edit_profile_page.dart';
@@ -83,6 +85,19 @@ class RouteConfig {
     ],
   );
 
+  static List<RouteBase> get scheduleRoutes => [
+    GoRoute(
+      path: RoutePaths.scheduledMessages,
+      name: 'scheduled-messages',
+      builder: (context, state) => RouterSetup(child: const ScheduledMessagesPage()),
+    ),
+    GoRoute(
+      path: RoutePaths.scheduleMessage,
+      name: 'schedule-message',
+      builder: (context, state) => RouterSetup(child: _buildScheduleMessagePage(state)),
+    ),
+  ];
+
   static List<RouteBase> get profileRoutes => [
     GoRoute(path: RoutePaths.editProfile, name: 'edit-profile', builder: (context, state) => const EditProfilePage()),
     GoRoute(path: RoutePaths.settings, name: 'settings', builder: (context, state) => const SettingsPage()),
@@ -94,7 +109,13 @@ class RouteConfig {
     ),
   ];
 
-  static List<RouteBase> get allRoutes => [...callRoutes, ...authRoutes, ...profileRoutes, mainRoutes];
+  static List<RouteBase> get allRoutes => [
+    ...callRoutes,
+    ...authRoutes,
+    ...profileRoutes,
+    ...scheduleRoutes,
+    mainRoutes,
+  ];
 
   static Widget _buildOtpScreen(GoRouterState state) {
     String? email;
@@ -111,11 +132,30 @@ class RouteConfig {
 
   static Widget _buildChatViewPage(GoRouterState state) {
     final id = state.pathParameters['id']!;
-    return ChatViewPage(chatId: id);
+    int? highlightMessageId;
+
+    if (state.extra is Map) {
+      final extraMap = state.extra as Map;
+      highlightMessageId = extraMap['highlightMessageId'] as int?;
+    }
+
+    return ChatViewPage(chatId: id, highlightMessageId: highlightMessageId);
   }
 
   static Widget _buildChatInfoPage(GoRouterState state) {
     final conversation = state.extra as Conversation;
     return ChatInfoPage(conversation: conversation);
+  }
+
+  static Widget _buildScheduleMessagePage(GoRouterState state) {
+    if (state.extra is Map) {
+      final extraMap = state.extra as Map;
+      final conversationId = extraMap['conversationId'] as int?;
+      final existingMessage = extraMap['existingMessage'];
+
+      return ScheduleMessagePage(conversationId: conversationId ?? 0, existingMessage: existingMessage);
+    }
+
+    return const ScheduleMessagePage(conversationId: 0);
   }
 }

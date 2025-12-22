@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:chattrix_ui/features/chat/domain/entities/message.dart';
 import 'package:chattrix_ui/features/chat/presentation/providers/chat_usecase_provider.dart';
 import 'package:chattrix_ui/features/chat/presentation/providers/chat_websocket_provider_new.dart';
+import 'package:flutter/foundation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'messages_notifier.g.dart';
@@ -66,7 +67,19 @@ class MessagesNotifier extends _$MessagesNotifier {
   Future<List<Message>> _fetchMessages(String conversationId) async {
     final result = await _getMessagesUsecase(conversationId: conversationId, sort: 'DESC');
 
-    return result.fold((failure) => throw Exception(failure.message), (messages) => messages);
+    return result.fold((failure) => throw Exception(failure.message), (messages) {
+      // Debug: Log scheduled messages
+      for (final msg in messages) {
+        if (msg.sentAt != null && msg.createdAt != msg.sentAt) {
+          final diff = msg.sentAt!.difference(msg.createdAt);
+          debugPrint('🕐 Scheduled Message #${msg.id}:');
+          debugPrint('   createdAt: ${msg.createdAt}');
+          debugPrint('   sentAt: ${msg.sentAt}');
+          debugPrint('   diff: ${diff.inMinutes} minutes');
+        }
+      }
+      return messages;
+    });
   }
 
   Future<void> refresh() async {

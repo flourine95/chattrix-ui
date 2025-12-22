@@ -13,6 +13,8 @@ class UserAvatar extends StatelessWidget {
   final bool showBorder;
   final Color? borderColor;
   final double borderWidth;
+  final DateTime? dateOfBirth;
+  final bool showBirthdayBadge;
 
   const UserAvatar({
     super.key,
@@ -24,7 +26,16 @@ class UserAvatar extends StatelessWidget {
     this.showBorder = false,
     this.borderColor,
     this.borderWidth = 2,
+    this.dateOfBirth,
+    this.showBirthdayBadge = true,
   });
+
+  bool get _isBirthdayToday {
+    if (!showBirthdayBadge || dateOfBirth == null) return false;
+
+    final now = DateTime.now();
+    return now.month == dateOfBirth!.month && now.day == dateOfBirth!.day;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -38,11 +49,7 @@ class UserAvatar extends StatelessWidget {
       child: _getImageProvider() == null
           ? Text(
               initials,
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: radius * 0.6,
-                fontWeight: FontWeight.w600,
-              ),
+              style: TextStyle(color: Colors.white, fontSize: radius * 0.6, fontWeight: FontWeight.w600),
             )
           : null,
     );
@@ -51,12 +58,35 @@ class UserAvatar extends StatelessWidget {
       avatar = Container(
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          border: Border.all(
-            color: borderColor ?? Theme.of(context).colorScheme.primary,
-            width: borderWidth,
-          ),
+          border: Border.all(color: borderColor ?? Theme.of(context).colorScheme.primary, width: borderWidth),
         ),
         child: avatar,
+      );
+    }
+
+    // Add birthday badge if today is user's birthday
+    if (_isBirthdayToday) {
+      return Stack(
+        clipBehavior: Clip.none,
+        children: [
+          avatar,
+          Positioned(
+            right: 0,
+            bottom: 0,
+            child: Container(
+              padding: const EdgeInsets.all(2),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                shape: BoxShape.circle,
+                border: Border.all(color: Colors.white, width: 2),
+                boxShadow: [
+                  BoxShadow(color: Colors.black.withValues(alpha: 0.1), blurRadius: 4, offset: const Offset(0, 2)),
+                ],
+              ),
+              child: Text('🎂', style: TextStyle(fontSize: radius * 0.4)),
+            ),
+          ),
+        ],
       );
     }
 
@@ -76,4 +106,3 @@ class UserAvatar extends StatelessWidget {
     return null;
   }
 }
-

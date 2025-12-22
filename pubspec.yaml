@@ -51,6 +51,7 @@ dependencies:
   camera: ^0.10.6
   photo_manager: ^3.8.3
   timeago: ^3.7.1
+  shared_preferences: ^2.3.4
 
 dev_dependencies:
   flutter_test:

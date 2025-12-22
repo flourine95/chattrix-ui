@@ -19,6 +19,7 @@ _MessageModel _$MessageModelFromJson(Map<String, dynamic> json) =>
       senderFullName: json['senderFullName'] as String?,
       content: json['content'] as String,
       type: json['type'] as String,
+      systemMessageType: json['systemMessageType'] as String?,
       createdAt: json['createdAt'] as String,
       mediaUrl: json['mediaUrl'] as String?,
       thumbnailUrl: json['thumbnailUrl'] as String?,
@@ -65,6 +66,9 @@ _MessageModel _$MessageModelFromJson(Map<String, dynamic> json) =>
               ?.map((e) => ReadReceiptModel.fromJson(e as Map<String, dynamic>))
               .toList() ??
           const [],
+      scheduled: json['scheduled'] as bool? ?? false,
+      scheduledTime: json['scheduledTime'] as String?,
+      scheduledStatus: json['scheduledStatus'] as String?,
     );
 
 Map<String, dynamic> _$MessageModelToJson(_MessageModel instance) =>
@@ -76,6 +80,7 @@ Map<String, dynamic> _$MessageModelToJson(_MessageModel instance) =>
       'senderFullName': instance.senderFullName,
       'content': instance.content,
       'type': instance.type,
+      'systemMessageType': instance.systemMessageType,
       'createdAt': instance.createdAt,
       'mediaUrl': instance.mediaUrl,
       'thumbnailUrl': instance.thumbnailUrl,
@@ -101,4 +106,7 @@ Map<String, dynamic> _$MessageModelToJson(_MessageModel instance) =>
       'forwardCount': instance.forwardCount,
       'readCount': instance.readCount,
       'readBy': instance.readBy,
+      'scheduled': instance.scheduled,
+      'scheduledTime': instance.scheduledTime,
+      'scheduledStatus': instance.scheduledStatus,
     };

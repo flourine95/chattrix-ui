@@ -13,21 +13,26 @@ import 'package:chattrix_ui/features/chat/presentation/widgets/seen_status_widge
 /// - Conversation name (uses ConversationUtils.getConversationTitle)
 /// - Last message with sender name (for groups)
 /// - Timestamp (uses ConversationUtils.formatTimeAgo)
-/// - Unread count badge (if unreadCount > 0)
+/// - Unread count badge (if unreadCount > 0 or marked as unread)
 /// - Typing indicator (if user is typing)
 /// - Tap to navigate to chat detail
+/// - Long press to show options (mark as unread, pin, mute, etc.)
 class ConversationListItem extends StatelessWidget {
   final Conversation conversation;
   final User? currentUser;
   final VoidCallback onTap;
+  final VoidCallback? onLongPress;
   final bool isTyping;
+  final bool isMarkedUnread;
 
   const ConversationListItem({
     super.key,
     required this.conversation,
     required this.currentUser,
     required this.onTap,
+    this.onLongPress,
     this.isTyping = false,
+    this.isMarkedUnread = false,
   });
 
   @override
@@ -48,6 +53,9 @@ class ConversationListItem extends StatelessWidget {
     final isOnline =
         conversation.type == ConversationType.direct && ConversationUtils.isUserOnline(conversation, currentUser);
 
+    // Determine if conversation should show unread indicator
+    final hasUnreadIndicator = conversation.unreadCount > 0 || isMarkedUnread;
+
     // Build semantic label for screen readers
     final semanticLabel = _buildSemanticLabel(title, lastMessagePreview, timestamp, isOnline);
 
@@ -57,8 +65,13 @@ class ConversationListItem extends StatelessWidget {
       enabled: true,
       child: InkWell(
         onTap: onTap,
+        onLongPress: onLongPress,
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          // Subtle background highlight for marked unread
+          decoration: hasUnreadIndicator && isMarkedUnread
+              ? BoxDecoration(color: isDark ? Colors.blue.withValues(alpha: 0.05) : Colors.blue.withValues(alpha: 0.03))
+              : null,
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
@@ -79,13 +92,16 @@ class ConversationListItem extends StatelessWidget {
                         Expanded(
                           child: Text(
                             title,
-                            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: hasUnreadIndicator ? FontWeight.w700 : FontWeight.w600,
+                            ),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
                         ),
 
-                        // Unread count badge (top right)
+                        // Unread count badge or marked unread dot (top right)
                         if (conversation.unreadCount > 0) ...[
                           const SizedBox(width: 8),
                           Container(
@@ -98,6 +114,14 @@ class ConversationListItem extends StatelessWidget {
                               conversation.unreadCount > 99 ? '99+' : conversation.unreadCount.toString(),
                               style: const TextStyle(fontSize: 12, color: Colors.white, fontWeight: FontWeight.w600),
                             ),
+                          ),
+                        ] else if (isMarkedUnread) ...[
+                          // Show blue dot for marked unread (when no actual unread messages)
+                          const SizedBox(width: 8),
+                          Container(
+                            width: 10,
+                            height: 10,
+                            decoration: BoxDecoration(color: theme.colorScheme.primary, shape: BoxShape.circle),
                           ),
                         ],
                       ],
@@ -117,6 +141,7 @@ class ConversationListItem extends StatelessWidget {
                               fontSize: 14,
                               color: isDark ? Colors.grey[400] : Colors.grey[600],
                               fontStyle: isTyping ? FontStyle.italic : FontStyle.normal,
+                              fontWeight: hasUnreadIndicator ? FontWeight.w600 : FontWeight.normal,
                             ),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
@@ -128,7 +153,11 @@ class ConversationListItem extends StatelessWidget {
                         // Timestamp
                         Text(
                           '• $timestamp',
-                          style: TextStyle(fontSize: 12, color: isDark ? Colors.grey[400] : Colors.grey[600]),
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: isDark ? Colors.grey[400] : Colors.grey[600],
+                            fontWeight: hasUnreadIndicator ? FontWeight.w600 : FontWeight.normal,
+                          ),
                         ),
 
                         // Avatar seen (bottom right) - show all avatars for groups

@@ -2,6 +2,7 @@ import 'package:chattrix_ui/features/chat/data/models/mentioned_user_model.dart'
 import 'package:chattrix_ui/features/chat/data/models/read_receipt_model.dart';
 import 'package:chattrix_ui/features/chat/data/models/reply_to_message_model.dart';
 import 'package:chattrix_ui/features/chat/domain/entities/message.dart';
+import 'package:flutter/foundation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'message_model.freezed.dart';
@@ -19,6 +20,7 @@ abstract class MessageModel with _$MessageModel {
     String? senderFullName,
     required String content,
     required String type,
+    String? systemMessageType,
     required String createdAt,
     // Rich media fields
     String? mediaUrl,
@@ -52,6 +54,10 @@ abstract class MessageModel with _$MessageModel {
     // Read receipts
     @Default(0) int readCount,
     @Default([]) List<ReadReceiptModel> readBy,
+    // Scheduled message fields
+    @Default(false) bool scheduled,
+    String? scheduledTime,
+    String? scheduledStatus, // PENDING, SENT, CANCELLED, FAILED
   }) = _MessageModel;
 
   factory MessageModel.fromJson(Map<String, dynamic> json) => _$MessageModelFromJson(json);
@@ -65,12 +71,17 @@ abstract class MessageModel with _$MessageModel {
       replyToMessage = ReplyToMessageModel.fromJson(json['replyToMessage']);
     }
 
-    // Parse mentionedUsers
+    // Parse mentionedUsers - skip invalid entries
     List<MentionedUserModel> mentionedUsers = [];
     if (json['mentionedUsers'] != null && json['mentionedUsers'] is List) {
-      mentionedUsers = (json['mentionedUsers'] as List)
-          .map((e) => MentionedUserModel.fromJson(e as Map<String, dynamic>))
-          .toList();
+      for (var e in json['mentionedUsers'] as List) {
+        try {
+          mentionedUsers.add(MentionedUserModel.fromJson(e as Map<String, dynamic>));
+        } catch (error) {
+          // Skip invalid mentioned user (e.g., null userId from backend)
+          debugPrint('⚠️ Skipping invalid mentioned user: $error');
+        }
+      }
     }
 
     // Parse readBy
@@ -101,6 +112,7 @@ abstract class MessageModel with _$MessageModel {
       senderFullName: json['senderFullName']?.toString() ?? json['sender']?['fullName']?.toString(),
       content: (json['content'] ?? '').toString(),
       type: (json['type'] ?? 'TEXT').toString(),
+      systemMessageType: json['systemMessageType']?.toString(),
       createdAt: (json['createdAt'] ?? json['sentAt'] ?? DateTime.now().toIso8601String()).toString(),
       mediaUrl: json['mediaUrl']?.toString(),
       thumbnailUrl: json['thumbnailUrl']?.toString(),
@@ -126,6 +138,9 @@ abstract class MessageModel with _$MessageModel {
       forwardCount: json['forwardCount'] ?? 0,
       readCount: json['readCount'] ?? 0,
       readBy: readBy,
+      scheduled: json['scheduled'] ?? false,
+      scheduledTime: json['scheduledTime']?.toString(),
+      scheduledStatus: json['scheduledStatus']?.toString(),
     );
   }
 
@@ -139,6 +154,7 @@ abstract class MessageModel with _$MessageModel {
       senderFullName: senderFullName,
       content: content,
       type: type,
+      systemMessageType: systemMessageType,
       createdAt: DateTime.parse(createdAt),
       mediaUrl: mediaUrl,
       thumbnailUrl: thumbnailUrl,
@@ -164,6 +180,9 @@ abstract class MessageModel with _$MessageModel {
       forwardCount: forwardCount,
       readCount: readCount,
       readBy: readBy.map((e) => e.toEntity()).toList(),
+      scheduled: scheduled,
+      scheduledTime: scheduledTime != null ? DateTime.parse(scheduledTime!) : null,
+      scheduledStatus: scheduledStatus,
     );
   }
 }

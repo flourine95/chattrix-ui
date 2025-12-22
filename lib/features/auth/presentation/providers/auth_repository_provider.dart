@@ -1,3 +1,4 @@
+import 'package:chattrix_ui/core/network/api_interceptor.dart';
 import 'package:chattrix_ui/core/network/auth_interceptor.dart';
 import 'package:chattrix_ui/core/network/dio_client.dart';
 import 'package:chattrix_ui/core/services/token_cache_service.dart';
@@ -34,6 +35,9 @@ Dio dio(Ref ref) {
   final dio = DioClient.createDio();
   final tokenCache = ref.watch(tokenCacheServiceProvider);
 
+  // Add API interceptor first to handle error responses
+  dio.interceptors.add(ApiInterceptor());
+  // Add auth interceptor to handle authentication
   dio.interceptors.add(AuthInterceptor(dio: dio, tokenCacheService: tokenCache));
 
   return dio;

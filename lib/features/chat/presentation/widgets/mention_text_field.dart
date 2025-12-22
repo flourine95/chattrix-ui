@@ -24,6 +24,7 @@ class MentionTextField extends StatefulWidget {
     this.minLines,
     this.textInputAction,
     this.onSubmitted,
+    this.style,
   });
 
   final TextEditingController controller;
@@ -35,6 +36,7 @@ class MentionTextField extends StatefulWidget {
   final int? minLines;
   final TextInputAction? textInputAction;
   final Function(String)? onSubmitted;
+  final TextStyle? style;
 
   @override
   State<MentionTextField> createState() => _MentionTextFieldState();
@@ -177,14 +179,26 @@ class _MentionTextFieldState extends State<MentionTextField> {
   Widget build(BuildContext context) {
     return CompositedTransformTarget(
       link: _layerLink,
-      child: TextField(
-        controller: widget.controller,
-        focusNode: widget.focusNode,
-        decoration: widget.decoration,
-        maxLines: widget.maxLines,
-        minLines: widget.minLines,
-        textInputAction: widget.textInputAction,
-        onSubmitted: widget.onSubmitted,
+      child: GestureDetector(
+        onTap: () {
+          // Ensure keyboard shows when tapping the text field
+          if (widget.focusNode != null && !widget.focusNode!.hasFocus) {
+            widget.focusNode!.requestFocus();
+          }
+        },
+        child: TextField(
+          controller: widget.controller,
+          focusNode: widget.focusNode,
+          decoration: widget.decoration,
+          maxLines: widget.maxLines,
+          minLines: widget.minLines,
+          textInputAction: widget.textInputAction,
+          onSubmitted: widget.onSubmitted,
+          style: widget.style,
+          // Add these properties for better UX
+          textCapitalization: TextCapitalization.sentences,
+          keyboardType: TextInputType.multiline,
+        ),
       ),
     );
   }
@@ -200,6 +214,7 @@ class MentionText extends StatelessWidget {
     this.onMentionTap,
     this.maxLines,
     this.overflow,
+    this.mentionedUserNames,
   });
 
   final String text;
@@ -208,38 +223,104 @@ class MentionText extends StatelessWidget {
   final Function(String username)? onMentionTap;
   final int? maxLines;
   final TextOverflow? overflow;
+  final List<String>? mentionedUserNames; // List of actual mentioned user names
 
   @override
   Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
-    final defaultMentionStyle = TextStyle(color: colors.primary, fontWeight: FontWeight.w600);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    // Mention style: blue background + white/dark text + bold
+    final defaultMentionStyle = TextStyle(
+      color: isDark ? Colors.white : Colors.blue.shade900,
+      fontWeight: FontWeight.w600,
+      backgroundColor: isDark
+          ? Colors.blue.shade700.withValues(alpha: 0.3)
+          : Colors.blue.shade100.withValues(alpha: 0.5),
+    );
 
     final spans = <InlineSpan>[];
-    final regex = RegExp(r'@(\w+)');
-    int lastMatchEnd = 0;
 
-    for (final match in regex.allMatches(text)) {
-      // Add text before mention
-      if (match.start > lastMatchEnd) {
-        spans.add(TextSpan(text: text.substring(lastMatchEnd, match.start), style: style));
+    // If no mentioned users provided, use regex fallback
+    if (mentionedUserNames == null || mentionedUserNames!.isEmpty) {
+      // Fallback: Use regex to detect @mentions
+      // Match @Name (capitalized words only, stops at lowercase or punctuation)
+      // Examples: @John, @John Doe, @Nguyen Thi Hoa
+      // Stops at: lowercase letter, punctuation, or end
+      final regex = RegExp(r'@([A-Z][\w]*(?:\s+[A-Z][\w]*)*)');
+      int lastMatchEnd = 0;
+
+      for (final match in regex.allMatches(text)) {
+        // Add text before mention
+        if (match.start > lastMatchEnd) {
+          spans.add(TextSpan(text: text.substring(lastMatchEnd, match.start), style: style));
+        }
+
+        // Add mention
+        final username = match.group(1)!;
+        spans.add(
+          TextSpan(
+            text: '@$username',
+            style: mentionStyle ?? defaultMentionStyle,
+            recognizer: onMentionTap != null ? (TapGestureRecognizer()..onTap = () => onMentionTap!(username)) : null,
+          ),
+        );
+
+        lastMatchEnd = match.end;
       }
 
-      // Add mention
-      final username = match.group(1)!;
+      // Add remaining text
+      if (lastMatchEnd < text.length) {
+        spans.add(TextSpan(text: text.substring(lastMatchEnd), style: style));
+      }
+
+      return Text.rich(
+        TextSpan(children: spans),
+        maxLines: maxLines,
+        overflow: overflow,
+      );
+    }
+
+    // Use mentioned user names list
+    String remainingText = text;
+
+    // Find and highlight each mentioned user name
+    while (remainingText.isNotEmpty) {
+      int earliestIndex = -1;
+      String? foundName;
+
+      // Find the earliest occurrence of any mentioned user name
+      for (var name in mentionedUserNames!) {
+        // Look for @Name pattern
+        final pattern = '@$name';
+        final index = remainingText.indexOf(pattern);
+        if (index != -1 && (earliestIndex == -1 || index < earliestIndex)) {
+          earliestIndex = index;
+          foundName = name;
+        }
+      }
+
+      if (earliestIndex == -1) {
+        // No more mentions found, add remaining text
+        spans.add(TextSpan(text: remainingText, style: style));
+        break;
+      }
+
+      // Add text before mention
+      if (earliestIndex > 0) {
+        spans.add(TextSpan(text: remainingText.substring(0, earliestIndex), style: style));
+      }
+
+      // Add mention with highlight
       spans.add(
         TextSpan(
-          text: '@$username',
+          text: '@$foundName',
           style: mentionStyle ?? defaultMentionStyle,
-          recognizer: onMentionTap != null ? (TapGestureRecognizer()..onTap = () => onMentionTap!(username)) : null,
+          recognizer: onMentionTap != null ? (TapGestureRecognizer()..onTap = () => onMentionTap!(foundName!)) : null,
         ),
       );
 
-      lastMatchEnd = match.end;
-    }
-
-    // Add remaining text
-    if (lastMatchEnd < text.length) {
-      spans.add(TextSpan(text: text.substring(lastMatchEnd), style: style));
+      // Continue with remaining text
+      remainingText = remainingText.substring(earliestIndex + foundName!.length + 1); // +1 for @
     }
 
     return Text.rich(

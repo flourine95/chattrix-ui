@@ -14,7 +14,9 @@ abstract class Message with _$Message {
     String? senderUsername,
     String? senderFullName,
     required String content,
-    required String type, // 'TEXT', 'IMAGE', 'VIDEO', 'AUDIO', 'FILE', 'LOCATION'
+    required String type, // 'TEXT', 'IMAGE', 'VIDEO', 'AUDIO', 'FILE', 'LOCATION', 'SYSTEM'
+    String?
+    systemMessageType, // 'USER_JOINED', 'USER_LEFT', 'USER_ADDED', 'USER_REMOVED', 'NAME_CHANGED', 'AVATAR_CHANGED', 'ADMIN_PROMOTED', 'ADMIN_DEMOTED', 'MESSAGE_PINNED', 'MESSAGE_UNPINNED'
     required DateTime createdAt,
     String? mediaUrl,
     String? thumbnailUrl,
@@ -42,5 +44,9 @@ abstract class Message with _$Message {
     @Default(0) int forwardCount,
     @Default(0) int readCount,
     @Default([]) List<ReadReceipt> readBy,
+    // Scheduled message fields
+    @Default(false) bool scheduled,
+    DateTime? scheduledTime,
+    String? scheduledStatus, // PENDING, SENT, CANCELLED, FAILED
   }) = _Message;
 }

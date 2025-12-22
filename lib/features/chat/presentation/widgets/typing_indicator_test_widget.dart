@@ -3,8 +3,6 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:chattrix_ui/features/chat/domain/entities/typing_indicator.dart';
 import 'package:chattrix_ui/features/chat/presentation/widgets/typing_indicator_widget.dart';
 
-/// Test widget để kiểm tra typing indicator
-/// Sử dụng: Thêm widget này vào chat view để test
 class TypingIndicatorTestWidget extends ConsumerWidget {
   final String conversationId;
   final int? currentUserId;
@@ -16,7 +14,7 @@ class TypingIndicatorTestWidget extends ConsumerWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.amber.withOpacity(0.2),
+        color: Colors.amber.withValues(alpha: 0.2),
         border: Border.all(color: Colors.amber, width: 2),
       ),
       child: Column(

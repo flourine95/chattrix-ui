@@ -81,6 +81,12 @@ class AttachmentPickerBottomSheet extends StatelessWidget {
                   color: Colors.green,
                   onTap: () => Navigator.pop(context, AttachmentType.location),
                 ),
+                _AttachmentOption(
+                  icon: FontAwesomeIcons.clock,
+                  label: 'Schedule',
+                  color: Colors.teal,
+                  onTap: () => Navigator.pop(context, AttachmentType.schedule),
+                ),
               ],
             ),
             const SizedBox(height: 10),
@@ -139,4 +145,4 @@ class _AttachmentOption extends StatelessWidget {
 }
 
 /// Enum for attachment types
-enum AttachmentType { camera, gallery, video, audio, document, location }
+enum AttachmentType { camera, gallery, video, audio, document, location, schedule }

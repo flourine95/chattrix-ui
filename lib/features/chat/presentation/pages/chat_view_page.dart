@@ -10,12 +10,14 @@ import 'package:chattrix_ui/features/chat/data/models/chat_message_request.dart'
 import 'package:chattrix_ui/features/chat/domain/entities/message.dart';
 import 'package:chattrix_ui/features/chat/domain/entities/typing_indicator.dart';
 import 'package:chattrix_ui/features/chat/presentation/providers/chat_providers.dart';
-import 'package:chattrix_ui/features/chat/presentation/providers/chat_usecase_provider.dart';
+import 'package:chattrix_ui/features/chat/presentation/providers/typing_indicator_provider.dart';
 import 'package:chattrix_ui/features/chat/presentation/utils/conversation_utils.dart';
+import 'package:chattrix_ui/features/chat/presentation/widgets/attachment_picker_bottom_sheet.dart';
+import 'package:chattrix_ui/features/chat/presentation/widgets/emoji_sticker_picker.dart';
+import 'package:chattrix_ui/features/chat/presentation/widgets/mention_text_field.dart';
 import 'package:chattrix_ui/features/chat/presentation/widgets/message_bubble.dart';
 import 'package:chattrix_ui/features/chat/presentation/widgets/reply_message_preview.dart';
 import 'package:chattrix_ui/features/chat/presentation/widgets/typing_indicator_widget.dart';
-import 'package:chattrix_ui/features/chat/presentation/providers/typing_indicator_provider.dart';
 import 'package:chattrix_ui/features/chat/services/cloudinary_provider.dart';
 import 'package:chattrix_ui/features/chat/services/media_picker_provider.dart';
 import 'package:chattrix_ui/features/chat/services/voice_recorder_provider.dart';
@@ -27,9 +29,10 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:photo_manager/photo_manager.dart';
 
 class ChatViewPage extends HookConsumerWidget {
-  const ChatViewPage({super.key, required this.chatId});
+  const ChatViewPage({super.key, required this.chatId, this.highlightMessageId});
 
   final String chatId;
+  final int? highlightMessageId;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -53,6 +56,9 @@ class ChatViewPage extends HookConsumerWidget {
     final assets = useState<List<AssetEntity>>([]);
     final selectedAssets = useState<List<AssetEntity>>([]);
 
+    // Emoji/Sticker picker state
+    final showEmojiPicker = useState(false);
+
     // Chat Logic State
     final replyToMessage = useState<Message?>(null);
     final isRecording = useState(false);
@@ -70,6 +76,9 @@ class ChatViewPage extends HookConsumerWidget {
     final wsDataSource = ref.watch(chatWebSocketDataSourceProvider);
     final conversationsAsync = ref.watch(conversationsProvider);
     final conversation = conversationsAsync.value?.lookup(chatId);
+
+    // Highlight message state
+    final highlightedMessageId = useState<int?>(highlightMessageId);
 
     // --- MARK AS READ WHEN OPENING CONVERSATION ---
     useEffect(() {
@@ -100,6 +109,37 @@ class ChatViewPage extends HookConsumerWidget {
 
       return null;
     }, [chatId]);
+
+    // --- SCROLL TO HIGHLIGHTED MESSAGE ---
+    useEffect(() {
+      if (highlightedMessageId.value != null && messagesAsync.hasValue) {
+        final messages = messagesAsync.value!;
+        final messageIndex = messages.indexWhere((m) => m.id == highlightedMessageId.value);
+
+        if (messageIndex != -1) {
+          // Wait for list to build, then scroll using itemScrollController
+          Future.delayed(const Duration(milliseconds: 500), () {
+            if (scrollController.hasClients) {
+              // For reversed list, calculate from bottom
+              final reversedIndex = messages.length - messageIndex;
+              final targetPosition = reversedIndex * 100.0; // Approximate height
+
+              scrollController.animateTo(
+                targetPosition,
+                duration: const Duration(milliseconds: 600),
+                curve: Curves.easeInOut,
+              );
+
+              // Clear highlight after 2 seconds
+              Future.delayed(const Duration(seconds: 2), () {
+                highlightedMessageId.value = null;
+              });
+            }
+          });
+        }
+      }
+      return null;
+    }, [highlightedMessageId.value, messagesAsync]);
 
     // --- TYPING INDICATOR LOGIC ---
     useEffect(() {
@@ -221,6 +261,7 @@ class ChatViewPage extends HookConsumerWidget {
         focusNode.requestFocus();
       } else {
         focusNode.unfocus();
+        showEmojiPicker.value = false; // Hide emoji picker if open
         Future.delayed(const Duration(milliseconds: 100), () {
           showGallery.value = true;
           loadImages();
@@ -283,6 +324,34 @@ class ChatViewPage extends HookConsumerWidget {
         await usecase(conversationId: chatId, request: request);
         ref.read(messagesProvider(chatId).notifier).refresh();
       }
+    }
+
+    void toggleEmojiPicker() {
+      if (showEmojiPicker.value) {
+        // Hide emoji picker, show keyboard
+        showEmojiPicker.value = false;
+        focusNode.requestFocus();
+      } else {
+        // Show emoji picker, hide keyboard
+        focusNode.unfocus();
+        showGallery.value = false; // Hide gallery if open
+        showEmojiPicker.value = true;
+      }
+    }
+
+    void onEmojiSelected(String emoji) {
+      // Insert emoji at cursor position
+      final text = controller.text;
+      final selection = controller.selection;
+      final newText = text.replaceRange(selection.start, selection.end, emoji);
+      controller.text = newText;
+      controller.selection = TextSelection.collapsed(offset: selection.start + emoji.length);
+    }
+
+    void onStickerSelected(String stickerUrl) {
+      // Send sticker as image message
+      sendMessage(specificContent: '', type: 'IMAGE', mediaUrl: stickerUrl);
+      showEmojiPicker.value = false;
     }
 
     Future<void> handleCamera() async {
@@ -390,6 +459,19 @@ class ChatViewPage extends HookConsumerWidget {
       return null;
     }, [isRecording.value]);
 
+    // Hide emoji picker when keyboard shows
+    useEffect(() {
+      void onFocusChange() {
+        if (focusNode.hasFocus && showEmojiPicker.value) {
+          // Hide emoji picker when keyboard shows
+          showEmojiPicker.value = false;
+        }
+      }
+
+      focusNode.addListener(onFocusChange);
+      return () => focusNode.removeListener(onFocusChange);
+    }, [focusNode]);
+
     void handleAudioCall() {
       if (conversation == null || me == null) return;
 
@@ -484,6 +566,7 @@ class ChatViewPage extends HookConsumerWidget {
                       conversation: conversation,
                       scrollController: scrollController,
                       typingIndicator: typingIndicator,
+                      highlightedMessageId: highlightedMessageId.value,
                       onReply: (m) => replyToMessage.value = m,
                       onReactionTap: (m, e) =>
                           ref.read(toggleReactionUsecaseProvider)(messageId: m.id.toString(), emoji: e),
@@ -542,6 +625,9 @@ class ChatViewPage extends HookConsumerWidget {
                     onVoiceRecord: handleVoiceRecording,
                     onCancelRecording: handleCancelRecording,
                     onFilePick: handleFilePicker,
+                    showEmojiPicker: showEmojiPicker.value,
+                    onToggleEmojiPicker: toggleEmojiPicker,
+                    conversation: conversation,
                   ),
                 ],
               ),
@@ -564,6 +650,21 @@ class ChatViewPage extends HookConsumerWidget {
                           list.contains(asset) ? list.remove(asset) : list.add(asset);
                           selectedAssets.value = list;
                         },
+                      )
+                    : const SizedBox.shrink(),
+              ),
+
+              // Emoji/Sticker Picker
+              AnimatedContainer(
+                duration: const Duration(milliseconds: 250),
+                curve: Curves.easeOutQuad,
+                height: showEmojiPicker.value ? 350 : 0,
+                child: showEmojiPicker.value
+                    ? EmojiStickerPicker(
+                        onEmojiSelected: onEmojiSelected,
+                        onStickerSelected: onStickerSelected,
+                        backgroundColor: isDark ? const Color(0xFF1C1C1E) : Colors.white,
+                        iconColor: primaryColor,
                       )
                     : const SizedBox.shrink(),
               ),
@@ -615,7 +716,16 @@ class ChatViewPage extends HookConsumerWidget {
       shadowColor: Colors.black.withValues(alpha: 0.1),
       scrolledUnderElevation: 2,
       leadingWidth: 40,
-      leading: BackButton(color: color, onPressed: () => context.pop()),
+      leading: BackButton(
+        color: color,
+        onPressed: () {
+          if (context.canPop()) {
+            context.pop();
+          } else {
+            context.go('/');
+          }
+        },
+      ),
       title: Row(
         children: [
           UserAvatar(avatarUrl: avatarUrl, displayName: title, radius: 18),
@@ -680,6 +790,7 @@ class _MessageList extends HookConsumerWidget {
   final dynamic conversation;
   final ScrollController scrollController;
   final TypingIndicator typingIndicator;
+  final int? highlightedMessageId;
   final Function(Message) onReply;
   final Function(Message, String) onReactionTap;
   final Function(Message) onAddReaction;
@@ -692,6 +803,7 @@ class _MessageList extends HookConsumerWidget {
     required this.conversation,
     required this.scrollController,
     required this.typingIndicator,
+    this.highlightedMessageId,
     required this.onReply,
     required this.onReactionTap,
     required this.onAddReaction,
@@ -732,7 +844,8 @@ class _MessageList extends HookConsumerWidget {
           controller: scrollController,
           reverse: true,
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-          itemCount: messages.length + 1, // +1 for typing indicator
+          itemCount: messages.length + 1,
+          // +1 for typing indicator
           itemBuilder: (context, index) {
             // Show typing indicator at the bottom (index 0 in reversed list)
             if (index == 0) {
@@ -752,36 +865,64 @@ class _MessageList extends HookConsumerWidget {
 
             return Padding(
               padding: EdgeInsets.only(bottom: marginBottom),
-              child: Row(
-                mainAxisAlignment: isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.end,
+              child: Stack(
                 children: [
-                  if (!isMe) ...[
-                    SizedBox(
-                      width: 28,
-                      height: 28,
-                      child: showAvatar
-                          ? UserAvatar(
-                              displayName: m.senderFullName ?? 'U',
-                              avatarUrl: _getSenderAvatar(m.senderId),
-                              radius: 14,
-                            )
-                          : null,
+                  // Avatar (positioned absolutely for non-me messages)
+                  if (!isMe && showAvatar)
+                    Positioned(
+                      left: 0,
+                      bottom: 0,
+                      child: SizedBox(
+                        width: 28,
+                        height: 28,
+                        child: UserAvatar(
+                          displayName: m.senderFullName ?? 'U',
+                          avatarUrl: _getSenderAvatar(m.senderId),
+                          radius: 14,
+                        ),
+                      ),
                     ),
-                    const SizedBox(width: 8),
-                  ],
-                  Flexible(
-                    child: MessageBubble(
-                      message: m,
-                      isMe: isMe,
-                      currentUserId: me?.id,
-                      onReply: () => onReply(m),
-                      onReactionTap: (e) => onReactionTap(m, e),
-                      onAddReaction: () => onAddReaction(m),
-                      onEdit: isMe ? () => onEdit(m) : null,
-                      onDelete: isMe ? () => onDelete(m) : null,
-                      isGroup: isGroup,
-                      isLastMessage: isLastMessageFromMe,
+                  // Message bubble with highlight border
+                  Padding(
+                    padding: EdgeInsets.only(left: isMe ? 0 : 36), // Space for avatar
+                    child: Align(
+                      alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
+                      child: m.scheduled
+                          ? // Scheduled message - no border container, pass highlight directly
+                            MessageBubble(
+                              message: m,
+                              isMe: isMe,
+                              currentUserId: me?.id,
+                              onReply: () => onReply(m),
+                              onReactionTap: (e) => onReactionTap(m, e),
+                              onAddReaction: () => onAddReaction(m),
+                              onEdit: isMe ? () => onEdit(m) : null,
+                              onDelete: isMe ? () => onDelete(m) : null,
+                              isGroup: isGroup,
+                              isLastMessage: isLastMessageFromMe,
+                              isHighlighted: m.id == highlightedMessageId,
+                            )
+                          : // Regular message - wrap with border container
+                            AnimatedContainer(
+                              duration: const Duration(milliseconds: 300),
+                              padding: m.id == highlightedMessageId ? const EdgeInsets.all(3) : EdgeInsets.zero,
+                              decoration: BoxDecoration(
+                                border: m.id == highlightedMessageId ? Border.all(color: Colors.blue, width: 2) : null,
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                              child: MessageBubble(
+                                message: m,
+                                isMe: isMe,
+                                currentUserId: me?.id,
+                                onReply: () => onReply(m),
+                                onReactionTap: (e) => onReactionTap(m, e),
+                                onAddReaction: () => onAddReaction(m),
+                                onEdit: isMe ? () => onEdit(m) : null,
+                                onDelete: isMe ? () => onDelete(m) : null,
+                                isGroup: isGroup,
+                                isLastMessage: isLastMessageFromMe,
+                              ),
+                            ),
                     ),
                   ),
                 ],
@@ -995,6 +1136,9 @@ class _InputBar extends StatelessWidget {
     required this.onVoiceRecord,
     required this.onCancelRecording,
     required this.onFilePick,
+    required this.showEmojiPicker,
+    required this.onToggleEmojiPicker,
+    this.conversation,
   });
 
   final TextEditingController controller;
@@ -1011,49 +1155,41 @@ class _InputBar extends StatelessWidget {
   final VoidCallback onVoiceRecord;
   final VoidCallback onCancelRecording;
   final VoidCallback onFilePick;
+  final bool showEmojiPicker;
+  final VoidCallback onToggleEmojiPicker;
+  final dynamic conversation;
 
-  void _showMenu(BuildContext context) {
-    final RenderBox button = context.findRenderObject() as RenderBox;
-    final RenderBox overlay = Overlay.of(context).context.findRenderObject() as RenderBox;
-    final RelativeRect position = RelativeRect.fromRect(
-      Rect.fromPoints(
-        button.localToGlobal(Offset.zero, ancestor: overlay),
-        button.localToGlobal(button.size.bottomRight(Offset.zero), ancestor: overlay),
-      ),
-      Offset.zero & overlay.size,
-    );
-    showMenu(
-      context: context,
-      position: RelativeRect.fromLTRB(10, position.top - 120, 100, position.top),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      color: isDark ? const Color(0xFF2C2C2E) : Colors.white,
-      items: [
-        PopupMenuItem(
-          value: 'camera',
-          child: Row(
-            children: [
-              Icon(Icons.camera_alt, color: primaryColor),
-              const SizedBox(width: 10),
-              const Text("Camera"),
-            ],
-          ),
-        ),
-        PopupMenuItem(
-          value: 'file',
-          child: Row(
-            children: [
-              Icon(Icons.insert_drive_file, color: primaryColor),
-              const SizedBox(width: 10),
-              const Text("Files"),
-            ],
-          ),
-        ),
-      ],
-    ).then((value) {
-      if (value == 'file') {
+  void _showMenu(BuildContext context) async {
+    final result = await AttachmentPickerBottomSheet.show(context);
+
+    if (result == null) return;
+
+    switch (result) {
+      case AttachmentType.camera:
+        // TODO: Handle camera
+        break;
+      case AttachmentType.gallery:
+        // TODO: Handle gallery
+        break;
+      case AttachmentType.video:
+        // TODO: Handle video
+        break;
+      case AttachmentType.audio:
+        // TODO: Handle audio
+        break;
+      case AttachmentType.document:
         onFilePick();
-      }
-    });
+        break;
+      case AttachmentType.location:
+        // TODO: Handle location
+        break;
+      case AttachmentType.schedule:
+        // Navigate to schedule message page
+        if (context.mounted) {
+          context.push('/schedule-message', extra: {'conversationId': int.tryParse(chatId)});
+        }
+        break;
+    }
   }
 
   String _formatDuration(Duration duration) {
@@ -1174,6 +1310,19 @@ class _InputBar extends StatelessWidget {
                 constraints: const BoxConstraints(minWidth: 40, minHeight: 40),
               ),
             ),
+            // Emoji button
+            Container(
+              decoration: BoxDecoration(
+                color: showEmojiPicker ? primaryColor.withValues(alpha: 0.1) : Colors.transparent,
+                shape: BoxShape.circle,
+              ),
+              child: IconButton(
+                icon: Icon(Icons.emoji_emotions_outlined, color: primaryColor, size: 26),
+                onPressed: onToggleEmojiPicker,
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(minWidth: 40, minHeight: 40),
+              ),
+            ),
             // Mic button (when no text) - Long press to record
             if (!canSendMessage)
               Padding(
@@ -1198,12 +1347,22 @@ class _InputBar extends StatelessWidget {
                   color: isDark ? const Color(0xFF303030) : const Color(0xFFF0F2F5),
                   borderRadius: BorderRadius.circular(20),
                 ),
-                child: TextField(
+                child: MentionTextField(
                   controller: controller,
                   focusNode: focusNode,
                   maxLines: null,
-                  textCapitalization: TextCapitalization.sentences,
                   style: TextStyle(color: isDark ? Colors.white : Colors.black, fontSize: 16),
+                  users:
+                      conversation?.participants
+                          .map<MentionableUser>(
+                            (p) =>
+                                MentionableUser(id: p.userId, name: p.fullName ?? p.username, avatarUrl: p.avatarUrl),
+                          )
+                          .toList() ??
+                      [],
+                  onMentionAdded: (user) {
+                    debugPrint('Mentioned user: ${user.name}');
+                  },
                   decoration: InputDecoration(
                     hintText: 'Aa',
                     hintStyle: TextStyle(color: Colors.grey[600]),

@@ -1,6 +1,7 @@
 import 'package:chattrix_ui/features/chat/domain/entities/message.dart';
 import 'package:chattrix_ui/features/chat/presentation/utils/format_utils.dart';
 import 'package:chattrix_ui/features/chat/presentation/widgets/message_bubble.dart';
+import 'package:chattrix_ui/features/chat/presentation/widgets/mention_text_field.dart';
 import 'package:flutter/material.dart';
 
 /// Text message bubble
@@ -37,6 +38,11 @@ class TextMessageBubble extends StatelessWidget {
     final textColor = FormatUtils.getTextColor(context, isMe);
     final textTheme = Theme.of(context).textTheme;
 
+    // Extract mentioned user names from message
+    final mentionedNames = message.mentionedUsers
+        .map((user) => user.fullName.isNotEmpty ? user.fullName : user.username)
+        .toList();
+
     return BaseBubbleContainer(
       isMe: isMe,
       message: message,
@@ -51,7 +57,11 @@ class TextMessageBubble extends StatelessWidget {
       isLastMessage: isLastMessage,
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-        child: Text(message.content, style: textTheme.bodyMedium?.copyWith(color: textColor)),
+        child: MentionText(
+          text: message.content,
+          style: textTheme.bodyMedium?.copyWith(color: textColor),
+          mentionedUserNames: mentionedNames,
+        ),
       ),
     );
   }

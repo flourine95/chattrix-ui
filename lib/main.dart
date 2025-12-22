@@ -8,6 +8,7 @@ import 'core/toast/toast_overlay.dart';
 import 'features/call/presentation/state/call_notifier.dart';
 import 'features/call/presentation/widgets/global_pip_overlay.dart';
 import 'features/chat/presentation/providers/chat_websocket_provider_new.dart';
+import 'features/chat/presentation/providers/scheduled_message_providers.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -22,6 +23,9 @@ class MyApp extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     ref.watch(webSocketConnectionProvider);
     ref.watch(callProvider);
+
+    // Initialize WebSocket listener for scheduled messages
+    ref.watch(scheduledMessageWebSocketListenerProvider);
 
     return MaterialApp.router(
       title: 'Chattrix',

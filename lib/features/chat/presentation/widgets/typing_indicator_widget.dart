@@ -1,9 +1,6 @@
-import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
 import 'package:chattrix_ui/features/chat/domain/entities/typing_indicator.dart';
+import 'package:flutter/material.dart';
 
-/// Messenger-style typing indicator widget
-/// Shows animated dots when users are typing
 class TypingIndicatorWidget extends StatefulWidget {
   final TypingIndicator typingIndicator;
   final int? currentUserId;
