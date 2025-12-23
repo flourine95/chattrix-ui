@@ -1,5 +1,6 @@
 import 'package:audioplayers/audioplayers.dart';
 import 'package:chattrix_ui/features/chat/domain/entities/message.dart';
+import 'package:chattrix_ui/features/chat/domain/entities/reply_to_message.dart';
 import 'package:chattrix_ui/features/chat/presentation/utils/format_utils.dart';
 import 'package:chattrix_ui/features/chat/presentation/widgets/message_bubble.dart';
 import 'package:flutter/material.dart';
@@ -27,7 +28,7 @@ class AudioMessageBubble extends StatefulWidget {
   final Function(String emoji)? onReactionTap;
   final VoidCallback? onAddReaction;
   final int? currentUserId;
-  final Message? replyToMessage;
+  final ReplyToMessage? replyToMessage;
   final VoidCallback? onEdit;
   final VoidCallback? onDelete;
   final bool isGroup;

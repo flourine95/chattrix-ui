@@ -12,7 +12,8 @@ import 'package:chattrix_ui/features/chat/domain/entities/typing_indicator.dart'
 import 'package:chattrix_ui/features/chat/presentation/providers/chat_providers.dart';
 import 'package:chattrix_ui/features/chat/presentation/providers/typing_indicator_provider.dart';
 import 'package:chattrix_ui/features/chat/presentation/utils/conversation_utils.dart';
-import 'package:chattrix_ui/features/chat/presentation/widgets/attachment_picker_bottom_sheet.dart';
+import 'package:chattrix_ui/features/chat/presentation/widgets/attachment_picker.dart';
+import 'package:chattrix_ui/features/chat/presentation/widgets/edit_message_bottom_sheet.dart';
 import 'package:chattrix_ui/features/chat/presentation/widgets/emoji_sticker_picker.dart';
 import 'package:chattrix_ui/features/chat/presentation/widgets/mention_text_field.dart';
 import 'package:chattrix_ui/features/chat/presentation/widgets/message_bubble.dart';
@@ -58,6 +59,10 @@ class ChatViewPage extends HookConsumerWidget {
 
     // Emoji/Sticker picker state
     final showEmojiPicker = useState(false);
+    final showStickerPicker = useState(false);
+
+    // Attachment picker state
+    final showAttachmentPicker = useState(false);
 
     // Chat Logic State
     final replyToMessage = useState<Message?>(null);
@@ -262,6 +267,8 @@ class ChatViewPage extends HookConsumerWidget {
       } else {
         focusNode.unfocus();
         showEmojiPicker.value = false; // Hide emoji picker if open
+        showStickerPicker.value = false; // Hide sticker picker if open
+        showAttachmentPicker.value = false; // Hide attachment picker if open
         Future.delayed(const Duration(milliseconds: 100), () {
           showGallery.value = true;
           loadImages();
@@ -270,6 +277,7 @@ class ChatViewPage extends HookConsumerWidget {
     }
 
     Future<void> sendMessage({String? specificContent, String type = 'TEXT', String? mediaUrl, int? duration}) async {
+      debugPrint('🔵 [SendMessage] Sending message - type: $type, replyToMessageId: ${replyToMessage.value?.id}');
       if (selectedAssets.value.isNotEmpty && mediaUrl == null) {
         final cloudinary = ref.read(cloudinaryServiceProvider);
         for (var asset in selectedAssets.value) {
@@ -319,6 +327,13 @@ class ChatViewPage extends HookConsumerWidget {
 
       if (wsConnection.isConnected) {
         wsDataSource.sendMessage(chatId, request);
+        // Wait a moment for the message to be processed, then refresh to get complete data
+        Future.delayed(const Duration(milliseconds: 500), () {
+          if (replyId != null) {
+            debugPrint('🔵 [SendMessage] Refreshing messages to get complete reply data...');
+            ref.read(messagesProvider(chatId).notifier).refresh();
+          }
+        });
       } else {
         final usecase = ref.read(sendMessageUsecaseProvider);
         await usecase(conversationId: chatId, request: request);
@@ -326,45 +341,31 @@ class ChatViewPage extends HookConsumerWidget {
       }
     }
 
-    void toggleEmojiPicker() {
-      if (showEmojiPicker.value) {
-        // Hide emoji picker, show keyboard
-        showEmojiPicker.value = false;
+    void toggleAttachmentPicker() {
+      if (showAttachmentPicker.value) {
+        // Hide attachment picker, show keyboard
+        showAttachmentPicker.value = false;
         focusNode.requestFocus();
       } else {
-        // Show emoji picker, hide keyboard
+        // Show attachment picker, hide keyboard
         focusNode.unfocus();
         showGallery.value = false; // Hide gallery if open
-        showEmojiPicker.value = true;
+        showEmojiPicker.value = false; // Hide emoji picker if open
+        showStickerPicker.value = false; // Hide sticker picker if open
+        showAttachmentPicker.value = true;
       }
     }
 
     void onEmojiSelected(String emoji) {
-      // Insert emoji at cursor position
-      final text = controller.text;
-      final selection = controller.selection;
-      final newText = text.replaceRange(selection.start, selection.end, emoji);
-      controller.text = newText;
-      controller.selection = TextSelection.collapsed(offset: selection.start + emoji.length);
-    }
-
-    void onStickerSelected(String stickerUrl) {
-      // Send sticker as image message
-      sendMessage(specificContent: '', type: 'IMAGE', mediaUrl: stickerUrl);
+      // Send emoji as EMOJI message type (standalone, displayed larger)
+      sendMessage(specificContent: emoji, type: 'EMOJI');
       showEmojiPicker.value = false;
     }
 
-    Future<void> handleCamera() async {
-      final mediaPicker = ref.read(mediaPickerServiceProvider);
-      final file = await mediaPicker.takePhoto(context);
-      loadImages();
-      if (file != null) {
-        final cloudinary = ref.read(cloudinaryServiceProvider);
-        try {
-          final response = await cloudinary.uploadImage(file);
-          sendMessage(specificContent: '', type: 'IMAGE', mediaUrl: response.url);
-        } catch (_) {}
-      }
+    void onStickerSelected(String stickerUrl) {
+      // Send sticker as STICKER message type
+      sendMessage(specificContent: '', type: 'STICKER', mediaUrl: stickerUrl);
+      showEmojiPicker.value = false;
     }
 
     Future<void> handleFilePicker() async {
@@ -385,6 +386,179 @@ class ChatViewPage extends HookConsumerWidget {
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Không thể chọn file: $e')));
         }
+      }
+    }
+
+    Future<void> handleCamera() async {
+      try {
+        final mediaPicker = ref.read(mediaPickerServiceProvider);
+        final photoFile = await mediaPicker.takePhoto(context);
+
+        if (photoFile != null) {
+          // Upload image to Cloudinary
+          final cloudinary = ref.read(cloudinaryServiceProvider);
+          final response = await cloudinary.uploadImage(photoFile);
+
+          // Send image message
+          sendMessage(specificContent: '', type: 'IMAGE', mediaUrl: response.url);
+        }
+      } catch (e) {
+        debugPrint('Error taking photo: $e');
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Không thể chụp ảnh: $e')));
+        }
+      }
+    }
+
+    Future<void> handleGallery() async {
+      try {
+        final mediaPicker = ref.read(mediaPickerServiceProvider);
+        final imageFile = await mediaPicker.pickImageFromGallery(context);
+
+        if (imageFile != null) {
+          // Upload image to Cloudinary
+          final cloudinary = ref.read(cloudinaryServiceProvider);
+          final response = await cloudinary.uploadImage(imageFile);
+
+          // Send image message
+          sendMessage(specificContent: '', type: 'IMAGE', mediaUrl: response.url);
+        }
+      } catch (e) {
+        debugPrint('Error picking image: $e');
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Không thể chọn ảnh: $e')));
+        }
+      }
+    }
+
+    Future<void> handleVideo() async {
+      try {
+        final mediaPicker = ref.read(mediaPickerServiceProvider);
+        final videoFile = await mediaPicker.pickVideoFromGallery(context);
+
+        if (videoFile != null) {
+          // Upload video to Cloudinary
+          final cloudinary = ref.read(cloudinaryServiceProvider);
+          final response = await cloudinary.uploadVideo(videoFile);
+
+          // Send video message
+          sendMessage(specificContent: '', type: 'VIDEO', mediaUrl: response.url);
+        }
+      } catch (e) {
+        debugPrint('Error picking video: $e');
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Không thể chọn video: $e')));
+        }
+      }
+    }
+
+    Future<void> handleAudio() async {
+      try {
+        debugPrint('📁 [Audio] Starting audio picker...');
+        final mediaPicker = ref.read(mediaPickerServiceProvider);
+        final audioFile = await mediaPicker.pickAudioFile();
+
+        if (audioFile == null) {
+          debugPrint('📁 [Audio] No audio file selected');
+          return;
+        }
+
+        debugPrint('📁 [Audio] Audio file selected: ${audioFile.path}');
+
+        // Show loading indicator
+        if (!context.mounted) return;
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Đang upload audio...'), duration: Duration(seconds: 30)));
+
+        // Upload audio to Cloudinary
+        debugPrint('☁️ [Audio] Uploading to Cloudinary...');
+        final cloudinary = ref.read(cloudinaryServiceProvider);
+        final response = await cloudinary.uploadAudio(audioFile);
+        debugPrint('☁️ [Audio] Upload successful: ${response.url}');
+
+        // Send audio message
+        sendMessage(specificContent: '', type: 'AUDIO', mediaUrl: response.url);
+        debugPrint('✅ [Audio] Audio message sent');
+
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).hideCurrentSnackBar();
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Audio đã được gửi'),
+              duration: Duration(seconds: 2),
+              backgroundColor: Colors.green,
+            ),
+          );
+        }
+      } catch (e, stackTrace) {
+        debugPrint('❌ [Audio] Error: $e');
+        debugPrint('❌ [Audio] Stack trace: $stackTrace');
+
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).hideCurrentSnackBar();
+
+          // Provide more specific error messages
+          String errorMessage = 'Không thể chọn audio';
+          if (e.toString().contains('permission')) {
+            errorMessage = 'Không có quyền truy cập file. Vui lòng cấp quyền trong cài đặt.';
+          } else if (e.toString().contains('upload')) {
+            errorMessage = 'Không thể upload audio. Vui lòng kiểm tra kết nối mạng.';
+          } else if (e.toString().contains('size')) {
+            errorMessage = 'File audio quá lớn. Vui lòng chọn file nhỏ hơn.';
+          } else {
+            errorMessage = 'Lỗi: ${e.toString()}';
+          }
+
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(errorMessage),
+              backgroundColor: Colors.red,
+              duration: const Duration(seconds: 4),
+              action: SnackBarAction(
+                label: 'Đóng',
+                textColor: Colors.white,
+                onPressed: () {
+                  ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                },
+              ),
+            ),
+          );
+        }
+      }
+    }
+
+    void handleAttachmentSelection(AttachmentType type) {
+      // Handle each attachment type
+      switch (type) {
+        case AttachmentType.camera:
+          showAttachmentPicker.value = false;
+          handleCamera();
+          break;
+        case AttachmentType.gallery:
+          showAttachmentPicker.value = false;
+          handleGallery();
+          break;
+        case AttachmentType.video:
+          showAttachmentPicker.value = false;
+          handleVideo();
+          break;
+        case AttachmentType.document:
+          showAttachmentPicker.value = false;
+          handleFilePicker();
+          break;
+        case AttachmentType.emoji:
+          // Switch to emoji-only picker
+          showAttachmentPicker.value = false;
+          showStickerPicker.value = false;
+          showEmojiPicker.value = true;
+          break;
+        case AttachmentType.sticker:
+          // Switch to sticker-only picker
+          showAttachmentPicker.value = false;
+          showEmojiPicker.value = false;
+          showStickerPicker.value = true;
+          break;
       }
     }
 
@@ -459,12 +633,22 @@ class ChatViewPage extends HookConsumerWidget {
       return null;
     }, [isRecording.value]);
 
-    // Hide emoji picker when keyboard shows
+    // Hide pickers when keyboard shows
     useEffect(() {
       void onFocusChange() {
-        if (focusNode.hasFocus && showEmojiPicker.value) {
+        if (focusNode.hasFocus) {
           // Hide emoji picker when keyboard shows
-          showEmojiPicker.value = false;
+          if (showEmojiPicker.value) {
+            showEmojiPicker.value = false;
+          }
+          // Hide sticker picker when keyboard shows
+          if (showStickerPicker.value) {
+            showStickerPicker.value = false;
+          }
+          // Hide attachment picker when keyboard shows
+          if (showAttachmentPicker.value) {
+            showAttachmentPicker.value = false;
+          }
         }
       }
 
@@ -552,7 +736,11 @@ class ChatViewPage extends HookConsumerWidget {
         ),
         body: GestureDetector(
           onTap: () {
+            // Close all pickers when tapping outside
             if (showGallery.value) showGallery.value = false;
+            if (showEmojiPicker.value) showEmojiPicker.value = false;
+            if (showStickerPicker.value) showStickerPicker.value = false;
+            if (showAttachmentPicker.value) showAttachmentPicker.value = false;
             focusNode.unfocus();
           },
           child: Column(
@@ -568,15 +756,63 @@ class ChatViewPage extends HookConsumerWidget {
                       typingIndicator: typingIndicator,
                       highlightedMessageId: highlightedMessageId.value,
                       onReply: (m) => replyToMessage.value = m,
-                      onReactionTap: (m, e) =>
-                          ref.read(toggleReactionUsecaseProvider)(messageId: m.id.toString(), emoji: e),
-                      onAddReaction: (m) => showReactionPicker(
-                        context,
-                        (e) => ref.read(toggleReactionUsecaseProvider)(messageId: m.id.toString(), emoji: e),
-                      ),
-                      onEdit: (m) async {},
+                      onReactionTap: (m, e) async {
+                        final result = await ref.read(toggleReactionUsecaseProvider)(
+                          messageId: m.id.toString(),
+                          emoji: e,
+                        );
+                        result.fold(
+                          (failure) => debugPrint('Failed to toggle reaction: ${failure.message}'),
+                          (_) => ref.read(messagesProvider(chatId).notifier).refresh(),
+                        );
+                      },
+                      onAddReaction: (m) => showReactionPicker(context, (e) async {
+                        final result = await ref.read(toggleReactionUsecaseProvider)(
+                          messageId: m.id.toString(),
+                          emoji: e,
+                        );
+                        result.fold(
+                          (failure) => debugPrint('Failed to add reaction: ${failure.message}'),
+                          (_) => ref.read(messagesProvider(chatId).notifier).refresh(),
+                        );
+                      }),
+                      onEdit: (m) async {
+                        if (m.type.toUpperCase() == 'TEXT') {
+                          showEditMessageBottomSheet(
+                            context: context,
+                            initialContent: m.content,
+                            onSave: (newContent) async {
+                              final result = await ref.read(editMessageUsecaseProvider)(
+                                conversationId: chatId,
+                                messageId: m.id.toString(),
+                                content: newContent,
+                              );
+                              result.fold(
+                                (failure) {
+                                  if (context.mounted) {
+                                    ScaffoldMessenger.of(
+                                      context,
+                                    ).showSnackBar(SnackBar(content: Text('Error: ${failure.message}')));
+                                  }
+                                },
+                                (_) {
+                                  ref.read(messagesProvider(chatId).notifier).refresh();
+                                  if (context.mounted) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(content: Text('Message updated'), duration: Duration(seconds: 1)),
+                                    );
+                                  }
+                                },
+                              );
+                            },
+                          );
+                        }
+                      },
                       onDelete: (m) async {
-                        await ref.read(deleteMessageUsecaseProvider)(messageId: m.id.toString());
+                        await ref.read(deleteMessageUsecaseProvider)(
+                          conversationId: chatId,
+                          messageId: m.id.toString(),
+                        );
                         ref.read(messagesProvider(chatId).notifier).refresh();
                       },
                     ),
@@ -625,48 +861,81 @@ class ChatViewPage extends HookConsumerWidget {
                     onVoiceRecord: handleVoiceRecording,
                     onCancelRecording: handleCancelRecording,
                     onFilePick: handleFilePicker,
-                    showEmojiPicker: showEmojiPicker.value,
-                    onToggleEmojiPicker: toggleEmojiPicker,
+                    onCamera: handleCamera,
+                    onGallery: handleGallery,
+                    onVideo: handleVideo,
+                    onAudio: handleAudio,
+                    showAttachmentPicker: showAttachmentPicker.value,
+                    onToggleAttachmentPicker: toggleAttachmentPicker,
                     conversation: conversation,
                   ),
                 ],
               ),
 
-              AnimatedContainer(
-                duration: const Duration(milliseconds: 250),
-                curve: Curves.easeOutQuad,
-                height: showGallery.value ? MediaQuery.of(context).size.height * 0.45 : 0,
-                color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
-                child: showGallery.value
-                    ? _RealMediaGallery(
-                        albums: albums.value,
-                        currentAlbum: currentAlbum.value,
-                        assets: assets.value,
-                        selectedAssets: selectedAssets.value,
-                        onCameraTap: handleCamera,
-                        onAlbumChanged: changeAlbum,
-                        onAssetSelect: (asset) {
-                          final list = List<AssetEntity>.from(selectedAssets.value);
-                          list.contains(asset) ? list.remove(asset) : list.add(asset);
-                          selectedAssets.value = list;
-                        },
-                      )
-                    : const SizedBox.shrink(),
+              GestureDetector(
+                onTap: () {}, // Prevent closing when tapping inside gallery
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 250),
+                  curve: Curves.easeOutQuad,
+                  height: showGallery.value ? MediaQuery.of(context).size.height * 0.45 : 0,
+                  clipBehavior: Clip.hardEdge,
+                  decoration: BoxDecoration(color: isDark ? const Color(0xFF1E1E1E) : Colors.white),
+                  child: showGallery.value
+                      ? _RealMediaGallery(
+                          albums: albums.value,
+                          currentAlbum: currentAlbum.value,
+                          assets: assets.value,
+                          selectedAssets: selectedAssets.value,
+                          onCameraTap: handleCamera,
+                          onAlbumChanged: changeAlbum,
+                          onAssetSelect: (asset) {
+                            final list = List<AssetEntity>.from(selectedAssets.value);
+                            list.contains(asset) ? list.remove(asset) : list.add(asset);
+                            selectedAssets.value = list;
+                          },
+                        )
+                      : const SizedBox.shrink(),
+                ),
               ),
 
-              // Emoji/Sticker Picker
-              AnimatedContainer(
-                duration: const Duration(milliseconds: 250),
-                curve: Curves.easeOutQuad,
-                height: showEmojiPicker.value ? 350 : 0,
-                child: showEmojiPicker.value
-                    ? EmojiStickerPicker(
-                        onEmojiSelected: onEmojiSelected,
-                        onStickerSelected: onStickerSelected,
-                        backgroundColor: isDark ? const Color(0xFF1C1C1E) : Colors.white,
-                        iconColor: primaryColor,
-                      )
-                    : const SizedBox.shrink(),
+              // Emoji/Sticker & Attachment Picker (Combined for smooth animation)
+              GestureDetector(
+                onTap: () {}, // Prevent closing when tapping inside picker
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 250),
+                  curve: Curves.easeOutQuad,
+                  height: (showEmojiPicker.value || showStickerPicker.value || showAttachmentPicker.value) ? 350 : 0,
+                  clipBehavior: Clip.hardEdge,
+                  decoration: BoxDecoration(color: isDark ? const Color(0xFF1C1C1E) : Colors.white),
+                  child: (showEmojiPicker.value || showStickerPicker.value || showAttachmentPicker.value)
+                      ? IndexedStack(
+                          index: showAttachmentPicker.value ? 0 : (showEmojiPicker.value ? 1 : 2),
+                          children: [
+                            // Attachment Picker
+                            AttachmentPicker(
+                              key: const ValueKey('attachment_picker'),
+                              onAttachmentSelected: handleAttachmentSelection,
+                              backgroundColor: isDark ? const Color(0xFF1C1C1E) : Colors.white,
+                              iconColor: primaryColor,
+                            ),
+                            // Emoji Only Picker
+                            EmojiOnlyPicker(
+                              key: const ValueKey('emoji_only_picker'),
+                              onEmojiSelected: onEmojiSelected,
+                              backgroundColor: isDark ? const Color(0xFF1C1C1E) : Colors.white,
+                              iconColor: primaryColor,
+                            ),
+                            // Sticker Only Picker
+                            StickerOnlyPicker(
+                              key: const ValueKey('sticker_only_picker'),
+                              onStickerSelected: onStickerSelected,
+                              backgroundColor: isDark ? const Color(0xFF1C1C1E) : Colors.white,
+                              iconColor: primaryColor,
+                            ),
+                          ],
+                        )
+                      : const SizedBox.shrink(),
+                ),
               ),
             ],
           ),
@@ -893,6 +1162,7 @@ class _MessageList extends HookConsumerWidget {
                               message: m,
                               isMe: isMe,
                               currentUserId: me?.id,
+                              replyToMessage: m.replyToMessage,
                               onReply: () => onReply(m),
                               onReactionTap: (e) => onReactionTap(m, e),
                               onAddReaction: () => onAddReaction(m),
@@ -914,6 +1184,7 @@ class _MessageList extends HookConsumerWidget {
                                 message: m,
                                 isMe: isMe,
                                 currentUserId: me?.id,
+                                replyToMessage: m.replyToMessage,
                                 onReply: () => onReply(m),
                                 onReactionTap: (e) => onReactionTap(m, e),
                                 onAddReaction: () => onAddReaction(m),
@@ -1136,8 +1407,12 @@ class _InputBar extends StatelessWidget {
     required this.onVoiceRecord,
     required this.onCancelRecording,
     required this.onFilePick,
-    required this.showEmojiPicker,
-    required this.onToggleEmojiPicker,
+    required this.onCamera,
+    required this.onGallery,
+    required this.onVideo,
+    required this.onAudio,
+    required this.showAttachmentPicker,
+    required this.onToggleAttachmentPicker,
     this.conversation,
   });
 
@@ -1155,42 +1430,13 @@ class _InputBar extends StatelessWidget {
   final VoidCallback onVoiceRecord;
   final VoidCallback onCancelRecording;
   final VoidCallback onFilePick;
-  final bool showEmojiPicker;
-  final VoidCallback onToggleEmojiPicker;
+  final VoidCallback onCamera;
+  final VoidCallback onGallery;
+  final VoidCallback onVideo;
+  final VoidCallback onAudio;
+  final bool showAttachmentPicker;
+  final VoidCallback onToggleAttachmentPicker;
   final dynamic conversation;
-
-  void _showMenu(BuildContext context) async {
-    final result = await AttachmentPickerBottomSheet.show(context);
-
-    if (result == null) return;
-
-    switch (result) {
-      case AttachmentType.camera:
-        // TODO: Handle camera
-        break;
-      case AttachmentType.gallery:
-        // TODO: Handle gallery
-        break;
-      case AttachmentType.video:
-        // TODO: Handle video
-        break;
-      case AttachmentType.audio:
-        // TODO: Handle audio
-        break;
-      case AttachmentType.document:
-        onFilePick();
-        break;
-      case AttachmentType.location:
-        // TODO: Handle location
-        break;
-      case AttachmentType.schedule:
-        // Navigate to schedule message page
-        if (context.mounted) {
-          context.push('/schedule-message', extra: {'conversationId': int.tryParse(chatId)});
-        }
-        break;
-    }
-  }
 
   String _formatDuration(Duration duration) {
     final minutes = duration.inMinutes.toString().padLeft(2, '0');
@@ -1204,13 +1450,21 @@ class _InputBar extends StatelessWidget {
     if (isRecording.value) {
       return Container(
         width: double.infinity,
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         decoration: BoxDecoration(
           color: Theme.of(context).scaffoldBackgroundColor,
           border: Border(top: BorderSide(color: Colors.grey.withValues(alpha: 0.1), width: 0.5)),
+          boxShadow: [
+            BoxShadow(
+              color: isDark ? Colors.black.withValues(alpha: 0.2) : Colors.grey.withValues(alpha: 0.1),
+              blurRadius: 8,
+              offset: const Offset(0, -2),
+            ),
+          ],
         ),
         child: SafeArea(
           top: false,
+          bottom: false,
           child: Row(
             children: [
               // Recording indicator
@@ -1278,21 +1532,33 @@ class _InputBar extends StatelessWidget {
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 14),
       decoration: BoxDecoration(
         color: Theme.of(context).scaffoldBackgroundColor,
         border: Border(top: BorderSide(color: Colors.grey.withValues(alpha: 0.1), width: 0.5)),
+        boxShadow: [
+          BoxShadow(
+            color: isDark ? Colors.black.withValues(alpha: 0.2) : Colors.grey.withValues(alpha: 0.1),
+            blurRadius: 8,
+            offset: const Offset(0, -2),
+          ),
+        ],
       ),
       child: SafeArea(
         top: false,
+        bottom: false,
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
             // + button
-            Builder(
-              builder: (c) => IconButton(
+            Container(
+              decoration: BoxDecoration(
+                color: showAttachmentPicker ? primaryColor.withValues(alpha: 0.1) : Colors.transparent,
+                shape: BoxShape.circle,
+              ),
+              child: IconButton(
                 icon: Icon(Icons.add_circle_outline, color: primaryColor, size: 28),
-                onPressed: () => _showMenu(c),
+                onPressed: onToggleAttachmentPicker,
                 padding: EdgeInsets.zero,
                 constraints: const BoxConstraints(minWidth: 40, minHeight: 40),
               ),
@@ -1306,19 +1572,6 @@ class _InputBar extends StatelessWidget {
               child: IconButton(
                 icon: Icon(Icons.image_outlined, color: primaryColor, size: 26),
                 onPressed: onToggleGallery,
-                padding: EdgeInsets.zero,
-                constraints: const BoxConstraints(minWidth: 40, minHeight: 40),
-              ),
-            ),
-            // Emoji button
-            Container(
-              decoration: BoxDecoration(
-                color: showEmojiPicker ? primaryColor.withValues(alpha: 0.1) : Colors.transparent,
-                shape: BoxShape.circle,
-              ),
-              child: IconButton(
-                icon: Icon(Icons.emoji_emotions_outlined, color: primaryColor, size: 26),
-                onPressed: onToggleEmojiPicker,
                 padding: EdgeInsets.zero,
                 constraints: const BoxConstraints(minWidth: 40, minHeight: 40),
               ),

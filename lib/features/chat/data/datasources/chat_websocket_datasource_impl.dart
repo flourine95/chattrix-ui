@@ -14,6 +14,7 @@ import 'package:chattrix_ui/features/chat/domain/entities/conversation_update.da
 import 'package:chattrix_ui/features/chat/domain/entities/message.dart';
 import 'package:chattrix_ui/features/chat/domain/entities/typing_indicator.dart';
 import 'package:chattrix_ui/features/chat/domain/entities/user_status_update.dart';
+import 'package:flutter/foundation.dart';
 
 /// WebSocket event types sent from client to server
 class _ChatWebSocketEvent {
@@ -30,6 +31,7 @@ class _ChatWebSocketResponse {
   static const String conversationUpdate = 'conversation.update';
   static const String scheduledMessageSent = 'scheduled.message.sent';
   static const String scheduledMessageFailed = 'scheduled.message.failed';
+  static const String messageReaction = 'message.reaction';
 }
 
 /// Implementation of ChatWebSocketDataSource
@@ -58,6 +60,7 @@ class ChatWebSocketDataSourceImpl implements ChatWebSocketDataSource {
       _ChatWebSocketResponse.conversationUpdate,
       _ChatWebSocketResponse.scheduledMessageSent,
       _ChatWebSocketResponse.scheduledMessageFailed,
+      _ChatWebSocketResponse.messageReaction,
     ];
 
     _subscription = _webSocketService.messageRouter
@@ -100,6 +103,18 @@ class ChatWebSocketDataSourceImpl implements ChatWebSocketDataSource {
         case _ChatWebSocketResponse.chatMessage:
           try {
             final messageEntity = MessageModel.fromApi(payload as Map<String, dynamic>).toEntity();
+
+            // Debug: Check if replyToMessage is present
+            if (messageEntity.replyToMessageId != null) {
+              debugPrint('🔵 [WebSocket] Message received with replyToMessageId: ${messageEntity.replyToMessageId}');
+              debugPrint(
+                '🔵 [WebSocket] replyToMessage object: ${messageEntity.replyToMessage != null ? "Present" : "NULL"}',
+              );
+              if (messageEntity.replyToMessage != null) {
+                debugPrint('🔵 [WebSocket] replyToMessage content: ${messageEntity.replyToMessage!.content}');
+              }
+            }
+
             _messageController.add(messageEntity);
             AppLogger.debug('Successfully processed chat message', tag: 'ChatWebSocketDataSource');
           } catch (e, st) {
@@ -192,6 +207,14 @@ class ChatWebSocketDataSourceImpl implements ChatWebSocketDataSource {
               tag: 'ChatWebSocketDataSource',
             );
           }
+          break;
+
+        case _ChatWebSocketResponse.messageReaction:
+          // Handle message reaction updates
+          // This will be processed by the messages provider to update reactions in real-time
+          AppLogger.debug('Message reaction received: ${payload}', tag: 'ChatWebSocketDataSource');
+          // TODO: Implement reaction update logic if needed
+          // For now, just log it - reactions are already handled via API polling
           break;
 
         default:

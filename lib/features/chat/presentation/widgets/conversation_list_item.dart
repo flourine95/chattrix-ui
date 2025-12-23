@@ -267,7 +267,15 @@ class ConversationListItem extends StatelessWidget {
 
     // Format message content based on type
     String content;
-    switch (lastMessage.type.toUpperCase()) {
+    final messageType = lastMessage.type.toUpperCase();
+
+    switch (messageType) {
+      case 'EMOJI':
+        content = lastMessage.content; // Show the emoji itself
+        break;
+      case 'STICKER':
+        content = '🎭 Sticker';
+        break;
       case 'IMAGE':
         content = '📷 Photo';
         break;

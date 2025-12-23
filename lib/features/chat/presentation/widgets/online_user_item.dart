@@ -1,4 +1,3 @@
-
 import 'package:chattrix_ui/core/widgets/user_avatar.dart';
 import 'package:chattrix_ui/features/auth/domain/entities/user.dart';
 import 'package:flutter/material.dart';
@@ -8,12 +7,7 @@ class OnlineUserItem extends StatelessWidget {
   final String? note;
   final VoidCallback onTap;
 
-  const OnlineUserItem({
-    super.key,
-    required this.user,
-    this.note,
-    required this.onTap,
-  });
+  const OnlineUserItem({super.key, required this.user, this.note, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -102,7 +96,6 @@ class OnlineUserItem extends StatelessWidget {
               ),
 
               const SizedBox(height: 2), // *QUAN TRỌNG: Khoảng cách 2px*
-
               // Name below avatar
               Text(
                 user.username,

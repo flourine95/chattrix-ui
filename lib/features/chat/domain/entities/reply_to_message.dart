@@ -9,5 +9,10 @@ abstract class ReplyToMessage with _$ReplyToMessage {
     required String content,
     required int senderId,
     required String senderUsername,
+    String? senderFullName,
+    required String type,
+    String? createdAt,
+    String? fileName,
+    String? locationName,
   }) = _ReplyToMessage;
 }

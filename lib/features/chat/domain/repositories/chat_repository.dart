@@ -45,10 +45,14 @@ abstract class ChatRepository {
   Future<Either<Failure, Map<String, dynamic>>> getReactions(String messageId);
 
   /// Edit a message
-  Future<Either<Failure, Message>> editMessage({required String messageId, required String content});
+  Future<Either<Failure, Message>> editMessage({
+    required String conversationId,
+    required String messageId,
+    required String content,
+  });
 
   /// Delete a message
-  Future<Either<Failure, void>> deleteMessage(String messageId);
+  Future<Either<Failure, void>> deleteMessage({required String conversationId, required String messageId});
 
   /// Mark conversation as read
   ///

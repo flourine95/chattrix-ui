@@ -16,6 +16,11 @@ _ReplyToMessageModel _$ReplyToMessageModelFromJson(Map<String, dynamic> json) =>
       content: json['content'] as String,
       senderId: (json['senderId'] as num).toInt(),
       senderUsername: json['senderUsername'] as String,
+      senderFullName: json['senderFullName'] as String?,
+      type: json['type'] as String,
+      createdAt: json['createdAt'] as String?,
+      fileName: json['fileName'] as String?,
+      locationName: json['locationName'] as String?,
     );
 
 Map<String, dynamic> _$ReplyToMessageModelToJson(
@@ -25,4 +30,9 @@ Map<String, dynamic> _$ReplyToMessageModelToJson(
   'content': instance.content,
   'senderId': instance.senderId,
   'senderUsername': instance.senderUsername,
+  'senderFullName': instance.senderFullName,
+  'type': instance.type,
+  'createdAt': instance.createdAt,
+  'fileName': instance.fileName,
+  'locationName': instance.locationName,
 };

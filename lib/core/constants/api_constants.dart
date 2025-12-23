@@ -113,11 +113,14 @@ class ApiConstants {
 
   static String deleteReaction(String messageId, String emoji) => '$_baseUrl/$_v1/messages/$messageId/reactions/$emoji';
 
-  static String messageEdit(String messageId) => '$_baseUrl/$_v1/messages/$messageId/edit';
+  static String messageEdit(String conversationId, String messageId) =>
+      '$_baseUrl/$_v1/conversations/$conversationId/messages/$messageId';
 
-  static String messageDelete(String messageId) => '$_baseUrl/$_v1/messages/$messageId';
+  static String messageDelete(String conversationId, String messageId) =>
+      '$_baseUrl/$_v1/conversations/$conversationId/messages/$messageId';
 
-  static String messageEditHistory(String messageId) => '$_baseUrl/$_v1/messages/$messageId/edit-history';
+  static String messageEditHistory(String conversationId, String messageId) =>
+      '$_baseUrl/$_v1/conversations/$conversationId/messages/$messageId/history';
 
   static String messageRead(String messageId) => '$_baseUrl/$_v1/messages/$messageId/read';
 

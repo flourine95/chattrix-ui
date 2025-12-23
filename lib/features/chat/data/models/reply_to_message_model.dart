@@ -13,11 +13,26 @@ abstract class ReplyToMessageModel with _$ReplyToMessageModel {
     required String content,
     required int senderId,
     required String senderUsername,
+    String? senderFullName,
+    required String type,
+    String? createdAt,
+    String? fileName,
+    String? locationName,
   }) = _ReplyToMessageModel;
 
   factory ReplyToMessageModel.fromJson(Map<String, dynamic> json) => _$ReplyToMessageModelFromJson(json);
 
   ReplyToMessage toEntity() {
-    return ReplyToMessage(id: id, content: content, senderId: senderId, senderUsername: senderUsername);
+    return ReplyToMessage(
+      id: id,
+      content: content,
+      senderId: senderId,
+      senderUsername: senderUsername,
+      senderFullName: senderFullName,
+      type: type,
+      createdAt: createdAt,
+      fileName: fileName,
+      locationName: locationName,
+    );
   }
 }

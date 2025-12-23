@@ -31,8 +31,40 @@ class MediaGridItem extends StatelessWidget {
   Widget _buildMediaPreview(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
+    final messageType = message.type.toUpperCase();
 
-    switch (message.type.toUpperCase()) {
+    switch (messageType) {
+      case 'STICKER':
+        return Stack(
+          fit: StackFit.expand,
+          children: [
+            CachedNetworkImage(
+              imageUrl: message.mediaUrl ?? '',
+              fit: BoxFit.cover,
+              placeholder: (context, url) => Container(
+                color: colors.surface,
+                child: const Center(child: CircularProgressIndicator()),
+              ),
+              errorWidget: (context, url, error) => Container(
+                color: colors.surface,
+                child: Icon(Icons.broken_image, color: colors.onSurface.withValues(alpha: 0.3)),
+              ),
+            ),
+            // Sticker indicator
+            Positioned(
+              top: 4,
+              right: 4,
+              child: Container(
+                padding: const EdgeInsets.all(4),
+                decoration: BoxDecoration(
+                  color: Colors.black.withValues(alpha: 0.6),
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                child: const Icon(Icons.sticky_note_2, color: Colors.white, size: 16),
+              ),
+            ),
+          ],
+        );
       case 'IMAGE':
         return Stack(
           fit: StackFit.expand,

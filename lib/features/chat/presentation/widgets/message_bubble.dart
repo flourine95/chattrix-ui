@@ -1,9 +1,12 @@
 import 'package:chattrix_ui/features/chat/domain/entities/message.dart';
+import 'package:chattrix_ui/features/chat/domain/entities/reply_to_message.dart';
 import 'package:chattrix_ui/features/chat/presentation/widgets/message_bubbles/audio_message_bubble.dart';
 import 'package:chattrix_ui/features/chat/presentation/widgets/message_bubbles/document_message_bubble.dart';
+import 'package:chattrix_ui/features/chat/presentation/widgets/message_bubbles/emoji_message_bubble.dart';
 import 'package:chattrix_ui/features/chat/presentation/widgets/message_bubbles/image_message_bubble.dart';
 import 'package:chattrix_ui/features/chat/presentation/widgets/message_bubbles/location_message_bubble.dart';
 import 'package:chattrix_ui/features/chat/presentation/widgets/message_bubbles/scheduled_message_bubble.dart';
+import 'package:chattrix_ui/features/chat/presentation/widgets/message_bubbles/sticker_message_bubble.dart';
 import 'package:chattrix_ui/features/chat/presentation/widgets/message_bubbles/system_message_bubble.dart';
 import 'package:chattrix_ui/features/chat/presentation/widgets/message_bubbles/text_message_bubble.dart';
 import 'package:chattrix_ui/features/chat/presentation/widgets/message_bubbles/video_message_bubble.dart';
@@ -37,7 +40,7 @@ class MessageBubble extends StatelessWidget {
   final Function(String emoji)? onReactionTap;
   final VoidCallback? onAddReaction;
   final int? currentUserId;
-  final Message? replyToMessage;
+  final ReplyToMessage? replyToMessage;
   final VoidCallback? onEdit;
   final VoidCallback? onDelete;
   final bool isGroup;
@@ -58,6 +61,32 @@ class MessageBubble extends StatelessWidget {
     return RepaintBoundary(
       child: switch (messageType) {
         'SYSTEM' => SystemMessageBubble(message: message),
+        'EMOJI' => EmojiMessageBubble(
+          message: message,
+          isMe: isMe,
+          onReply: onReply,
+          onReactionTap: onReactionTap,
+          onAddReaction: onAddReaction,
+          currentUserId: currentUserId,
+          replyToMessage: replyToMessage,
+          onEdit: onEdit,
+          onDelete: onDelete,
+          isGroup: isGroup,
+          isLastMessage: isLastMessage,
+        ),
+        'STICKER' => StickerMessageBubble(
+          message: message,
+          isMe: isMe,
+          onReply: onReply,
+          onReactionTap: onReactionTap,
+          onAddReaction: onAddReaction,
+          currentUserId: currentUserId,
+          replyToMessage: replyToMessage,
+          onEdit: onEdit,
+          onDelete: onDelete,
+          isGroup: isGroup,
+          isLastMessage: isLastMessage,
+        ),
         'IMAGE' => ImageMessageBubble(
           message: message,
           isMe: isMe,
@@ -168,7 +197,7 @@ class BaseBubbleContainer extends StatefulWidget {
   final Function(String emoji)? onReactionTap;
   final VoidCallback? onAddReaction;
   final int? currentUserId;
-  final Message? replyToMessage;
+  final ReplyToMessage? replyToMessage;
   final VoidCallback? onEdit;
   final VoidCallback? onDelete;
   final bool isGroup;
@@ -280,6 +309,7 @@ class _BaseBubbleContainerState extends State<BaseBubbleContainer> with Automati
 
           showMessageLongPressOverlay(
             context: context,
+            message: widget.message!,
             messageKey: _messageKey,
             isMe: widget.isMe,
             onReply: widget.onReply,

@@ -18,6 +18,7 @@ class MediaPickerService {
           maxAssets: 1,
           requestType: RequestType.image,
           specialPickerType: SpecialPickerType.noPreview,
+          textDelegate: const EnglishAssetPickerTextDelegate(),
         ),
       );
 
@@ -39,7 +40,11 @@ class MediaPickerService {
     try {
       final List<AssetEntity>? assets = await AssetPicker.pickAssets(
         context,
-        pickerConfig: const AssetPickerConfig(maxAssets: 9, requestType: RequestType.image),
+        pickerConfig: const AssetPickerConfig(
+          maxAssets: 9,
+          requestType: RequestType.image,
+          textDelegate: EnglishAssetPickerTextDelegate(),
+        ),
       );
 
       if (assets != null && assets.isNotEmpty) {
@@ -73,7 +78,11 @@ class MediaPickerService {
 
       final AssetEntity? asset = await CameraPicker.pickFromCamera(
         context,
-        pickerConfig: const CameraPickerConfig(enableRecording: false, maximumRecordingDuration: Duration(seconds: 15)),
+        pickerConfig: const CameraPickerConfig(
+          enableRecording: false,
+          maximumRecordingDuration: Duration(seconds: 15),
+          textDelegate: EnglishCameraPickerTextDelegate(),
+        ),
       );
 
       if (asset != null) {
@@ -98,6 +107,7 @@ class MediaPickerService {
           maxAssets: 1,
           requestType: RequestType.video,
           specialPickerType: SpecialPickerType.noPreview,
+          textDelegate: const EnglishAssetPickerTextDelegate(),
         ),
       );
 
@@ -142,6 +152,7 @@ class MediaPickerService {
           enableRecording: true,
           onlyEnableRecording: true,
           maximumRecordingDuration: Duration(minutes: 5),
+          textDelegate: EnglishCameraPickerTextDelegate(),
         ),
       );
 
@@ -158,18 +169,30 @@ class MediaPickerService {
     }
   }
 
+  /// Pick an audio file using file picker
   Future<File?> pickAudioFile() async {
     try {
+      AppLogger.debug('Starting audio file picker', tag: 'MediaPicker');
+
       final result = await FilePicker.platform.pickFiles(type: FileType.audio, allowMultiple: false);
 
       if (result != null && result.files.isNotEmpty) {
-        final path = result.files.first.path;
+        final file = result.files.first;
+        final path = file.path;
+
         if (path != null) {
+          AppLogger.debug('Audio file picked: $path (${file.name}, ${file.size} bytes)', tag: 'MediaPicker');
           return File(path);
+        } else {
+          AppLogger.warning('Audio file path is null', tag: 'MediaPicker');
         }
+      } else {
+        AppLogger.debug('No audio file selected', tag: 'MediaPicker');
       }
+
       return null;
     } catch (e) {
+      AppLogger.error('pickAudioFile error', error: e, tag: 'MediaPicker');
       rethrow;
     }
   }

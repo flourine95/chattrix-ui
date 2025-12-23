@@ -72,3 +72,8 @@ flutter:
   assets:
     - .env
     - assets/icons/
+  
+  fonts:
+    - family: NotoColorEmoji
+      fonts:
+        - asset: assets/fonts/NotoColorEmoji.ttf

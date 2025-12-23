@@ -1,4 +1,5 @@
 import 'package:chattrix_ui/features/chat/domain/entities/message.dart';
+import 'package:chattrix_ui/features/chat/domain/entities/reply_to_message.dart';
 import 'package:flutter/material.dart';
 
 /// Widget to show the message being replied to
@@ -65,6 +66,10 @@ class ReplyMessagePreview extends StatelessWidget {
   String _getMessagePreview() {
     final type = replyToMessage.type.toUpperCase();
     switch (type) {
+      case 'EMOJI':
+        return replyToMessage.content; // Show the emoji itself
+      case 'STICKER':
+        return '🎭 Sticker';
       case 'IMAGE':
         return '📷 Photo';
       case 'VIDEO':
@@ -88,7 +93,7 @@ class ReplyMessagePreview extends StatelessWidget {
 class QuotedMessageWidget extends StatelessWidget {
   const QuotedMessageWidget({super.key, required this.replyToMessage, required this.onTap});
 
-  final Message replyToMessage;
+  final ReplyToMessage replyToMessage;
   final VoidCallback? onTap;
 
   @override
@@ -132,6 +137,10 @@ class QuotedMessageWidget extends StatelessWidget {
   String _getMessagePreview() {
     final type = replyToMessage.type.toUpperCase();
     switch (type) {
+      case 'EMOJI':
+        return replyToMessage.content; // Show the emoji itself
+      case 'STICKER':
+        return '🎭 Sticker';
       case 'IMAGE':
         return '📷 Photo';
       case 'VIDEO':

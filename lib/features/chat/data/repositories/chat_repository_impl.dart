@@ -102,17 +102,25 @@ class ChatRepositoryImpl extends BaseRepository implements ChatRepository {
   }
 
   @override
-  Future<Either<Failure, Message>> editMessage({required String messageId, required String content}) async {
+  Future<Either<Failure, Message>> editMessage({
+    required String conversationId,
+    required String messageId,
+    required String content,
+  }) async {
     return executeApiCall(() async {
-      final model = await remoteDatasource.editMessage(messageId: messageId, content: content);
+      final model = await remoteDatasource.editMessage(
+        conversationId: conversationId,
+        messageId: messageId,
+        content: content,
+      );
       return model.toEntity();
     });
   }
 
   @override
-  Future<Either<Failure, void>> deleteMessage(String messageId) async {
+  Future<Either<Failure, void>> deleteMessage({required String conversationId, required String messageId}) async {
     return executeApiCall(() async {
-      await remoteDatasource.deleteMessage(messageId);
+      await remoteDatasource.deleteMessage(conversationId: conversationId, messageId: messageId);
     });
   }
 

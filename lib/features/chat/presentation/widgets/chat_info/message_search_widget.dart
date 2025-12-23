@@ -293,7 +293,11 @@ class _SearchResultItem extends StatelessWidget {
   }
 
   IconData _getMessageTypeIcon() {
-    switch (message.type.toUpperCase()) {
+    final messageType = message.type.toUpperCase();
+
+    switch (messageType) {
+      case 'STICKER':
+        return Icons.sticky_note_2;
       case 'IMAGE':
         return Icons.image;
       case 'VIDEO':
@@ -310,7 +314,11 @@ class _SearchResultItem extends StatelessWidget {
   }
 
   String _getMessageTypeLabel() {
-    switch (message.type.toUpperCase()) {
+    final messageType = message.type.toUpperCase();
+
+    switch (messageType) {
+      case 'STICKER':
+        return 'Sticker';
       case 'IMAGE':
         return 'Hình ảnh';
       case 'VIDEO':

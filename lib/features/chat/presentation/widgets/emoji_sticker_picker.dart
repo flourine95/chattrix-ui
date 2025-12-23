@@ -40,24 +40,10 @@ class EmojiStickerPicker extends HookConsumerWidget {
     final iconColor = this.iconColor ?? theme.colorScheme.primary;
 
     return Container(
-      height: 350,
-      decoration: BoxDecoration(
-        color: bgColor,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-      ),
+      decoration: BoxDecoration(color: bgColor),
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          // Handle bar
-          Container(
-            margin: const EdgeInsets.only(top: 12, bottom: 8),
-            width: 40,
-            height: 4,
-            decoration: BoxDecoration(
-              color: isDark ? Colors.grey[700] : Colors.grey[300],
-              borderRadius: BorderRadius.circular(2),
-            ),
-          ),
-
           // Tab bar
           TabBar(
             controller: tabController,
@@ -71,7 +57,8 @@ class EmojiStickerPicker extends HookConsumerWidget {
           ),
 
           // Tab view
-          Expanded(
+          SizedBox(
+            height: 280,
             child: TabBarView(
               controller: tabController,
               children: [
@@ -93,6 +80,68 @@ class EmojiStickerPicker extends HookConsumerWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// Emoji Only Picker Widget (No tabs)
+class EmojiOnlyPicker extends HookConsumerWidget {
+  final Function(String emoji) onEmojiSelected;
+  final Color? backgroundColor;
+  final Color? iconColor;
+
+  const EmojiOnlyPicker({super.key, required this.onEmojiSelected, this.backgroundColor, this.iconColor});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final selectedEmojiCategory = useState(0);
+
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final bgColor = backgroundColor ?? (isDark ? const Color(0xFF1C1C1E) : Colors.white);
+    final iconColor = this.iconColor ?? theme.colorScheme.primary;
+
+    return Container(
+      decoration: BoxDecoration(color: bgColor),
+      child: _EmojiTab(
+        selectedCategory: selectedEmojiCategory,
+        onEmojiSelected: onEmojiSelected,
+        isDark: isDark,
+        iconColor: iconColor,
+      ),
+    );
+  }
+}
+
+/// Sticker Only Picker Widget (No tabs)
+class StickerOnlyPicker extends HookConsumerWidget {
+  final Function(String stickerUrl) onStickerSelected;
+  final Color? backgroundColor;
+  final Color? iconColor;
+
+  const StickerOnlyPicker({super.key, required this.onStickerSelected, this.backgroundColor, this.iconColor});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final selectedStickerCategory = useState('trending');
+    final searchController = useTextEditingController();
+    final searchQuery = useState('');
+
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final bgColor = backgroundColor ?? (isDark ? const Color(0xFF1C1C1E) : Colors.white);
+    final iconColor = this.iconColor ?? theme.colorScheme.primary;
+
+    return Container(
+      decoration: BoxDecoration(color: bgColor),
+      child: _StickerTab(
+        selectedCategory: selectedStickerCategory,
+        searchController: searchController,
+        searchQuery: searchQuery,
+        onStickerSelected: onStickerSelected,
+        isDark: isDark,
+        iconColor: iconColor,
       ),
     );
   }
@@ -849,14 +898,19 @@ class _StickerTab extends HookConsumerWidget {
                       borderRadius: BorderRadius.circular(12),
                       child: CachedNetworkImage(
                         imageUrl: sticker.previewUrl,
-                        fit: BoxFit.cover,
+                        fit: BoxFit.contain,
                         placeholder: (context, url) => Container(
-                          color: isDark ? Colors.grey[800] : Colors.grey[200],
-                          child: const Center(child: CircularProgressIndicator()),
+                          color: Colors.transparent,
+                          child: Center(
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: isDark ? Colors.grey[600] : Colors.grey[400],
+                            ),
+                          ),
                         ),
                         errorWidget: (context, url, error) => Container(
-                          color: isDark ? Colors.grey[800] : Colors.grey[200],
-                          child: const Icon(Icons.error_outline),
+                          color: Colors.transparent,
+                          child: Icon(Icons.error_outline, color: isDark ? Colors.grey[600] : Colors.grey[400]),
                         ),
                       ),
                     ),

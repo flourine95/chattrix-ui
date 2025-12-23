@@ -52,8 +52,12 @@ class MessageReactions extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      emojiParser.emojify(emoji),
-                      style: const TextStyle(fontSize: 16, fontFamily: 'NotoColorEmoji'),
+                      emoji,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontFamily: 'NotoColorEmoji',
+                        fontFamilyFallback: ['Segoe UI Emoji', 'Apple Color Emoji'],
+                      ),
                     ),
                     const SizedBox(width: 4),
                     Text(
@@ -177,8 +181,12 @@ class ReactionPickerBottomSheet extends StatelessWidget {
                   ),
                   child: Center(
                     child: Text(
-                      emojiParser.emojify(emoji),
-                      style: const TextStyle(fontSize: 24, fontFamily: 'NotoColorEmoji'),
+                      emoji,
+                      style: const TextStyle(
+                        fontSize: 24,
+                        fontFamily: 'NotoColorEmoji',
+                        fontFamilyFallback: ['Segoe UI Emoji', 'Apple Color Emoji'],
+                      ),
                     ),
                   ),
                 ),

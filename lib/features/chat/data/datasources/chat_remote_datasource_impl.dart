@@ -299,14 +299,30 @@ class ChatRemoteDatasourceImpl implements ChatRemoteDatasource {
   }
 
   @override
-  Future<MessageModel> editMessage({required String messageId, required String content}) async {
+  Future<MessageModel> editMessage({
+    required String conversationId,
+    required String messageId,
+    required String content,
+  }) async {
     try {
-      final url = ApiConstants.messageEdit(messageId);
+      final url = ApiConstants.messageEdit(conversationId, messageId);
 
       final response = await dio.put(url, data: {'content': content});
 
       if (response.statusCode == 200) {
-        final data = response.data['data'] as Map<String, dynamic>;
+        // Check if response.data is a Map
+        if (response.data is! Map<String, dynamic>) {
+          throw ServerException(message: 'Invalid response format from server');
+        }
+
+        final responseData = response.data as Map<String, dynamic>;
+
+        // Check if 'data' field exists and is a Map
+        if (responseData['data'] == null || responseData['data'] is! Map<String, dynamic>) {
+          throw ServerException(message: 'Invalid data format in response');
+        }
+
+        final data = responseData['data'] as Map<String, dynamic>;
         return MessageModel.fromApi(data);
       }
 
@@ -319,9 +335,9 @@ class ChatRemoteDatasourceImpl implements ChatRemoteDatasource {
   }
 
   @override
-  Future<void> deleteMessage(String messageId) async {
+  Future<void> deleteMessage({required String conversationId, required String messageId}) async {
     try {
-      final url = ApiConstants.messageDelete(messageId);
+      final url = ApiConstants.messageDelete(conversationId, messageId);
 
       final response = await dio.delete(url);
 

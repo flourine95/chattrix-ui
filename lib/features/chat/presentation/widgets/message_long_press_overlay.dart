@@ -1,9 +1,12 @@
+import 'package:chattrix_ui/features/chat/domain/entities/message.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_emoji/flutter_emoji.dart';
 
 class MessageLongPressOverlay extends StatefulWidget {
   const MessageLongPressOverlay({
     super.key,
+    required this.message,
     required this.messageKey,
     required this.isMe,
     required this.onReply,
@@ -14,6 +17,7 @@ class MessageLongPressOverlay extends StatefulWidget {
     required this.canEdit,
   });
 
+  final Message message;
   final GlobalKey messageKey;
   final bool isMe;
   final VoidCallback? onReply;
@@ -73,6 +77,49 @@ class _MessageLongPressOverlayState extends State<MessageLongPressOverlay> with 
         action();
       });
     }
+  }
+
+  void _handleCopy() {
+    final message = widget.message;
+    String textToCopy = '';
+
+    // Determine what to copy based on message type
+    switch (message.type.toUpperCase()) {
+      case 'TEXT':
+        textToCopy = message.content;
+        break;
+      case 'EMOJI':
+        textToCopy = message.content;
+        break;
+      case 'FILE':
+      case 'DOCUMENT':
+        textToCopy = message.fileName ?? message.content;
+        break;
+      case 'LOCATION':
+        textToCopy = message.locationName ?? 'Location: ${message.latitude}, ${message.longitude}';
+        break;
+      default:
+        textToCopy = message.content;
+    }
+
+    if (textToCopy.isNotEmpty) {
+      Clipboard.setData(ClipboardData(text: textToCopy));
+      Navigator.of(context).pop();
+
+      // Show snackbar
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Copied'), duration: Duration(seconds: 1), behavior: SnackBarBehavior.floating),
+      );
+    }
+  }
+
+  void _handleMoreReactions() {
+    Navigator.of(context).pop();
+    Future.delayed(const Duration(milliseconds: 100), () {
+      if (widget.onAddReaction != null) {
+        widget.onAddReaction!();
+      }
+    });
   }
 
   @override
@@ -149,12 +196,10 @@ class _MessageLongPressOverlayState extends State<MessageLongPressOverlay> with 
               ).animate(CurvedAnimation(parent: _animationController, curve: Curves.easeOut)),
               child: _ActionBar(
                 onReply: widget.onReply != null ? () => _handleAction(widget.onReply) : null,
-                onCopy: () {
-                  _close();
-                },
+                onCopy: _handleCopy,
                 onEdit: widget.canEdit && widget.onEdit != null ? () => _handleAction(widget.onEdit) : null,
                 onDelete: widget.isMe && widget.onDelete != null ? () => _handleAction(widget.onDelete) : null,
-                onAddReaction: widget.onAddReaction != null ? () => _handleAction(widget.onAddReaction) : null,
+                onMoreReactions: widget.onAddReaction != null ? _handleMoreReactions : null,
               ),
             ),
           ),
@@ -242,8 +287,12 @@ class _EmojiButtonState extends State<_EmojiButton> with SingleTickerProviderSta
           child: ScaleTransition(
             scale: _scaleAnimation,
             child: Text(
-              emojiParser.emojify(widget.emoji),
-              style: const TextStyle(fontSize: 28, fontFamily: 'NotoColorEmoji'),
+              widget.emoji,
+              style: const TextStyle(
+                fontSize: 28,
+                fontFamily: 'NotoColorEmoji',
+                fontFamilyFallback: ['Segoe UI Emoji', 'Apple Color Emoji'],
+              ),
             ),
           ),
         ),
@@ -258,14 +307,14 @@ class _ActionBar extends StatelessWidget {
     required this.onCopy,
     required this.onEdit,
     required this.onDelete,
-    required this.onAddReaction,
+    required this.onMoreReactions,
   });
 
   final VoidCallback? onReply;
   final VoidCallback? onCopy;
   final VoidCallback? onEdit;
   final VoidCallback? onDelete;
-  final VoidCallback? onAddReaction;
+  final VoidCallback? onMoreReactions;
 
   @override
   Widget build(BuildContext context) {
@@ -288,12 +337,12 @@ class _ActionBar extends StatelessWidget {
       actions.add(_ActionButton(icon: Icons.edit, label: 'Edit', onTap: onEdit!, textTheme: textTheme, colors: colors));
     }
 
-    if (onAddReaction != null) {
+    if (onMoreReactions != null) {
       actions.add(
         _ActionButton(
           icon: Icons.add_reaction_outlined,
-          label: 'React',
-          onTap: onAddReaction!,
+          label: 'More',
+          onTap: onMoreReactions!,
           textTheme: textTheme,
           colors: colors,
         ),
@@ -372,6 +421,7 @@ class _ActionButton extends StatelessWidget {
 
 void showMessageLongPressOverlay({
   required BuildContext context,
+  required Message message,
   required GlobalKey messageKey,
   required bool isMe,
   VoidCallback? onReply,
@@ -388,6 +438,7 @@ void showMessageLongPressOverlay({
     barrierDismissible: true,
     useSafeArea: false,
     builder: (context) => MessageLongPressOverlay(
+      message: message,
       messageKey: messageKey,
       isMe: isMe,
       onReply: onReply,
