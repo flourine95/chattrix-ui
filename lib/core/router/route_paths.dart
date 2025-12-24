@@ -22,4 +22,12 @@ class RoutePaths {
   static const String scheduleMessage = '/schedule-message';
   // chatListDemo removed - production ChatListPage is now used at '/' route
   static const String contactsDemo = '/contacts-demo';
+
+  // Poll routes
+  static const String createPoll = '/chat/:id/create-poll';
+  static const String pollDetail = '/poll/:pollId';
+
+  // Invite links routes
+  static const String inviteLinks = '/invite-links';
+  static const String inviteLinkInfo = '/invite/:token';
 }

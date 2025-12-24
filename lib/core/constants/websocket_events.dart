@@ -30,5 +30,9 @@ class WebSocketEvents {
   static const String callRejected = 'call.rejected';
   static const String callEnded = 'call.ended';
   static const String callTimeout = 'call.timeout';
-}
 
+  // Invite Link Events
+  static const String inviteLinkCreated = 'invite_link.created';
+  static const String inviteLinkRevoked = 'invite_link.revoked';
+  static const String inviteLinkUsed = 'invite_link.used';
+}

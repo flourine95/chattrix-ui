@@ -1,6 +1,7 @@
 import 'package:chattrix_ui/features/chat/domain/entities/mentioned_user.dart';
 import 'package:chattrix_ui/features/chat/domain/entities/read_receipt.dart';
 import 'package:chattrix_ui/features/chat/domain/entities/reply_to_message.dart';
+import 'package:chattrix_ui/features/poll/domain/entities/poll_entity.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'message.freezed.dart';
@@ -48,5 +49,7 @@ abstract class Message with _$Message {
     @Default(false) bool scheduled,
     DateTime? scheduledTime,
     String? scheduledStatus, // PENDING, SENT, CANCELLED, FAILED
+    // Poll data (for POLL type messages)
+    PollEntity? pollData,
   }) = _Message;
 }

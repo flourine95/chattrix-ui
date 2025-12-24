@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:chattrix_ui/features/chat/domain/entities/message.dart';
 import 'package:chattrix_ui/features/chat/presentation/providers/chat_usecase_provider.dart';
 import 'package:chattrix_ui/features/chat/presentation/providers/chat_websocket_provider_new.dart';
+import 'package:chattrix_ui/features/poll/data/models/poll_dto.dart';
+import 'package:chattrix_ui/features/poll/data/mappers/poll_mapper.dart';
 import 'package:flutter/foundation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -43,6 +45,11 @@ class MessagesNotifier extends _$MessagesNotifier {
       }
     });
 
+    // Listen to poll events
+    final pollEventSubscription = wsDataSource.pollEventStream.listen((event) {
+      _handlePollEvent(event);
+    });
+
     // Listen to WebSocket connection state to toggle polling
     _connectionSubscription = wsDataSource.connectionStream.listen((isConnected) {
       if (isConnected) {
@@ -61,6 +68,7 @@ class MessagesNotifier extends _$MessagesNotifier {
 
     ref.onDispose(() {
       messageSubscription.cancel();
+      pollEventSubscription.cancel();
       _connectionSubscription?.cancel();
       _stopPolling();
     });
@@ -113,5 +121,129 @@ class MessagesNotifier extends _$MessagesNotifier {
 
   Future<void> refresh() async {
     state = await AsyncValue.guard(() => _fetchMessages(conversationId));
+  }
+
+  void _handlePollEvent(Map<String, dynamic> event) {
+    try {
+      final eventType = event['type'] as String?;
+      final pollData = event['poll'] as Map<String, dynamic>?;
+
+      if (eventType == null || pollData == null) {
+        debugPrint('❌ [Poll Event] Missing type or poll data');
+        return;
+      }
+
+      debugPrint('📊 [Poll Event] Received: $eventType');
+
+      // Parse poll data
+      final pollDto = PollDto.fromJson(pollData);
+      final pollEntity = pollDto.toEntity();
+
+      // Check if this poll belongs to current conversation
+      if (pollEntity.conversationId.toString() != conversationId) {
+        debugPrint('📊 [Poll Event] Poll not for this conversation, ignoring');
+        return;
+      }
+
+      switch (eventType) {
+        case 'POLL_CREATED':
+          _handlePollCreated(pollEntity);
+          break;
+        case 'POLL_VOTED':
+          _handlePollVoted(pollEntity, event);
+          break;
+        case 'POLL_CLOSED':
+          _handlePollClosed(pollEntity);
+          break;
+        case 'POLL_DELETED':
+          _handlePollDeleted(pollEntity);
+          break;
+        default:
+          debugPrint('📊 [Poll Event] Unknown event type: $eventType');
+      }
+    } catch (e, st) {
+      debugPrint('❌ [Poll Event] Error handling poll event: $e');
+      debugPrint('Stack trace: $st');
+    }
+  }
+
+  void _handlePollCreated(pollEntity) {
+    debugPrint('📊 [Poll Event] POLL_CREATED - Poll ID: ${pollEntity.id}');
+
+    // Create new message with poll data
+    final pollMessage = Message(
+      id: DateTime.now().millisecondsSinceEpoch, // Temporary ID
+      conversationId: pollEntity.conversationId,
+      senderId: pollEntity.creator.id,
+      senderUsername: pollEntity.creator.username,
+      senderFullName: pollEntity.creator.fullName,
+      content: pollEntity.question,
+      type: 'POLL',
+      createdAt: pollEntity.createdAt,
+      pollData: pollEntity,
+    );
+
+    // Add to messages list at the beginning
+    state.whenData((messages) {
+      state = AsyncValue.data([pollMessage, ...messages]);
+    });
+  }
+
+  void _handlePollVoted(pollEntity, Map<String, dynamic> event) {
+    final voter = event['voter'] as Map<String, dynamic>?;
+    final voterName = voter?['fullName'] as String? ?? 'Someone';
+
+    debugPrint('📊 [Poll Event] POLL_VOTED - Poll ID: ${pollEntity.id}, Voter: $voterName');
+
+    // Create NEW message at top with updated poll data ("nổi lên" feature)
+    final pollMessage = Message(
+      id: DateTime.now().millisecondsSinceEpoch, // Temporary ID
+      conversationId: pollEntity.conversationId,
+      senderId: pollEntity.creator.id,
+      senderUsername: pollEntity.creator.username,
+      senderFullName: pollEntity.creator.fullName,
+      content: pollEntity.question,
+      type: 'POLL',
+      systemMessageType: 'POLL_UPDATE', // Mark as update
+      createdAt: DateTime.now(),
+      pollData: pollEntity,
+    );
+
+    // Add to top of messages
+    state.whenData((messages) {
+      state = AsyncValue.data([pollMessage, ...messages]);
+    });
+
+    // TODO: Show notification toast
+    debugPrint('📊 [Poll Event] $voterName đã vote');
+  }
+
+  void _handlePollClosed(pollEntity) {
+    debugPrint('📊 [Poll Event] POLL_CLOSED - Poll ID: ${pollEntity.id}');
+
+    // Update all poll instances in messages
+    state.whenData((messages) {
+      final updatedMessages = messages.map((msg) {
+        if (msg.type == 'POLL' && msg.pollData?.id == pollEntity.id) {
+          return msg.copyWith(pollData: pollEntity);
+        }
+        return msg;
+      }).toList();
+
+      state = AsyncValue.data(updatedMessages);
+    });
+  }
+
+  void _handlePollDeleted(pollEntity) {
+    debugPrint('📊 [Poll Event] POLL_DELETED - Poll ID: ${pollEntity.id}');
+
+    // Remove all poll instances from messages
+    state.whenData((messages) {
+      final filteredMessages = messages.where((msg) {
+        return !(msg.type == 'POLL' && msg.pollData?.id == pollEntity.id);
+      }).toList();
+
+      state = AsyncValue.data(filteredMessages);
+    });
   }
 }

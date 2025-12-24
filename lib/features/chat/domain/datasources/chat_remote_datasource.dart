@@ -1,6 +1,7 @@
 import 'package:chattrix_ui/core/domain/enums/conversation_filter.dart';
 import 'package:chattrix_ui/features/auth/data/models/user_dto.dart';
 import 'package:chattrix_ui/features/chat/data/models/chat_message_request.dart';
+import 'package:chattrix_ui/features/chat/data/models/conversation_member_dto.dart';
 import 'package:chattrix_ui/features/chat/data/models/conversation_model.dart';
 import 'package:chattrix_ui/features/chat/data/models/message_model.dart';
 import 'package:chattrix_ui/features/chat/data/models/search_user_model.dart';
@@ -21,6 +22,13 @@ abstract class ChatRemoteDatasource {
 
   /// Get a specific conversation by ID
   Future<ConversationModel> getConversation(String conversationId);
+
+  /// Get members in a conversation with cursor-based pagination
+  Future<List<ConversationMemberDto>> getConversationMembers({
+    required String conversationId,
+    String? cursor,
+    int limit = 20,
+  });
 
   /// Get messages in a conversation with pagination
   /// [sort] can be 'ASC' (oldest first) or 'DESC' (newest first, default)

@@ -559,6 +559,11 @@ class ChatViewPage extends HookConsumerWidget {
           showEmojiPicker.value = false;
           showStickerPicker.value = true;
           break;
+        case AttachmentType.poll:
+          // Navigate to create poll page
+          showAttachmentPicker.value = false;
+          context.push('/chat/$chatId/create-poll');
+          break;
       }
     }
 

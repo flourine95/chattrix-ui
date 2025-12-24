@@ -98,6 +98,8 @@ class ApiConstants {
   static String messagesInConversation(String conversationId) =>
       '$_baseUrl/$_v1/conversations/$conversationId/messages';
 
+  static String conversationMembers(String conversationId) => '$_baseUrl/$_v1/conversations/$conversationId/members';
+
   // User endpoints
   static String get searchUsers => '$_baseUrl/$_v1/users/search';
 

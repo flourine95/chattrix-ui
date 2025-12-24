@@ -45,6 +45,33 @@ class ChatRepositoryImpl extends BaseRepository implements ChatRepository {
   }
 
   @override
+  Future<Either<Failure, List<SearchUser>>> getConversationMembers({
+    required String conversationId,
+    String? cursor,
+    int limit = 20,
+  }) async {
+    return executeApiCall(() async {
+      final memberDtos = await remoteDatasource.getConversationMembers(
+        conversationId: conversationId,
+        cursor: cursor,
+        limit: limit,
+      );
+      return memberDtos.map<SearchUser>((dto) => SearchUser(
+        id: dto.id,
+        username: dto.username,
+        email: dto.email,
+        fullName: dto.fullName,
+        avatarUrl: dto.avatarUrl,
+        isOnline: dto.online,
+        lastSeen: DateTime.now(),
+        isContact: false,
+        hasConversation: true,
+        conversationId: int.tryParse(conversationId),
+      )).toList();
+    });
+  }
+
+  @override
   Future<Either<Failure, List<Message>>> getMessages({
     required String conversationId,
     int page = 0,

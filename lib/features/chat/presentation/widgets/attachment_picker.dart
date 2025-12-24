@@ -74,6 +74,12 @@ class AttachmentPicker extends StatelessWidget {
                 color: Colors.teal,
                 onTap: () => onAttachmentSelected(AttachmentType.sticker),
               ),
+              _AttachmentOption(
+                icon: FontAwesomeIcons.squarePollVertical,
+                label: 'Poll',
+                color: Colors.green,
+                onTap: () => onAttachmentSelected(AttachmentType.poll),
+              ),
             ],
           ),
         ],
@@ -122,4 +128,4 @@ class _AttachmentOption extends StatelessWidget {
 }
 
 /// Enum for attachment types
-enum AttachmentType { camera, gallery, video, document, emoji, sticker }
+enum AttachmentType { camera, gallery, video, document, emoji, sticker, poll }

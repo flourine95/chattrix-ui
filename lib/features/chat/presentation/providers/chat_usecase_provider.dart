@@ -1,6 +1,7 @@
 import 'package:chattrix_ui/features/chat/domain/usecases/create_conversation_usecase.dart';
 import 'package:chattrix_ui/features/chat/domain/usecases/delete_message_usecase.dart';
 import 'package:chattrix_ui/features/chat/domain/usecases/edit_message_usecase.dart';
+import 'package:chattrix_ui/features/chat/domain/usecases/get_conversation_members_usecase.dart';
 import 'package:chattrix_ui/features/chat/domain/usecases/get_conversation_usecase.dart';
 import 'package:chattrix_ui/features/chat/domain/usecases/get_conversations_usecase.dart';
 import 'package:chattrix_ui/features/chat/domain/usecases/get_messages_usecase.dart';
@@ -71,4 +72,9 @@ final toggleReactionUsecaseProvider = Provider<ToggleReactionUsecase>((ref) {
 final markConversationAsReadUsecaseProvider = Provider<MarkConversationAsReadUseCase>((ref) {
   final repository = ref.watch(chatRepositoryProvider);
   return MarkConversationAsReadUseCase(repository);
+});
+
+final getConversationMembersUsecaseProvider = Provider<GetConversationMembersUseCase>((ref) {
+  final repository = ref.watch(chatRepositoryProvider);
+  return GetConversationMembersUseCase(repository);
 });

@@ -4,6 +4,7 @@ import 'package:chattrix_ui/core/errors/exceptions.dart';
 import 'package:chattrix_ui/core/utils/app_logger.dart';
 import 'package:chattrix_ui/features/auth/data/models/user_dto.dart';
 import 'package:chattrix_ui/features/chat/data/models/chat_message_request.dart';
+import 'package:chattrix_ui/features/chat/data/models/conversation_member_dto.dart';
 import 'package:chattrix_ui/features/chat/data/models/conversation_model.dart';
 import 'package:chattrix_ui/features/chat/data/models/message_model.dart';
 import 'package:chattrix_ui/features/chat/data/models/search_user_model.dart';
@@ -63,9 +64,9 @@ class ChatRemoteDatasourceImpl implements ChatRemoteDatasource {
       AppLogger.debug('📥 Conversations API Response - Status: ${response.statusCode}', tag: 'ChatRemoteDataSource');
 
       if (response.statusCode == 200) {
-        // API returns paginated response: { success, message, data: { data: [...], page, size, total, ... } }
+        // API returns cursor-based paginated response: { success, message, data: { items: [...], meta: { nextCursor, hasNextPage, itemsPerPage } } }
         final paginatedData = response.data['data'] as Map<String, dynamic>;
-        final conversationsData = paginatedData['data'] as List;
+        final conversationsData = paginatedData['items'] as List;
 
         AppLogger.info('✅ Successfully fetched ${conversationsData.length} conversations', tag: 'ChatRemoteDataSource');
 
@@ -106,6 +107,35 @@ class ChatRemoteDatasourceImpl implements ChatRemoteDatasource {
   }
 
   @override
+  Future<List<ConversationMemberDto>> getConversationMembers({
+    required String conversationId,
+    String? cursor,
+    int limit = 20,
+  }) async {
+    try {
+      final response = await dio.get(
+        ApiConstants.conversationMembers(conversationId),
+        queryParameters: {
+          if (cursor != null) 'cursor': cursor,
+          'limit': limit,
+        },
+      );
+
+      if (response.statusCode == 200) {
+        // API returns cursor-based pagination: { success, message, data: { items: [...], meta: {...} } }
+        final paginatedData = response.data['data'] as Map<String, dynamic>;
+        final membersData = paginatedData['items'] as List;
+
+        return membersData.whereType<Map<String, dynamic>>().map((json) => ConversationMemberDto.fromJson(json)).toList();
+      }
+
+      throw ServerException(message: 'Failed to fetch conversation members');
+    } on DioException catch (e) {
+      throw ServerException(message: e.response?.data['message'] ?? 'Failed to fetch conversation members');
+    }
+  }
+
+  @override
   Future<List<MessageModel>> getMessages({
     required String conversationId,
     int page = 0,
@@ -118,7 +148,9 @@ class ChatRemoteDatasourceImpl implements ChatRemoteDatasource {
       final response = await dio.get(url, queryParameters: {'page': page, 'size': size, 'sort': sort});
 
       if (response.statusCode == 200) {
-        final data = response.data['data'] as List;
+        // API returns cursor-based paginated response: { success, message, data: { items: [...], meta: {...} } }
+        final paginatedData = response.data['data'] as Map<String, dynamic>;
+        final data = paginatedData['items'] as List;
 
         return data.whereType<Map<String, dynamic>>().map((json) => MessageModel.fromApi(json)).toList();
       }
@@ -213,9 +245,9 @@ class ChatRemoteDatasourceImpl implements ChatRemoteDatasource {
       final response = await dio.get(url, queryParameters: {'query': query, 'size': limit});
 
       if (response.statusCode == 200) {
-        // API returns paginated response: { success, message, data: { data: [...], page, size, total } }
+        // API returns cursor-based paginated response: { success, message, data: { items: [...], meta: {...} } }
         final paginatedData = response.data['data'] as Map<String, dynamic>;
-        final data = paginatedData['data'] as List;
+        final data = paginatedData['items'] as List;
 
         return data.whereType<Map<String, dynamic>>().map((json) => SearchUserModel.fromJson(json)).toList();
       }
@@ -238,9 +270,9 @@ class ChatRemoteDatasourceImpl implements ChatRemoteDatasource {
       AppLogger.debug('📥 Search API Response - Status: ${response.statusCode}', tag: 'ChatRemoteDataSource');
 
       if (response.statusCode == 200) {
-        // API returns paginated response: { success, message, data: { data: [...], page, size, total, ... } }
+        // API returns cursor-based paginated response: { success, message, data: { items: [...], meta: { nextCursor, hasNextPage, itemsPerPage } } }
         final paginatedData = response.data['data'] as Map<String, dynamic>;
-        final conversationsData = paginatedData['data'] as List;
+        final conversationsData = paginatedData['items'] as List;
 
         AppLogger.info('✅ Found ${conversationsData.length} conversations matching query', tag: 'ChatRemoteDataSource');
 

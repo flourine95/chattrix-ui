@@ -37,6 +37,9 @@ abstract class ChatWebSocketDataSource {
   /// Stream of conversation updates
   Stream<ConversationUpdate> get conversationUpdateStream;
 
+  /// Stream of poll events
+  Stream<Map<String, dynamic>> get pollEventStream;
+
   /// Stream of connection state
   Stream<bool> get connectionStream;
 

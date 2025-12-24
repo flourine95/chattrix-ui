@@ -62,6 +62,18 @@ class SettingsSectionWidget extends HookConsumerWidget {
               _showRenameGroupDialog(context);
             },
           ),
+        if (isGroup)
+          _SettingsTile(
+            icon: Icons.link,
+            title: 'Invite Links',
+            subtitle: 'Manage group invite links',
+            onTap: () {
+              context.push(
+                '/invite-links',
+                extra: {'conversationId': conversation.id, 'conversationName': conversation.name ?? 'Group'},
+              );
+            },
+          ),
 
         const SizedBox(height: 24),
 

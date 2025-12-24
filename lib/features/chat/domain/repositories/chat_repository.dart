@@ -20,6 +20,13 @@ abstract class ChatRepository {
   /// Get conversation by ID
   Future<Either<Failure, Conversation>> getConversation(String conversationId);
 
+  /// Get members in a conversation with cursor-based pagination
+  Future<Either<Failure, List<SearchUser>>> getConversationMembers({
+    required String conversationId,
+    String? cursor,
+    int limit = 20,
+  });
+
   /// Get messages in a conversation
   /// [sort] can be 'ASC' (oldest first) or 'DESC' (newest first, default)
   Future<Either<Failure, List<Message>>> getMessages({

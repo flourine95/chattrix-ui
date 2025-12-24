@@ -14,6 +14,7 @@ import 'package:chattrix_ui/features/chat/presentation/widgets/message_long_pres
 import 'package:chattrix_ui/features/chat/presentation/widgets/message_reactions.dart';
 import 'package:chattrix_ui/features/chat/presentation/widgets/reply_message_preview.dart';
 import 'package:chattrix_ui/features/chat/presentation/widgets/seen_status_widget.dart';
+import 'package:chattrix_ui/features/poll/presentation/widgets/poll_message_bubble.dart';
 import 'package:flutter/material.dart';
 
 /// Main message bubble widget that renders different types of messages
@@ -61,6 +62,7 @@ class MessageBubble extends StatelessWidget {
     return RepaintBoundary(
       child: switch (messageType) {
         'SYSTEM' => SystemMessageBubble(message: message),
+        'POLL' => PollMessageBubble(message: message, currentUserId: currentUserId ?? 0),
         'EMOJI' => EmojiMessageBubble(
           message: message,
           isMe: isMe,

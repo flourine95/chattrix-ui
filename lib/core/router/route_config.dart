@@ -22,6 +22,10 @@ import 'package:chattrix_ui/features/contacts/presentation/pages/contacts_demo_p
 import 'package:chattrix_ui/features/profile/presentation/pages/edit_profile_page.dart';
 import 'package:chattrix_ui/features/profile/presentation/pages/profile_page.dart';
 import 'package:chattrix_ui/features/profile/presentation/pages/settings_page.dart';
+import 'package:chattrix_ui/features/poll/presentation/pages/create_poll_page.dart';
+import 'package:chattrix_ui/features/poll/presentation/pages/poll_detail_page.dart';
+import 'package:chattrix_ui/features/invite_links/presentation/pages/invite_links_page.dart';
+import 'package:chattrix_ui/features/invite_links/presentation/pages/invite_link_info_page.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -109,11 +113,39 @@ class RouteConfig {
     ),
   ];
 
+  static List<RouteBase> get pollRoutes => [
+    GoRoute(
+      path: RoutePaths.createPoll,
+      name: 'create-poll',
+      builder: (context, state) => RouterSetup(child: _buildCreatePollPage(state)),
+    ),
+    GoRoute(
+      path: RoutePaths.pollDetail,
+      name: 'poll-detail',
+      builder: (context, state) => RouterSetup(child: _buildPollDetailPage(state)),
+    ),
+  ];
+
+  static List<RouteBase> get inviteLinkRoutes => [
+    GoRoute(
+      path: RoutePaths.inviteLinks,
+      name: 'invite-links',
+      builder: (context, state) => RouterSetup(child: _buildInviteLinksPage(state)),
+    ),
+    GoRoute(
+      path: RoutePaths.inviteLinkInfo,
+      name: 'invite-link-info',
+      builder: (context, state) => RouterSetup(child: _buildInviteLinkInfoPage(state)),
+    ),
+  ];
+
   static List<RouteBase> get allRoutes => [
     ...callRoutes,
     ...authRoutes,
     ...profileRoutes,
     ...scheduleRoutes,
+    ...pollRoutes,
+    ...inviteLinkRoutes,
     mainRoutes,
   ];
 
@@ -157,5 +189,33 @@ class RouteConfig {
     }
 
     return const ScheduleMessagePage(conversationId: 0);
+  }
+
+  static Widget _buildCreatePollPage(GoRouterState state) {
+    final id = state.pathParameters['id']!;
+    final conversationId = int.parse(id);
+    return CreatePollPage(conversationId: conversationId);
+  }
+
+  static Widget _buildPollDetailPage(GoRouterState state) {
+    final pollId = int.parse(state.pathParameters['pollId']!);
+    return PollDetailPage(pollId: pollId);
+  }
+
+  static Widget _buildInviteLinksPage(GoRouterState state) {
+    if (state.extra is Map) {
+      final extraMap = state.extra as Map;
+      final conversationId = extraMap['conversationId'] as int;
+      final conversationName = extraMap['conversationName'] as String;
+
+      return InviteLinksPage(conversationId: conversationId, conversationName: conversationName);
+    }
+
+    throw Exception('Missing required parameters for invite links page');
+  }
+
+  static Widget _buildInviteLinkInfoPage(GoRouterState state) {
+    final token = state.pathParameters['token']!;
+    return InviteLinkInfoPage(token: token);
   }
 }

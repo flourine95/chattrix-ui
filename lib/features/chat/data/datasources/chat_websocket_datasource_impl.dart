@@ -32,6 +32,7 @@ class _ChatWebSocketResponse {
   static const String scheduledMessageSent = 'scheduled.message.sent';
   static const String scheduledMessageFailed = 'scheduled.message.failed';
   static const String messageReaction = 'message.reaction';
+  static const String pollEvent = 'poll.event';
 }
 
 /// Implementation of ChatWebSocketDataSource
@@ -46,6 +47,7 @@ class ChatWebSocketDataSourceImpl implements ChatWebSocketDataSource {
   final _conversationUpdateController = StreamController<ConversationUpdate>.broadcast();
   final _scheduledMessageSentController = StreamController<ScheduledMessageSentDto>.broadcast();
   final _scheduledMessageFailedController = StreamController<ScheduledMessageFailedDto>.broadcast();
+  final _pollEventController = StreamController<Map<String, dynamic>>.broadcast();
 
   ChatWebSocketDataSourceImpl({required WebSocketService webSocketService}) : _webSocketService = webSocketService {
     _startListening();
@@ -61,6 +63,7 @@ class ChatWebSocketDataSourceImpl implements ChatWebSocketDataSource {
       _ChatWebSocketResponse.scheduledMessageSent,
       _ChatWebSocketResponse.scheduledMessageFailed,
       _ChatWebSocketResponse.messageReaction,
+      _ChatWebSocketResponse.pollEvent,
     ];
 
     _subscription = _webSocketService.messageRouter
@@ -217,6 +220,17 @@ class ChatWebSocketDataSourceImpl implements ChatWebSocketDataSource {
           // For now, just log it - reactions are already handled via API polling
           break;
 
+        case _ChatWebSocketResponse.pollEvent:
+          try {
+            // Poll event structure: { "type": "POLL_CREATED", "poll": {...} }
+            _pollEventController.add(payload as Map<String, dynamic>);
+            final eventType = payload['type'] as String?;
+            AppLogger.debug('Poll event received: $eventType', tag: 'ChatWebSocketDataSource');
+          } catch (e, st) {
+            AppLogger.error('Failed to parse poll event', error: e, stackTrace: st, tag: 'ChatWebSocketDataSource');
+          }
+          break;
+
         default:
           AppLogger.warning('Unknown message type: $type', tag: 'ChatWebSocketDataSource');
       }
@@ -298,6 +312,9 @@ class ChatWebSocketDataSourceImpl implements ChatWebSocketDataSource {
   /// Stream for scheduled message failed events
   Stream<ScheduledMessageFailedDto> get scheduledMessageFailedStream => _scheduledMessageFailedController.stream;
 
+  /// Stream for poll events
+  Stream<Map<String, dynamic>> get pollEventStream => _pollEventController.stream;
+
   @override
   Stream<bool> get connectionStream => _webSocketService.connectionStream;
 
@@ -316,5 +333,6 @@ class ChatWebSocketDataSourceImpl implements ChatWebSocketDataSource {
     _conversationUpdateController.close();
     _scheduledMessageSentController.close();
     _scheduledMessageFailedController.close();
+    _pollEventController.close();
   }
 }
