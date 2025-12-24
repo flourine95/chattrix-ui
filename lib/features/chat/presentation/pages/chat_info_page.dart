@@ -3,10 +3,18 @@ import 'package:chattrix_ui/core/widgets/group_avatar.dart';
 import 'package:chattrix_ui/core/widgets/user_avatar.dart';
 import 'package:chattrix_ui/features/auth/presentation/providers/auth_providers.dart';
 import 'package:chattrix_ui/features/chat/domain/entities/conversation.dart';
+import 'package:chattrix_ui/features/chat/presentation/pages/add_members_page.dart';
+import 'package:chattrix_ui/features/chat/presentation/pages/all_members_page.dart';
+import 'package:chattrix_ui/features/chat/presentation/pages/files_links_page.dart';
+import 'package:chattrix_ui/features/chat/presentation/pages/community_calendar_page.dart';
+import 'package:chattrix_ui/features/chat/presentation/pages/polls_page.dart';
+import 'package:chattrix_ui/features/chat/presentation/pages/group_permissions_page.dart';
+import 'package:chattrix_ui/features/chat/presentation/pages/search_messages_page.dart';
+import 'package:chattrix_ui/features/chat/presentation/pages/schedule_message_page.dart';
 import 'package:chattrix_ui/features/chat/presentation/providers/chat_providers.dart';
 import 'package:chattrix_ui/features/chat/presentation/providers/conversation_members_provider.dart';
 import 'package:chattrix_ui/features/chat/presentation/utils/conversation_utils.dart';
-import 'package:chattrix_ui/features/chat/presentation/widgets/chat_info/media_grid_item.dart';
+import 'package:chattrix_ui/features/chat/presentation/widgets/chat_info_bottom_sheets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
@@ -29,718 +37,1270 @@ class ChatInfoPage extends HookConsumerWidget {
         ? (conversation.name ?? 'Group ${conversation.id}')
         : ConversationUtils.getConversationTitle(conversation, me);
 
-    final isOnline = !isGroup && ConversationUtils.isUserOnline(conversation, me);
-    final lastSeen = !isGroup ? ConversationUtils.getLastSeen(conversation, me) : null;
-    final statusText = !isGroup ? ConversationUtils.formatLastSeen(isOnline, lastSeen) : null;
-
     return Scaffold(
-      backgroundColor: colors.surface,
+      backgroundColor: colors.surfaceContainerLowest,
       body: CustomScrollView(
         slivers: [
-          // App Bar with transparent background
           SliverAppBar(
-            expandedHeight: 280,
+            title: Text(isGroup ? 'Group Info' : 'Contact Info'),
+            centerTitle: false,
             pinned: true,
+            floating: false,
+            elevation: 0,
+            scrolledUnderElevation: 4,
+            shadowColor: colors.shadow.withValues(alpha: 0.3),
             backgroundColor: colors.surface,
-            leading: IconButton(
-              icon: Icon(Icons.arrow_back, color: colors.onSurface),
-              onPressed: () => context.pop(),
-            ),
-            flexibleSpace: FlexibleSpaceBar(
-              background: _buildHeader(context, displayName, isGroup, isOnline, statusText, colors, textTheme),
-            ),
           ),
-
-          // Quick Actions
-          SliverToBoxAdapter(child: _buildQuickActions(context, isGroup, colors, textTheme)),
-
-          // Customize Section
-          SliverToBoxAdapter(child: _buildCustomizeSection(context, colors, textTheme)),
-
-          // Media Section
           SliverToBoxAdapter(
-            child: _buildMediaSection(context, ref, messagesAsync, colors, textTheme),
-          ),
+            child: Column(
+              children: [
+                const SizedBox(height: 24),
 
-          // Files & Links Section (for groups)
-          if (isGroup)
-            SliverToBoxAdapter(
-              child: _buildFilesAndLinksSection(context, colors, textTheme),
-            ),
+                // Avatar Section
+                _buildAvatarSection(context, displayName, isGroup, colors),
 
-          // Members Section (for groups)
-          if (isGroup) SliverToBoxAdapter(child: _buildMembersSection(context, colors, textTheme)),
+                const SizedBox(height: 16),
 
-          // Privacy & Support Section
-          SliverToBoxAdapter(child: _buildPrivacySection(context, isGroup, colors, textTheme)),
+                // Name Section
+                _buildNameSection(context, displayName, isGroup, colors, textTheme),
 
-          // Bottom padding
-          const SliverToBoxAdapter(child: SizedBox(height: 24)),
-        ],
-      ),
-    );
-  }
+                const SizedBox(height: 24),
 
-  // Header with avatar and name
-  Widget _buildHeader(
-    BuildContext context,
-    String displayName,
-    bool isGroup,
-    bool isOnline,
-    String? statusText,
-    ColorScheme colors,
-    TextTheme textTheme,
-  ) {
-    return Container(
-      padding: const EdgeInsets.only(top: 80, bottom: 24),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.end,
-        children: [
-          // Avatar with edit button
-          Stack(
-            clipBehavior: Clip.none,
-            children: [
-              // Group or user avatar
-              if (isGroup)
-                GroupAvatar(
-                  participants: conversation.participants,
-                  radius: 60,
-                  showBorder: true,
-                  borderColor: colors.surface,
-                )
-              else
-                UserAvatar(
-                  displayName: displayName,
-                  avatarUrl: null,
-                  radius: 60,
-                  backgroundColor: colors.primary,
-                ),
+                // Quick Actions Row (4 buttons)
+                _buildQuickActionsRow(context, isGroup, colors, textTheme),
 
-              // Online indicator for direct chat
-              if (!isGroup && isOnline)
-                Positioned(
-                  right: 4,
-                  bottom: 4,
-                  child: Container(
-                    width: 20,
-                    height: 20,
-                    decoration: BoxDecoration(
-                      color: Colors.green,
-                      shape: BoxShape.circle,
-                      border: Border.all(color: colors.surface, width: 3),
-                    ),
-                  ),
-                ),
+                const SizedBox(height: 24),
 
-              // Edit button for group
-              if (isGroup)
-                Positioned(
-                  right: -4,
-                  bottom: -4,
-                  child: Material(
-                    color: colors.primary,
-                    shape: const CircleBorder(),
-                    child: InkWell(
-                      onTap: () {
-                        // TODO: Show edit group dialog
-                      },
-                      customBorder: const CircleBorder(),
-                      child: Container(
-                        padding: const EdgeInsets.all(8),
-                        child: Icon(Icons.camera_alt, size: 20, color: colors.onPrimary),
-                      ),
-                    ),
-                  ),
-                ),
-            ],
-          ),
-          const SizedBox(height: 16),
+                // Different layouts for 1-1 vs Group
+                if (isGroup)
+                  _buildGroupLayout(context, ref, messagesAsync, colors, textTheme)
+                else
+                  _buildOneToOneLayout(context, ref, messagesAsync, colors, textTheme),
 
-          // Name with edit button
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Flexible(
-                child: Text(
-                  displayName,
-                  style: textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
-                  textAlign: TextAlign.center,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-              if (isGroup) ...[
-                const SizedBox(width: 8),
-                InkWell(
-                  onTap: () => _showRenameGroupDialog(context, colors),
-                  borderRadius: BorderRadius.circular(20),
-                  child: Padding(
-                    padding: const EdgeInsets.all(4),
-                    child: Icon(Icons.edit, size: 18, color: colors.primary),
-                  ),
-                ),
+                const SizedBox(height: 32),
               ],
-            ],
-          ),
-          const SizedBox(height: 4),
-
-          // Status or member count
-          if (isGroup)
-            Text(
-              '${conversation.participants.length} members',
-              style: textTheme.bodyMedium?.copyWith(color: colors.onSurface.withValues(alpha: 0.6)),
-            )
-          else if (statusText != null)
-            Text(
-              statusText,
-              style: textTheme.bodyMedium?.copyWith(
-                color: isOnline ? Colors.green : colors.onSurface.withValues(alpha: 0.6),
-              ),
             ),
+          ),
         ],
       ),
     );
   }
 
-  // Quick Actions Section
-  Widget _buildQuickActions(BuildContext context, bool isGroup, ColorScheme colors, TextTheme textTheme) {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 16),
-      decoration: BoxDecoration(
-        color: colors.surface,
-        border: Border(bottom: BorderSide(color: colors.onSurface.withValues(alpha: 0.05), width: 8)),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: [
-          if (isGroup) ...[
-            _QuickActionButton(
-              icon: Icons.person_add_outlined,
-              label: 'Add',
-              onTap: () {
-                // TODO: Navigate to add members page
-              },
-              colors: colors,
-              textTheme: textTheme,
-            ),
-            _QuickActionButton(
-              icon: Icons.search,
-              label: 'Search',
-              onTap: () {},
-              colors: colors,
-              textTheme: textTheme,
-            ),
-            _QuickActionButton(
-              icon: Icons.notifications_outlined,
-              label: 'Mute',
-              onTap: () {},
-              colors: colors,
-              textTheme: textTheme,
-            ),
-            _QuickActionButton(
-              icon: Icons.share_outlined,
-              label: 'Share',
-              onTap: () => _shareGroupLink(context),
-              colors: colors,
-              textTheme: textTheme,
-            ),
-          ] else ...[
-            _QuickActionButton(
-              icon: Icons.search,
-              label: 'Search',
-              onTap: () {},
-              colors: colors,
-              textTheme: textTheme,
-            ),
-            _QuickActionButton(
-              icon: Icons.notifications_outlined,
-              label: 'Mute',
-              onTap: () {},
-              colors: colors,
-              textTheme: textTheme,
-            ),
-            _QuickActionButton(
-              icon: Icons.videocam_outlined,
-              label: 'Video',
-              onTap: () {},
-              colors: colors,
-              textTheme: textTheme,
-            ),
-            _QuickActionButton(
-              icon: Icons.call_outlined,
-              label: 'Call',
-              onTap: () {},
-              colors: colors,
-              textTheme: textTheme,
-            ),
-          ],
-        ],
-      ),
-    );
-  }
+  // ============================================================================
+  // LAYOUT BUILDERS
+  // ============================================================================
 
-  // Customize Section
-  Widget _buildCustomizeSection(BuildContext context, ColorScheme colors, TextTheme textTheme) {
-    final isGroup = conversation.type == ConversationType.group;
-
-    return Container(
-      margin: const EdgeInsets.only(bottom: 8),
-      decoration: BoxDecoration(
-        color: colors.surface,
-        border: Border(bottom: BorderSide(color: colors.onSurface.withValues(alpha: 0.05), width: 8)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-            child: Text(
-              isGroup ? 'Group Settings' : 'Customize',
-              style: textTheme.titleSmall?.copyWith(
-                fontWeight: FontWeight.w600,
-                color: colors.onSurface.withValues(alpha: 0.6),
-              ),
-            ),
-          ),
-          if (isGroup) ...[
-            _SettingsTile(
-              icon: Icons.description_outlined,
-              title: 'Group Description',
-              subtitle: 'Add a description for this group',
-              onTap: () => _showGroupDescriptionDialog(context, colors),
-              colors: colors,
-              textTheme: textTheme,
-            ),
-            _SettingsTile(
-              icon: Icons.admin_panel_settings_outlined,
-              title: 'Group Permissions',
-              subtitle: 'Manage who can send messages, add members',
-              onTap: () {},
-              colors: colors,
-              textTheme: textTheme,
-            ),
-            _SettingsTile(
-              icon: Icons.push_pin_outlined,
-              title: 'Pinned Messages',
-              subtitle: 'View pinned messages',
-              onTap: () {},
-              colors: colors,
-              textTheme: textTheme,
-            ),
-          ],
-          _SettingsTile(
-            icon: Icons.color_lens_outlined,
-            title: 'Theme & Colors',
-            subtitle: 'Change chat colors',
-            onTap: () {},
-            colors: colors,
-            textTheme: textTheme,
-          ),
-          _SettingsTile(
-            icon: Icons.emoji_emotions_outlined,
-            title: 'Emoji',
-            subtitle: 'Choose a quick reaction',
-            onTap: () {},
-            colors: colors,
-            textTheme: textTheme,
-          ),
-          if (!isGroup)
-            _SettingsTile(
-              icon: Icons.edit_outlined,
-              title: 'Nickname',
-              subtitle: 'Set a nickname',
-              onTap: () {},
-              colors: colors,
-              textTheme: textTheme,
-            ),
-        ],
-      ),
-    );
-  }
-
-  // Media Section
-  Widget _buildMediaSection(
+  /// Build layout for 1-1 chat
+  Widget _buildOneToOneLayout(
     BuildContext context,
     WidgetRef ref,
     AsyncValue messagesAsync,
     ColorScheme colors,
     TextTheme textTheme,
   ) {
-    return messagesAsync.when(
-      data: (messages) {
-        final mediaMessages = messages.where((m) => m.mediaUrl != null).take(6).toList();
-
-        if (mediaMessages.isEmpty) return const SizedBox.shrink();
-
-        return Container(
-          margin: const EdgeInsets.only(bottom: 8),
-          decoration: BoxDecoration(
-            color: colors.surface,
-            border: Border(bottom: BorderSide(color: colors.onSurface.withValues(alpha: 0.05), width: 8)),
+    return Column(
+      children: [
+        // Nickname
+        _buildRoundedSection(
+          context,
+          colors,
+          child: _buildActionTile(
+            icon: Icons.edit,
+            title: 'Change Nickname',
+            colors: colors,
+            textTheme: textTheme,
+            onTap: () => showChangeNicknameBottomSheet(context, colors, textTheme),
           ),
+        ),
+
+        const SizedBox(height: 8),
+
+        // Media, Files, Links
+        _buildMediaPreviewSection(context, ref, messagesAsync, colors, textTheme),
+
+        const SizedBox(height: 8),
+
+        // Mutual Groups
+        _buildRoundedSection(
+          context,
+          colors,
+          child: _buildActionTile(
+            icon: Icons.groups,
+            title: 'Mutual Groups',
+            subtitle: '3 groups in common',
+            colors: colors,
+            textTheme: textTheme,
+            onTap: () {
+              // TODO: Show mutual groups
+            },
+          ),
+        ),
+
+        const SizedBox(height: 8),
+
+        // Pin Conversation
+        _buildRoundedSection(
+          context,
+          colors,
+          child: _buildPinConversationTile(context, colors, textTheme),
+        ),
+
+        const SizedBox(height: 8),
+
+        // Schedule Message
+        _buildRoundedSection(
+          context,
+          colors,
+          child: _buildActionTile(
+            icon: Icons.schedule_send,
+            title: 'Schedule Message',
+            colors: colors,
+            textTheme: textTheme,
+            onTap: () {
+              // TODO: Navigate to schedule message
+            },
+          ),
+        ),
+
+        const SizedBox(height: 8),
+
+        // Block
+        _buildRoundedSection(
+          context,
+          colors,
+          child: _buildActionTile(
+            icon: Icons.block,
+            title: 'Block',
+            colors: colors,
+            textTheme: textTheme,
+            iconColor: Colors.red,
+            textColor: Colors.red,
+            onTap: () => showBlockUserBottomSheet(context, colors, textTheme),
+          ),
+        ),
+
+        const SizedBox(height: 8),
+
+        // Hide Conversation
+        _buildRoundedSection(
+          context,
+          colors,
+          child: _buildHideConversationTile(context, colors, textTheme),
+        ),
+      ],
+    );
+  }
+
+  /// Build layout for Group chat
+  Widget _buildGroupLayout(
+    BuildContext context,
+    WidgetRef ref,
+    AsyncValue messagesAsync,
+    ColorScheme colors,
+    TextTheme textTheme,
+  ) {
+    return Column(
+      children: [
+        // Description
+        _buildDescriptionSection(context, colors, textTheme),
+
+        const SizedBox(height: 8),
+
+        // Media, Files, Links
+        _buildMediaPreviewSection(context, ref, messagesAsync, colors, textTheme),
+
+        const SizedBox(height: 8),
+
+        // Members
+        _buildViewMembersSection(context, colors, textTheme),
+
+        const SizedBox(height: 8),
+
+        // Community Calendar
+        _buildRoundedSection(
+          context,
+          colors,
+          child: _buildActionTile(
+            icon: Icons.calendar_today,
+            title: 'Community Calendar',
+            subtitle: '3 upcoming events',
+            colors: colors,
+            textTheme: textTheme,
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => CommunityCalendarPage(conversationId: conversation.id.toString())),
+            ),
+          ),
+        ),
+
+        const SizedBox(height: 8),
+
+        // Polls
+        _buildRoundedSection(
+          context,
+          colors,
+          child: _buildActionTile(
+            icon: Icons.poll,
+            title: 'Polls',
+            subtitle: '2 active polls',
+            colors: colors,
+            textTheme: textTheme,
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => PollsPage(conversationId: conversation.id.toString())),
+            ),
+          ),
+        ),
+
+        const SizedBox(height: 8),
+
+        // Community Link
+        _buildCommunityLinkSection(context, colors, textTheme),
+
+        const SizedBox(height: 8),
+
+        // Admin Permissions (only if user is admin)
+        if (_isUserAdmin()) _buildAdminPermissionsSection(context, colors, textTheme),
+
+        if (_isUserAdmin()) const SizedBox(height: 8),
+
+        // Pin Conversation
+        _buildRoundedSection(
+          context,
+          colors,
+          child: _buildPinConversationTile(context, colors, textTheme),
+        ),
+
+        const SizedBox(height: 8),
+
+        // Schedule Message
+        _buildRoundedSection(
+          context,
+          colors,
+          child: _buildActionTile(
+            icon: Icons.schedule_send,
+            title: 'Schedule Message',
+            colors: colors,
+            textTheme: textTheme,
+            onTap: () {
+              // TODO: Navigate to schedule message
+            },
+          ),
+        ),
+
+        const SizedBox(height: 8),
+
+        // Leave Group
+        _buildRoundedSection(
+          context,
+          colors,
+          child: _buildActionTile(
+            icon: Icons.exit_to_app,
+            title: 'Leave Group',
+            subtitle: 'You will no longer receive messages',
+            colors: colors,
+            textTheme: textTheme,
+            iconColor: Colors.red,
+            textColor: Colors.red,
+            onTap: () => _showLeaveGroupBottomSheet(context, colors, textTheme),
+          ),
+        ),
+
+        const SizedBox(height: 8),
+
+        // Hide Conversation
+        _buildRoundedSection(
+          context,
+          colors,
+          child: _buildHideConversationTile(context, colors, textTheme),
+        ),
+      ],
+    );
+  }
+
+  // ============================================================================
+  // HELPER METHODS
+  // ============================================================================
+
+  bool _isUserAdmin() {
+    // Demo: Check if current user is admin
+    // TODO: Implement real admin check
+    return true; // For demo purposes
+  }
+
+  /// Build a rounded section container (Messenger style)
+  Widget _buildRoundedSection(BuildContext context, ColorScheme colors, {required Widget child}) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16),
+      decoration: BoxDecoration(
+        color: colors.surface,
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: child,
+    );
+  }
+
+  /// Build an action tile (Messenger style)
+  Widget _buildActionTile({
+    required IconData icon,
+    required String title,
+    String? subtitle,
+    required ColorScheme colors,
+    required TextTheme textTheme,
+    VoidCallback? onTap,
+    Widget? trailing,
+    Color? iconColor,
+    Color? textColor,
+  }) {
+    return ListTile(
+      leading: Container(
+        padding: const EdgeInsets.all(10),
+        decoration: BoxDecoration(
+          color: (iconColor ?? colors.primary).withValues(alpha: 0.1),
+          shape: BoxShape.circle,
+        ),
+        child: Icon(icon, color: iconColor ?? colors.primary, size: 22),
+      ),
+      title: Text(
+        title,
+        style: textTheme.bodyLarge?.copyWith(
+          fontWeight: FontWeight.w500,
+          color: textColor,
+        ),
+      ),
+      subtitle: subtitle != null
+          ? Text(
+              subtitle,
+              style: textTheme.bodySmall?.copyWith(
+                color: colors.onSurface.withValues(alpha: 0.6),
+              ),
+            )
+          : null,
+      trailing: trailing ?? Icon(Icons.chevron_right, color: colors.onSurface.withValues(alpha: 0.4)),
+      onTap: onTap,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+    );
+  }
+
+  /// Build Pin Conversation tile
+  Widget _buildPinConversationTile(BuildContext context, ColorScheme colors, TextTheme textTheme) {
+    bool isPinned = false; // TODO: Get from state
+    return _buildActionTile(
+      icon: Icons.push_pin,
+      title: 'Pin Conversation',
+      subtitle: 'Keep this chat at the top',
+      colors: colors,
+      textTheme: textTheme,
+      trailing: Switch(
+        value: isPinned,
+        onChanged: (value) {
+          // TODO: Implement pin conversation
+        },
+      ),
+    );
+  }
+
+  /// Build Hide Conversation tile
+  Widget _buildHideConversationTile(BuildContext context, ColorScheme colors, TextTheme textTheme) {
+    bool isHidden = false; // TODO: Get from state
+    return _buildActionTile(
+      icon: Icons.visibility_off,
+      title: 'Hide Conversation',
+      subtitle: 'Hide from chat list',
+      colors: colors,
+      textTheme: textTheme,
+      trailing: Switch(
+        value: isHidden,
+        onChanged: (value) {
+          // TODO: Implement hide conversation
+        },
+      ),
+    );
+  }
+
+  // ============================================================================
+  // SECTION BUILDERS
+  // ============================================================================
+
+  // Avatar Section
+  Widget _buildAvatarSection(BuildContext context, String displayName, bool isGroup, ColorScheme colors) {
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        // Avatar
+        isGroup
+            ? GroupAvatar(
+                participants: conversation.participants,
+                radius: 60,
+              )
+            : UserAvatar(
+                displayName: displayName,
+                avatarUrl: conversation.participants.firstOrNull?.avatarUrl,
+                radius: 60,
+              ),
+        // Edit Photo Icon (only for groups)
+        if (isGroup)
+          Positioned(
+            right: 0,
+            bottom: 0,
+            child: GestureDetector(
+              onTap: () => _showChangePhotoBottomSheet(context, colors, Theme.of(context).textTheme),
+              child: Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: colors.primary,
+                  shape: BoxShape.circle,
+                  border: Border.all(color: colors.surface, width: 3),
+                ),
+                child: Icon(Icons.camera_alt, color: colors.onPrimary, size: 20),
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+
+  // Name Section
+  Widget _buildNameSection(BuildContext context, String displayName, bool isGroup, ColorScheme colors, TextTheme textTheme) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Text(
+          displayName,
+          style: textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
+        ),
+        // Edit icon only for groups
+        if (isGroup) ...[
+          const SizedBox(width: 8),
+          IconButton(
+            icon: Icon(Icons.edit, size: 20, color: colors.primary),
+            onPressed: () => _showRenameBottomSheet(context, colors, textTheme),
+          ),
+        ],
+      ],
+    );
+  }
+
+  // Quick Actions Row
+  Widget _buildQuickActionsRow(BuildContext context, bool isGroup, ColorScheme colors, TextTheme textTheme) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          _QuickActionButton(
+            icon: Icons.search,
+            label: 'Search',
+            color: Colors.blue,
+            onTap: () => _showSearchDialog(context, colors, textTheme),
+          ),
+          if (isGroup)
+            _QuickActionButton(
+              icon: Icons.person_add,
+              label: 'Add',
+              color: Colors.green,
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => AddMembersPage(conversationId: conversation.id.toString()),
+                  ),
+                );
+              },
+            )
+          else
+            _QuickActionButton(
+              icon: Icons.person,
+              label: 'Profile',
+              color: Colors.green,
+              onTap: () {
+                // TODO: Navigate to user profile
+              },
+            ),
+          _QuickActionButton(
+            icon: Icons.wallpaper,
+            label: 'Wallpaper',
+            color: Colors.purple,
+            onTap: () => _showWallpaperBottomSheet(context, colors, textTheme),
+          ),
+          _QuickActionButton(
+            icon: Icons.notifications,
+            label: 'Notifications',
+            color: Colors.orange,
+            onTap: () => _showNotificationsBottomSheet(context, colors, textTheme),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Description Section
+  Widget _buildDescriptionSection(BuildContext context, ColorScheme colors, TextTheme textTheme) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: colors.surfaceContainerHighest,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Description',
+                style: textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600),
+              ),
+              IconButton(
+                icon: Icon(Icons.edit, size: 18, color: colors.primary),
+                onPressed: () => _showDescriptionBottomSheet(context, colors, textTheme),
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'This is a demo group description. Click edit to change it.',
+            style: textTheme.bodyMedium?.copyWith(color: colors.onSurface.withValues(alpha: 0.7)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Media Preview Section
+  Widget _buildMediaPreviewSection(
+    BuildContext context,
+    WidgetRef ref,
+    AsyncValue messagesAsync,
+    ColorScheme colors,
+    TextTheme textTheme,
+  ) {
+    // Always show the section with demo data
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: colors.surfaceContainerHighest,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Media, Files & Links',
+                style: textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600),
+              ),
+              TextButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => FilesLinksPage(conversationId: conversation.id.toString()),
+                    ),
+                  );
+                },
+                child: const Text('See All'),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          // Demo media grid
+          GridView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 3,
+              crossAxisSpacing: 8,
+              mainAxisSpacing: 8,
+            ),
+            itemCount: 6,
+            itemBuilder: (context, index) {
+              return Container(
+                decoration: BoxDecoration(
+                  color: colors.surfaceContainerHigh,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Icon(
+                  Icons.image,
+                  color: colors.onSurface.withValues(alpha: 0.3),
+                  size: 40,
+                ),
+              );
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Community Calendar Section
+  Widget _buildCommunityCalendarSection(BuildContext context, ColorScheme colors, TextTheme textTheme) {
+    return _buildListTile(
+      icon: Icons.calendar_today,
+      title: 'Community Calendar',
+      subtitle: 'Schedule events and activities',
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => CommunityCalendarPage(conversationId: conversation.id.toString()),
+          ),
+        );
+      },
+      colors: colors,
+      textTheme: textTheme,
+    );
+  }
+
+  // Pinned Messages Section
+  Widget _buildPinnedMessagesSection(BuildContext context, ColorScheme colors, TextTheme textTheme) {
+    return _buildListTile(
+      icon: Icons.push_pin,
+      title: 'Pinned Messages',
+      subtitle: '3 pinned messages',
+      onTap: () => _showPinnedMessagesBottomSheet(context, colors, textTheme),
+      colors: colors,
+      textTheme: textTheme,
+    );
+  }
+
+  // Polls Section
+  Widget _buildPollsSection(BuildContext context, ColorScheme colors, TextTheme textTheme) {
+    return _buildListTile(
+      icon: Icons.poll,
+      title: 'Polls',
+      subtitle: 'View and create polls',
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => PollsPage(conversationId: conversation.id.toString()),
+          ),
+        );
+      },
+      colors: colors,
+      textTheme: textTheme,
+    );
+  }
+
+  // View Members Section
+  Widget _buildViewMembersSection(BuildContext context, ColorScheme colors, TextTheme textTheme) {
+    return _buildListTile(
+      icon: Icons.people,
+      title: 'View Members',
+      subtitle: '${conversation.participants.length} members',
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => AllMembersPage(
+              conversationId: conversation.id.toString(),
+              members: [],
+            ),
+          ),
+        );
+      },
+      colors: colors,
+      textTheme: textTheme,
+    );
+  }
+
+  // Community Link Section
+  Widget _buildCommunityLinkSection(BuildContext context, ColorScheme colors, TextTheme textTheme) {
+    return _buildListTile(
+      icon: Icons.link,
+      title: 'Community Link',
+      subtitle: 'Share group link',
+      onTap: () => _showShareLinkBottomSheet(context, colors, textTheme),
+      colors: colors,
+      textTheme: textTheme,
+    );
+  }
+
+  // Admin Permissions Section
+  Widget _buildAdminPermissionsSection(BuildContext context, ColorScheme colors, TextTheme textTheme) {
+    return _buildListTile(
+      icon: Icons.admin_panel_settings,
+      title: 'Group Permissions',
+      subtitle: 'Manage who can perform actions',
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => GroupPermissionsPage(conversationId: conversation.id.toString()),
+          ),
+        );
+      },
+      colors: colors,
+      textTheme: textTheme,
+    );
+  }
+
+  // Pin Conversation Section
+  Widget _buildPinConversationSection(BuildContext context, ColorScheme colors, TextTheme textTheme) {
+    bool isPinned = false; // Demo state
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      decoration: BoxDecoration(
+        color: colors.surfaceContainerHighest,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: SwitchListTile(
+        secondary: Icon(Icons.push_pin_outlined, color: colors.primary),
+        title: Text('Pin Conversation', style: textTheme.bodyLarge),
+        subtitle: const Text('Keep this chat at the top'),
+        value: isPinned,
+        onChanged: (value) {
+          // TODO: Implement pin conversation
+        },
+      ),
+    );
+  }
+
+  // Hide Conversation Section
+  Widget _buildHideConversationSection(BuildContext context, ColorScheme colors, TextTheme textTheme) {
+    bool isHidden = false; // Demo state
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      decoration: BoxDecoration(
+        color: colors.surfaceContainerHighest,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: SwitchListTile(
+        secondary: Icon(Icons.visibility_off, color: colors.primary),
+        title: Text('Hide Conversation', style: textTheme.bodyLarge),
+        subtitle: const Text('Hide from chat list'),
+        value: isHidden,
+        onChanged: (value) {
+          // TODO: Implement hide conversation
+        },
+      ),
+    );
+  }
+
+  // Leave Group Section
+  Widget _buildLeaveGroupSection(BuildContext context, ColorScheme colors, TextTheme textTheme) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      decoration: BoxDecoration(
+        color: colors.surfaceContainerHighest,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: ListTile(
+        leading: const Icon(Icons.exit_to_app, color: Colors.red),
+        title: const Text('Leave Group', style: TextStyle(color: Colors.red)),
+        subtitle: const Text('You will no longer receive messages'),
+        onTap: () => _showLeaveGroupBottomSheet(context, colors, textTheme),
+      ),
+    );
+  }
+
+  void _showLeaveGroupBottomSheet(BuildContext context, ColorScheme colors, TextTheme textTheme) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: colors.surface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) => Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Handle bar
+            Container(
+              width: 40,
+              height: 4,
+              margin: const EdgeInsets.only(bottom: 20),
+              decoration: BoxDecoration(
+                color: colors.onSurface.withValues(alpha: 0.2),
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+
+            // Warning icon
+            Container(
+              width: 64,
+              height: 64,
+              decoration: BoxDecoration(
+                color: Colors.red.withValues(alpha: 0.1),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(Icons.exit_to_app, color: Colors.red, size: 32),
+            ),
+
+            const SizedBox(height: 20),
+
+            // Title
+            Text(
+              'Leave Group?',
+              style: textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+            ),
+
+            const SizedBox(height: 12),
+
+            // Description
+            Text(
+              'Are you sure you want to leave this group? You will no longer receive messages from this conversation.',
+              style: textTheme.bodyMedium?.copyWith(
+                color: colors.onSurface.withValues(alpha: 0.7),
+              ),
+              textAlign: TextAlign.center,
+            ),
+
+            const SizedBox(height: 32),
+
+            // Buttons
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: () => Navigator.pop(context),
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    child: const Text('Cancel'),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: FilledButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                      // TODO: Implement leave group
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Left group')),
+                      );
+                    },
+                    style: FilledButton.styleFrom(
+                      backgroundColor: Colors.red,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    child: const Text('Leave'),
+                  ),
+                ),
+              ],
+            ),
+
+            const SizedBox(height: 8),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ============================================================================
+  // BOTTOM SHEETS
+  // ============================================================================
+
+  void _showChangePhotoBottomSheet(BuildContext context, ColorScheme colors, TextTheme textTheme) {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) => Container(
+        padding: const EdgeInsets.symmetric(vertical: 20),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 40,
+              height: 4,
+              margin: const EdgeInsets.only(bottom: 20),
+              decoration: BoxDecoration(
+                color: colors.onSurface.withValues(alpha: 0.2),
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            ListTile(
+              leading: const Icon(Icons.camera_alt),
+              title: const Text('Take Photo'),
+              onTap: () {
+                Navigator.pop(context);
+                // TODO: Implement camera
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.photo_library),
+              title: const Text('Choose from Gallery'),
+              onTap: () {
+                Navigator.pop(context);
+                // TODO: Implement gallery
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.delete, color: Colors.red),
+              title: const Text('Remove Photo', style: TextStyle(color: Colors.red)),
+              onTap: () {
+                Navigator.pop(context);
+                // TODO: Implement remove photo
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showRenameBottomSheet(BuildContext context, ColorScheme colors, TextTheme textTheme) {
+    final controller = TextEditingController(text: conversation.name);
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (context) => Padding(
+        padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+        child: Container(
+          padding: const EdgeInsets.all(20),
           child: Column(
+            mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'Media, Files & Links',
-                      style: textTheme.titleSmall?.copyWith(
-                        fontWeight: FontWeight.w600,
-                        color: colors.onSurface.withValues(alpha: 0.6),
-                      ),
-                    ),
-                    TextButton(
-                      onPressed: () {},
-                      child: Text('See All', style: TextStyle(color: colors.primary)),
-                    ),
-                  ],
+              Center(
+                child: Container(
+                  width: 40,
+                  height: 4,
+                  margin: const EdgeInsets.only(bottom: 20),
+                  decoration: BoxDecoration(
+                    color: colors.onSurface.withValues(alpha: 0.2),
+                    borderRadius: BorderRadius.circular(2),
+                  ),
                 ),
               ),
+              Text('Rename Group', style: textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
+              const SizedBox(height: 16),
+              TextField(
+                controller: controller,
+                decoration: const InputDecoration(
+                  labelText: 'Group Name',
+                  border: OutlineInputBorder(),
+                ),
+                autofocus: true,
+              ),
+              const SizedBox(height: 16),
               SizedBox(
-                height: 100,
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  padding: const EdgeInsets.symmetric(horizontal: 12),
-                  itemCount: mediaMessages.length,
-                  itemBuilder: (context, index) {
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 4),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(8),
-                        child: SizedBox(
-                          width: 100,
-                          child: MediaGridItem(message: mediaMessages[index]),
-                        ),
-                      ),
-                    );
+                width: double.infinity,
+                child: FilledButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                    // TODO: Implement rename
+                  },
+                  child: const Text('Save'),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showDescriptionBottomSheet(BuildContext context, ColorScheme colors, TextTheme textTheme) {
+    final controller = TextEditingController(text: 'This is a demo group description. Click edit to change it.');
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (context) => Padding(
+        padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+        child: Container(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(
+                child: Container(
+                  width: 40,
+                  height: 4,
+                  margin: const EdgeInsets.only(bottom: 20),
+                  decoration: BoxDecoration(
+                    color: colors.onSurface.withValues(alpha: 0.2),
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+              ),
+              Text('Group Description', style: textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
+              const SizedBox(height: 16),
+              TextField(
+                controller: controller,
+                decoration: const InputDecoration(
+                  labelText: 'Description',
+                  border: OutlineInputBorder(),
+                ),
+                maxLines: 4,
+                maxLength: 200,
+                autofocus: true,
+              ),
+              const SizedBox(height: 16),
+              SizedBox(
+                width: double.infinity,
+                child: FilledButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                    // TODO: Implement save description
+                  },
+                  child: const Text('Save'),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showPinnedMessagesBottomSheet(BuildContext context, ColorScheme colors, TextTheme textTheme) {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) => Container(
+        padding: const EdgeInsets.symmetric(vertical: 20),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 40,
+              height: 4,
+              margin: const EdgeInsets.only(bottom: 20),
+              decoration: BoxDecoration(
+                color: colors.onSurface.withValues(alpha: 0.2),
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Text(
+                'Pinned Messages',
+                style: textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+              ),
+            ),
+            const SizedBox(height: 16),
+            ListTile(
+              leading: const Icon(Icons.message),
+              title: const Text('Welcome to the group!'),
+              subtitle: const Text('Pinned by Admin • 2 days ago'),
+              trailing: IconButton(
+                icon: const Icon(Icons.push_pin),
+                onPressed: () {},
+              ),
+            ),
+            ListTile(
+              leading: const Icon(Icons.message),
+              title: const Text('Meeting at 3 PM tomorrow'),
+              subtitle: const Text('Pinned by Admin • 1 week ago'),
+              trailing: IconButton(
+                icon: const Icon(Icons.push_pin),
+                onPressed: () {},
+              ),
+            ),
+            ListTile(
+              leading: const Icon(Icons.message),
+              title: const Text('Important announcement'),
+              subtitle: const Text('Pinned by Admin • 2 weeks ago'),
+              trailing: IconButton(
+                icon: const Icon(Icons.push_pin),
+                onPressed: () {},
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ============================================================================
+  // QUICK ACTION DIALOGS
+  // ============================================================================
+
+  void _showSearchDialog(BuildContext context, ColorScheme colors, TextTheme textTheme) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => SearchMessagesPage(conversationId: conversation.id.toString()),
+      ),
+    );
+  }
+
+  void _showWallpaperBottomSheet(BuildContext context, ColorScheme colors, TextTheme textTheme) {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) => Container(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 40,
+              height: 4,
+              margin: const EdgeInsets.only(bottom: 20),
+              decoration: BoxDecoration(
+                color: colors.onSurface.withValues(alpha: 0.2),
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            Text('Chat Wallpaper', style: textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
+            const SizedBox(height: 24),
+            ListTile(
+              leading: const Icon(Icons.image),
+              title: const Text('Choose from Gallery'),
+              onTap: () {
+                Navigator.pop(context);
+                // TODO: Implement gallery picker
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Gallery picker coming soon')),
+                );
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.color_lens),
+              title: const Text('Solid Color'),
+              onTap: () {
+                Navigator.pop(context);
+                // TODO: Implement color picker
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Color picker coming soon')),
+                );
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.wallpaper),
+              title: const Text('Default Wallpapers'),
+              onTap: () {
+                Navigator.pop(context);
+                // TODO: Show default wallpapers
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Default wallpapers coming soon')),
+                );
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.delete, color: Colors.red),
+              title: const Text('Remove Wallpaper', style: TextStyle(color: Colors.red)),
+              onTap: () {
+                Navigator.pop(context);
+                // TODO: Remove wallpaper
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Wallpaper removed')),
+                );
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showNotificationsBottomSheet(BuildContext context, ColorScheme colors, TextTheme textTheme) {
+    bool isMuted = false;
+    showModalBottomSheet(
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setState) => Container(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 40,
+                height: 4,
+                margin: const EdgeInsets.only(bottom: 20),
+                decoration: BoxDecoration(
+                  color: colors.onSurface.withValues(alpha: 0.2),
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              Text('Notification Settings', style: textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
+              const SizedBox(height: 24),
+              SwitchListTile(
+                title: const Text('Mute Notifications'),
+                subtitle: const Text('Stop receiving notifications from this chat'),
+                value: isMuted,
+                onChanged: (value) {
+                  setState(() => isMuted = value);
+                  // TODO: Update notification settings
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.notifications_active),
+                title: const Text('Custom Notification Sound'),
+                subtitle: const Text('Default'),
+                onTap: () {
+                  // TODO: Show sound picker
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Sound picker coming soon')),
+                  );
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.priority_high),
+                title: const Text('Priority Notifications'),
+                subtitle: const Text('Show as priority'),
+                trailing: Switch(
+                  value: false,
+                  onChanged: (value) {
+                    // TODO: Update priority setting
                   },
                 ),
               ),
-              const SizedBox(height: 16),
             ],
           ),
-        );
-      },
-      loading: () => const SizedBox.shrink(),
-      error: (_, __) => const SizedBox.shrink(),
-    );
-  }
-
-
-  // Members Section (for groups)
-  Widget _buildMembersSection(BuildContext context, ColorScheme colors, TextTheme textTheme) {
-    return Consumer(
-      builder: (context, ref, child) {
-        final membersAsync = ref.watch(conversationMembersProvider(conversation.id.toString()));
-
-        return Container(
-          margin: const EdgeInsets.only(bottom: 8),
-          decoration: BoxDecoration(
-            color: colors.surface,
-            border: Border(bottom: BorderSide(color: colors.onSurface.withValues(alpha: 0.05), width: 8)),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'Members',
-                      style: textTheme.titleSmall?.copyWith(
-                        fontWeight: FontWeight.w600,
-                        color: colors.onSurface.withValues(alpha: 0.6),
-                      ),
-                    ),
-                    membersAsync.when(
-                      data: (members) => TextButton(
-                        onPressed: () {},
-                        child: Text('See All (${members.length})', style: TextStyle(color: colors.primary)),
-                      ),
-                      loading: () => const SizedBox.shrink(),
-                      error: (e, s) => const SizedBox.shrink(),
-                    ),
-                  ],
-                ),
-              ),
-              // Add member button
-              ListTile(
-                leading: Container(
-                  width: 40,
-                  height: 40,
-                  decoration: BoxDecoration(
-                    color: colors.primary.withValues(alpha: 0.1),
-                    shape: BoxShape.circle,
-                  ),
-                  child: Icon(Icons.person_add, color: colors.primary, size: 20),
-                ),
-                title: Text('Add Members', style: textTheme.bodyMedium?.copyWith(color: colors.primary)),
-                onTap: () {
-                  // TODO: Navigate to add members page
-                },
-              ),
-              // Show first 5 members
-              membersAsync.when(
-                data: (members) => Column(
-                  children: members.take(5).map((member) {
-                    // TODO: Add admin badge when backend supports role field
-                    return ListTile(
-                      leading: UserAvatar(
-                        displayName: member.fullName,
-                        avatarUrl: member.avatarUrl,
-                        radius: 20,
-                        backgroundColor: colors.primary,
-                      ),
-                      title: Text(member.fullName, style: textTheme.bodyMedium),
-                      subtitle: Text('@${member.username}', style: textTheme.bodySmall),
-                      trailing: member.isOnline
-                          ? Container(
-                              width: 10,
-                              height: 10,
-                              decoration: const BoxDecoration(color: Colors.green, shape: BoxShape.circle),
-                            )
-                          : null,
-                    );
-                  }).toList(),
-                ),
-                loading: () => const Padding(
-                  padding: EdgeInsets.all(16),
-                  child: Center(child: CircularProgressIndicator()),
-                ),
-                error: (e, s) => Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Text('Failed to load members', style: textTheme.bodySmall),
-                ),
-              ),
-              const SizedBox(height: 8),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
-  // Privacy & Support Section
-  Widget _buildPrivacySection(BuildContext context, bool isGroup, ColorScheme colors, TextTheme textTheme) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 8),
-      decoration: BoxDecoration(
-        color: colors.surface,
-        border: Border(bottom: BorderSide(color: colors.onSurface.withValues(alpha: 0.05), width: 8)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-            child: Text(
-              'Privacy & Support',
-              style: textTheme.titleSmall?.copyWith(
-                fontWeight: FontWeight.w600,
-                color: colors.onSurface.withValues(alpha: 0.6),
-              ),
-            ),
-          ),
-          _SettingsTile(
-            icon: Icons.notifications_off_outlined,
-            title: 'Notifications',
-            subtitle: 'Manage notification settings',
-            onTap: () {},
-            colors: colors,
-            textTheme: textTheme,
-          ),
-          if (isGroup)
-            _SettingsTile(
-              icon: Icons.link,
-              title: 'Invite Links',
-              subtitle: 'Manage group invite links',
-              onTap: () {
-                context.push(
-                  '/invite-links',
-                  extra: {'conversationId': conversation.id, 'conversationName': conversation.name ?? 'Group'},
-                );
-              },
-              colors: colors,
-              textTheme: textTheme,
-            ),
-          if (!isGroup)
-            _SettingsTile(
-              icon: Icons.block_outlined,
-              title: 'Block',
-              subtitle: 'Block this user',
-              onTap: () {},
-              colors: colors,
-              textTheme: textTheme,
-              isDestructive: true,
-            ),
-          _SettingsTile(
-            icon: Icons.report_outlined,
-            title: 'Report',
-            subtitle: isGroup ? 'Report this group' : 'Report this user',
-            onTap: () {},
-            colors: colors,
-            textTheme: textTheme,
-            isDestructive: true,
-          ),
-          if (isGroup)
-            _SettingsTile(
-              icon: Icons.exit_to_app,
-              title: 'Leave Group',
-              subtitle: 'Leave this group',
-              onTap: () {},
-              colors: colors,
-              textTheme: textTheme,
-              isDestructive: true,
-            ),
-        ],
-      ),
-    );
-  }
-
-  // Files and Links Section
-  Widget _buildFilesAndLinksSection(BuildContext context, ColorScheme colors, TextTheme textTheme) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 8),
-      decoration: BoxDecoration(
-        color: colors.surface,
-        border: Border(bottom: BorderSide(color: colors.onSurface.withValues(alpha: 0.05), width: 8)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-            child: Text(
-              'Files & Links',
-              style: textTheme.titleSmall?.copyWith(
-                fontWeight: FontWeight.w600,
-                color: colors.onSurface.withValues(alpha: 0.6),
-              ),
-            ),
-          ),
-          _SettingsTile(
-            icon: Icons.insert_drive_file_outlined,
-            title: 'Files',
-            subtitle: 'View all shared files',
-            onTap: () {},
-            colors: colors,
-            textTheme: textTheme,
-          ),
-          _SettingsTile(
-            icon: Icons.link,
-            title: 'Links',
-            subtitle: 'View all shared links',
-            onTap: () {},
-            colors: colors,
-            textTheme: textTheme,
-          ),
-        ],
-      ),
-    );
-  }
-
-  // Helper methods for dialogs
-  void _showRenameGroupDialog(BuildContext context, ColorScheme colors) {
-    final controller = TextEditingController(text: conversation.name);
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Rename Group'),
-        content: TextField(
-          controller: controller,
-          decoration: const InputDecoration(
-            hintText: 'Enter group name',
-            border: OutlineInputBorder(),
-          ),
-          autofocus: true,
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          FilledButton(
-            onPressed: () {
-              // TODO: Implement rename group API call
-              Navigator.pop(context);
-            },
-            child: const Text('Save'),
-          ),
-        ],
       ),
     );
   }
 
-  void _showGroupDescriptionDialog(BuildContext context, ColorScheme colors) {
-    final controller = TextEditingController(text: 'Add a description for this group');
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Group Description'),
-        content: TextField(
-          controller: controller,
-          decoration: const InputDecoration(
-            hintText: 'Enter group description',
-            border: OutlineInputBorder(),
-          ),
-          maxLines: 3,
-          autofocus: true,
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          FilledButton(
-            onPressed: () {
-              // TODO: Implement update group description API call
-              Navigator.pop(context);
-            },
-            child: const Text('Save'),
-          ),
-        ],
-      ),
-    );
-  }
+  // ============================================================================
+  // BOTTOM SHEETS
+  // ============================================================================
 
-  void _shareGroupLink(BuildContext context) {
-    // TODO: Generate and share group invite link
-    final groupLink = 'https://chattrix.app/group/${conversation.id}';
-
-    showDialog(
+  void _showShareLinkBottomSheet(BuildContext context, ColorScheme colors, TextTheme textTheme) {
+    const groupLink = 'https://chattrix.app/join/abc123xyz';
+    showModalBottomSheet(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Share Group Link'),
-        content: Column(
+      builder: (context) => Container(
+        padding: const EdgeInsets.all(20),
+        child: Column(
           mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('Share this link with others to invite them to the group:'),
-            const SizedBox(height: 16),
             Container(
-              padding: const EdgeInsets.all(12),
+              width: 40,
+              height: 4,
+              margin: const EdgeInsets.only(bottom: 20),
               decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surfaceContainerHighest,
-                borderRadius: BorderRadius.circular(8),
+                color: colors.onSurface.withValues(alpha: 0.2),
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            Text('Share Group Link', style: textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
+            const SizedBox(height: 24),
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: colors.surfaceContainerHighest,
+                borderRadius: BorderRadius.circular(12),
               ),
               child: Row(
                 children: [
                   Expanded(
                     child: Text(
                       groupLink,
-                      style: const TextStyle(fontFamily: 'monospace'),
+                      style: textTheme.bodyMedium,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
                   IconButton(
                     icon: const Icon(Icons.copy),
                     onPressed: () {
-                      Clipboard.setData(ClipboardData(text: groupLink));
+                      Clipboard.setData(const ClipboardData(text: groupLink));
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(content: Text('Link copied to clipboard')),
                       );
@@ -749,60 +1309,101 @@ class ChatInfoPage extends HookConsumerWidget {
                 ],
               ),
             ),
+            const SizedBox(height: 16),
+            SizedBox(
+              width: double.infinity,
+              child: FilledButton.icon(
+                onPressed: () {
+                  // TODO: Implement share
+                },
+                icon: const Icon(Icons.share),
+                label: const Text('Share Link'),
+              ),
+            ),
           ],
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Close'),
+      ),
+    );
+  }
+
+  // ============================================================================
+  // HELPER WIDGETS
+  // ============================================================================
+
+  Widget _buildListTile({
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required VoidCallback onTap,
+    required ColorScheme colors,
+    required TextTheme textTheme,
+    bool isDestructive = false,
+  }) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      decoration: BoxDecoration(
+        color: colors.surfaceContainerHighest,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: ListTile(
+        leading: Icon(
+          icon,
+          color: isDestructive ? Colors.red : colors.primary,
+        ),
+        title: Text(
+          title,
+          style: textTheme.bodyLarge?.copyWith(
+            color: isDestructive ? Colors.red : null,
           ),
-        ],
+        ),
+        subtitle: Text(subtitle),
+        trailing: Icon(Icons.chevron_right, color: colors.onSurface.withValues(alpha: 0.5)),
+        onTap: onTap,
       ),
     );
   }
 }
 
+// ============================================================================
+// QUICK ACTION BUTTON WIDGET
+// ============================================================================
 
-// Quick Action Button Widget
 class _QuickActionButton extends StatelessWidget {
   const _QuickActionButton({
     required this.icon,
     required this.label,
+    required this.color,
     required this.onTap,
-    required this.colors,
-    required this.textTheme,
   });
 
   final IconData icon;
   final String label;
+  final Color color;
   final VoidCallback onTap;
-  final ColorScheme colors;
-  final TextTheme textTheme;
 
   @override
   Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(12),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
         child: Column(
-          mainAxisSize: MainAxisSize.min,
           children: [
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: colors.onSurface.withValues(alpha: 0.08),
+                color: color.withValues(alpha: 0.15),
                 shape: BoxShape.circle,
               ),
-              child: Icon(icon, color: colors.onSurface, size: 24),
+              child: Icon(icon, color: color, size: 24),
             ),
             const SizedBox(height: 8),
             Text(
               label,
-              style: textTheme.labelSmall?.copyWith(
-                color: colors.onSurface.withValues(alpha: 0.8),
-              ),
+              style: textTheme.bodySmall,
             ),
           ],
         ),
@@ -810,54 +1411,3 @@ class _QuickActionButton extends StatelessWidget {
     );
   }
 }
-
-// Settings Tile Widget
-class _SettingsTile extends StatelessWidget {
-  const _SettingsTile({
-    required this.icon,
-    required this.title,
-    required this.subtitle,
-    required this.onTap,
-    required this.colors,
-    required this.textTheme,
-    this.isDestructive = false,
-  });
-
-  final IconData icon;
-  final String title;
-  final String subtitle;
-  final VoidCallback onTap;
-  final ColorScheme colors;
-  final TextTheme textTheme;
-  final bool isDestructive;
-
-  @override
-  Widget build(BuildContext context) {
-    final iconColor = isDestructive ? Colors.red : colors.onSurface.withValues(alpha: 0.7);
-    final titleColor = isDestructive ? Colors.red : colors.onSurface;
-
-    return ListTile(
-      leading: Icon(icon, color: iconColor, size: 24),
-      title: Text(
-        title,
-        style: textTheme.bodyMedium?.copyWith(
-          color: titleColor,
-          fontWeight: FontWeight.w500,
-        ),
-      ),
-      subtitle: Text(
-        subtitle,
-        style: textTheme.bodySmall?.copyWith(
-          color: colors.onSurface.withValues(alpha: 0.6),
-        ),
-      ),
-      trailing: Icon(
-        Icons.chevron_right,
-        color: colors.onSurface.withValues(alpha: 0.3),
-        size: 20,
-      ),
-      onTap: onTap,
-    );
-  }
-}
-
