@@ -113,7 +113,7 @@ class ChatInfoPage extends HookConsumerWidget {
             title: 'Change Nickname',
             colors: colors,
             textTheme: textTheme,
-            onTap: () => showChangeNicknameBottomSheet(context, ref, conversation.id.toString(), colors, textTheme),
+            onTap: () => showChangeNicknameBottomSheet(context, ref, conversation.id, colors, textTheme),
           ),
         ),
 
@@ -173,7 +173,7 @@ class ChatInfoPage extends HookConsumerWidget {
             textTheme: textTheme,
             iconColor: Colors.red,
             textColor: Colors.red,
-            onTap: () => showBlockUserBottomSheet(context, ref, conversation.id.toString(), colors, textTheme),
+            onTap: () => showBlockUserBottomSheet(context, ref, conversation.id, colors, textTheme),
           ),
         ),
 
@@ -347,7 +347,7 @@ class ChatInfoPage extends HookConsumerWidget {
 
   /// Build Pin Conversation tile
   Widget _buildPinConversationTile(BuildContext context, WidgetRef ref, ColorScheme colors, TextTheme textTheme) {
-    final settingsAsync = ref.watch(conversationSettingsProvider(conversation.id.toString()));
+    final settingsAsync = ref.watch(conversationSettingsProvider(conversation.id));
     final isPinned = settingsAsync.value?.pinned ?? false;
 
     return _buildActionTile(
@@ -359,7 +359,7 @@ class ChatInfoPage extends HookConsumerWidget {
       trailing: Switch(
         value: isPinned,
         onChanged: (value) async {
-          await ref.read(conversationSettingsProvider(conversation.id.toString()).notifier).togglePin();
+          await ref.read(conversationSettingsProvider(conversation.id).notifier).togglePin();
         },
       ),
     );
@@ -367,7 +367,7 @@ class ChatInfoPage extends HookConsumerWidget {
 
   /// Build Hide Conversation tile
   Widget _buildHideConversationTile(BuildContext context, WidgetRef ref, ColorScheme colors, TextTheme textTheme) {
-    final settingsAsync = ref.watch(conversationSettingsProvider(conversation.id.toString()));
+    final settingsAsync = ref.watch(conversationSettingsProvider(conversation.id));
     final isHidden = settingsAsync.value?.hidden ?? false;
 
     return _buildActionTile(
@@ -379,7 +379,7 @@ class ChatInfoPage extends HookConsumerWidget {
       trailing: Switch(
         value: isHidden,
         onChanged: (value) async {
-          await ref.read(conversationSettingsProvider(conversation.id.toString()).notifier).toggleHide();
+          await ref.read(conversationSettingsProvider(conversation.id).notifier).toggleHide();
         },
       ),
     );
@@ -714,7 +714,7 @@ class ChatInfoPage extends HookConsumerWidget {
                     onPressed: () async {
                       Navigator.pop(context); // Close bottom sheet
                       try {
-                        await ref.read(conversationSettingsProvider(conversation.id.toString()).notifier).leaveGroup();
+                        await ref.read(conversationSettingsProvider(conversation.id).notifier).leaveGroup();
                         if (context.mounted) {
                           // Pop chat info page
                           Navigator.pop(context);
@@ -895,7 +895,7 @@ class ChatInfoPage extends HookConsumerWidget {
                     Navigator.pop(context);
                     try {
                       await ref
-                          .read(conversationSettingsProvider(conversation.id.toString()).notifier)
+                          .read(conversationSettingsProvider(conversation.id).notifier)
                           .updateDescription(controller.text);
                       if (context.mounted) {
                         ScaffoldMessenger.of(
@@ -994,7 +994,7 @@ class ChatInfoPage extends HookConsumerWidget {
   }
 
   void _showNotificationsBottomSheet(BuildContext context, WidgetRef ref, ColorScheme colors, TextTheme textTheme) {
-    final settingsAsync = ref.watch(conversationSettingsProvider(conversation.id.toString()));
+    final settingsAsync = ref.watch(conversationSettingsProvider(conversation.id));
     final isMuted = settingsAsync.value?.muted ?? false;
 
     showModalBottomSheet(
@@ -1020,7 +1020,7 @@ class ChatInfoPage extends HookConsumerWidget {
               subtitle: const Text('Stop receiving notifications from this chat'),
               value: isMuted,
               onChanged: (value) async {
-                await ref.read(conversationSettingsProvider(conversation.id.toString()).notifier).toggleMute();
+                await ref.read(conversationSettingsProvider(conversation.id).notifier).toggleMute();
               },
             ),
             ListTile(

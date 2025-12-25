@@ -6,6 +6,7 @@ import 'package:chattrix_ui/features/birthday/presentation/widgets/birthday_bann
 import 'package:chattrix_ui/features/birthday/presentation/widgets/birthday_list_sheet.dart';
 import 'package:chattrix_ui/features/birthday/presentation/widgets/birthday_wishes_dialog.dart';
 import 'package:chattrix_ui/features/chat/presentation/providers/chat_websocket_provider_new.dart';
+import 'package:chattrix_ui/features/chat/presentation/providers/conversation_settings_provider.dart';
 import 'package:chattrix_ui/features/chat/presentation/providers/marked_unread_provider.dart';
 import 'package:chattrix_ui/features/chat/presentation/providers/user_notes_provider.dart';
 import 'package:chattrix_ui/features/chat/presentation/state/conversations_notifier.dart';
@@ -318,9 +319,191 @@ class _ConversationList extends ConsumerWidget {
             context,
           ).showSnackBar(const SnackBar(content: Text('Marked as read'), duration: Duration(seconds: 2)));
         },
+        onPin: () async {
+          Navigator.pop(context); // Close bottom sheet first
+
+          try {
+            // Call datasource directly to avoid provider disposal issues
+            final dataSource = ref.read(conversationSettingsDataSourceProvider);
+            final isCurrentlyPinned = conversation.settings?.pinned ?? false;
+
+            if (isCurrentlyPinned) {
+              await dataSource.unpinConversation(conversation.id);
+            } else {
+              await dataSource.pinConversation(conversation.id);
+            }
+
+            // Invalidate providers to refresh
+            ref.invalidate(conversationsProvider);
+            ref.invalidate(conversationSettingsProvider(conversation.id));
+
+            if (!context.mounted) return;
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Row(
+                  children: [
+                    Icon(isCurrentlyPinned ? Icons.push_pin_outlined : Icons.push_pin, color: Colors.white, size: 20),
+                    const SizedBox(width: 12),
+                    Text(
+                      isCurrentlyPinned ? 'Conversation unpinned' : 'Conversation pinned',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  ],
+                ),
+                backgroundColor: Colors.grey.shade900,
+                behavior: SnackBarBehavior.floating,
+                margin: const EdgeInsets.all(16),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                duration: const Duration(seconds: 2),
+              ),
+            );
+          } catch (e) {
+            debugPrint('Failed to toggle pin: $e');
+            if (!context.mounted) return;
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Row(
+                  children: [
+                    Icon(Icons.error_outline, color: Colors.white, size: 20),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text('Failed to update conversation', style: TextStyle(color: Colors.white)),
+                    ),
+                  ],
+                ),
+                backgroundColor: Colors.grey.shade900,
+                behavior: SnackBarBehavior.floating,
+                margin: const EdgeInsets.all(16),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              ),
+            );
+          }
+        },
+        onMute: () async {
+          Navigator.pop(context); // Close bottom sheet first
+
+          try {
+            // Call datasource directly to avoid provider disposal issues
+            final dataSource = ref.read(conversationSettingsDataSourceProvider);
+            final isCurrentlyMuted = conversation.settings?.muted ?? false;
+
+            if (isCurrentlyMuted) {
+              await dataSource.unmuteConversation(conversation.id);
+            } else {
+              await dataSource.muteConversation(conversation.id);
+            }
+
+            // Invalidate providers to refresh
+            ref.invalidate(conversationsProvider);
+            ref.invalidate(conversationSettingsProvider(conversation.id));
+
+            if (!context.mounted) return;
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Row(
+                  children: [
+                    Icon(
+                      isCurrentlyMuted ? Icons.notifications_active : Icons.notifications_off,
+                      color: Colors.white,
+                      size: 20,
+                    ),
+                    const SizedBox(width: 12),
+                    Text(
+                      isCurrentlyMuted ? 'Conversation unmuted' : 'Conversation muted',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  ],
+                ),
+                backgroundColor: Colors.grey.shade900,
+                behavior: SnackBarBehavior.floating,
+                margin: const EdgeInsets.all(16),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                duration: const Duration(seconds: 2),
+              ),
+            );
+          } catch (e) {
+            debugPrint('Failed to toggle mute: $e');
+            if (!context.mounted) return;
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Row(
+                  children: [
+                    Icon(Icons.error_outline, color: Colors.white, size: 20),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text('Failed to update conversation', style: TextStyle(color: Colors.white)),
+                    ),
+                  ],
+                ),
+                backgroundColor: Colors.grey.shade900,
+                behavior: SnackBarBehavior.floating,
+                margin: const EdgeInsets.all(16),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              ),
+            );
+          }
+        },
+        onHide: () async {
+          Navigator.pop(context); // Close bottom sheet first
+
+          try {
+            // Call datasource directly to avoid provider disposal issues
+            final dataSource = ref.read(conversationSettingsDataSourceProvider);
+            final isCurrentlyHidden = conversation.settings?.hidden ?? false;
+
+            if (isCurrentlyHidden) {
+              await dataSource.unhideConversation(conversation.id);
+            } else {
+              await dataSource.hideConversation(conversation.id);
+            }
+
+            // Invalidate providers to refresh
+            ref.invalidate(conversationsProvider);
+            ref.invalidate(conversationSettingsProvider(conversation.id));
+
+            if (!context.mounted) return;
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Row(
+                  children: [
+                    Icon(isCurrentlyHidden ? Icons.visibility : Icons.visibility_off, color: Colors.white, size: 20),
+                    const SizedBox(width: 12),
+                    Text(
+                      isCurrentlyHidden ? 'Conversation unhidden' : 'Conversation hidden',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  ],
+                ),
+                backgroundColor: Colors.grey.shade900,
+                behavior: SnackBarBehavior.floating,
+                margin: const EdgeInsets.all(16),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                duration: const Duration(seconds: 2),
+              ),
+            );
+          } catch (e) {
+            debugPrint('Failed to toggle hide: $e');
+            if (!context.mounted) return;
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Row(
+                  children: [
+                    Icon(Icons.error_outline, color: Colors.white, size: 20),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text('Failed to update conversation', style: TextStyle(color: Colors.white)),
+                    ),
+                  ],
+                ),
+                backgroundColor: Colors.grey.shade900,
+                behavior: SnackBarBehavior.floating,
+                margin: const EdgeInsets.all(16),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              ),
+            );
+          }
+        },
         // Future features - pass null for now
-        onPin: null,
-        onMute: null,
         onDelete: null,
         onBlock: null,
       ),

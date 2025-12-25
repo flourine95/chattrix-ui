@@ -20,6 +20,7 @@ class ConversationOptionsBottomSheet extends StatelessWidget {
   final VoidCallback onMarkAsRead;
   final VoidCallback? onPin;
   final VoidCallback? onMute;
+  final VoidCallback? onHide;
   final VoidCallback? onDelete;
   final VoidCallback? onBlock;
 
@@ -32,6 +33,7 @@ class ConversationOptionsBottomSheet extends StatelessWidget {
     required this.onMarkAsRead,
     this.onPin,
     this.onMute,
+    this.onHide,
     this.onDelete,
     this.onBlock,
   });
@@ -40,6 +42,11 @@ class ConversationOptionsBottomSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
+
+    // Get current states
+    final isPinned = conversation.settings?.pinned ?? false;
+    final isMuted = conversation.settings?.muted ?? false;
+    final isHidden = conversation.settings?.hidden ?? false;
 
     return Container(
       decoration: BoxDecoration(
@@ -81,23 +88,29 @@ class ConversationOptionsBottomSheet extends StatelessWidget {
                 ),
               ),
 
-              const Divider(height: 1),
-
               // Options list
               _buildOption(
                 context: context,
-                icon: Icons.push_pin_outlined,
-                label: 'Pin conversation',
+                icon: isPinned ? Icons.push_pin : Icons.push_pin_outlined,
+                label: isPinned ? 'Unpin conversation' : 'Pin conversation',
                 onTap: onPin,
                 enabled: onPin != null,
               ),
 
               _buildOption(
                 context: context,
-                icon: Icons.notifications_off_outlined,
-                label: 'Mute notifications',
+                icon: isMuted ? Icons.notifications_active_outlined : Icons.notifications_off_outlined,
+                label: isMuted ? 'Unmute notifications' : 'Mute notifications',
                 onTap: onMute,
                 enabled: onMute != null,
+              ),
+
+              _buildOption(
+                context: context,
+                icon: isHidden ? Icons.visibility_outlined : Icons.visibility_off_outlined,
+                label: isHidden ? 'Unhide conversation' : 'Hide conversation',
+                onTap: onHide,
+                enabled: onHide != null,
               ),
 
               // Mark as unread/read - conditional based on state

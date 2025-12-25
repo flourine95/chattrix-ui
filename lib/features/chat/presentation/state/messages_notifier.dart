@@ -24,7 +24,7 @@ class MessagesNotifier extends _$MessagesNotifier {
 
     // Listen to WebSocket messages for event-driven updates
     final messageSubscription = wsDataSource.messageStream.listen((message) {
-      if (message.conversationId.toString() == conversationId.toString()) {
+      if (message.conversationId.toString() == conversationId) {
         debugPrint('🔵 [MessagesNotifier] WebSocket message received, refreshing messages...');
         debugPrint('🔵 [MessagesNotifier] Message has replyToMessageId: ${message.replyToMessageId}');
         debugPrint(

@@ -2,6 +2,7 @@ import 'package:chattrix_ui/core/errors/exceptions.dart';
 import 'package:chattrix_ui/features/chat/data/models/conversation_settings_model.dart';
 import 'package:chattrix_ui/features/chat/domain/datasources/conversation_settings_datasource.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 
 class ConversationSettingsDatasourceImpl implements ConversationSettingsDatasource {
   final Dio dio;
@@ -119,7 +120,13 @@ class ConversationSettingsDatasourceImpl implements ConversationSettingsDatasour
   @override
   Future<ConversationSettingsModel> unhideConversation({required int conversationId}) async {
     try {
+      debugPrint('🔍 [Datasource] Calling unhide API for conversation $conversationId');
+      debugPrint('🔍 [Datasource] URL: /v1/conversations/$conversationId/settings/unhide');
+
       final response = await dio.post('/v1/conversations/$conversationId/settings/unhide');
+
+      debugPrint('🔍 [Datasource] Unhide API response status: ${response.statusCode}');
+      debugPrint('🔍 [Datasource] Unhide API response data: ${response.data}');
 
       if (response.statusCode == 200) {
         return ConversationSettingsModel.fromJson(response.data['data'] as Map<String, dynamic>);
@@ -127,6 +134,8 @@ class ConversationSettingsDatasourceImpl implements ConversationSettingsDatasour
 
       throw ServerException(message: 'Failed to unhide conversation');
     } on DioException catch (e) {
+      debugPrint('🔍 [Datasource] Unhide API error: ${e.message}');
+      debugPrint('🔍 [Datasource] Unhide API error response: ${e.response?.data}');
       throw ServerException(message: e.response?.data['message'] ?? 'Failed to unhide conversation');
     }
   }

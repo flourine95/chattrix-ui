@@ -18,7 +18,7 @@ class SystemMessageFormatter {
     } catch (e) {
       debugPrint('⚠️ Failed to parse system message JSON: $e');
     }
-
+    debugPrint('jsonData: $jsonData');
     switch (type.toUpperCase()) {
       case 'USER_JOINED':
         final userName = jsonData?['userName'] ?? actorName ?? 'Someone';
@@ -40,12 +40,15 @@ class SystemMessageFormatter {
         return '$userName left the group';
 
       case 'USER_ADDED':
-        final actor = jsonData?['actorName'] ?? actorName;
-        final target = jsonData?['targetName'] ?? targetName;
-        if (actor != null && target != null) {
-          return '$actor added $target to the group';
-        }
-        return '${actor ?? 'Someone'} added a member to the group';
+        final userName = jsonData?['userName'] ?? actorName ?? 'Someone';
+        // addedBy is userId, we need to get name from somewhere else
+        // For now, use a generic message since we don't have the actor's name
+        return '$userName was added to the group';
+
+      case 'USER_KICKED':
+        final userName = jsonData?['userName'] ?? actorName ?? 'Someone';
+        // kickedBy is userId, we need to get name from somewhere else
+        return '$userName was removed from the group';
 
       case 'USER_REMOVED':
         final actor = jsonData?['actorName'] ?? actorName;
@@ -55,6 +58,18 @@ class SystemMessageFormatter {
         }
         return '${actor ?? 'Someone'} removed a member from the group';
 
+      case 'GROUP_NAME_CHANGED':
+        final userName = jsonData?['userName'] ?? actorName ?? 'Someone';
+        final newName = jsonData?['newName'] ?? additionalInfo;
+        final oldName = jsonData?['oldName'];
+        if (newName != null) {
+          if (oldName != null && oldName.toString().isNotEmpty) {
+            return '$userName changed the group name from "$oldName" to "$newName"';
+          }
+          return '$userName changed the group name to "$newName"';
+        }
+        return '$userName changed the group name';
+
       case 'NAME_CHANGED':
         final actor = jsonData?['actorName'] ?? actorName;
         final newName = jsonData?['newName'] ?? additionalInfo;
@@ -63,9 +78,18 @@ class SystemMessageFormatter {
         }
         return '${actor ?? 'Someone'} changed the group name';
 
+      case 'GROUP_AVATAR_CHANGED':
+        final userName = jsonData?['userName'] ?? actorName ?? 'Someone';
+        return '$userName changed the group photo';
+
       case 'AVATAR_CHANGED':
         final actor = jsonData?['actorName'] ?? actorName ?? 'Someone';
         return '$actor changed the group photo';
+
+      case 'USER_PROMOTED':
+        final userName = jsonData?['userName'] ?? targetName ?? 'Someone';
+        // promotedBy is userId, we need to get name from somewhere else
+        return '$userName is now a group admin';
 
       case 'ADMIN_PROMOTED':
         final actor = jsonData?['actorName'] ?? actorName;
@@ -75,6 +99,11 @@ class SystemMessageFormatter {
         }
         return '${target ?? 'Someone'} is now a group admin';
 
+      case 'USER_DEMOTED':
+        final userName = jsonData?['userName'] ?? targetName ?? 'Someone';
+        // demotedBy is userId, we need to get name from somewhere else
+        return '$userName is no longer a group admin';
+
       case 'ADMIN_DEMOTED':
         final actor = jsonData?['actorName'] ?? actorName;
         final target = jsonData?['targetName'] ?? targetName;
@@ -82,6 +111,20 @@ class SystemMessageFormatter {
           return '$actor removed $target as a group admin';
         }
         return '${target ?? 'Someone'} is no longer a group admin';
+
+      case 'MEMBER_MUTED':
+        final userName = jsonData?['userName'] ?? targetName ?? 'Someone';
+        // mutedBy is userId, we need to get name from somewhere else
+        final mutedUntil = jsonData?['mutedUntil'];
+        if (mutedUntil != null) {
+          return '$userName was muted temporarily';
+        }
+        return '$userName was muted';
+
+      case 'MEMBER_UNMUTED':
+        final userName = jsonData?['userName'] ?? targetName ?? 'Someone';
+        // unmutedBy is userId, we need to get name from somewhere else
+        return '$userName was unmuted';
 
       case 'MESSAGE_PINNED':
         final actor = jsonData?['actorName'] ?? actorName ?? 'Someone';

@@ -1,3 +1,4 @@
+import 'package:chattrix_ui/features/chat/domain/entities/conversation_settings.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'conversation_settings_model.freezed.dart';
@@ -5,6 +6,8 @@ part 'conversation_settings_model.g.dart';
 
 @freezed
 abstract class ConversationSettingsModel with _$ConversationSettingsModel {
+  const ConversationSettingsModel._();
+
   const factory ConversationSettingsModel({
     required int conversationId,
     @Default(false) bool muted,
@@ -18,17 +21,29 @@ abstract class ConversationSettingsModel with _$ConversationSettingsModel {
     String? theme,
   }) = _ConversationSettingsModel;
 
-  factory ConversationSettingsModel.fromJson(Map<String, dynamic> json) =>
-      _$ConversationSettingsModelFromJson(json);
+  factory ConversationSettingsModel.fromJson(Map<String, dynamic> json) => _$ConversationSettingsModelFromJson(json);
+
+  /// Convert DTO to Domain Entity
+  ConversationSettings toEntity() {
+    return ConversationSettings(
+      conversationId: conversationId,
+      muted: muted,
+      blocked: blocked,
+      notificationsEnabled: notificationsEnabled,
+      pinned: pinned,
+      pinOrder: pinOrder,
+      archived: archived,
+      hidden: hidden,
+      customNickname: customNickname,
+      theme: theme,
+    );
+  }
 }
 
 @freezed
 abstract class UpdateConversationSettingsRequest with _$UpdateConversationSettingsRequest {
-  const factory UpdateConversationSettingsRequest({
-    bool? notificationsEnabled,
-    String? customNickname,
-    String? theme,
-  }) = _UpdateConversationSettingsRequest;
+  const factory UpdateConversationSettingsRequest({bool? notificationsEnabled, String? customNickname, String? theme}) =
+      _UpdateConversationSettingsRequest;
 
   factory UpdateConversationSettingsRequest.fromJson(Map<String, dynamic> json) =>
       _$UpdateConversationSettingsRequestFromJson(json);
@@ -69,12 +84,9 @@ abstract class UpdateConversationPermissionsRequest with _$UpdateConversationPer
 
 @freezed
 abstract class MuteMemberRequest with _$MuteMemberRequest {
-  const factory MuteMemberRequest({
-    required int duration,
-  }) = _MuteMemberRequest;
+  const factory MuteMemberRequest({required int duration}) = _MuteMemberRequest;
 
-  factory MuteMemberRequest.fromJson(Map<String, dynamic> json) =>
-      _$MuteMemberRequestFromJson(json);
+  factory MuteMemberRequest.fromJson(Map<String, dynamic> json) => _$MuteMemberRequestFromJson(json);
 }
 
 @freezed
@@ -89,7 +101,5 @@ abstract class MutedMemberModel with _$MutedMemberModel {
     int? mutedBy,
   }) = _MutedMemberModel;
 
-  factory MutedMemberModel.fromJson(Map<String, dynamic> json) =>
-      _$MutedMemberModelFromJson(json);
+  factory MutedMemberModel.fromJson(Map<String, dynamic> json) => _$MutedMemberModelFromJson(json);
 }
-

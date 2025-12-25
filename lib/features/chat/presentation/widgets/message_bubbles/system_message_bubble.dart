@@ -133,16 +133,26 @@ class SystemMessageBubble extends StatelessWidget {
         return Icons.person_remove_rounded;
       case 'USER_ADDED':
         return Icons.group_add_rounded;
+      case 'USER_KICKED':
+        return Icons.person_remove_rounded;
       case 'USER_REMOVED':
         return Icons.group_remove_rounded;
+      case 'GROUP_NAME_CHANGED':
       case 'NAME_CHANGED':
         return Icons.edit_rounded;
+      case 'GROUP_AVATAR_CHANGED':
       case 'AVATAR_CHANGED':
         return Icons.image_rounded;
+      case 'USER_PROMOTED':
       case 'ADMIN_PROMOTED':
         return Icons.admin_panel_settings_rounded;
+      case 'USER_DEMOTED':
       case 'ADMIN_DEMOTED':
         return Icons.remove_moderator_rounded;
+      case 'MEMBER_MUTED':
+        return Icons.mic_off_rounded;
+      case 'MEMBER_UNMUTED':
+        return Icons.mic_rounded;
       case 'MESSAGE_PINNED':
         return Icons.push_pin_rounded;
       case 'MESSAGE_UNPINNED':

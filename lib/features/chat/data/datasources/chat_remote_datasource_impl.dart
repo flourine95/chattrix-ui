@@ -59,6 +59,11 @@ class ChatRemoteDatasourceImpl implements ChatRemoteDatasource {
         case ConversationFilter.groups:
           filterParam = 'group';
           break;
+        case ConversationFilter.hidden:
+          // For hidden filter, we still fetch all conversations
+          // Frontend will filter them in ConversationsNotifier
+          filterParam = 'all';
+          break;
       }
 
       final response = await dio.get(ApiConstants.conversations, queryParameters: {'filter': filterParam});
@@ -71,6 +76,16 @@ class ChatRemoteDatasourceImpl implements ChatRemoteDatasource {
         final conversationsData = paginatedData['items'] as List;
 
         AppLogger.info('✅ Successfully fetched ${conversationsData.length} conversations', tag: 'ChatRemoteDataSource');
+
+        // Debug: Log first conversation to check settings field
+        if (conversationsData.isNotEmpty) {
+          final firstConv = conversationsData.first as Map<String, dynamic>;
+          debugPrint('🔍 [API Response] First conversation keys: ${firstConv.keys.toList()}');
+          debugPrint('🔍 [API Response] Has settings field: ${firstConv.containsKey('settings')}');
+          if (firstConv.containsKey('settings')) {
+            debugPrint('🔍 [API Response] Settings value: ${firstConv['settings']}');
+          }
+        }
 
         return conversationsData
             .whereType<Map<String, dynamic>>()
@@ -95,7 +110,7 @@ class ChatRemoteDatasourceImpl implements ChatRemoteDatasource {
   @override
   Future<ConversationModel> getConversation(String conversationId) async {
     try {
-      final response = await dio.get(ApiConstants.conversationById(conversationId));
+      final response = await dio.get(ApiConstants.conversationById(int.parse(conversationId)));
 
       if (response.statusCode == 200) {
         final data = response.data['data'] as Map<String, dynamic>;
@@ -116,7 +131,7 @@ class ChatRemoteDatasourceImpl implements ChatRemoteDatasource {
   }) async {
     try {
       final response = await dio.get(
-        ApiConstants.conversationMembers(conversationId),
+        ApiConstants.conversationMembers(int.parse(conversationId)),
         queryParameters: {if (cursor != null) 'cursor': cursor, 'limit': limit},
       );
 
@@ -145,7 +160,7 @@ class ChatRemoteDatasourceImpl implements ChatRemoteDatasource {
     String sort = 'DESC',
   }) async {
     try {
-      final url = ApiConstants.messagesInConversation(conversationId);
+      final url = ApiConstants.messagesInConversation(int.parse(conversationId));
 
       final response = await dio.get(url, queryParameters: {'page': page, 'size': size, 'sort': sort});
 
@@ -217,7 +232,7 @@ class ChatRemoteDatasourceImpl implements ChatRemoteDatasource {
   @override
   Future<List<UserDto>> getOnlineUsersInConversation(String conversationId) async {
     try {
-      final response = await dio.get(ApiConstants.onlineUsersInConversation(conversationId));
+      final response = await dio.get(ApiConstants.onlineUsersInConversation(int.parse(conversationId)));
 
       if (response.statusCode == 200) {
         final data = response.data['data'] as List;
@@ -233,7 +248,7 @@ class ChatRemoteDatasourceImpl implements ChatRemoteDatasource {
   @override
   Future<UserStatusModel> getUserStatus(String userId) async {
     try {
-      final response = await dio.get(ApiConstants.userStatus(userId));
+      final response = await dio.get(ApiConstants.userStatus(int.parse(userId)));
 
       if (response.statusCode == 200) {
         final data = response.data['data'];
@@ -249,7 +264,7 @@ class ChatRemoteDatasourceImpl implements ChatRemoteDatasource {
   @override
   Future<MessageModel> sendMessage(String conversationId, ChatMessageRequest request) async {
     try {
-      final url = ApiConstants.messagesInConversation(conversationId);
+      final url = ApiConstants.messagesInConversation(int.parse(conversationId));
 
       final response = await dio.post(url, data: request.toJson());
 
@@ -324,7 +339,7 @@ class ChatRemoteDatasourceImpl implements ChatRemoteDatasource {
   @override
   Future<Map<String, dynamic>> toggleReaction({required String messageId, required String emoji}) async {
     try {
-      final url = ApiConstants.messageReactions(messageId);
+      final url = ApiConstants.messageReactions(int.parse(messageId));
 
       final response = await dio.post(url, data: {'emoji': emoji});
 
@@ -343,7 +358,7 @@ class ChatRemoteDatasourceImpl implements ChatRemoteDatasource {
   @override
   Future<Map<String, dynamic>> getReactions(String messageId) async {
     try {
-      final url = ApiConstants.messageReactions(messageId);
+      final url = ApiConstants.messageReactions(int.parse(messageId));
 
       final response = await dio.get(url);
 
@@ -366,7 +381,7 @@ class ChatRemoteDatasourceImpl implements ChatRemoteDatasource {
     required String content,
   }) async {
     try {
-      final url = ApiConstants.messageEdit(conversationId, messageId);
+      final url = ApiConstants.messageEdit(int.parse(conversationId), int.parse(messageId));
 
       final response = await dio.put(url, data: {'content': content});
 
@@ -398,7 +413,7 @@ class ChatRemoteDatasourceImpl implements ChatRemoteDatasource {
   @override
   Future<void> deleteMessage({required String conversationId, required String messageId}) async {
     try {
-      final url = ApiConstants.messageDelete(conversationId, messageId);
+      final url = ApiConstants.messageDelete(int.parse(conversationId), int.parse(messageId));
 
       final response = await dio.delete(url);
 
@@ -469,7 +484,7 @@ class ChatRemoteDatasourceImpl implements ChatRemoteDatasource {
   }) async {
     try {
       final response = await dio.put(
-        ApiConstants.conversationById(conversationId),
+        ApiConstants.conversationById(int.parse(conversationId)),
         data: {if (name != null) 'name': name, if (description != null) 'description': description},
       );
 
@@ -487,7 +502,7 @@ class ChatRemoteDatasourceImpl implements ChatRemoteDatasource {
   @override
   Future<void> deleteConversation(String conversationId) async {
     try {
-      final response = await dio.delete(ApiConstants.conversationById(conversationId));
+      final response = await dio.delete(ApiConstants.conversationById(int.parse(conversationId)));
 
       if (response.statusCode == 200 || response.statusCode == 204) {
         return;
@@ -502,7 +517,10 @@ class ChatRemoteDatasourceImpl implements ChatRemoteDatasource {
   @override
   Future<Map<String, dynamic>> addMembers({required String conversationId, required List<int> userIds}) async {
     try {
-      final response = await dio.post(ApiConstants.conversationMembers(conversationId), data: {'userIds': userIds});
+      final response = await dio.post(
+        ApiConstants.conversationMembers(int.parse(conversationId)),
+        data: {'userIds': userIds},
+      );
 
       if (response.statusCode == 200) {
         return response.data['data'] as Map<String, dynamic>;
@@ -517,7 +535,7 @@ class ChatRemoteDatasourceImpl implements ChatRemoteDatasource {
   @override
   Future<void> removeMember({required String conversationId, required int userId}) async {
     try {
-      final response = await dio.delete('${ApiConstants.conversationMembers(conversationId)}/$userId');
+      final response = await dio.delete('${ApiConstants.conversationMembers(int.parse(conversationId))}/$userId');
 
       if (response.statusCode == 200 || response.statusCode == 204) {
         return;
@@ -537,7 +555,7 @@ class ChatRemoteDatasourceImpl implements ChatRemoteDatasource {
   }) async {
     try {
       final response = await dio.put(
-        '${ApiConstants.conversationMembers(conversationId)}/$userId/role',
+        '${ApiConstants.conversationMembers(int.parse(conversationId))}/$userId/role',
         data: {'role': role},
       );
 
@@ -554,7 +572,7 @@ class ChatRemoteDatasourceImpl implements ChatRemoteDatasource {
   @override
   Future<void> leaveConversation(String conversationId) async {
     try {
-      final response = await dio.post('${ApiConstants.conversationMembers(conversationId)}/leave');
+      final response = await dio.post('${ApiConstants.conversationMembers(int.parse(conversationId))}/leave');
 
       if (response.statusCode == 200 || response.statusCode == 204) {
         return;
@@ -571,7 +589,10 @@ class ChatRemoteDatasourceImpl implements ChatRemoteDatasource {
     try {
       final formData = FormData.fromMap({'avatar': await MultipartFile.fromFile(imagePath)});
 
-      final response = await dio.put('${ApiConstants.conversationById(conversationId)}/avatar', data: formData);
+      final response = await dio.put(
+        '${ApiConstants.conversationById(int.parse(conversationId))}/avatar',
+        data: formData,
+      );
 
       if (response.statusCode == 200) {
         final data = response.data['data'] as Map<String, dynamic>;
@@ -587,7 +608,7 @@ class ChatRemoteDatasourceImpl implements ChatRemoteDatasource {
   @override
   Future<void> deleteGroupAvatar(String conversationId) async {
     try {
-      final response = await dio.delete('${ApiConstants.conversationById(conversationId)}/avatar');
+      final response = await dio.delete('${ApiConstants.conversationById(int.parse(conversationId))}/avatar');
 
       if (response.statusCode == 200 || response.statusCode == 204) {
         return;

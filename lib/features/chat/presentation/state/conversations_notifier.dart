@@ -227,7 +227,13 @@ class ConversationsNotifier extends _$ConversationsNotifier {
               '✅ Successfully fetched ${conversations.length} conversations',
               tag: 'ConversationsNotifier',
             );
-            return conversations;
+            // Apply pin/hide filtering and sorting
+            final filtered = _filterAndSortConversations(conversations);
+            AppLogger.debug(
+              '📌 After filtering: ${filtered.length} visible conversations (${conversations.length - filtered.length} hidden)',
+              tag: 'ConversationsNotifier',
+            );
+            return filtered;
           },
         );
       },
@@ -240,6 +246,55 @@ class ConversationsNotifier extends _$ConversationsNotifier {
         return RetryHelper.isNetworkError(error);
       },
     );
+  }
+
+  /// Filter and sort conversations based on pin/hide settings
+  ///
+  /// **Filtering:**
+  /// - If filter is `hidden`: Show ONLY hidden conversations
+  /// - Otherwise: Remove conversations where `settings.hidden == true`
+  ///
+  /// **Sorting:**
+  /// - Pinned conversations first (sorted by `pinOrder`)
+  /// - Then unpinned conversations (sorted by last message time)
+  List<Conversation> _filterAndSortConversations(List<Conversation> conversations) {
+    final currentFilter = ref.read(filterProvider);
+
+    // Filter based on current filter
+    List<Conversation> filtered;
+    if (currentFilter == ConversationFilter.hidden) {
+      // Show ONLY hidden conversations
+      filtered = conversations.where((c) => c.settings?.hidden == true).toList();
+    } else {
+      // Filter out hidden conversations (show visible only)
+      filtered = conversations.where((c) => c.settings?.hidden != true).toList();
+    }
+
+    // Sort: pinned first (by pinOrder), then by last message time
+    filtered.sort((a, b) {
+      final aPinned = a.settings?.pinned ?? false;
+      final bPinned = b.settings?.pinned ?? false;
+
+      // Both pinned - sort by pinOrder
+      if (aPinned && bPinned) {
+        final aOrder = a.settings?.pinOrder ?? 999;
+        final bOrder = b.settings?.pinOrder ?? 999;
+        return aOrder.compareTo(bOrder);
+      }
+
+      // Only a is pinned
+      if (aPinned && !bPinned) return -1;
+
+      // Only b is pinned
+      if (!aPinned && bPinned) return 1;
+
+      // Neither pinned - sort by last message time (most recent first)
+      final aTime = a.lastMessage?.sentAt ?? a.updatedAt;
+      final bTime = b.lastMessage?.sentAt ?? b.updatedAt;
+      return bTime.compareTo(aTime);
+    });
+
+    return filtered;
   }
 
   Future<void> refresh() async {
@@ -324,8 +379,11 @@ class ConversationsNotifier extends _$ConversationsNotifier {
     // Create new list with updated conversation moved to top
     final updatedList = <Conversation>[updatedConversation, ...currentState.where((c) => c.id != conversation.id)];
 
+    // Apply pin/hide filtering and sorting
+    final filtered = _filterAndSortConversations(updatedList);
+
     // Update state
-    state = AsyncValue.data(updatedList);
+    state = AsyncValue.data(filtered);
     AppLogger.info(
       '✅ Updated conversation ${conversation.id} with new message (unread: $newUnreadCount)',
       tag: 'ConversationsNotifier',

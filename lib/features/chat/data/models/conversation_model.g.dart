@@ -25,6 +25,11 @@ _ConversationModel _$ConversationModelFromJson(Map<String, dynamic> json) =>
           ? null
           : MessageModel.fromJson(json['lastMessage'] as Map<String, dynamic>),
       unreadCount: (json['unreadCount'] as num?)?.toInt() ?? 0,
+      settings: json['settings'] == null
+          ? null
+          : ConversationSettingsModel.fromJson(
+              json['settings'] as Map<String, dynamic>,
+            ),
     );
 
 Map<String, dynamic> _$ConversationModelToJson(_ConversationModel instance) =>
@@ -38,4 +43,5 @@ Map<String, dynamic> _$ConversationModelToJson(_ConversationModel instance) =>
       'participants': instance.participants,
       'lastMessage': instance.lastMessage,
       'unreadCount': instance.unreadCount,
+      'settings': instance.settings,
     };

@@ -23,6 +23,7 @@ import 'package:chattrix_ui/features/contacts/presentation/pages/contacts_demo_p
 import 'package:chattrix_ui/features/profile/presentation/pages/edit_profile_page.dart';
 import 'package:chattrix_ui/features/profile/presentation/pages/profile_page.dart';
 import 'package:chattrix_ui/features/profile/presentation/pages/settings_page.dart';
+import 'package:chattrix_ui/features/chat/presentation/pages/hidden_conversations_page.dart';
 import 'package:chattrix_ui/features/poll/presentation/pages/create_poll_page.dart';
 import 'package:chattrix_ui/features/poll/presentation/pages/poll_detail_page.dart';
 import 'package:chattrix_ui/features/invite_links/presentation/pages/invite_links_page.dart';
@@ -109,6 +110,11 @@ class RouteConfig {
   static List<RouteBase> get profileRoutes => [
     GoRoute(path: RoutePaths.editProfile, name: 'edit-profile', builder: (context, state) => const EditProfilePage()),
     GoRoute(path: RoutePaths.settings, name: 'settings', builder: (context, state) => const SettingsPage()),
+    GoRoute(
+      path: RoutePaths.hiddenConversations,
+      name: 'hidden-conversations',
+      builder: (context, state) => RouterSetup(child: const HiddenConversationsPage()),
+    ),
     // Demo routes removed - production pages are now used in mainRoutes
     GoRoute(
       path: RoutePaths.contactsDemo,

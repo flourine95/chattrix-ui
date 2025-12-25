@@ -75,7 +75,7 @@ final class ConversationSettingsProvider
         > {
   const ConversationSettingsProvider._({
     required ConversationSettingsFamily super.from,
-    required String super.argument,
+    required int super.argument,
   }) : super(
          retry: null,
          name: r'conversationSettingsProvider',
@@ -110,7 +110,7 @@ final class ConversationSettingsProvider
 }
 
 String _$conversationSettingsHash() =>
-    r'9e4f6833b1e64af9ad238a0cef61a20869c0061d';
+    r'26cfd470212d7a1bbbe785019810412b7e564bb9';
 
 final class ConversationSettingsFamily extends $Family
     with
@@ -119,7 +119,7 @@ final class ConversationSettingsFamily extends $Family
           AsyncValue<ConversationSettingsModel?>,
           ConversationSettingsModel?,
           FutureOr<ConversationSettingsModel?>,
-          String
+          int
         > {
   const ConversationSettingsFamily._()
     : super(
@@ -130,7 +130,7 @@ final class ConversationSettingsFamily extends $Family
         isAutoDispose: true,
       );
 
-  ConversationSettingsProvider call(String conversationId) =>
+  ConversationSettingsProvider call(int conversationId) =>
       ConversationSettingsProvider._(argument: conversationId, from: this);
 
   @override
@@ -139,10 +139,10 @@ final class ConversationSettingsFamily extends $Family
 
 abstract class _$ConversationSettings
     extends $AsyncNotifier<ConversationSettingsModel?> {
-  late final _$args = ref.$arg as String;
-  String get conversationId => _$args;
+  late final _$args = ref.$arg as int;
+  int get conversationId => _$args;
 
-  FutureOr<ConversationSettingsModel?> build(String conversationId);
+  FutureOr<ConversationSettingsModel?> build(int conversationId);
   @$mustCallSuper
   @override
   void runBuild() {

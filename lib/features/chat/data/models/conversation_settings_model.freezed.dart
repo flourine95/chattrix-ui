@@ -217,8 +217,8 @@ return $default(_that.conversationId,_that.muted,_that.blocked,_that.notificatio
 /// @nodoc
 @JsonSerializable()
 
-class _ConversationSettingsModel implements ConversationSettingsModel {
-  const _ConversationSettingsModel({required this.conversationId, this.muted = false, this.blocked = false, this.notificationsEnabled = true, this.pinned = false, this.pinOrder, this.archived = false, this.hidden = false, this.customNickname, this.theme});
+class _ConversationSettingsModel extends ConversationSettingsModel {
+  const _ConversationSettingsModel({required this.conversationId, this.muted = false, this.blocked = false, this.notificationsEnabled = true, this.pinned = false, this.pinOrder, this.archived = false, this.hidden = false, this.customNickname, this.theme}): super._();
   factory _ConversationSettingsModel.fromJson(Map<String, dynamic> json) => _$ConversationSettingsModelFromJson(json);
 
 @override final  int conversationId;

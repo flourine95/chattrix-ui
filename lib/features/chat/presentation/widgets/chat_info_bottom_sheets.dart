@@ -6,7 +6,7 @@ import '../providers/conversation_settings_provider.dart';
 void showChangeNicknameBottomSheet(
   BuildContext context,
   WidgetRef ref,
-  String conversationId,
+  int conversationId,
   ColorScheme colors,
   TextTheme textTheme,
 ) {
@@ -16,16 +16,9 @@ void showChangeNicknameBottomSheet(
     context: context,
     backgroundColor: colors.surface,
     isScrollControlled: true,
-    shape: const RoundedRectangleBorder(
-      borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-    ),
+    shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
     builder: (context) => Padding(
-      padding: EdgeInsets.only(
-        left: 24,
-        right: 24,
-        top: 24,
-        bottom: MediaQuery.of(context).viewInsets.bottom + 24,
-      ),
+      padding: EdgeInsets.only(left: 24, right: 24, top: 24, bottom: MediaQuery.of(context).viewInsets.bottom + 24),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -41,10 +34,7 @@ void showChangeNicknameBottomSheet(
           ),
 
           // Title
-          Text(
-            'Change Nickname',
-            style: textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
-          ),
+          Text('Change Nickname', style: textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
 
           const SizedBox(height: 20),
 
@@ -56,10 +46,7 @@ void showChangeNicknameBottomSheet(
               hintText: 'Enter nickname',
               filled: true,
               fillColor: colors.surfaceContainerHighest,
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(16),
-                borderSide: BorderSide.none,
-              ),
+              border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
               contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
             ),
           ),
@@ -74,9 +61,7 @@ void showChangeNicknameBottomSheet(
                   onPressed: () => Navigator.pop(context),
                   style: OutlinedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   ),
                   child: const Text('Cancel'),
                 ),
@@ -93,9 +78,7 @@ void showChangeNicknameBottomSheet(
                   },
                   style: FilledButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   ),
                   child: const Text('Save'),
                 ),
@@ -112,16 +95,14 @@ void showChangeNicknameBottomSheet(
 void showBlockUserBottomSheet(
   BuildContext context,
   WidgetRef ref,
-  String conversationId,
+  int conversationId,
   ColorScheme colors,
   TextTheme textTheme,
 ) {
   showModalBottomSheet(
     context: context,
     backgroundColor: colors.surface,
-    shape: const RoundedRectangleBorder(
-      borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-    ),
+    shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
     builder: (context) => Padding(
       padding: const EdgeInsets.all(24),
       child: Column(
@@ -142,29 +123,21 @@ void showBlockUserBottomSheet(
           Container(
             width: 64,
             height: 64,
-            decoration: BoxDecoration(
-              color: Colors.red.withValues(alpha: 0.1),
-              shape: BoxShape.circle,
-            ),
+            decoration: BoxDecoration(color: Colors.red.withValues(alpha: 0.1), shape: BoxShape.circle),
             child: const Icon(Icons.block, color: Colors.red, size: 32),
           ),
 
           const SizedBox(height: 20),
 
           // Title
-          Text(
-            'Block User?',
-            style: textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
-          ),
+          Text('Block User?', style: textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
 
           const SizedBox(height: 12),
 
           // Description
           Text(
             'Blocked users won\'t be able to send you messages or see your online status.',
-            style: textTheme.bodyMedium?.copyWith(
-              color: colors.onSurface.withValues(alpha: 0.7),
-            ),
+            style: textTheme.bodyMedium?.copyWith(color: colors.onSurface.withValues(alpha: 0.7)),
             textAlign: TextAlign.center,
           ),
 
@@ -178,9 +151,7 @@ void showBlockUserBottomSheet(
                   onPressed: () => Navigator.pop(context),
                   style: OutlinedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   ),
                   child: const Text('Cancel'),
                 ),
@@ -195,9 +166,7 @@ void showBlockUserBottomSheet(
                   style: FilledButton.styleFrom(
                     backgroundColor: Colors.red,
                     padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   ),
                   child: const Text('Block'),
                 ),
@@ -217,9 +186,7 @@ void showWallpaperOptions(BuildContext context, ColorScheme colors, TextTheme te
   showModalBottomSheet(
     context: context,
     backgroundColor: colors.surface,
-    shape: const RoundedRectangleBorder(
-      borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-    ),
+    shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
     builder: (context) => Padding(
       padding: const EdgeInsets.all(24),
       child: Column(
@@ -237,10 +204,7 @@ void showWallpaperOptions(BuildContext context, ColorScheme colors, TextTheme te
           ),
 
           // Title
-          Text(
-            'Change Wallpaper',
-            style: textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
-          ),
+          Text('Change Wallpaper', style: textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
 
           const SizedBox(height: 20),
 
@@ -248,10 +212,7 @@ void showWallpaperOptions(BuildContext context, ColorScheme colors, TextTheme te
           ListTile(
             leading: Container(
               padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: colors.primaryContainer,
-                shape: BoxShape.circle,
-              ),
+              decoration: BoxDecoration(color: colors.primaryContainer, shape: BoxShape.circle),
               child: Icon(Icons.photo_library, color: colors.onPrimaryContainer),
             ),
             title: const Text('Choose from Gallery'),
@@ -263,10 +224,7 @@ void showWallpaperOptions(BuildContext context, ColorScheme colors, TextTheme te
           ListTile(
             leading: Container(
               padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: colors.secondaryContainer,
-                shape: BoxShape.circle,
-              ),
+              decoration: BoxDecoration(color: colors.secondaryContainer, shape: BoxShape.circle),
               child: Icon(Icons.wallpaper, color: colors.onSecondaryContainer),
             ),
             title: const Text('Choose from Presets'),
@@ -278,10 +236,7 @@ void showWallpaperOptions(BuildContext context, ColorScheme colors, TextTheme te
           ListTile(
             leading: Container(
               padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: colors.tertiaryContainer,
-                shape: BoxShape.circle,
-              ),
+              decoration: BoxDecoration(color: colors.tertiaryContainer, shape: BoxShape.circle),
               child: Icon(Icons.color_lens, color: colors.onTertiaryContainer),
             ),
             title: const Text('Solid Color'),
@@ -293,10 +248,7 @@ void showWallpaperOptions(BuildContext context, ColorScheme colors, TextTheme te
           ListTile(
             leading: Container(
               padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: Colors.red.withValues(alpha: 0.1),
-                shape: BoxShape.circle,
-              ),
+              decoration: BoxDecoration(color: Colors.red.withValues(alpha: 0.1), shape: BoxShape.circle),
               child: const Icon(Icons.delete, color: Colors.red),
             ),
             title: const Text('Remove Wallpaper', style: TextStyle(color: Colors.red)),
@@ -318,9 +270,7 @@ void showMutualGroupsBottomSheet(BuildContext context, ColorScheme colors, TextT
   showModalBottomSheet(
     context: context,
     backgroundColor: colors.surface,
-    shape: const RoundedRectangleBorder(
-      borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-    ),
+    shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
     builder: (context) => Container(
       padding: const EdgeInsets.all(24),
       child: Column(
@@ -338,10 +288,7 @@ void showMutualGroupsBottomSheet(BuildContext context, ColorScheme colors, TextT
           ),
 
           // Title
-          Text(
-            'Mutual Groups',
-            style: textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
-          ),
+          Text('Mutual Groups', style: textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
 
           const SizedBox(height: 20),
 

@@ -93,38 +93,37 @@ class ApiConstants {
   // Conversation endpoints
   static String get conversations => '$_baseUrl/$_v1/conversations';
 
-  static String conversationById(String id) => '$_baseUrl/$_v1/conversations/$id';
+  static String conversationById(int id) => '$_baseUrl/$_v1/conversations/$id';
 
-  static String messagesInConversation(String conversationId) =>
-      '$_baseUrl/$_v1/conversations/$conversationId/messages';
+  static String messagesInConversation(int conversationId) => '$_baseUrl/$_v1/conversations/$conversationId/messages';
 
-  static String conversationMembers(String conversationId) => '$_baseUrl/$_v1/conversations/$conversationId/members';
+  static String conversationMembers(int conversationId) => '$_baseUrl/$_v1/conversations/$conversationId/members';
 
   // User endpoints
   static String get searchUsers => '$_baseUrl/$_v1/users/search';
 
   static String get onlineUsers => '$_baseUrl/$_v1/users/status/online';
 
-  static String onlineUsersInConversation(String conversationId) =>
+  static String onlineUsersInConversation(int conversationId) =>
       '$_baseUrl/$_v1/users/status/online/conversation/$conversationId';
 
-  static String userStatus(String userId) => '$_baseUrl/$_v1/users/status/$userId';
+  static String userStatus(int userId) => '$_baseUrl/$_v1/users/status/$userId';
 
   // Message endpoints
-  static String messageReactions(String messageId) => '$_baseUrl/$_v1/messages/$messageId/reactions';
+  static String messageReactions(int messageId) => '$_baseUrl/$_v1/messages/$messageId/reactions';
 
-  static String deleteReaction(String messageId, String emoji) => '$_baseUrl/$_v1/messages/$messageId/reactions/$emoji';
+  static String deleteReaction(int messageId, String emoji) => '$_baseUrl/$_v1/messages/$messageId/reactions/$emoji';
 
-  static String messageEdit(String conversationId, String messageId) =>
+  static String messageEdit(int conversationId, int messageId) =>
       '$_baseUrl/$_v1/conversations/$conversationId/messages/$messageId';
 
-  static String messageDelete(String conversationId, String messageId) =>
+  static String messageDelete(int conversationId, int messageId) =>
       '$_baseUrl/$_v1/conversations/$conversationId/messages/$messageId';
 
-  static String messageEditHistory(String conversationId, String messageId) =>
+  static String messageEditHistory(int conversationId, int messageId) =>
       '$_baseUrl/$_v1/conversations/$conversationId/messages/$messageId/history';
 
-  static String messageRead(String messageId) => '$_baseUrl/$_v1/messages/$messageId/read';
+  static String messageRead(int messageId) => '$_baseUrl/$_v1/messages/$messageId/read';
 
   // Read Receipts endpoints
   static String markConversationAsRead(int conversationId) =>
@@ -137,7 +136,7 @@ class ApiConstants {
 
   static String get typingStop => '$_baseUrl/$_v1/typing/stop';
 
-  static String typingStatus(String conversationId) => '$_baseUrl/$_v1/typing/status/$conversationId';
+  static String typingStatus(int conversationId) => '$_baseUrl/$_v1/typing/status/$conversationId';
 
   // Friend Request endpoints
   static String get sendFriendRequest => '$_baseUrl/$_v1/friend-requests';
@@ -186,129 +185,110 @@ class ApiConstants {
   static String endCall(String callId) => '$_baseUrl/$_v1/calls/$callId/end';
 
   // Conversation Settings endpoints
-  static String conversationSettings(String conversationId) =>
-      '$_baseUrl/$_v1/conversations/$conversationId/settings';
+  static String conversationSettings(int conversationId) => '$_baseUrl/$_v1/conversations/$conversationId/settings';
 
-  static String muteConversation(String conversationId) =>
-      '$_baseUrl/$_v1/conversations/$conversationId/settings/mute';
+  static String muteConversation(int conversationId) => '$_baseUrl/$_v1/conversations/$conversationId/settings/mute';
 
-  static String unmuteConversation(String conversationId) =>
+  static String unmuteConversation(int conversationId) =>
       '$_baseUrl/$_v1/conversations/$conversationId/settings/unmute';
 
-  static String pinConversation(String conversationId) =>
-      '$_baseUrl/$_v1/conversations/$conversationId/settings/pin';
+  static String pinConversation(int conversationId) => '$_baseUrl/$_v1/conversations/$conversationId/settings/pin';
 
-  static String unpinConversation(String conversationId) =>
-      '$_baseUrl/$_v1/conversations/$conversationId/settings/unpin';
+  static String unpinConversation(int conversationId) => '$_baseUrl/$_v1/conversations/$conversationId/settings/unpin';
 
-  static String hideConversation(String conversationId) =>
-      '$_baseUrl/$_v1/conversations/$conversationId/settings/hide';
+  static String hideConversation(int conversationId) => '$_baseUrl/$_v1/conversations/$conversationId/settings/hide';
 
-  static String unhideConversation(String conversationId) =>
+  static String unhideConversation(int conversationId) =>
       '$_baseUrl/$_v1/conversations/$conversationId/settings/unhide';
 
-  static String archiveConversation(String conversationId) =>
+  static String archiveConversation(int conversationId) =>
       '$_baseUrl/$_v1/conversations/$conversationId/settings/archive';
 
-  static String unarchiveConversation(String conversationId) =>
+  static String unarchiveConversation(int conversationId) =>
       '$_baseUrl/$_v1/conversations/$conversationId/settings/unarchive';
 
-  static String blockUser(String conversationId) =>
-      '$_baseUrl/$_v1/conversations/$conversationId/settings/block';
+  static String blockUser(int conversationId) => '$_baseUrl/$_v1/conversations/$conversationId/settings/block';
 
-  static String unblockUser(String conversationId) =>
-      '$_baseUrl/$_v1/conversations/$conversationId/settings/unblock';
+  static String unblockUser(int conversationId) => '$_baseUrl/$_v1/conversations/$conversationId/settings/unblock';
 
-  static String muteMember(String conversationId, String userId) =>
+  static String muteMember(int conversationId, int userId) =>
       '$_baseUrl/$_v1/conversations/$conversationId/settings/members/$userId/mute';
 
-  static String unmuteMember(String conversationId, String userId) =>
+  static String unmuteMember(int conversationId, int userId) =>
       '$_baseUrl/$_v1/conversations/$conversationId/settings/members/$userId/unmute';
 
-  static String conversationPermissions(String conversationId) =>
+  static String conversationPermissions(int conversationId) =>
       '$_baseUrl/$_v1/conversations/$conversationId/settings/permissions';
 
-  static String conversationAvatar(String conversationId) =>
-      '$_baseUrl/$_v1/conversations/$conversationId/avatar';
+  static String conversationAvatar(int conversationId) => '$_baseUrl/$_v1/conversations/$conversationId/avatar';
 
   // Member Management endpoints
-  static String addMembers(String conversationId) =>
-      '$_baseUrl/$_v1/conversations/$conversationId/members';
+  static String addMembers(int conversationId) => '$_baseUrl/$_v1/conversations/$conversationId/members';
 
-  static String removeMember(String conversationId, String userId) =>
+  static String removeMember(int conversationId, int userId) =>
       '$_baseUrl/$_v1/conversations/$conversationId/members/$userId';
 
-  static String updateMemberRole(String conversationId, String userId) =>
+  static String updateMemberRole(int conversationId, int userId) =>
       '$_baseUrl/$_v1/conversations/$conversationId/members/$userId/role';
 
-  static String leaveConversation(String conversationId) =>
-      '$_baseUrl/$_v1/conversations/$conversationId/members/leave';
+  static String leaveConversation(int conversationId) => '$_baseUrl/$_v1/conversations/$conversationId/members/leave';
 
   // Pinned Messages endpoints
-  static String pinnedMessages(String conversationId) =>
-      '$_baseUrl/$_v1/conversations/$conversationId/messages/pinned';
+  static String pinnedMessages(int conversationId) => '$_baseUrl/$_v1/conversations/$conversationId/messages/pinned';
 
-  static String pinMessage(String conversationId, String messageId) =>
+  static String pinMessage(int conversationId, int messageId) =>
       '$_baseUrl/$_v1/conversations/$conversationId/messages/$messageId/pin';
 
-  static String unpinMessage(String conversationId, String messageId) =>
+  static String unpinMessage(int conversationId, int messageId) =>
       '$_baseUrl/$_v1/conversations/$conversationId/messages/$messageId/pin';
 
   // Scheduled Messages endpoints
-  static String scheduleMessage(String conversationId) =>
-      '$_baseUrl/$_v1/conversations/$conversationId/messages/schedule';
+  static String scheduleMessage(int conversationId) => '$_baseUrl/$_v1/conversations/$conversationId/messages/schedule';
 
-  static String scheduledMessages(String conversationId) =>
+  static String scheduledMessages(int conversationId) =>
       '$_baseUrl/$_v1/conversations/$conversationId/messages/scheduled';
 
-  static String scheduledMessageById(String conversationId, String messageId) =>
+  static String scheduledMessageById(int conversationId, int messageId) =>
       '$_baseUrl/$_v1/conversations/$conversationId/messages/scheduled/$messageId';
 
-  static String cancelScheduledMessagesBulk(String conversationId) =>
+  static String cancelScheduledMessagesBulk(int conversationId) =>
       '$_baseUrl/$_v1/conversations/$conversationId/messages/scheduled/bulk';
 
   // Search endpoints
-  static String searchMessages(String conversationId) =>
-      '$_baseUrl/$_v1/conversations/$conversationId/search/messages';
+  static String searchMessages(int conversationId) => '$_baseUrl/$_v1/conversations/$conversationId/search/messages';
 
-  static String searchMedia(String conversationId) =>
-      '$_baseUrl/$_v1/conversations/$conversationId/search/media';
+  static String searchMedia(int conversationId) => '$_baseUrl/$_v1/conversations/$conversationId/search/media';
 
   // Poll endpoints
-  static String polls(String conversationId) =>
-      '$_baseUrl/$_v1/conversations/$conversationId/polls';
+  static String polls(int conversationId) => '$_baseUrl/$_v1/conversations/$conversationId/polls';
 
-  static String pollById(String conversationId, String pollId) =>
+  static String pollById(int conversationId, int pollId) =>
       '$_baseUrl/$_v1/conversations/$conversationId/polls/$pollId';
 
-  static String votePoll(String conversationId, String pollId) =>
+  static String votePoll(int conversationId, int pollId) =>
       '$_baseUrl/$_v1/conversations/$conversationId/polls/$pollId/vote';
 
-  static String closePoll(String conversationId, String pollId) =>
+  static String closePoll(int conversationId, int pollId) =>
       '$_baseUrl/$_v1/conversations/$conversationId/polls/$pollId/close';
 
   // Event endpoints
-  static String events(String conversationId) =>
-      '$_baseUrl/$_v1/conversations/$conversationId/events';
+  static String events(int conversationId) => '$_baseUrl/$_v1/conversations/$conversationId/events';
 
-  static String eventById(String conversationId, String eventId) =>
+  static String eventById(int conversationId, int eventId) =>
       '$_baseUrl/$_v1/conversations/$conversationId/events/$eventId';
 
-  static String rsvpEvent(String conversationId, String eventId) =>
+  static String rsvpEvent(int conversationId, int eventId) =>
       '$_baseUrl/$_v1/conversations/$conversationId/events/$eventId/rsvp';
 
   // Invite Link endpoints
-  static String inviteLinks(String conversationId) =>
-      '$_baseUrl/$_v1/conversations/$conversationId/invite-links';
+  static String inviteLinks(int conversationId) => '$_baseUrl/$_v1/conversations/$conversationId/invite-links';
 
-  static String inviteLinkById(String conversationId, String linkId) =>
+  static String inviteLinkById(int conversationId, int linkId) =>
       '$_baseUrl/$_v1/conversations/$conversationId/invite-links/$linkId';
 
-  static String inviteLinkInfo(String token) =>
-      '$_baseUrl/$_v1/invite-links/$token';
+  static String inviteLinkInfo(String token) => '$_baseUrl/$_v1/invite-links/$token';
 
-  static String joinViaInviteLink(String token) =>
-      '$_baseUrl/$_v1/invite-links/$token/join';
+  static String joinViaInviteLink(String token) => '$_baseUrl/$_v1/invite-links/$token/join';
 
   // Birthday endpoints
   static String get birthdaysToday => '$_baseUrl/$_v1/birthdays/today';
@@ -316,12 +296,10 @@ class ApiConstants {
   static String get sendBirthdayWishes => '$_baseUrl/$_v1/birthdays/send-wishes';
 
   // Announcement endpoints
-  static String announcements(String conversationId) =>
-      '$_baseUrl/$_v1/conversations/$conversationId/announcements';
+  static String announcements(int conversationId) => '$_baseUrl/$_v1/conversations/$conversationId/announcements';
 
   // Mutual Groups endpoints
-  static String mutualGroups(String userId) =>
-      '$_baseUrl/$_v1/users/$userId/mutual-groups';
+  static String mutualGroups(int userId) => '$_baseUrl/$_v1/users/$userId/mutual-groups';
 
   static String get chatWebSocket => '$_wsBaseUrl/ws/chat';
 

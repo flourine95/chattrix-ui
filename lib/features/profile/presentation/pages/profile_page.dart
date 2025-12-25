@@ -221,6 +221,7 @@ class ProfilePage extends ConsumerWidget {
                       value: profile.profileVisibility?.label ?? 'Public',
                       showArrow: false,
                     ),
+                    const ProfileDivider(),
                     ProfileNavigationTile(
                       icon: FontAwesomeIcons.rightFromBracket,
                       iconColor: colors.error,

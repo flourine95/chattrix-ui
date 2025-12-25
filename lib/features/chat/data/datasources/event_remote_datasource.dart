@@ -23,7 +23,7 @@ class EventRemoteDataSourceImpl implements EventRemoteDataSource {
   @override
   Future<ApiResponse<List<EventModel>>> getEvents(String conversationId) async {
     try {
-      final response = await _dio.get(ApiConstants.events(conversationId));
+      final response = await _dio.get(ApiConstants.events(int.parse(conversationId)));
 
       final apiResponse = ApiResponse<List<EventModel>>.fromJson(
         response.data,
@@ -39,7 +39,7 @@ class EventRemoteDataSourceImpl implements EventRemoteDataSource {
   @override
   Future<ApiResponse<EventModel>> createEvent(String conversationId, CreateEventRequest request) async {
     try {
-      final response = await _dio.post(ApiConstants.events(conversationId), data: request.toJson());
+      final response = await _dio.post(ApiConstants.events(int.parse(conversationId)), data: request.toJson());
 
       final apiResponse = ApiResponse<EventModel>.fromJson(
         response.data,
@@ -55,7 +55,7 @@ class EventRemoteDataSourceImpl implements EventRemoteDataSource {
   @override
   Future<ApiResponse<EventModel>> updateEvent(String conversationId, String eventId, UpdateEventRequest request) async {
     try {
-      final response = await _dio.put(ApiConstants.eventById(conversationId, eventId), data: request.toJson());
+      final response = await _dio.put(ApiConstants.eventById(int.parse(conversationId), int.parse(eventId)), data: request.toJson());
 
       final apiResponse = ApiResponse<EventModel>.fromJson(
         response.data,
@@ -71,7 +71,7 @@ class EventRemoteDataSourceImpl implements EventRemoteDataSource {
   @override
   Future<ApiResponse<void>> deleteEvent(String conversationId, String eventId) async {
     try {
-      final response = await _dio.delete(ApiConstants.eventById(conversationId, eventId));
+      final response = await _dio.delete(ApiConstants.eventById(int.parse(conversationId), int.parse(eventId)));
 
       final apiResponse = ApiResponse<void>.fromJson(response.data, (json) => null);
 
@@ -84,7 +84,7 @@ class EventRemoteDataSourceImpl implements EventRemoteDataSource {
   @override
   Future<ApiResponse<EventModel>> rsvpEvent(String conversationId, String eventId, RsvpEventRequest request) async {
     try {
-      final response = await _dio.post(ApiConstants.rsvpEvent(conversationId, eventId), data: request.toJson());
+      final response = await _dio.post(ApiConstants.rsvpEvent(int.parse(conversationId), int.parse(eventId)), data: request.toJson());
 
       final apiResponse = ApiResponse<EventModel>.fromJson(
         response.data,

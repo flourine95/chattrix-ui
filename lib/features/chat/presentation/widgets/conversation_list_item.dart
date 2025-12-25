@@ -40,6 +40,13 @@ class ConversationListItem extends StatelessWidget {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
 
+    // Debug: Log settings
+    if (conversation.settings != null) {
+      debugPrint(
+        '🔍 [ConversationListItem] ${conversation.name ?? conversation.id}: pinned=${conversation.settings?.pinned}, muted=${conversation.settings?.muted}, hidden=${conversation.settings?.hidden}',
+      );
+    }
+
     // Get conversation title
     final title = ConversationUtils.getConversationTitle(conversation, currentUser);
 
@@ -66,6 +73,8 @@ class ConversationListItem extends StatelessWidget {
       child: InkWell(
         onTap: onTap,
         onLongPress: onLongPress,
+        splashColor: theme.colorScheme.primary.withValues(alpha: 0.1),
+        highlightColor: theme.colorScheme.primary.withValues(alpha: 0.05),
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           // Subtle background highlight for marked unread
@@ -86,18 +95,38 @@ class ConversationListItem extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    // Row 1: Name + Unread badge
+                    // Row 1: Name + Pin icon + Unread badge
                     Row(
                       children: [
                         Expanded(
-                          child: Text(
-                            title,
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: hasUnreadIndicator ? FontWeight.w700 : FontWeight.w600,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
+                          child: Row(
+                            children: [
+                              // Pin icon (if pinned)
+                              if (conversation.settings?.pinned == true) ...[
+                                Icon(Icons.push_pin, size: 16, color: theme.colorScheme.primary),
+                                const SizedBox(width: 4),
+                              ],
+                              // Mute icon (if muted)
+                              if (conversation.settings?.muted == true) ...[
+                                Icon(
+                                  Icons.notifications_off,
+                                  size: 16,
+                                  color: isDark ? Colors.grey[400] : Colors.grey[600],
+                                ),
+                                const SizedBox(width: 4),
+                              ],
+                              Expanded(
+                                child: Text(
+                                  title,
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: hasUnreadIndicator ? FontWeight.w700 : FontWeight.w600,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
 

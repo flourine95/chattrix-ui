@@ -125,6 +125,12 @@ class SettingsPage extends ConsumerWidget {
                   onTap: () => _showVisibilityPicker(context, ref, currentVisibility),
                 ),
                 ProfileNavigationTile(
+                  icon: FontAwesomeIcons.eyeSlash,
+                  iconColor: Colors.grey,
+                  label: 'Hidden Conversations',
+                  onTap: () => context.push('/hidden-conversations'),
+                ),
+                ProfileNavigationTile(
                   icon: FontAwesomeIcons.userShield,
                   iconColor: Colors.indigo,
                   label: 'Blocked Users',

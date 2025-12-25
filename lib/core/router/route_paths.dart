@@ -13,6 +13,7 @@ class RoutePaths {
   static const String profile = '/profile';
   static const String editProfile = '/profile/edit';
   static const String settings = '/settings';
+  static const String hiddenConversations = '/hidden-conversations';
   static const String chatView = '/chat/:id';
   static const String newChat = '/new-chat';
   static const String newGroup = '/new-group';

@@ -8,4 +8,7 @@ enum ConversationFilter {
 
   /// Show only group conversations
   groups,
+
+  /// Show only hidden conversations
+  hidden,
 }
