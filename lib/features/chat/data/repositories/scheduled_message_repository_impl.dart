@@ -2,16 +2,16 @@ import 'package:flutter/foundation.dart';
 import 'package:fpdart/fpdart.dart';
 import '../../../../core/errors/failures.dart';
 import '../../../../core/repositories/base_repository.dart';
+import '../../domain/datasources/scheduled_message_datasource.dart';
 import '../../domain/entities/scheduled_message.dart';
 import '../../domain/repositories/scheduled_message_repository.dart';
-import '../datasources/scheduled_message_api_service.dart';
 import '../models/scheduled_msg_model.dart';
 
 /// Implementation of ScheduledMessageRepository
 class ScheduledMessageRepositoryImpl extends BaseRepository implements ScheduledMessageRepository {
-  final ScheduledMessageApiService _apiService;
+  final ScheduledMessageDatasource _datasource;
 
-  ScheduledMessageRepositoryImpl(this._apiService);
+  ScheduledMessageRepositoryImpl(this._datasource);
 
   @override
   Future<Either<Failure, ScheduledMessage>> scheduleMessage({
@@ -39,7 +39,7 @@ class ScheduledMessageRepositoryImpl extends BaseRepository implements Scheduled
         replyToMessageId: replyToMessageId,
       );
 
-      final response = await _apiService.scheduleMessage(conversationId: conversationId, request: request);
+      final response = await _datasource.scheduleMessage(conversationId: conversationId, request: request);
 
       if (response.success && response.data != null) {
         return response.data!.toEntity();
@@ -59,7 +59,7 @@ class ScheduledMessageRepositoryImpl extends BaseRepository implements Scheduled
     return executeApiCall(() async {
       debugPrint('🟢 Repository: Getting scheduled messages with status=$status');
 
-      final response = await _apiService.getScheduledMessages(
+      final response = await _datasource.getScheduledMessages(
         conversationId: conversationId,
         status: status,
         page: page,
@@ -83,7 +83,7 @@ class ScheduledMessageRepositoryImpl extends BaseRepository implements Scheduled
   @override
   Future<Either<Failure, ScheduledMessage>> getScheduledMessage({required int scheduledMessageId}) async {
     return executeApiCall(() async {
-      final response = await _apiService.getScheduledMessage(scheduledMessageId: scheduledMessageId);
+      final response = await _datasource.getScheduledMessage(scheduledMessageId: scheduledMessageId);
 
       if (response.success && response.data != null) {
         return response.data!.toEntity();
@@ -111,7 +111,7 @@ class ScheduledMessageRepositoryImpl extends BaseRepository implements Scheduled
         fileName: fileName,
       );
 
-      final response = await _apiService.updateScheduledMessage(
+      final response = await _datasource.updateScheduledMessage(
         scheduledMessageId: scheduledMessageId,
         request: request,
       );
@@ -127,7 +127,7 @@ class ScheduledMessageRepositoryImpl extends BaseRepository implements Scheduled
   @override
   Future<Either<Failure, void>> cancelScheduledMessage({required int scheduledMessageId}) async {
     return executeApiCall(() async {
-      final response = await _apiService.cancelScheduledMessage(scheduledMessageId: scheduledMessageId);
+      final response = await _datasource.cancelScheduledMessage(scheduledMessageId: scheduledMessageId);
 
       if (response.success) {
         return;
@@ -140,7 +140,7 @@ class ScheduledMessageRepositoryImpl extends BaseRepository implements Scheduled
   @override
   Future<Either<Failure, int>> bulkCancelScheduledMessages({required List<int> scheduledMessageIds}) async {
     return executeApiCall(() async {
-      final response = await _apiService.bulkCancelScheduledMessages(scheduledMessageIds: scheduledMessageIds);
+      final response = await _datasource.bulkCancelScheduledMessages(scheduledMessageIds: scheduledMessageIds);
 
       if (response.success && response.data != null) {
         return response.data!.cancelledCount;

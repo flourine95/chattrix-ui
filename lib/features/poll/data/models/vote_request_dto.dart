@@ -3,7 +3,6 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 part 'vote_request_dto.freezed.dart';
 part 'vote_request_dto.g.dart';
 
-/// DTO for Vote Poll API request
 @freezed
 abstract class VoteRequestDto with _$VoteRequestDto {
   const factory VoteRequestDto({required List<int> optionIds}) = _VoteRequestDto;

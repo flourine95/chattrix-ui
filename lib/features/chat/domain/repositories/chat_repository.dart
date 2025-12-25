@@ -72,4 +72,20 @@ abstract class ChatRepository {
   ///
   /// **API:** `POST /v1/read-receipts/conversations/{conversationId}`
   Future<Either<Failure, void>> markConversationAsRead({required int conversationId, int? lastMessageId});
+
+  /// Search messages in a conversation
+  ///
+  /// **Parameters:**
+  /// - [conversationId]: ID of the conversation
+  /// - [query]: Search query string
+  /// - [cursor]: Optional cursor for pagination
+  /// - [limit]: Number of results per page (default 20)
+  ///
+  /// **API:** `GET /v1/conversations/{conversationId}/search/messages`
+  Future<Either<Failure, List<Message>>> searchMessages({
+    required String conversationId,
+    required String query,
+    String? cursor,
+    int limit = 20,
+  });
 }

@@ -19,9 +19,9 @@ _PollDto _$PollDtoFromJson(Map<String, dynamic> json) => _PollDto(
   expiresAt: json['expiresAt'] == null
       ? null
       : DateTime.parse(json['expiresAt'] as String),
-  isClosed: json['isClosed'] as bool,
-  isExpired: json['isExpired'] as bool,
-  isActive: json['isActive'] as bool,
+  isClosed: json['closed'] as bool? ?? false,
+  isExpired: json['expired'] as bool? ?? false,
+  isActive: json['active'] as bool? ?? true,
   createdAt: DateTime.parse(json['createdAt'] as String),
   totalVoters: (json['totalVoters'] as num).toInt(),
   options: (json['options'] as List<dynamic>)
@@ -40,9 +40,9 @@ Map<String, dynamic> _$PollDtoToJson(_PollDto instance) => <String, dynamic>{
   'creator': instance.creator,
   'allowMultipleVotes': instance.allowMultipleVotes,
   'expiresAt': instance.expiresAt?.toIso8601String(),
-  'isClosed': instance.isClosed,
-  'isExpired': instance.isExpired,
-  'isActive': instance.isActive,
+  'closed': instance.isClosed,
+  'expired': instance.isExpired,
+  'active': instance.isActive,
   'createdAt': instance.createdAt.toIso8601String(),
   'totalVoters': instance.totalVoters,
   'options': instance.options,

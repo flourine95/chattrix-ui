@@ -2,6 +2,8 @@ import 'package:chattrix_ui/features/chat/data/models/mentioned_user_model.dart'
 import 'package:chattrix_ui/features/chat/data/models/read_receipt_model.dart';
 import 'package:chattrix_ui/features/chat/data/models/reply_to_message_model.dart';
 import 'package:chattrix_ui/features/chat/domain/entities/message.dart';
+import 'package:chattrix_ui/features/poll/data/models/poll_dto.dart';
+import 'package:chattrix_ui/features/poll/data/mappers/poll_mapper.dart';
 import 'package:flutter/foundation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -58,6 +60,8 @@ abstract class MessageModel with _$MessageModel {
     @Default(false) bool scheduled,
     String? scheduledTime,
     String? scheduledStatus, // PENDING, SENT, CANCELLED, FAILED
+    // Poll data (for POLL type messages)
+    PollDto? pollData,
   }) = _MessageModel;
 
   factory MessageModel.fromJson(Map<String, dynamic> json) => _$MessageModelFromJson(json);
@@ -104,6 +108,23 @@ abstract class MessageModel with _$MessageModel {
       mentions = (json['mentions'] as List).map((e) => (e as num).toInt()).toList();
     }
 
+    // Parse poll data - API returns 'poll' object for POLL type messages
+    PollDto? pollData;
+    // Try 'poll' field first (messages API), then 'pollData' (WebSocket)
+    final pollJson = json['poll'] ?? json['pollData'];
+    if (pollJson != null && pollJson is Map) {
+      try {
+        pollData = PollDto.fromJson(pollJson as Map<String, dynamic>);
+        debugPrint('🗳️ [MessageModel] ✅ Successfully parsed poll ${pollData.id} for message ${json['id']}');
+      } catch (e) {
+        debugPrint('⚠️ [MessageModel] Failed to parse poll for message ${json['id']}: $e');
+      }
+    } else {
+      if (json['type'] == 'POLL') {
+        debugPrint('🗳️ [MessageModel] ⚠️ POLL message ${json['id']} has no poll data (pollId: ${json['pollId']})');
+      }
+    }
+
     return MessageModel(
       id: (json['id'] ?? json['messageId'] ?? 0) as int,
       conversationId: (json['conversationId'] ?? json['conversation_id'] ?? 0) as int,
@@ -141,6 +162,7 @@ abstract class MessageModel with _$MessageModel {
       scheduled: json['scheduled'] ?? false,
       scheduledTime: json['scheduledTime']?.toString(),
       scheduledStatus: json['scheduledStatus']?.toString(),
+      pollData: pollData,
     );
   }
 
@@ -183,6 +205,7 @@ abstract class MessageModel with _$MessageModel {
       scheduled: scheduled,
       scheduledTime: scheduledTime != null ? DateTime.parse(scheduledTime!) : null,
       scheduledStatus: scheduledStatus,
+      pollData: pollData?.toEntity(),
     );
   }
 }

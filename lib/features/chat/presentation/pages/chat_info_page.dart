@@ -5,19 +5,21 @@ import 'package:chattrix_ui/features/auth/presentation/providers/auth_providers.
 import 'package:chattrix_ui/features/chat/domain/entities/conversation.dart';
 import 'package:chattrix_ui/features/chat/presentation/pages/add_members_page.dart';
 import 'package:chattrix_ui/features/chat/presentation/pages/all_members_page.dart';
-import 'package:chattrix_ui/features/chat/presentation/pages/files_links_page.dart';
 import 'package:chattrix_ui/features/chat/presentation/pages/community_calendar_page.dart';
-import 'package:chattrix_ui/features/chat/presentation/pages/polls_page.dart';
+import 'package:chattrix_ui/features/chat/presentation/pages/files_links_page.dart';
 import 'package:chattrix_ui/features/chat/presentation/pages/group_permissions_page.dart';
+import 'package:chattrix_ui/features/chat/presentation/pages/polls_page.dart';
+import 'package:chattrix_ui/features/chat/presentation/pages/scheduled_messages_page.dart';
 import 'package:chattrix_ui/features/chat/presentation/pages/search_messages_page.dart';
-import 'package:chattrix_ui/features/chat/presentation/pages/schedule_message_page.dart';
 import 'package:chattrix_ui/features/chat/presentation/providers/chat_providers.dart';
-import 'package:chattrix_ui/features/chat/presentation/providers/conversation_members_provider.dart';
+import 'package:chattrix_ui/features/chat/presentation/providers/conversation_settings_provider.dart';
+import 'package:chattrix_ui/features/chat/presentation/providers/poll_providers.dart';
+import 'package:chattrix_ui/features/chat/presentation/providers/social_providers.dart';
 import 'package:chattrix_ui/features/chat/presentation/utils/conversation_utils.dart';
 import 'package:chattrix_ui/features/chat/presentation/widgets/chat_info_bottom_sheets.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 class ChatInfoPage extends HookConsumerWidget {
@@ -67,7 +69,7 @@ class ChatInfoPage extends HookConsumerWidget {
                 const SizedBox(height: 24),
 
                 // Quick Actions Row (4 buttons)
-                _buildQuickActionsRow(context, isGroup, colors, textTheme),
+                _buildQuickActionsRow(context, ref, isGroup, colors, textTheme),
 
                 const SizedBox(height: 24),
 
@@ -109,7 +111,7 @@ class ChatInfoPage extends HookConsumerWidget {
             title: 'Change Nickname',
             colors: colors,
             textTheme: textTheme,
-            onTap: () => showChangeNicknameBottomSheet(context, colors, textTheme),
+            onTap: () => showChangeNicknameBottomSheet(context, ref, conversation.id.toString(), colors, textTheme),
           ),
         ),
 
@@ -127,23 +129,17 @@ class ChatInfoPage extends HookConsumerWidget {
           child: _buildActionTile(
             icon: Icons.groups,
             title: 'Mutual Groups',
-            subtitle: '3 groups in common',
+            subtitle: 'Groups in common',
             colors: colors,
             textTheme: textTheme,
-            onTap: () {
-              // TODO: Show mutual groups
-            },
+            onTap: () => _showMutualGroupsBottomSheet(context, ref, colors, textTheme),
           ),
         ),
 
         const SizedBox(height: 8),
 
         // Pin Conversation
-        _buildRoundedSection(
-          context,
-          colors,
-          child: _buildPinConversationTile(context, colors, textTheme),
-        ),
+        _buildRoundedSection(context, colors, child: _buildPinConversationTile(context, ref, colors, textTheme)),
 
         const SizedBox(height: 8),
 
@@ -157,7 +153,7 @@ class ChatInfoPage extends HookConsumerWidget {
             colors: colors,
             textTheme: textTheme,
             onTap: () {
-              // TODO: Navigate to schedule message
+              Navigator.push(context, MaterialPageRoute(builder: (context) => const ScheduledMessagesPage()));
             },
           ),
         ),
@@ -175,18 +171,14 @@ class ChatInfoPage extends HookConsumerWidget {
             textTheme: textTheme,
             iconColor: Colors.red,
             textColor: Colors.red,
-            onTap: () => showBlockUserBottomSheet(context, colors, textTheme),
+            onTap: () => showBlockUserBottomSheet(context, ref, conversation.id.toString(), colors, textTheme),
           ),
         ),
 
         const SizedBox(height: 8),
 
         // Hide Conversation
-        _buildRoundedSection(
-          context,
-          colors,
-          child: _buildHideConversationTile(context, colors, textTheme),
-        ),
+        _buildRoundedSection(context, colors, child: _buildHideConversationTile(context, ref, colors, textTheme)),
       ],
     );
   }
@@ -202,7 +194,7 @@ class ChatInfoPage extends HookConsumerWidget {
     return Column(
       children: [
         // Description
-        _buildDescriptionSection(context, colors, textTheme),
+        _buildDescriptionSection(context, ref, colors, textTheme),
 
         const SizedBox(height: 8),
 
@@ -236,21 +228,12 @@ class ChatInfoPage extends HookConsumerWidget {
         const SizedBox(height: 8),
 
         // Polls
-        _buildRoundedSection(
-          context,
-          colors,
-          child: _buildActionTile(
-            icon: Icons.poll,
-            title: 'Polls',
-            subtitle: '2 active polls',
-            colors: colors,
-            textTheme: textTheme,
-            onTap: () => Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => PollsPage(conversationId: conversation.id.toString())),
-            ),
-          ),
-        ),
+        _buildPollsSection(context, ref, colors, textTheme),
+
+        const SizedBox(height: 8),
+
+        // Birthdays
+        _buildBirthdaysSection(context, ref, colors, textTheme),
 
         const SizedBox(height: 8),
 
@@ -265,11 +248,7 @@ class ChatInfoPage extends HookConsumerWidget {
         if (_isUserAdmin()) const SizedBox(height: 8),
 
         // Pin Conversation
-        _buildRoundedSection(
-          context,
-          colors,
-          child: _buildPinConversationTile(context, colors, textTheme),
-        ),
+        _buildRoundedSection(context, colors, child: _buildPinConversationTile(context, ref, colors, textTheme)),
 
         const SizedBox(height: 8),
 
@@ -283,7 +262,7 @@ class ChatInfoPage extends HookConsumerWidget {
             colors: colors,
             textTheme: textTheme,
             onTap: () {
-              // TODO: Navigate to schedule message
+              Navigator.push(context, MaterialPageRoute(builder: (context) => const ScheduledMessagesPage()));
             },
           ),
         ),
@@ -302,18 +281,14 @@ class ChatInfoPage extends HookConsumerWidget {
             textTheme: textTheme,
             iconColor: Colors.red,
             textColor: Colors.red,
-            onTap: () => _showLeaveGroupBottomSheet(context, colors, textTheme),
+            onTap: () => _showLeaveGroupBottomSheet(context, ref, colors, textTheme),
           ),
         ),
 
         const SizedBox(height: 8),
 
         // Hide Conversation
-        _buildRoundedSection(
-          context,
-          colors,
-          child: _buildHideConversationTile(context, colors, textTheme),
-        ),
+        _buildRoundedSection(context, colors, child: _buildHideConversationTile(context, ref, colors, textTheme)),
       ],
     );
   }
@@ -332,10 +307,7 @@ class ChatInfoPage extends HookConsumerWidget {
   Widget _buildRoundedSection(BuildContext context, ColorScheme colors, {required Widget child}) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16),
-      decoration: BoxDecoration(
-        color: colors.surface,
-        borderRadius: BorderRadius.circular(16),
-      ),
+      decoration: BoxDecoration(color: colors.surface, borderRadius: BorderRadius.circular(16)),
       child: child,
     );
   }
@@ -355,26 +327,15 @@ class ChatInfoPage extends HookConsumerWidget {
     return ListTile(
       leading: Container(
         padding: const EdgeInsets.all(10),
-        decoration: BoxDecoration(
-          color: (iconColor ?? colors.primary).withValues(alpha: 0.1),
-          shape: BoxShape.circle,
-        ),
+        decoration: BoxDecoration(color: (iconColor ?? colors.primary).withValues(alpha: 0.1), shape: BoxShape.circle),
         child: Icon(icon, color: iconColor ?? colors.primary, size: 22),
       ),
       title: Text(
         title,
-        style: textTheme.bodyLarge?.copyWith(
-          fontWeight: FontWeight.w500,
-          color: textColor,
-        ),
+        style: textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w500, color: textColor),
       ),
       subtitle: subtitle != null
-          ? Text(
-              subtitle,
-              style: textTheme.bodySmall?.copyWith(
-                color: colors.onSurface.withValues(alpha: 0.6),
-              ),
-            )
+          ? Text(subtitle, style: textTheme.bodySmall?.copyWith(color: colors.onSurface.withValues(alpha: 0.6)))
           : null,
       trailing: trailing ?? Icon(Icons.chevron_right, color: colors.onSurface.withValues(alpha: 0.4)),
       onTap: onTap,
@@ -383,8 +344,10 @@ class ChatInfoPage extends HookConsumerWidget {
   }
 
   /// Build Pin Conversation tile
-  Widget _buildPinConversationTile(BuildContext context, ColorScheme colors, TextTheme textTheme) {
-    bool isPinned = false; // TODO: Get from state
+  Widget _buildPinConversationTile(BuildContext context, WidgetRef ref, ColorScheme colors, TextTheme textTheme) {
+    final settingsAsync = ref.watch(conversationSettingsProvider(conversation.id.toString()));
+    final isPinned = settingsAsync.value?.pinned ?? false;
+
     return _buildActionTile(
       icon: Icons.push_pin,
       title: 'Pin Conversation',
@@ -393,16 +356,18 @@ class ChatInfoPage extends HookConsumerWidget {
       textTheme: textTheme,
       trailing: Switch(
         value: isPinned,
-        onChanged: (value) {
-          // TODO: Implement pin conversation
+        onChanged: (value) async {
+          await ref.read(conversationSettingsProvider(conversation.id.toString()).notifier).togglePin();
         },
       ),
     );
   }
 
   /// Build Hide Conversation tile
-  Widget _buildHideConversationTile(BuildContext context, ColorScheme colors, TextTheme textTheme) {
-    bool isHidden = false; // TODO: Get from state
+  Widget _buildHideConversationTile(BuildContext context, WidgetRef ref, ColorScheme colors, TextTheme textTheme) {
+    final settingsAsync = ref.watch(conversationSettingsProvider(conversation.id.toString()));
+    final isHidden = settingsAsync.value?.hidden ?? false;
+
     return _buildActionTile(
       icon: Icons.visibility_off,
       title: 'Hide Conversation',
@@ -411,8 +376,8 @@ class ChatInfoPage extends HookConsumerWidget {
       textTheme: textTheme,
       trailing: Switch(
         value: isHidden,
-        onChanged: (value) {
-          // TODO: Implement hide conversation
+        onChanged: (value) async {
+          await ref.read(conversationSettingsProvider(conversation.id.toString()).notifier).toggleHide();
         },
       ),
     );
@@ -429,10 +394,7 @@ class ChatInfoPage extends HookConsumerWidget {
       children: [
         // Avatar
         isGroup
-            ? GroupAvatar(
-                participants: conversation.participants,
-                radius: 60,
-              )
+            ? GroupAvatar(participants: conversation.participants, radius: 60)
             : UserAvatar(
                 displayName: displayName,
                 avatarUrl: conversation.participants.firstOrNull?.avatarUrl,
@@ -461,14 +423,17 @@ class ChatInfoPage extends HookConsumerWidget {
   }
 
   // Name Section
-  Widget _buildNameSection(BuildContext context, String displayName, bool isGroup, ColorScheme colors, TextTheme textTheme) {
+  Widget _buildNameSection(
+    BuildContext context,
+    String displayName,
+    bool isGroup,
+    ColorScheme colors,
+    TextTheme textTheme,
+  ) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Text(
-          displayName,
-          style: textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
-        ),
+        Text(displayName, style: textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold)),
         // Edit icon only for groups
         if (isGroup) ...[
           const SizedBox(width: 8),
@@ -482,7 +447,13 @@ class ChatInfoPage extends HookConsumerWidget {
   }
 
   // Quick Actions Row
-  Widget _buildQuickActionsRow(BuildContext context, bool isGroup, ColorScheme colors, TextTheme textTheme) {
+  Widget _buildQuickActionsRow(
+    BuildContext context,
+    WidgetRef ref,
+    bool isGroup,
+    ColorScheme colors,
+    TextTheme textTheme,
+  ) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Row(
@@ -502,9 +473,7 @@ class ChatInfoPage extends HookConsumerWidget {
               onTap: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(
-                    builder: (context) => AddMembersPage(conversationId: conversation.id.toString()),
-                  ),
+                  MaterialPageRoute(builder: (context) => AddMembersPage(conversationId: conversation.id.toString())),
                 );
               },
             )
@@ -514,7 +483,14 @@ class ChatInfoPage extends HookConsumerWidget {
               label: 'Profile',
               color: Colors.green,
               onTap: () {
-                // TODO: Navigate to user profile
+                final otherUser = conversation.participants.firstWhere(
+                  (p) => p.userId != ref.read(currentUserProvider)?.id,
+                  orElse: () => conversation.participants.first,
+                );
+                // TODO: Navigate to user profile page
+                ScaffoldMessenger.of(
+                  context,
+                ).showSnackBar(SnackBar(content: Text('View profile: ${otherUser.fullName}')));
               },
             ),
           _QuickActionButton(
@@ -527,7 +503,7 @@ class ChatInfoPage extends HookConsumerWidget {
             icon: Icons.notifications,
             label: 'Notifications',
             color: Colors.orange,
-            onTap: () => _showNotificationsBottomSheet(context, colors, textTheme),
+            onTap: () => _showNotificationsBottomSheet(context, ref, colors, textTheme),
           ),
         ],
       ),
@@ -535,27 +511,21 @@ class ChatInfoPage extends HookConsumerWidget {
   }
 
   // Description Section
-  Widget _buildDescriptionSection(BuildContext context, ColorScheme colors, TextTheme textTheme) {
+  Widget _buildDescriptionSection(BuildContext context, WidgetRef ref, ColorScheme colors, TextTheme textTheme) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: colors.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(12),
-      ),
+      decoration: BoxDecoration(color: colors.surfaceContainerHighest, borderRadius: BorderRadius.circular(12)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                'Description',
-                style: textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600),
-              ),
+              Text('Description', style: textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600)),
               IconButton(
                 icon: Icon(Icons.edit, size: 18, color: colors.primary),
-                onPressed: () => _showDescriptionBottomSheet(context, colors, textTheme),
+                onPressed: () => _showDescriptionBottomSheet(context, ref, colors, textTheme),
                 padding: EdgeInsets.zero,
                 constraints: const BoxConstraints(),
               ),
@@ -583,27 +553,19 @@ class ChatInfoPage extends HookConsumerWidget {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: colors.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(12),
-      ),
+      decoration: BoxDecoration(color: colors.surfaceContainerHighest, borderRadius: BorderRadius.circular(12)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                'Media, Files & Links',
-                style: textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600),
-              ),
+              Text('Media, Files & Links', style: textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600)),
               TextButton(
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(
-                      builder: (context) => FilesLinksPage(conversationId: conversation.id.toString()),
-                    ),
+                    MaterialPageRoute(builder: (context) => FilesLinksPage(conversationId: conversation.id.toString())),
                   );
                 },
                 child: const Text('See All'),
@@ -623,70 +585,13 @@ class ChatInfoPage extends HookConsumerWidget {
             itemCount: 6,
             itemBuilder: (context, index) {
               return Container(
-                decoration: BoxDecoration(
-                  color: colors.surfaceContainerHigh,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Icon(
-                  Icons.image,
-                  color: colors.onSurface.withValues(alpha: 0.3),
-                  size: 40,
-                ),
+                decoration: BoxDecoration(color: colors.surfaceContainerHigh, borderRadius: BorderRadius.circular(8)),
+                child: Icon(Icons.image, color: colors.onSurface.withValues(alpha: 0.3), size: 40),
               );
             },
           ),
         ],
       ),
-    );
-  }
-
-  // Community Calendar Section
-  Widget _buildCommunityCalendarSection(BuildContext context, ColorScheme colors, TextTheme textTheme) {
-    return _buildListTile(
-      icon: Icons.calendar_today,
-      title: 'Community Calendar',
-      subtitle: 'Schedule events and activities',
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => CommunityCalendarPage(conversationId: conversation.id.toString()),
-          ),
-        );
-      },
-      colors: colors,
-      textTheme: textTheme,
-    );
-  }
-
-  // Pinned Messages Section
-  Widget _buildPinnedMessagesSection(BuildContext context, ColorScheme colors, TextTheme textTheme) {
-    return _buildListTile(
-      icon: Icons.push_pin,
-      title: 'Pinned Messages',
-      subtitle: '3 pinned messages',
-      onTap: () => _showPinnedMessagesBottomSheet(context, colors, textTheme),
-      colors: colors,
-      textTheme: textTheme,
-    );
-  }
-
-  // Polls Section
-  Widget _buildPollsSection(BuildContext context, ColorScheme colors, TextTheme textTheme) {
-    return _buildListTile(
-      icon: Icons.poll,
-      title: 'Polls',
-      subtitle: 'View and create polls',
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => PollsPage(conversationId: conversation.id.toString()),
-          ),
-        );
-      },
-      colors: colors,
-      textTheme: textTheme,
     );
   }
 
@@ -700,10 +605,7 @@ class ChatInfoPage extends HookConsumerWidget {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => AllMembersPage(
-              conversationId: conversation.id.toString(),
-              members: [],
-            ),
+            builder: (context) => AllMembersPage(conversationId: conversation.id.toString(), members: []),
           ),
         );
       },
@@ -733,9 +635,7 @@ class ChatInfoPage extends HookConsumerWidget {
       onTap: () {
         Navigator.push(
           context,
-          MaterialPageRoute(
-            builder: (context) => GroupPermissionsPage(conversationId: conversation.id.toString()),
-          ),
+          MaterialPageRoute(builder: (context) => GroupPermissionsPage(conversationId: conversation.id.toString())),
         );
       },
       colors: colors,
@@ -743,72 +643,11 @@ class ChatInfoPage extends HookConsumerWidget {
     );
   }
 
-  // Pin Conversation Section
-  Widget _buildPinConversationSection(BuildContext context, ColorScheme colors, TextTheme textTheme) {
-    bool isPinned = false; // Demo state
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-      decoration: BoxDecoration(
-        color: colors.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: SwitchListTile(
-        secondary: Icon(Icons.push_pin_outlined, color: colors.primary),
-        title: Text('Pin Conversation', style: textTheme.bodyLarge),
-        subtitle: const Text('Keep this chat at the top'),
-        value: isPinned,
-        onChanged: (value) {
-          // TODO: Implement pin conversation
-        },
-      ),
-    );
-  }
-
-  // Hide Conversation Section
-  Widget _buildHideConversationSection(BuildContext context, ColorScheme colors, TextTheme textTheme) {
-    bool isHidden = false; // Demo state
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-      decoration: BoxDecoration(
-        color: colors.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: SwitchListTile(
-        secondary: Icon(Icons.visibility_off, color: colors.primary),
-        title: Text('Hide Conversation', style: textTheme.bodyLarge),
-        subtitle: const Text('Hide from chat list'),
-        value: isHidden,
-        onChanged: (value) {
-          // TODO: Implement hide conversation
-        },
-      ),
-    );
-  }
-
-  // Leave Group Section
-  Widget _buildLeaveGroupSection(BuildContext context, ColorScheme colors, TextTheme textTheme) {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-      decoration: BoxDecoration(
-        color: colors.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: ListTile(
-        leading: const Icon(Icons.exit_to_app, color: Colors.red),
-        title: const Text('Leave Group', style: TextStyle(color: Colors.red)),
-        subtitle: const Text('You will no longer receive messages'),
-        onTap: () => _showLeaveGroupBottomSheet(context, colors, textTheme),
-      ),
-    );
-  }
-
-  void _showLeaveGroupBottomSheet(BuildContext context, ColorScheme colors, TextTheme textTheme) {
+  void _showLeaveGroupBottomSheet(BuildContext context, WidgetRef ref, ColorScheme colors, TextTheme textTheme) {
     showModalBottomSheet(
       context: context,
       backgroundColor: colors.surface,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
       builder: (context) => Padding(
         padding: const EdgeInsets.all(24),
         child: Column(
@@ -829,29 +668,21 @@ class ChatInfoPage extends HookConsumerWidget {
             Container(
               width: 64,
               height: 64,
-              decoration: BoxDecoration(
-                color: Colors.red.withValues(alpha: 0.1),
-                shape: BoxShape.circle,
-              ),
+              decoration: BoxDecoration(color: Colors.red.withValues(alpha: 0.1), shape: BoxShape.circle),
               child: const Icon(Icons.exit_to_app, color: Colors.red, size: 32),
             ),
 
             const SizedBox(height: 20),
 
             // Title
-            Text(
-              'Leave Group?',
-              style: textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
-            ),
+            Text('Leave Group?', style: textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
 
             const SizedBox(height: 12),
 
             // Description
             Text(
               'Are you sure you want to leave this group? You will no longer receive messages from this conversation.',
-              style: textTheme.bodyMedium?.copyWith(
-                color: colors.onSurface.withValues(alpha: 0.7),
-              ),
+              style: textTheme.bodyMedium?.copyWith(color: colors.onSurface.withValues(alpha: 0.7)),
               textAlign: TextAlign.center,
             ),
 
@@ -865,9 +696,7 @@ class ChatInfoPage extends HookConsumerWidget {
                     onPressed: () => Navigator.pop(context),
                     style: OutlinedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                     ),
                     child: const Text('Cancel'),
                   ),
@@ -875,19 +704,28 @@ class ChatInfoPage extends HookConsumerWidget {
                 const SizedBox(width: 12),
                 Expanded(
                   child: FilledButton(
-                    onPressed: () {
+                    onPressed: () async {
                       Navigator.pop(context);
-                      // TODO: Implement leave group
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Left group')),
-                      );
+                      try {
+                        await ref.read(conversationSettingsProvider(conversation.id.toString()).notifier).leaveGroup();
+                        if (context.mounted) {
+                          Navigator.pop(context); // Go back to chat list
+                          ScaffoldMessenger.of(
+                            context,
+                          ).showSnackBar(const SnackBar(content: Text('Left group successfully')));
+                        }
+                      } catch (e) {
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(
+                            context,
+                          ).showSnackBar(SnackBar(content: Text('Failed to leave group: $e')));
+                        }
+                      }
                     },
                     style: FilledButton.styleFrom(
                       backgroundColor: Colors.red,
                       padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                     ),
                     child: const Text('Leave'),
                   ),
@@ -981,10 +819,7 @@ class ChatInfoPage extends HookConsumerWidget {
               const SizedBox(height: 16),
               TextField(
                 controller: controller,
-                decoration: const InputDecoration(
-                  labelText: 'Group Name',
-                  border: OutlineInputBorder(),
-                ),
+                decoration: const InputDecoration(labelText: 'Group Name', border: OutlineInputBorder()),
                 autofocus: true,
               ),
               const SizedBox(height: 16),
@@ -1005,7 +840,7 @@ class ChatInfoPage extends HookConsumerWidget {
     );
   }
 
-  void _showDescriptionBottomSheet(BuildContext context, ColorScheme colors, TextTheme textTheme) {
+  void _showDescriptionBottomSheet(BuildContext context, WidgetRef ref, ColorScheme colors, TextTheme textTheme) {
     final controller = TextEditingController(text: 'This is a demo group description. Click edit to change it.');
     showModalBottomSheet(
       context: context,
@@ -1033,10 +868,7 @@ class ChatInfoPage extends HookConsumerWidget {
               const SizedBox(height: 16),
               TextField(
                 controller: controller,
-                decoration: const InputDecoration(
-                  labelText: 'Description',
-                  border: OutlineInputBorder(),
-                ),
+                decoration: const InputDecoration(labelText: 'Description', border: OutlineInputBorder()),
                 maxLines: 4,
                 maxLength: 200,
                 autofocus: true,
@@ -1045,9 +877,24 @@ class ChatInfoPage extends HookConsumerWidget {
               SizedBox(
                 width: double.infinity,
                 child: FilledButton(
-                  onPressed: () {
+                  onPressed: () async {
                     Navigator.pop(context);
-                    // TODO: Implement save description
+                    try {
+                      await ref
+                          .read(conversationSettingsProvider(conversation.id.toString()).notifier)
+                          .updateDescription(controller.text);
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(
+                          context,
+                        ).showSnackBar(const SnackBar(content: Text('Description updated successfully')));
+                      }
+                    } catch (e) {
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(
+                          context,
+                        ).showSnackBar(SnackBar(content: Text('Failed to update description: $e')));
+                      }
+                    }
                   },
                   child: const Text('Save'),
                 ),
@@ -1059,74 +906,13 @@ class ChatInfoPage extends HookConsumerWidget {
     );
   }
 
-  void _showPinnedMessagesBottomSheet(BuildContext context, ColorScheme colors, TextTheme textTheme) {
-    showModalBottomSheet(
-      context: context,
-      builder: (context) => Container(
-        padding: const EdgeInsets.symmetric(vertical: 20),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: 40,
-              height: 4,
-              margin: const EdgeInsets.only(bottom: 20),
-              decoration: BoxDecoration(
-                color: colors.onSurface.withValues(alpha: 0.2),
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Text(
-                'Pinned Messages',
-                style: textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
-              ),
-            ),
-            const SizedBox(height: 16),
-            ListTile(
-              leading: const Icon(Icons.message),
-              title: const Text('Welcome to the group!'),
-              subtitle: const Text('Pinned by Admin • 2 days ago'),
-              trailing: IconButton(
-                icon: const Icon(Icons.push_pin),
-                onPressed: () {},
-              ),
-            ),
-            ListTile(
-              leading: const Icon(Icons.message),
-              title: const Text('Meeting at 3 PM tomorrow'),
-              subtitle: const Text('Pinned by Admin • 1 week ago'),
-              trailing: IconButton(
-                icon: const Icon(Icons.push_pin),
-                onPressed: () {},
-              ),
-            ),
-            ListTile(
-              leading: const Icon(Icons.message),
-              title: const Text('Important announcement'),
-              subtitle: const Text('Pinned by Admin • 2 weeks ago'),
-              trailing: IconButton(
-                icon: const Icon(Icons.push_pin),
-                onPressed: () {},
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  // ============================================================================
   // QUICK ACTION DIALOGS
   // ============================================================================
 
   void _showSearchDialog(BuildContext context, ColorScheme colors, TextTheme textTheme) {
     Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (context) => SearchMessagesPage(conversationId: conversation.id.toString()),
-      ),
+      MaterialPageRoute(builder: (context) => SearchMessagesPage(conversationId: conversation.id.toString())),
     );
   }
 
@@ -1155,9 +941,7 @@ class ChatInfoPage extends HookConsumerWidget {
               onTap: () {
                 Navigator.pop(context);
                 // TODO: Implement gallery picker
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Gallery picker coming soon')),
-                );
+                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Gallery picker coming soon')));
               },
             ),
             ListTile(
@@ -1166,9 +950,7 @@ class ChatInfoPage extends HookConsumerWidget {
               onTap: () {
                 Navigator.pop(context);
                 // TODO: Implement color picker
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Color picker coming soon')),
-                );
+                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Color picker coming soon')));
               },
             ),
             ListTile(
@@ -1177,9 +959,9 @@ class ChatInfoPage extends HookConsumerWidget {
               onTap: () {
                 Navigator.pop(context);
                 // TODO: Show default wallpapers
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Default wallpapers coming soon')),
-                );
+                ScaffoldMessenger.of(
+                  context,
+                ).showSnackBar(const SnackBar(content: Text('Default wallpapers coming soon')));
               },
             ),
             ListTile(
@@ -1188,9 +970,7 @@ class ChatInfoPage extends HookConsumerWidget {
               onTap: () {
                 Navigator.pop(context);
                 // TODO: Remove wallpaper
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Wallpaper removed')),
-                );
+                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Wallpaper removed')));
               },
             ),
           ],
@@ -1199,63 +979,135 @@ class ChatInfoPage extends HookConsumerWidget {
     );
   }
 
-  void _showNotificationsBottomSheet(BuildContext context, ColorScheme colors, TextTheme textTheme) {
-    bool isMuted = false;
+  void _showNotificationsBottomSheet(BuildContext context, WidgetRef ref, ColorScheme colors, TextTheme textTheme) {
+    final settingsAsync = ref.watch(conversationSettingsProvider(conversation.id.toString()));
+    final isMuted = settingsAsync.value?.muted ?? false;
+
     showModalBottomSheet(
       context: context,
-      builder: (context) => StatefulBuilder(
-        builder: (context, setState) => Container(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                width: 40,
-                height: 4,
-                margin: const EdgeInsets.only(bottom: 20),
-                decoration: BoxDecoration(
-                  color: colors.onSurface.withValues(alpha: 0.2),
-                  borderRadius: BorderRadius.circular(2),
-                ),
+      builder: (context) => Container(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 40,
+              height: 4,
+              margin: const EdgeInsets.only(bottom: 20),
+              decoration: BoxDecoration(
+                color: colors.onSurface.withValues(alpha: 0.2),
+                borderRadius: BorderRadius.circular(2),
               ),
-              Text('Notification Settings', style: textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
-              const SizedBox(height: 24),
-              SwitchListTile(
-                title: const Text('Mute Notifications'),
-                subtitle: const Text('Stop receiving notifications from this chat'),
-                value: isMuted,
+            ),
+            Text('Notification Settings', style: textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
+            const SizedBox(height: 24),
+            SwitchListTile(
+              title: const Text('Mute Notifications'),
+              subtitle: const Text('Stop receiving notifications from this chat'),
+              value: isMuted,
+              onChanged: (value) async {
+                await ref.read(conversationSettingsProvider(conversation.id.toString()).notifier).toggleMute();
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.notifications_active),
+              title: const Text('Custom Notification Sound'),
+              subtitle: const Text('Default'),
+              onTap: () {
+                // TODO: Show sound picker
+                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Sound picker coming soon')));
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.priority_high),
+              title: const Text('Priority Notifications'),
+              subtitle: const Text('Show as priority'),
+              trailing: Switch(
+                value: false,
                 onChanged: (value) {
-                  setState(() => isMuted = value);
-                  // TODO: Update notification settings
+                  // TODO: Update priority setting
                 },
               ),
-              ListTile(
-                leading: const Icon(Icons.notifications_active),
-                title: const Text('Custom Notification Sound'),
-                subtitle: const Text('Default'),
-                onTap: () {
-                  // TODO: Show sound picker
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Sound picker coming soon')),
-                  );
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.priority_high),
-                title: const Text('Priority Notifications'),
-                subtitle: const Text('Show as priority'),
-                trailing: Switch(
-                  value: false,
-                  onChanged: (value) {
-                    // TODO: Update priority setting
-                  },
-                ),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
+  }
+
+  /// Build birthdays section for group chats
+  Widget _buildBirthdaysSection(BuildContext context, WidgetRef ref, ColorScheme colors, TextTheme textTheme) {
+    final birthdaysAsync = ref.watch(birthdaysTodayProvider);
+
+    return switch (birthdaysAsync) {
+      AsyncData(:final value) when value.isNotEmpty => _buildRoundedSection(
+        context,
+        colors,
+        child: Column(
+          children: [
+            _buildActionTile(
+              icon: Icons.cake,
+              title: 'Birthdays Today',
+              subtitle: '${value.length} ${value.length == 1 ? 'birthday' : 'birthdays'}',
+              colors: colors,
+              textTheme: textTheme,
+              onTap: () => _showBirthdaysBottomSheet(context, ref, value, colors, textTheme),
+            ),
+          ],
+        ),
+      ),
+      _ => const SizedBox.shrink(), // Hide if no birthdays or loading/error
+    };
+  }
+
+  /// Build polls section for group chats
+  Widget _buildPollsSection(BuildContext context, WidgetRef ref, ColorScheme colors, TextTheme textTheme) {
+    final convId = conversation.id;
+    final pollsAsync = ref.watch(pollsListProvider(convId));
+
+
+    return switch (pollsAsync) {
+      AsyncData(:final value) => _buildRoundedSection(
+        context,
+        colors,
+        child: _buildActionTile(
+          icon: Icons.poll,
+          title: 'Polls',
+          subtitle: value.isEmpty
+              ? 'No polls yet'
+              : '${value.where((p) => p.active).length} active, ${value.length} total',
+          colors: colors,
+          textTheme: textTheme,
+          onTap: () =>
+              Navigator.push(context, MaterialPageRoute(builder: (_) => PollsPage(conversationId: convId.toString()))),
+        ),
+      ),
+      AsyncLoading() => _buildRoundedSection(
+        context,
+        colors,
+        child: _buildActionTile(
+          icon: Icons.poll,
+          title: 'Polls',
+          subtitle: 'Loading...',
+          colors: colors,
+          textTheme: textTheme,
+          onTap: null,
+        ),
+      ),
+      AsyncError(:final error) => _buildRoundedSection(
+        context,
+        colors,
+        child: _buildActionTile(
+          icon: Icons.poll,
+          title: 'Polls',
+          subtitle: 'Error: ${error.toString()}',
+          colors: colors,
+          textTheme: textTheme,
+          onTap: () =>
+              Navigator.push(context, MaterialPageRoute(builder: (_) => PollsPage(conversationId: convId.toString()))),
+        ),
+      ),
+    };
   }
 
   // ============================================================================
@@ -1284,26 +1136,19 @@ class ChatInfoPage extends HookConsumerWidget {
             const SizedBox(height: 24),
             Container(
               padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: colors.surfaceContainerHighest,
-                borderRadius: BorderRadius.circular(12),
-              ),
+              decoration: BoxDecoration(color: colors.surfaceContainerHighest, borderRadius: BorderRadius.circular(12)),
               child: Row(
                 children: [
                   Expanded(
-                    child: Text(
-                      groupLink,
-                      style: textTheme.bodyMedium,
-                      overflow: TextOverflow.ellipsis,
-                    ),
+                    child: Text(groupLink, style: textTheme.bodyMedium, overflow: TextOverflow.ellipsis),
                   ),
                   IconButton(
                     icon: const Icon(Icons.copy),
                     onPressed: () {
                       Clipboard.setData(const ClipboardData(text: groupLink));
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Link copied to clipboard')),
-                      );
+                      ScaffoldMessenger.of(
+                        context,
+                      ).showSnackBar(const SnackBar(content: Text('Link copied to clipboard')));
                     },
                   ),
                 ],
@@ -1326,6 +1171,242 @@ class ChatInfoPage extends HookConsumerWidget {
     );
   }
 
+  void _showMutualGroupsBottomSheet(BuildContext context, WidgetRef ref, ColorScheme colors, TextTheme textTheme) {
+    // Get the other user's ID (for 1-1 chats)
+    final otherUser = conversation.participants.firstWhere(
+      (p) => p.userId != ref.read(currentUserProvider)?.id,
+      orElse: () => conversation.participants.first,
+    );
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (context) => Consumer(
+        builder: (context, ref, child) {
+          final mutualGroupsAsync = ref.watch(mutualGroupsProvider(otherUser.userId));
+
+          return DraggableScrollableSheet(
+            initialChildSize: 0.7,
+            minChildSize: 0.5,
+            maxChildSize: 0.95,
+            expand: false,
+            builder: (context, scrollController) => Container(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                children: [
+                  Container(
+                    width: 40,
+                    height: 4,
+                    margin: const EdgeInsets.only(bottom: 20),
+                    decoration: BoxDecoration(
+                      color: colors.onSurface.withValues(alpha: 0.3),
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                  Text('Mutual Groups', style: textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 20),
+                  Expanded(
+                    child: switch (mutualGroupsAsync) {
+                      AsyncData(:final value) =>
+                        value.isEmpty
+                            ? Center(
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(
+                                      Icons.groups_outlined,
+                                      size: 64,
+                                      color: colors.onSurface.withValues(alpha: 0.3),
+                                    ),
+                                    const SizedBox(height: 16),
+                                    Text(
+                                      'No mutual groups',
+                                      style: textTheme.bodyLarge?.copyWith(
+                                        color: colors.onSurface.withValues(alpha: 0.6),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              )
+                            : ListView.builder(
+                                controller: scrollController,
+                                itemCount: value.length,
+                                itemBuilder: (context, index) {
+                                  final group = value[index];
+                                  return ListTile(
+                                    leading: CircleAvatar(
+                                      backgroundColor: colors.primaryContainer,
+                                      child: Icon(Icons.group, color: colors.onPrimaryContainer),
+                                    ),
+                                    title: Text(group.type),
+                                    subtitle: Text('${group.participants.length} members'),
+                                    trailing: Icon(Icons.chevron_right, color: colors.onSurface.withValues(alpha: 0.5)),
+                                    onTap: () {
+                                      Navigator.pop(context);
+                                      // Navigate to group conversation
+                                      // context.push('/chat/${group.id}');
+                                    },
+                                  );
+                                },
+                              ),
+                      AsyncError(:final error) => Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.error_outline, size: 64, color: Colors.red.withValues(alpha: 0.7)),
+                            const SizedBox(height: 16),
+                            Text('Failed to load mutual groups', style: textTheme.bodyLarge),
+                            const SizedBox(height: 8),
+                            Text(
+                              error.toString(),
+                              style: textTheme.bodySmall?.copyWith(color: colors.onSurface.withValues(alpha: 0.6)),
+                              textAlign: TextAlign.center,
+                            ),
+                          ],
+                        ),
+                      ),
+                      _ => const Center(child: CircularProgressIndicator()),
+                    },
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  void _showBirthdaysBottomSheet(
+    BuildContext context,
+    WidgetRef ref,
+    List<dynamic> birthdays,
+    ColorScheme colors,
+    TextTheme textTheme,
+  ) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (context) => DraggableScrollableSheet(
+        initialChildSize: 0.7,
+        minChildSize: 0.5,
+        maxChildSize: 0.95,
+        expand: false,
+        builder: (context, scrollController) => Container(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            children: [
+              Container(
+                width: 40,
+                height: 4,
+                margin: const EdgeInsets.only(bottom: 20),
+                decoration: BoxDecoration(
+                  color: colors.onSurface.withValues(alpha: 0.3),
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              Text('Birthdays Today 🎉', style: textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
+              const SizedBox(height: 20),
+              Expanded(
+                child: ListView.builder(
+                  controller: scrollController,
+                  itemCount: birthdays.length,
+                  itemBuilder: (context, index) {
+                    final birthday = birthdays[index];
+                    return Card(
+                      margin: const EdgeInsets.only(bottom: 12),
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                CircleAvatar(
+                                  radius: 30,
+                                  backgroundImage: birthday.avatarUrl != null
+                                      ? NetworkImage(birthday.avatarUrl!)
+                                      : null,
+                                  child: birthday.avatarUrl == null
+                                      ? Text(birthday.fullName[0].toUpperCase(), style: textTheme.titleLarge)
+                                      : null,
+                                ),
+                                const SizedBox(width: 16),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        birthday.fullName,
+                                        style: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                                      ),
+                                      Text(
+                                        '@${birthday.username}',
+                                        style: textTheme.bodySmall?.copyWith(
+                                          color: colors.onSurface.withValues(alpha: 0.6),
+                                        ),
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        'Turning ${birthday.age} today! 🎂',
+                                        style: textTheme.bodyMedium?.copyWith(
+                                          color: colors.primary,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 12),
+                            SizedBox(
+                              width: double.infinity,
+                              child: FilledButton.icon(
+                                onPressed: () async {
+                                  final notifier = ref.read(sendBirthdayWishesProvider.notifier);
+                                  // Send wishes to the current conversation
+                                  await notifier.sendWishes(birthday.userId, [
+                                    conversation.id,
+                                  ], customMessage: birthday.birthdayMessage);
+
+                                  if (!context.mounted) return;
+
+                                  final state = ref.read(sendBirthdayWishesProvider);
+                                  if (state.hasError) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text('Failed to send wishes: ${state.error}'),
+                                        backgroundColor: Colors.red,
+                                      ),
+                                    );
+                                  } else {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text('Birthday wishes sent to ${birthday.fullName}! 🎉'),
+                                        backgroundColor: Colors.green,
+                                      ),
+                                    );
+                                  }
+                                },
+                                icon: const Icon(Icons.card_giftcard),
+                                label: const Text('Send Birthday Wishes'),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   // ============================================================================
   // HELPER WIDGETS
   // ============================================================================
@@ -1341,21 +1422,10 @@ class ChatInfoPage extends HookConsumerWidget {
   }) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-      decoration: BoxDecoration(
-        color: colors.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(12),
-      ),
+      decoration: BoxDecoration(color: colors.surfaceContainerHighest, borderRadius: BorderRadius.circular(12)),
       child: ListTile(
-        leading: Icon(
-          icon,
-          color: isDestructive ? Colors.red : colors.primary,
-        ),
-        title: Text(
-          title,
-          style: textTheme.bodyLarge?.copyWith(
-            color: isDestructive ? Colors.red : null,
-          ),
-        ),
+        leading: Icon(icon, color: isDestructive ? Colors.red : colors.primary),
+        title: Text(title, style: textTheme.bodyLarge?.copyWith(color: isDestructive ? Colors.red : null)),
         subtitle: Text(subtitle),
         trailing: Icon(Icons.chevron_right, color: colors.onSurface.withValues(alpha: 0.5)),
         onTap: onTap,
@@ -1369,12 +1439,7 @@ class ChatInfoPage extends HookConsumerWidget {
 // ============================================================================
 
 class _QuickActionButton extends StatelessWidget {
-  const _QuickActionButton({
-    required this.icon,
-    required this.label,
-    required this.color,
-    required this.onTap,
-  });
+  const _QuickActionButton({required this.icon, required this.label, required this.color, required this.onTap});
 
   final IconData icon;
   final String label;
@@ -1394,17 +1459,11 @@ class _QuickActionButton extends StatelessWidget {
           children: [
             Container(
               padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: color.withValues(alpha: 0.15),
-                shape: BoxShape.circle,
-              ),
+              decoration: BoxDecoration(color: color.withValues(alpha: 0.15), shape: BoxShape.circle),
               child: Icon(icon, color: color, size: 24),
             ),
             const SizedBox(height: 8),
-            Text(
-              label,
-              style: textTheme.bodySmall,
-            ),
+            Text(label, style: textTheme.bodySmall),
           ],
         ),
       ),

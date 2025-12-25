@@ -1,137 +1,62 @@
 import 'package:flutter/material.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
+import '../providers/search_messages_provider.dart';
 
-class SearchMessagesPage extends StatefulWidget {
+class SearchMessagesPage extends HookConsumerWidget {
   const SearchMessagesPage({super.key, required this.conversationId});
 
   final String conversationId;
 
   @override
-  State<SearchMessagesPage> createState() => _SearchMessagesPageState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    final searchController = useTextEditingController();
+    final searchFocus = useFocusNode();
+    final searchQuery = useState('');
 
-class _SearchMessagesPageState extends State<SearchMessagesPage> {
-  final TextEditingController _searchController = TextEditingController();
-  final FocusNode _searchFocus = FocusNode();
-  List<SearchResult> _results = [];
-  bool _isSearching = false;
-
-  @override
-  void initState() {
-    super.initState();
     // Auto focus search field
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _searchFocus.requestFocus();
-    });
-  }
-
-  @override
-  void dispose() {
-    _searchController.dispose();
-    _searchFocus.dispose();
-    super.dispose();
-  }
-
-  void _performSearch(String query) {
-    if (query.isEmpty) {
-      setState(() {
-        _results = [];
-        _isSearching = false;
+    useEffect(() {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        searchFocus.requestFocus();
       });
-      return;
-    }
+      return null;
+    }, []);
 
-    setState(() {
-      _isSearching = true;
-    });
-
-    // TODO: Call API to search messages
-    // Simulate search with demo data
-    Future.delayed(const Duration(milliseconds: 500), () {
-      if (mounted) {
-        setState(() {
-          _results = _getDemoResults(query);
-          _isSearching = false;
-        });
-      }
-    });
-  }
-
-  List<SearchResult> _getDemoResults(String query) {
-    return [
-      SearchResult(
-        messageId: '1',
-        senderName: 'John Doe',
-        senderAvatar: 'https://i.pravatar.cc/150?img=1',
-        content: 'Hey, did you see the new design for the project? It looks amazing!',
-        timestamp: DateTime.now().subtract(const Duration(hours: 2)),
-        matchedText: query,
-      ),
-      SearchResult(
-        messageId: '2',
-        senderName: 'Jane Smith',
-        senderAvatar: 'https://i.pravatar.cc/150?img=2',
-        content: 'I think we should schedule a meeting to discuss the project timeline',
-        timestamp: DateTime.now().subtract(const Duration(days: 1)),
-        matchedText: query,
-      ),
-      SearchResult(
-        messageId: '3',
-        senderName: 'Bob Wilson',
-        senderAvatar: 'https://i.pravatar.cc/150?img=3',
-        content: 'The project is coming along nicely. Great work everyone!',
-        timestamp: DateTime.now().subtract(const Duration(days: 3)),
-        matchedText: query,
-      ),
-      SearchResult(
-        messageId: '4',
-        senderName: 'Alice Brown',
-        senderAvatar: 'https://i.pravatar.cc/150?img=4',
-        content: 'Can someone share the project files with me? Thanks!',
-        timestamp: DateTime.now().subtract(const Duration(days: 5)),
-        matchedText: query,
-      ),
-    ];
-  }
-
-  @override
-  Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
 
     return Scaffold(
       appBar: AppBar(
         title: TextField(
-          controller: _searchController,
-          focusNode: _searchFocus,
+          controller: searchController,
+          focusNode: searchFocus,
           decoration: InputDecoration(
             hintText: 'Search messages...',
             border: InputBorder.none,
             hintStyle: TextStyle(color: colors.onSurface.withValues(alpha: 0.5)),
           ),
           style: textTheme.bodyLarge,
-          onChanged: _performSearch,
+          onChanged: (value) {
+            searchQuery.value = value;
+          },
         ),
         actions: [
-          if (_searchController.text.isNotEmpty)
+          if (searchController.text.isNotEmpty)
             IconButton(
               icon: const Icon(Icons.clear),
               onPressed: () {
-                _searchController.clear();
-                _performSearch('');
+                searchController.clear();
+                searchQuery.value = '';
               },
             ),
         ],
       ),
-      body: _buildBody(colors, textTheme),
+      body: _buildBody(context, ref, searchQuery.value, colors, textTheme),
     );
   }
 
-  Widget _buildBody(ColorScheme colors, TextTheme textTheme) {
-    if (_isSearching) {
-      return const Center(child: CircularProgressIndicator());
-    }
-
-    if (_searchController.text.isEmpty) {
+  Widget _buildBody(BuildContext context, WidgetRef ref, String query, ColorScheme colors, TextTheme textTheme) {
+    if (query.trim().isEmpty) {
       return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -140,56 +65,78 @@ class _SearchMessagesPageState extends State<SearchMessagesPage> {
             const SizedBox(height: 16),
             Text(
               'Search for messages',
-              style: textTheme.titleMedium?.copyWith(
-                color: colors.onSurface.withValues(alpha: 0.5),
-              ),
+              style: textTheme.titleMedium?.copyWith(color: colors.onSurface.withValues(alpha: 0.5)),
             ),
           ],
         ),
       );
     }
 
-    if (_results.isEmpty) {
-      return Center(
+    // Watch the search provider
+    final searchAsync = ref.watch(searchMessagesProvider(conversationId, query));
+
+    return searchAsync.when(
+      data: (messages) {
+        if (messages.isEmpty) {
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.search_off, size: 64, color: colors.onSurface.withValues(alpha: 0.3)),
+                const SizedBox(height: 16),
+                Text(
+                  'No messages found',
+                  style: textTheme.titleMedium?.copyWith(color: colors.onSurface.withValues(alpha: 0.5)),
+                ),
+              ],
+            ),
+          );
+        }
+
+        return ListView.builder(
+          itemCount: messages.length,
+          itemBuilder: (context, index) => _buildResultItem(context, messages[index], query, colors, textTheme),
+        );
+      },
+      loading: () => const Center(child: CircularProgressIndicator()),
+      error: (error, stack) => Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.search_off, size: 64, color: colors.onSurface.withValues(alpha: 0.3)),
+            Icon(Icons.error_outline, size: 64, color: colors.error),
             const SizedBox(height: 16),
             Text(
-              'No messages found',
-              style: textTheme.titleMedium?.copyWith(
-                color: colors.onSurface.withValues(alpha: 0.5),
-              ),
+              'Error: ${error.toString()}',
+              style: textTheme.bodyMedium?.copyWith(color: colors.error),
+              textAlign: TextAlign.center,
             ),
           ],
         ),
-      );
-    }
-
-    return ListView.builder(
-      itemCount: _results.length,
-      itemBuilder: (context, index) => _buildResultItem(_results[index], colors, textTheme),
+      ),
     );
   }
 
-  Widget _buildResultItem(SearchResult result, ColorScheme colors, TextTheme textTheme) {
-    final query = _searchController.text.toLowerCase();
-    final content = result.content;
+  Widget _buildResultItem(
+    BuildContext context,
+    dynamic message,
+    String query,
+    ColorScheme colors,
+    TextTheme textTheme,
+  ) {
+    final content = message.content ?? '';
     final lowerContent = content.toLowerCase();
-    final matchIndex = lowerContent.indexOf(query);
+    final lowerQuery = query.toLowerCase();
+    final matchIndex = lowerContent.indexOf(lowerQuery);
 
     return InkWell(
       onTap: () {
-        // TODO: Navigate to message and highlight it
-        Navigator.pop(context, result.messageId);
+        // Navigate back with message ID to scroll to it
+        Navigator.pop(context, message.id);
       },
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         decoration: BoxDecoration(
-          border: Border(
-            bottom: BorderSide(color: colors.outline.withValues(alpha: 0.2)),
-          ),
+          border: Border(bottom: BorderSide(color: colors.outline.withValues(alpha: 0.2))),
         ),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -197,7 +144,10 @@ class _SearchMessagesPageState extends State<SearchMessagesPage> {
             // Avatar
             CircleAvatar(
               radius: 20,
-              backgroundImage: NetworkImage(result.senderAvatar),
+              backgroundImage: message.senderAvatarUrl != null ? NetworkImage(message.senderAvatarUrl!) : null,
+              child: message.senderAvatarUrl == null
+                  ? Text(message.senderFullName?.substring(0, 1).toUpperCase() ?? '?')
+                  : null,
             ),
             const SizedBox(width: 12),
 
@@ -211,17 +161,13 @@ class _SearchMessagesPageState extends State<SearchMessagesPage> {
                     children: [
                       Expanded(
                         child: Text(
-                          result.senderName,
-                          style: textTheme.bodyMedium?.copyWith(
-                            fontWeight: FontWeight.w600,
-                          ),
+                          message.senderFullName ?? message.senderUsername ?? 'Unknown',
+                          style: textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
                         ),
                       ),
                       Text(
-                        _formatTimestamp(result.timestamp),
-                        style: textTheme.bodySmall?.copyWith(
-                          color: colors.onSurface.withValues(alpha: 0.6),
-                        ),
+                        _formatTimestamp(message.sentAt ?? message.createdAt),
+                        style: textTheme.bodySmall?.copyWith(color: colors.onSurface.withValues(alpha: 0.6)),
                       ),
                     ],
                   ),
@@ -230,15 +176,8 @@ class _SearchMessagesPageState extends State<SearchMessagesPage> {
                   // Message content with highlight
                   RichText(
                     text: TextSpan(
-                      style: textTheme.bodyMedium?.copyWith(
-                        color: colors.onSurface.withValues(alpha: 0.8),
-                      ),
-                      children: _buildHighlightedText(
-                        content,
-                        matchIndex,
-                        query.length,
-                        colors,
-                      ),
+                      style: textTheme.bodyMedium?.copyWith(color: colors.onSurface.withValues(alpha: 0.8)),
+                      children: _buildHighlightedText(content, matchIndex, query.length, colors),
                     ),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
@@ -248,23 +187,14 @@ class _SearchMessagesPageState extends State<SearchMessagesPage> {
             ),
 
             // Arrow icon
-            Icon(
-              Icons.arrow_forward_ios,
-              size: 16,
-              color: colors.onSurface.withValues(alpha: 0.3),
-            ),
+            Icon(Icons.arrow_forward_ios, size: 16, color: colors.onSurface.withValues(alpha: 0.3)),
           ],
         ),
       ),
     );
   }
 
-  List<TextSpan> _buildHighlightedText(
-    String text,
-    int matchIndex,
-    int matchLength,
-    ColorScheme colors,
-  ) {
+  List<TextSpan> _buildHighlightedText(String text, int matchIndex, int matchLength, ColorScheme colors) {
     if (matchIndex == -1) {
       return [TextSpan(text: text)];
     }
@@ -302,22 +232,3 @@ class _SearchMessagesPageState extends State<SearchMessagesPage> {
     }
   }
 }
-
-class SearchResult {
-  final String messageId;
-  final String senderName;
-  final String senderAvatar;
-  final String content;
-  final DateTime timestamp;
-  final String matchedText;
-
-  SearchResult({
-    required this.messageId,
-    required this.senderName,
-    required this.senderAvatar,
-    required this.content,
-    required this.timestamp,
-    required this.matchedText,
-  });
-}
-

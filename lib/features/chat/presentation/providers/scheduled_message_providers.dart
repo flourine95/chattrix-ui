@@ -1,8 +1,9 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:flutter/foundation.dart';
-import '../../data/datasources/scheduled_message_api_service.dart';
+import '../../data/datasources/scheduled_message_datasource_impl.dart';
 import '../../data/datasources/chat_websocket_datasource_impl.dart';
 import '../../data/repositories/scheduled_message_repository_impl.dart';
+import '../../domain/datasources/scheduled_message_datasource.dart';
 import '../../domain/repositories/scheduled_message_repository.dart';
 import '../../domain/usecases/cancel_scheduled_message_usecase.dart';
 import '../../domain/usecases/get_scheduled_messages_usecase.dart';
@@ -15,13 +16,13 @@ import 'chat_websocket_provider_new.dart';
 part 'scheduled_message_providers.g.dart';
 
 // ============================================================================
-// API Service Provider
+// Datasource Provider
 // ============================================================================
 
 @riverpod
-ScheduledMessageApiService scheduledMessageApiService(Ref ref) {
+ScheduledMessageDatasource scheduledMessageDatasource(Ref ref) {
   final dio = ref.watch(dioProvider);
-  return ScheduledMessageApiService(dio);
+  return ScheduledMessageDatasourceImpl(dio);
 }
 
 // ============================================================================
@@ -30,8 +31,8 @@ ScheduledMessageApiService scheduledMessageApiService(Ref ref) {
 
 @riverpod
 ScheduledMessageRepository scheduledMessageRepository(Ref ref) {
-  final apiService = ref.watch(scheduledMessageApiServiceProvider);
-  return ScheduledMessageRepositoryImpl(apiService);
+  final datasource = ref.watch(scheduledMessageDatasourceProvider);
+  return ScheduledMessageRepositoryImpl(datasource);
 }
 
 // ============================================================================

@@ -1,10 +1,9 @@
+import 'package:chattrix_ui/features/auth/data/models/user_dto.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import '../../../auth/data/models/user_dto.dart';
 
 part 'poll_option_dto.freezed.dart';
 part 'poll_option_dto.g.dart';
 
-/// DTO for Poll Option API response
 @freezed
 abstract class PollOptionDto with _$PollOptionDto {
   const factory PollOptionDto({

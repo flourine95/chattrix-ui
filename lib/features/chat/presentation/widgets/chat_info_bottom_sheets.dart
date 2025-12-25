@@ -1,9 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
+import '../providers/conversation_settings_provider.dart';
 
 /// Change Nickname Bottom Sheet
-void showChangeNicknameBottomSheet(BuildContext context, ColorScheme colors, TextTheme textTheme) {
+void showChangeNicknameBottomSheet(
+  BuildContext context,
+  WidgetRef ref,
+  String conversationId,
+  ColorScheme colors,
+  TextTheme textTheme,
+) {
   final controller = TextEditingController();
-  
+
   showModalBottomSheet(
     context: context,
     backgroundColor: colors.surface,
@@ -76,9 +84,12 @@ void showChangeNicknameBottomSheet(BuildContext context, ColorScheme colors, Tex
               const SizedBox(width: 12),
               Expanded(
                 child: FilledButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                    // TODO: Save nickname
+                  onPressed: () async {
+                    final nickname = controller.text.trim();
+                    if (nickname.isNotEmpty) {
+                      Navigator.pop(context);
+                      await ref.read(conversationSettingsProvider(conversationId).notifier).updateNickname(nickname);
+                    }
                   },
                   style: FilledButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 16),
@@ -98,7 +109,13 @@ void showChangeNicknameBottomSheet(BuildContext context, ColorScheme colors, Tex
 }
 
 /// Block User Bottom Sheet
-void showBlockUserBottomSheet(BuildContext context, ColorScheme colors, TextTheme textTheme) {
+void showBlockUserBottomSheet(
+  BuildContext context,
+  WidgetRef ref,
+  String conversationId,
+  ColorScheme colors,
+  TextTheme textTheme,
+) {
   showModalBottomSheet(
     context: context,
     backgroundColor: colors.surface,
@@ -171,9 +188,9 @@ void showBlockUserBottomSheet(BuildContext context, ColorScheme colors, TextThem
               const SizedBox(width: 12),
               Expanded(
                 child: FilledButton(
-                  onPressed: () {
+                  onPressed: () async {
                     Navigator.pop(context);
-                    // TODO: Block user
+                    await ref.read(conversationSettingsProvider(conversationId).notifier).toggleBlock();
                   },
                   style: FilledButton.styleFrom(
                     backgroundColor: Colors.red,
@@ -296,3 +313,79 @@ void showWallpaperOptions(BuildContext context, ColorScheme colors, TextTheme te
   );
 }
 
+/// Mutual Groups Bottom Sheet
+void showMutualGroupsBottomSheet(BuildContext context, ColorScheme colors, TextTheme textTheme) {
+  showModalBottomSheet(
+    context: context,
+    backgroundColor: colors.surface,
+    shape: const RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+    ),
+    builder: (context) => Container(
+      padding: const EdgeInsets.all(24),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // Handle bar
+          Container(
+            width: 40,
+            height: 4,
+            margin: const EdgeInsets.only(bottom: 20),
+            decoration: BoxDecoration(
+              color: colors.onSurface.withValues(alpha: 0.2),
+              borderRadius: BorderRadius.circular(2),
+            ),
+          ),
+
+          // Title
+          Text(
+            'Mutual Groups',
+            style: textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+          ),
+
+          const SizedBox(height: 20),
+
+          // Demo list of mutual groups
+          ListTile(
+            leading: CircleAvatar(
+              backgroundColor: colors.primaryContainer,
+              child: Icon(Icons.group, color: colors.onPrimaryContainer),
+            ),
+            title: const Text('Family Group'),
+            subtitle: const Text('15 members'),
+            onTap: () {
+              Navigator.pop(context);
+              // TODO: Navigate to group
+            },
+          ),
+          ListTile(
+            leading: CircleAvatar(
+              backgroundColor: colors.secondaryContainer,
+              child: Icon(Icons.group, color: colors.onSecondaryContainer),
+            ),
+            title: const Text('Work Team'),
+            subtitle: const Text('8 members'),
+            onTap: () {
+              Navigator.pop(context);
+              // TODO: Navigate to group
+            },
+          ),
+          ListTile(
+            leading: CircleAvatar(
+              backgroundColor: colors.tertiaryContainer,
+              child: Icon(Icons.group, color: colors.onTertiaryContainer),
+            ),
+            title: const Text('Friends'),
+            subtitle: const Text('12 members'),
+            onTap: () {
+              Navigator.pop(context);
+              // TODO: Navigate to group
+            },
+          ),
+
+          const SizedBox(height: 8),
+        ],
+      ),
+    ),
+  );
+}

@@ -77,4 +77,161 @@ abstract class ChatRemoteDatasource {
   ///
   /// **API:** `POST /v1/read-receipts/conversations/{conversationId}`
   Future<void> markConversationAsRead({required int conversationId, int? lastMessageId});
+
+  /// Update conversation (name, description)
+  ///
+  /// **API:** `PUT /v1/conversations/{conversationId}`
+  /// **Errors:**
+  /// - 400: Validation failed
+  /// - 401: Unauthorized
+  /// - 403: Forbidden (not admin)
+  /// - 404: Conversation not found
+  Future<ConversationModel> updateConversation({required String conversationId, String? name, String? description});
+
+  /// Delete conversation
+  ///
+  /// **API:** `DELETE /v1/conversations/{conversationId}`
+  /// **Errors:**
+  /// - 401: Unauthorized
+  /// - 403: Forbidden (not admin)
+  /// - 404: Conversation not found
+  Future<void> deleteConversation(String conversationId);
+
+  /// Add members to conversation
+  ///
+  /// **API:** `POST /v1/conversations/{conversationId}/members`
+  /// **Errors:**
+  /// - 400: Validation failed
+  /// - 401: Unauthorized
+  /// - 403: Forbidden
+  /// - 404: Conversation not found
+  Future<Map<String, dynamic>> addMembers({required String conversationId, required List<int> userIds});
+
+  /// Remove member from conversation
+  ///
+  /// **API:** `DELETE /v1/conversations/{conversationId}/members/{userId}`
+  /// **Errors:**
+  /// - 401: Unauthorized
+  /// - 403: Forbidden (not admin)
+  /// - 404: Conversation or member not found
+  Future<void> removeMember({required String conversationId, required int userId});
+
+  /// Update member role
+  ///
+  /// **API:** `PUT /v1/conversations/{conversationId}/members/{userId}/role`
+  /// **Errors:**
+  /// - 400: Validation failed
+  /// - 401: Unauthorized
+  /// - 403: Forbidden (not admin)
+  /// - 404: Conversation or member not found
+  Future<Map<String, dynamic>> updateMemberRole({
+    required String conversationId,
+    required int userId,
+    required String role,
+  });
+
+  /// Leave conversation
+  ///
+  /// **API:** `POST /v1/conversations/{conversationId}/members/leave`
+  /// **Errors:**
+  /// - 401: Unauthorized
+  /// - 404: Conversation not found
+  Future<void> leaveConversation(String conversationId);
+
+  /// Update group avatar
+  ///
+  /// **API:** `PUT /v1/conversations/{conversationId}/avatar`
+  /// **Errors:**
+  /// - 400: Validation failed
+  /// - 401: Unauthorized
+  /// - 403: Forbidden (not admin)
+  /// - 404: Conversation not found
+  Future<ConversationModel> updateGroupAvatar({required String conversationId, required String imagePath});
+
+  /// Delete group avatar
+  ///
+  /// **API:** `DELETE /v1/conversations/{conversationId}/avatar`
+  /// **Errors:**
+  /// - 401: Unauthorized
+  /// - 403: Forbidden (not admin)
+  /// - 404: Conversation not found
+  Future<void> deleteGroupAvatar(String conversationId);
+
+  /// Pin message
+  ///
+  /// **API:** `POST /v1/conversations/{conversationId}/messages/{messageId}/pin`
+  Future<MessageModel> pinMessage({required String conversationId, required String messageId});
+
+  /// Unpin message
+  ///
+  /// **API:** `DELETE /v1/conversations/{conversationId}/messages/{messageId}/pin`
+  Future<void> unpinMessage({required String conversationId, required String messageId});
+
+  /// Get pinned messages
+  ///
+  /// **API:** `GET /v1/conversations/{conversationId}/messages/pinned`
+  Future<List<MessageModel>> getPinnedMessages(String conversationId);
+
+  /// Create scheduled message
+  ///
+  /// **API:** `POST /v1/conversations/{conversationId}/messages/schedule`
+  Future<MessageModel> createScheduledMessage({
+    required String conversationId,
+    required String content,
+    required String type,
+    required String scheduledTime,
+  });
+
+  /// Get scheduled messages
+  ///
+  /// **API:** `GET /v1/conversations/{conversationId}/messages/scheduled`
+  Future<Map<String, dynamic>> getScheduledMessages({required String conversationId, String? cursor, int limit = 20});
+
+  /// Get scheduled message details
+  ///
+  /// **API:** `GET /v1/conversations/{conversationId}/messages/scheduled/{scheduledMessageId}`
+  Future<MessageModel> getScheduledMessage({required String conversationId, required String scheduledMessageId});
+
+  /// Update scheduled message
+  ///
+  /// **API:** `PUT /v1/conversations/{conversationId}/messages/scheduled/{scheduledMessageId}`
+  Future<MessageModel> updateScheduledMessage({
+    required String conversationId,
+    required String scheduledMessageId,
+    String? content,
+    String? scheduledTime,
+  });
+
+  /// Cancel scheduled message
+  ///
+  /// **API:** `DELETE /v1/conversations/{conversationId}/messages/scheduled/{scheduledMessageId}`
+  Future<void> cancelScheduledMessage({required String conversationId, required String scheduledMessageId});
+
+  /// Cancel scheduled messages in bulk
+  ///
+  /// **API:** `DELETE /v1/conversations/{conversationId}/messages/scheduled/bulk`
+  Future<Map<String, dynamic>> cancelScheduledMessagesBulk({
+    required String conversationId,
+    required List<int> scheduledMessageIds,
+  });
+
+  /// Search messages in conversation
+  ///
+  /// **API:** `GET /v1/conversations/{conversationId}/search/messages`
+  Future<Map<String, dynamic>> searchMessages({
+    required String conversationId,
+    required String query,
+    String? cursor,
+    int limit = 20,
+  });
+
+  /// Search media in conversation
+  ///
+  /// **API:** `GET /v1/conversations/{conversationId}/search/media`
+  Future<Map<String, dynamic>> searchMedia({
+    required String conversationId,
+    String? type,
+    String? cursor,
+    int limit = 20,
+  });
 }

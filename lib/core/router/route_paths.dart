@@ -25,7 +25,7 @@ class RoutePaths {
 
   // Poll routes
   static const String createPoll = '/chat/:id/create-poll';
-  static const String pollDetail = '/poll/:pollId';
+  static const String pollDetail = '/poll/:conversationId/:pollId';
 
   // Invite links routes
   static const String inviteLinks = '/invite-links';

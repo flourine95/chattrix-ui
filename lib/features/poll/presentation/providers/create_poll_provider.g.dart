@@ -12,21 +12,12 @@ part of 'create_poll_provider.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
-/// Provider for creating a poll
-///
-/// State: AsyncValue<PollEntity>
 
 @ProviderFor(CreatePoll)
 const createPollProvider = CreatePollProvider._();
 
-/// Provider for creating a poll
-///
-/// State: AsyncValue<PollEntity>
 final class CreatePollProvider
     extends $AsyncNotifierProvider<CreatePoll, PollEntity?> {
-  /// Provider for creating a poll
-  ///
-  /// State: AsyncValue<PollEntity>
   const CreatePollProvider._()
     : super(
         from: null,
@@ -47,10 +38,6 @@ final class CreatePollProvider
 }
 
 String _$createPollHash() => r'a6a1729d8c5abda7a3d2e29981693c88cd70721c';
-
-/// Provider for creating a poll
-///
-/// State: AsyncValue<PollEntity>
 
 abstract class _$CreatePoll extends $AsyncNotifier<PollEntity?> {
   FutureOr<PollEntity?> build();

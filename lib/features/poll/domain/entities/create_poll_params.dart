@@ -2,7 +2,6 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'create_poll_params.freezed.dart';
 
-/// Parameters for creating a poll
 @freezed
 abstract class CreatePollParams with _$CreatePollParams {
   const factory CreatePollParams({
@@ -15,7 +14,6 @@ abstract class CreatePollParams with _$CreatePollParams {
 
   const CreatePollParams._();
 
-  /// Validate parameters
   String? validate() {
     if (question.trim().isEmpty) {
       return 'Question cannot be empty';

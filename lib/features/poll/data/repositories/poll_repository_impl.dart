@@ -1,16 +1,13 @@
+import 'package:chattrix_ui/core/errors/exceptions.dart';
+import 'package:chattrix_ui/core/errors/failures.dart';
+import 'package:chattrix_ui/core/repositories/base_repository.dart';
+import 'package:chattrix_ui/features/poll/data/datasources/poll_api_service.dart';
+import 'package:chattrix_ui/features/poll/data/mappers/poll_mapper.dart';
+import 'package:chattrix_ui/features/poll/domain/entities/create_poll_params.dart';
+import 'package:chattrix_ui/features/poll/domain/entities/poll_entity.dart';
+import 'package:chattrix_ui/features/poll/domain/repositories/poll_repository.dart';
 import 'package:fpdart/fpdart.dart';
-import '../../../../core/errors/failures.dart';
-import '../../../../core/errors/exceptions.dart';
-import '../../../../core/repositories/base_repository.dart';
-import '../../domain/entities/poll_entity.dart';
-import '../../domain/entities/create_poll_params.dart';
-import '../../domain/repositories/poll_repository.dart';
-import '../datasources/poll_api_service.dart';
-import '../mappers/poll_mapper.dart';
 
-/// Poll repository implementation
-///
-/// Implements PollRepository interface using PollApiService
 class PollRepositoryImpl extends BaseRepository implements PollRepository {
   final PollApiService _apiService;
 
@@ -30,9 +27,17 @@ class PollRepositoryImpl extends BaseRepository implements PollRepository {
   }
 
   @override
-  Future<Either<Failure, PollEntity>> votePoll({required int pollId, required List<int> optionIds}) async {
+  Future<Either<Failure, PollEntity>> votePoll({
+    required int conversationId,
+    required int pollId,
+    required List<int> optionIds,
+  }) async {
     return executeApiCall(() async {
-      final response = await _apiService.votePoll(pollId: pollId, request: optionIds.toDto());
+      final response = await _apiService.votePoll(
+        conversationId: conversationId,
+        pollId: pollId,
+        request: optionIds.toDto(),
+      );
 
       if (response.success && response.data != null) {
         return response.data!.toEntity();
@@ -43,9 +48,9 @@ class PollRepositoryImpl extends BaseRepository implements PollRepository {
   }
 
   @override
-  Future<Either<Failure, PollEntity>> removeVote({required int pollId}) async {
+  Future<Either<Failure, PollEntity>> removeVote({required int conversationId, required int pollId}) async {
     return executeApiCall(() async {
-      final response = await _apiService.removeVote(pollId: pollId);
+      final response = await _apiService.removeVote(conversationId: conversationId, pollId: pollId);
 
       if (response.success && response.data != null) {
         return response.data!.toEntity();
@@ -56,9 +61,9 @@ class PollRepositoryImpl extends BaseRepository implements PollRepository {
   }
 
   @override
-  Future<Either<Failure, PollEntity>> getPollById({required int pollId}) async {
+  Future<Either<Failure, PollEntity>> getPollById({required int conversationId, required int pollId}) async {
     return executeApiCall(() async {
-      final response = await _apiService.getPollById(pollId: pollId);
+      final response = await _apiService.getPollById(conversationId: conversationId, pollId: pollId);
 
       if (response.success && response.data != null) {
         return response.data!.toEntity();
@@ -86,9 +91,9 @@ class PollRepositoryImpl extends BaseRepository implements PollRepository {
   }
 
   @override
-  Future<Either<Failure, PollEntity>> closePoll({required int pollId}) async {
+  Future<Either<Failure, PollEntity>> closePoll({required int conversationId, required int pollId}) async {
     return executeApiCall(() async {
-      final response = await _apiService.closePoll(pollId: pollId);
+      final response = await _apiService.closePoll(conversationId: conversationId, pollId: pollId);
 
       if (response.success && response.data != null) {
         return response.data!.toEntity();
@@ -99,9 +104,9 @@ class PollRepositoryImpl extends BaseRepository implements PollRepository {
   }
 
   @override
-  Future<Either<Failure, String>> deletePoll({required int pollId}) async {
+  Future<Either<Failure, String>> deletePoll({required int conversationId, required int pollId}) async {
     return executeApiCall(() async {
-      final response = await _apiService.deletePoll(pollId: pollId);
+      final response = await _apiService.deletePoll(conversationId: conversationId, pollId: pollId);
 
       if (response.success && response.data != null) {
         return response.data!;

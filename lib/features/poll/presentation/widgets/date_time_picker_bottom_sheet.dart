@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:intl/intl.dart';
 
-/// iOS-style date time picker bottom sheet for poll deadline
 class DateTimePickerBottomSheet extends HookWidget {
   const DateTimePickerBottomSheet({super.key, required this.initialDateTime});
 
@@ -138,7 +137,6 @@ class DateTimePickerBottomSheet extends HookWidget {
     );
   }
 
-  /// Show the date time picker bottom sheet
   static Future<DateTime?> show(BuildContext context, {required DateTime initialDateTime}) {
     return showModalBottomSheet<DateTime>(
       context: context,

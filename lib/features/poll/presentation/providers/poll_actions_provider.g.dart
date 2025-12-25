@@ -12,21 +12,12 @@ part of 'poll_actions_provider.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
-/// Provider for poll actions (vote, close, delete)
-///
-/// Handles voting, closing, and deleting polls
 
 @ProviderFor(PollActions)
 const pollActionsProvider = PollActionsProvider._();
 
-/// Provider for poll actions (vote, close, delete)
-///
-/// Handles voting, closing, and deleting polls
 final class PollActionsProvider
     extends $AsyncNotifierProvider<PollActions, PollEntity?> {
-  /// Provider for poll actions (vote, close, delete)
-  ///
-  /// Handles voting, closing, and deleting polls
   const PollActionsProvider._()
     : super(
         from: null,
@@ -46,11 +37,7 @@ final class PollActionsProvider
   PollActions create() => PollActions();
 }
 
-String _$pollActionsHash() => r'def26f7b52b62ee8de99b2ff5bce1ced2121c5b1';
-
-/// Provider for poll actions (vote, close, delete)
-///
-/// Handles voting, closing, and deleting polls
+String _$pollActionsHash() => r'aeeadc0764ab79f3d244f023c41555f80282a187';
 
 abstract class _$PollActions extends $AsyncNotifier<PollEntity?> {
   FutureOr<PollEntity?> build();

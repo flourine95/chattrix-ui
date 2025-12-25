@@ -1,13 +1,11 @@
+import 'package:chattrix_ui/features/poll/domain/entities/poll_entity.dart';
 import 'package:flutter/material.dart';
-import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import '../../domain/entities/poll_entity.dart';
-import 'poll_option_item.dart';
-import 'poll_header.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-/// Main poll card with options and voting
-///
-/// Displays poll question, options, and voting controls
+import 'poll_header.dart';
+import 'poll_option_item.dart';
+
 class PollCard extends HookConsumerWidget {
   const PollCard({
     super.key,
@@ -33,21 +31,19 @@ class PollCard extends HookConsumerWidget {
     final selectedOptions = useState<Set<int>>({});
     final isVoting = useState(false);
 
-    // Initialize selected options from current user votes
     useEffect(() {
       selectedOptions.value = poll.currentUserVotedOptionIds.toSet();
       return null;
-    }, [poll.id]);
+    }, [poll.currentUserVotedOptionIds.join(','), poll.id, poll.totalVoters]);
 
     final isCreator = poll.creator.id == currentUserId;
     final canVote = poll.canVote && !isVoting.value;
     final hasVoted = poll.hasVoted;
 
     void handleOptionTap(int optionId) {
-      if (!canVote) return;
+      if (!canVote && !hasVoted) return;
 
       if (poll.allowMultipleVotes) {
-        // Multiple choice - toggle selection
         final newSelection = Set<int>.from(selectedOptions.value);
         if (newSelection.contains(optionId)) {
           newSelection.remove(optionId);
@@ -56,8 +52,11 @@ class PollCard extends HookConsumerWidget {
         }
         selectedOptions.value = newSelection;
       } else {
-        // Single choice - replace selection
-        selectedOptions.value = {optionId};
+        if (selectedOptions.value.contains(optionId)) {
+          selectedOptions.value = {};
+        } else {
+          selectedOptions.value = {optionId};
+        }
       }
     }
 
@@ -67,8 +66,15 @@ class PollCard extends HookConsumerWidget {
       isVoting.value = true;
       try {
         await onVote?.call(selectedOptions.value.toList());
+      } catch (e) {
+        debugPrint('❌ [PollCard] Vote failed: $e');
+        if (context.mounted) {
+          selectedOptions.value = poll.currentUserVotedOptionIds.toSet();
+        }
       } finally {
-        isVoting.value = false;
+        if (context.mounted) {
+          isVoting.value = false;
+        }
       }
     }
 
@@ -81,31 +87,26 @@ class PollCard extends HookConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // Header
           PollHeader(poll: poll, isCreator: isCreator, onClose: onClose, onDelete: onDelete),
 
           const Divider(height: 1),
 
-          // Question
           Padding(
             padding: const EdgeInsets.all(16),
             child: Text(poll.question, style: theme.textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w500)),
           ),
 
-          // Options
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Column(
               children: poll.options.map((option) {
                 final isSelected = selectedOptions.value.contains(option.id);
-                final isVotedByUser = poll.currentUserVotedOptionIds.contains(option.id);
 
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 8),
                   child: PollOptionItem(
                     option: option,
                     isSelected: isSelected,
-                    isVotedByUser: isVotedByUser,
                     showResults: hasVoted || !poll.isActive,
                     allowMultiple: poll.allowMultipleVotes,
                     canVote: canVote,
@@ -116,70 +117,134 @@ class PollCard extends HookConsumerWidget {
             ),
           ),
 
-          // Vote button (only show if can vote and has selection)
-          if (canVote && selectedOptions.value.isNotEmpty)
+          if ((canVote && selectedOptions.value.isNotEmpty) ||
+              (hasVoted && selectedOptions.value != poll.currentUserVotedOptionIds.toSet()))
             Padding(
               padding: const EdgeInsets.all(16),
-              child: ElevatedButton(
+              child: ElevatedButton.icon(
                 onPressed: isVoting.value ? null : handleVote,
-                style: ElevatedButton.styleFrom(minimumSize: const Size(double.infinity, 44)),
-                child: isVoting.value
-                    ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2))
-                    : const Text('Bỏ phiếu'),
+                style: ElevatedButton.styleFrom(
+                  minimumSize: const Size(double.infinity, 48),
+                  backgroundColor: theme.colorScheme.primary,
+                  foregroundColor: Colors.white,
+                  elevation: isVoting.value ? 0 : 2,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                ),
+                icon: isVoting.value
+                    ? const SizedBox(
+                        height: 20,
+                        width: 20,
+                        child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                      )
+                    : const Icon(Icons.how_to_vote, size: 20),
+                label: Text(
+                  isVoting.value
+                      ? 'Voting...'
+                      : hasVoted
+                      ? 'Change Vote'
+                      : 'Vote',
+                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                ),
               ),
             ),
 
-          // Action buttons (for voted polls)
           if (hasVoted && poll.isActive)
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
               child: Row(
                 children: [
-                  Expanded(
-                    child: OutlinedButton(
-                      onPressed: () {
-                        selectedOptions.value = {};
-                      },
-                      child: const Text('Đổi vote'),
-                    ),
-                  ),
-                  if (onViewDetail != null) ...[
-                    const SizedBox(width: 8),
+                  if (onViewDetail != null)
                     Expanded(
-                      child: OutlinedButton(onPressed: onViewDetail, child: const Text('Xem chi tiết')),
+                      child: OutlinedButton.icon(
+                        onPressed: onViewDetail,
+                        style: OutlinedButton.styleFrom(
+                          minimumSize: const Size(0, 44),
+                          side: BorderSide(color: theme.colorScheme.primary),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        ),
+                        icon: Icon(Icons.bar_chart, size: 18, color: theme.colorScheme.primary),
+                        label: Text('Details', style: TextStyle(color: theme.colorScheme.primary)),
+                      ),
                     ),
-                  ],
                 ],
               ),
             ),
 
-          // View detail button (for closed polls)
           if (!poll.isActive && onViewDetail != null)
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-              child: OutlinedButton(onPressed: onViewDetail, child: const Text('Xem chi tiết')),
+              child: OutlinedButton.icon(
+                onPressed: onViewDetail,
+                style: OutlinedButton.styleFrom(
+                  minimumSize: const Size(double.infinity, 44),
+                  side: BorderSide(color: theme.colorScheme.primary),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                ),
+                icon: Icon(Icons.bar_chart, size: 18, color: theme.colorScheme.primary),
+                label: Text('View Details', style: TextStyle(color: theme.colorScheme.primary)),
+              ),
             ),
 
-          // Footer info
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-            child: Row(
+            child: Wrap(
+              spacing: 16,
+              runSpacing: 8,
               children: [
-                Icon(Icons.people_outline, size: 14, color: theme.textTheme.bodySmall?.color),
-                const SizedBox(width: 4),
-                Text('${poll.totalVoters} người', style: theme.textTheme.bodySmall),
-                if (poll.expiresAt != null) ...[
-                  const SizedBox(width: 12),
-                  Icon(Icons.access_time, size: 14, color: theme.textTheme.bodySmall?.color),
-                  const SizedBox(width: 4),
-                  Text(_formatExpiry(poll.expiresAt!), style: theme.textTheme.bodySmall),
-                ],
-                if (!poll.isActive) ...[
-                  const Spacer(),
-                  Icon(Icons.lock_outline, size: 14, color: theme.textTheme.bodySmall?.color),
-                  const SizedBox(width: 4),
-                  Text(poll.isClosed ? 'Đã đóng' : 'Hết hạn', style: theme.textTheme.bodySmall),
-                ],
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.people_outline,
+                      size: 16,
+                      color: theme.textTheme.bodySmall?.color?.withValues(alpha: 0.7),
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      '${poll.totalVoters} ${poll.totalVoters == 1 ? 'voter' : 'voters'}',
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: theme.textTheme.bodySmall?.color?.withValues(alpha: 0.7),
+                      ),
+                    ),
+                  ],
+                ),
+                if (poll.expiresAt != null)
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.access_time,
+                        size: 16,
+                        color: theme.textTheme.bodySmall?.color?.withValues(alpha: 0.7),
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        _formatExpiry(poll.expiresAt!),
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: theme.textTheme.bodySmall?.color?.withValues(alpha: 0.7),
+                        ),
+                      ),
+                    ],
+                  ),
+                if (!poll.isActive)
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: Colors.red.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.lock_outline, size: 14, color: Colors.red.shade700),
+                        const SizedBox(width: 4),
+                        Text(
+                          poll.isClosed ? 'Closed' : 'Expired',
+                          style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Colors.red.shade700),
+                        ),
+                      ],
+                    ),
+                  ),
               ],
             ),
           ),
@@ -193,15 +258,15 @@ class PollCard extends HookConsumerWidget {
     final difference = expiresAt.difference(now);
 
     if (difference.isNegative) {
-      return 'Đã hết hạn';
+      return 'Expired';
     } else if (difference.inDays > 0) {
-      return '${difference.inDays} ngày';
+      return '${difference.inDays}d left';
     } else if (difference.inHours > 0) {
-      return '${difference.inHours} giờ';
+      return '${difference.inHours}h left';
     } else if (difference.inMinutes > 0) {
-      return '${difference.inMinutes} phút';
+      return '${difference.inMinutes}m left';
     } else {
-      return 'Sắp hết hạn';
+      return 'Expiring soon';
     }
   }
 }

@@ -198,8 +198,9 @@ class RouteConfig {
   }
 
   static Widget _buildPollDetailPage(GoRouterState state) {
+    final conversationId = int.parse(state.pathParameters['conversationId']!);
     final pollId = int.parse(state.pathParameters['pollId']!);
-    return PollDetailPage(pollId: pollId);
+    return PollDetailPage(conversationId: conversationId, pollId: pollId);
   }
 
   static Widget _buildInviteLinksPage(GoRouterState state) {

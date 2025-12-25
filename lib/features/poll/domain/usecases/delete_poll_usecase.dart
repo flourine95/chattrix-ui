@@ -1,24 +1,13 @@
+import 'package:chattrix_ui/core/errors/failures.dart';
+import 'package:chattrix_ui/features/poll/domain/repositories/poll_repository.dart';
 import 'package:fpdart/fpdart.dart';
-import '../../../../core/errors/failures.dart';
-import '../repositories/poll_repository.dart';
 
-/// Use case for deleting a poll
-///
-/// Single Responsibility: Delete a poll (creator only)
 class DeletePollUseCase {
   final PollRepository _repository;
 
   DeletePollUseCase(this._repository);
 
-  /// Execute the use case
-  ///
-  /// Parameters:
-  /// - [pollId]: ID of the poll to delete
-  ///
-  /// Returns:
-  /// - Right(String): Success message
-  /// - Left(Failure): Error occurred
-  Future<Either<Failure, String>> call({required int pollId}) async {
-    return await _repository.deletePoll(pollId: pollId);
+  Future<Either<Failure, String>> call({required int conversationId, required int pollId}) async {
+    return await _repository.deletePoll(conversationId: conversationId, pollId: pollId);
   }
 }

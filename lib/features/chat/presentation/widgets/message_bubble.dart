@@ -15,6 +15,7 @@ import 'package:chattrix_ui/features/chat/presentation/widgets/message_reactions
 import 'package:chattrix_ui/features/chat/presentation/widgets/reply_message_preview.dart';
 import 'package:chattrix_ui/features/chat/presentation/widgets/seen_status_widget.dart';
 import 'package:chattrix_ui/features/poll/presentation/widgets/poll_message_bubble.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 /// Main message bubble widget that renders different types of messages
@@ -57,6 +58,12 @@ class MessageBubble extends StatelessWidget {
 
     // Determine message type and render appropriate bubble
     final messageType = message.type.toUpperCase();
+
+    // Debug logging for POLL messages
+    if (messageType == 'POLL') {
+      debugPrint('🗳️ [MessageBubble] Rendering POLL message ID: ${message.id}');
+      debugPrint('🗳️ [MessageBubble] pollData is null: ${message.pollData == null}');
+    }
 
     // Wrap in RepaintBoundary to isolate repaints and improve scroll performance
     return RepaintBoundary(

@@ -12,24 +12,15 @@ part of 'poll_detail_provider.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
-/// Provider for poll details
-///
-/// State: AsyncValue<PollEntity>
 
 @ProviderFor(PollDetail)
 const pollDetailProvider = PollDetailFamily._();
 
-/// Provider for poll details
-///
-/// State: AsyncValue<PollEntity>
 final class PollDetailProvider
     extends $AsyncNotifierProvider<PollDetail, PollEntity> {
-  /// Provider for poll details
-  ///
-  /// State: AsyncValue<PollEntity>
   const PollDetailProvider._({
     required PollDetailFamily super.from,
-    required int super.argument,
+    required (int, int) super.argument,
   }) : super(
          retry: null,
          name: r'pollDetailProvider',
@@ -45,7 +36,7 @@ final class PollDetailProvider
   String toString() {
     return r'pollDetailProvider'
         ''
-        '($argument)';
+        '$argument';
   }
 
   @$internal
@@ -63,11 +54,7 @@ final class PollDetailProvider
   }
 }
 
-String _$pollDetailHash() => r'6ee340ce4d24b15da60c62446ba93f2b6db3bddc';
-
-/// Provider for poll details
-///
-/// State: AsyncValue<PollEntity>
+String _$pollDetailHash() => r'993087791643be71237822a20313414a50aa4fb7';
 
 final class PollDetailFamily extends $Family
     with
@@ -76,7 +63,7 @@ final class PollDetailFamily extends $Family
           AsyncValue<PollEntity>,
           PollEntity,
           FutureOr<PollEntity>,
-          int
+          (int, int)
         > {
   const PollDetailFamily._()
     : super(
@@ -87,30 +74,23 @@ final class PollDetailFamily extends $Family
         isAutoDispose: true,
       );
 
-  /// Provider for poll details
-  ///
-  /// State: AsyncValue<PollEntity>
-
-  PollDetailProvider call(int pollId) =>
-      PollDetailProvider._(argument: pollId, from: this);
+  PollDetailProvider call(int conversationId, int pollId) =>
+      PollDetailProvider._(argument: (conversationId, pollId), from: this);
 
   @override
   String toString() => r'pollDetailProvider';
 }
 
-/// Provider for poll details
-///
-/// State: AsyncValue<PollEntity>
-
 abstract class _$PollDetail extends $AsyncNotifier<PollEntity> {
-  late final _$args = ref.$arg as int;
-  int get pollId => _$args;
+  late final _$args = ref.$arg as (int, int);
+  int get conversationId => _$args.$1;
+  int get pollId => _$args.$2;
 
-  FutureOr<PollEntity> build(int pollId);
+  FutureOr<PollEntity> build(int conversationId, int pollId);
   @$mustCallSuper
   @override
   void runBuild() {
-    final created = build(_$args);
+    final created = build(_$args.$1, _$args.$2);
     final ref = this.ref as $Ref<AsyncValue<PollEntity>, PollEntity>;
     final element =
         ref.element

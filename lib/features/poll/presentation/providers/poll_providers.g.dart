@@ -12,17 +12,13 @@ part of 'poll_providers.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
-/// Poll API Service Provider
 
 @ProviderFor(pollApiService)
 const pollApiServiceProvider = PollApiServiceProvider._();
 
-/// Poll API Service Provider
-
 final class PollApiServiceProvider
     extends $FunctionalProvider<PollApiService, PollApiService, PollApiService>
     with $Provider<PollApiService> {
-  /// Poll API Service Provider
   const PollApiServiceProvider._()
     : super(
         from: null,
@@ -58,17 +54,12 @@ final class PollApiServiceProvider
 
 String _$pollApiServiceHash() => r'9f7e3f1ad653b063a341910ec947b13005561597';
 
-/// Poll Repository Provider
-
 @ProviderFor(pollRepository)
 const pollRepositoryProvider = PollRepositoryProvider._();
-
-/// Poll Repository Provider
 
 final class PollRepositoryProvider
     extends $FunctionalProvider<PollRepository, PollRepository, PollRepository>
     with $Provider<PollRepository> {
-  /// Poll Repository Provider
   const PollRepositoryProvider._()
     : super(
         from: null,
@@ -104,12 +95,8 @@ final class PollRepositoryProvider
 
 String _$pollRepositoryHash() => r'370946578bde6cde8743cf87f2ee17f67af09871';
 
-/// Create Poll Use Case Provider
-
 @ProviderFor(createPollUseCase)
 const createPollUseCaseProvider = CreatePollUseCaseProvider._();
-
-/// Create Poll Use Case Provider
 
 final class CreatePollUseCaseProvider
     extends
@@ -119,7 +106,6 @@ final class CreatePollUseCaseProvider
           CreatePollUseCase
         >
     with $Provider<CreatePollUseCase> {
-  /// Create Poll Use Case Provider
   const CreatePollUseCaseProvider._()
     : super(
         from: null,
@@ -156,18 +142,13 @@ final class CreatePollUseCaseProvider
 
 String _$createPollUseCaseHash() => r'e469e8909e3c5d125d648b39fc919ea922cca4de';
 
-/// Vote Poll Use Case Provider
-
 @ProviderFor(votePollUseCase)
 const votePollUseCaseProvider = VotePollUseCaseProvider._();
-
-/// Vote Poll Use Case Provider
 
 final class VotePollUseCaseProvider
     extends
         $FunctionalProvider<VotePollUseCase, VotePollUseCase, VotePollUseCase>
     with $Provider<VotePollUseCase> {
-  /// Vote Poll Use Case Provider
   const VotePollUseCaseProvider._()
     : super(
         from: null,
@@ -203,17 +184,12 @@ final class VotePollUseCaseProvider
 
 String _$votePollUseCaseHash() => r'b576d3c9732b9db3129e96baa9ff47be078d8a93';
 
-/// Get Poll Use Case Provider
-
 @ProviderFor(getPollUseCase)
 const getPollUseCaseProvider = GetPollUseCaseProvider._();
-
-/// Get Poll Use Case Provider
 
 final class GetPollUseCaseProvider
     extends $FunctionalProvider<GetPollUseCase, GetPollUseCase, GetPollUseCase>
     with $Provider<GetPollUseCase> {
-  /// Get Poll Use Case Provider
   const GetPollUseCaseProvider._()
     : super(
         from: null,
@@ -249,12 +225,8 @@ final class GetPollUseCaseProvider
 
 String _$getPollUseCaseHash() => r'807bb5bc8823ac5f7d0d7da0430b1ba84ccdb5d8';
 
-/// Close Poll Use Case Provider
-
 @ProviderFor(closePollUseCase)
 const closePollUseCaseProvider = ClosePollUseCaseProvider._();
-
-/// Close Poll Use Case Provider
 
 final class ClosePollUseCaseProvider
     extends
@@ -264,7 +236,6 @@ final class ClosePollUseCaseProvider
           ClosePollUseCase
         >
     with $Provider<ClosePollUseCase> {
-  /// Close Poll Use Case Provider
   const ClosePollUseCaseProvider._()
     : super(
         from: null,
@@ -300,12 +271,8 @@ final class ClosePollUseCaseProvider
 
 String _$closePollUseCaseHash() => r'f3c8d6f1c27d178d3a652380f5db78904fad86a0';
 
-/// Delete Poll Use Case Provider
-
 @ProviderFor(deletePollUseCase)
 const deletePollUseCaseProvider = DeletePollUseCaseProvider._();
-
-/// Delete Poll Use Case Provider
 
 final class DeletePollUseCaseProvider
     extends
@@ -315,7 +282,6 @@ final class DeletePollUseCaseProvider
           DeletePollUseCase
         >
     with $Provider<DeletePollUseCase> {
-  /// Delete Poll Use Case Provider
   const DeletePollUseCaseProvider._()
     : super(
         from: null,

@@ -69,6 +69,9 @@ _MessageModel _$MessageModelFromJson(Map<String, dynamic> json) =>
       scheduled: json['scheduled'] as bool? ?? false,
       scheduledTime: json['scheduledTime'] as String?,
       scheduledStatus: json['scheduledStatus'] as String?,
+      pollData: json['pollData'] == null
+          ? null
+          : PollDto.fromJson(json['pollData'] as Map<String, dynamic>),
     );
 
 Map<String, dynamic> _$MessageModelToJson(_MessageModel instance) =>
@@ -109,4 +112,5 @@ Map<String, dynamic> _$MessageModelToJson(_MessageModel instance) =>
       'scheduled': instance.scheduled,
       'scheduledTime': instance.scheduledTime,
       'scheduledStatus': instance.scheduledStatus,
+      'pollData': instance.pollData,
     };

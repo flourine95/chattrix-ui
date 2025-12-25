@@ -1,13 +1,12 @@
-import '../models/poll_dto.dart';
-import '../models/poll_option_dto.dart';
-import '../models/create_poll_request_dto.dart';
-import '../models/vote_request_dto.dart';
-import '../../domain/entities/poll_entity.dart';
-import '../../domain/entities/poll_option_entity.dart';
-import '../../domain/entities/create_poll_params.dart';
-import '../../../auth/data/mappers/user_mapper.dart';
+import 'package:chattrix_ui/features/poll/data/models/poll_dto.dart';
+import 'package:chattrix_ui/features/poll/data/models/poll_option_dto.dart';
+import 'package:chattrix_ui/features/poll/data/models/create_poll_request_dto.dart';
+import 'package:chattrix_ui/features/poll/data/models/vote_request_dto.dart';
+import 'package:chattrix_ui/features/poll/domain/entities/poll_entity.dart';
+import 'package:chattrix_ui/features/poll/domain/entities/poll_option_entity.dart';
+import 'package:chattrix_ui/features/poll/domain/entities/create_poll_params.dart';
+import 'package:chattrix_ui/features/auth/data/mappers/user_mapper.dart';
 
-/// Mapper for Poll DTO ↔ Entity
 extension PollDtoMapper on PollDto {
   PollEntity toEntity() {
     return PollEntity(
@@ -28,7 +27,6 @@ extension PollDtoMapper on PollDto {
   }
 }
 
-/// Mapper for PollOption DTO ↔ Entity
 extension PollOptionDtoMapper on PollOptionDto {
   PollOptionEntity toEntity() {
     return PollOptionEntity(
@@ -42,7 +40,6 @@ extension PollOptionDtoMapper on PollOptionDto {
   }
 }
 
-/// Mapper for CreatePollParams → DTO
 extension CreatePollParamsMapper on CreatePollParams {
   CreatePollRequestDto toDto() {
     return CreatePollRequestDto(
@@ -54,7 +51,6 @@ extension CreatePollParamsMapper on CreatePollParams {
   }
 }
 
-/// Mapper for Vote params → DTO
 extension VoteParamsMapper on List<int> {
   VoteRequestDto toDto() {
     return VoteRequestDto(optionIds: this);

@@ -13,54 +13,54 @@ part of 'scheduled_message_providers.dart';
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
 
-@ProviderFor(scheduledMessageApiService)
-const scheduledMessageApiServiceProvider =
-    ScheduledMessageApiServiceProvider._();
+@ProviderFor(scheduledMessageDatasource)
+const scheduledMessageDatasourceProvider =
+    ScheduledMessageDatasourceProvider._();
 
-final class ScheduledMessageApiServiceProvider
+final class ScheduledMessageDatasourceProvider
     extends
         $FunctionalProvider<
-          ScheduledMessageApiService,
-          ScheduledMessageApiService,
-          ScheduledMessageApiService
+          ScheduledMessageDatasource,
+          ScheduledMessageDatasource,
+          ScheduledMessageDatasource
         >
-    with $Provider<ScheduledMessageApiService> {
-  const ScheduledMessageApiServiceProvider._()
+    with $Provider<ScheduledMessageDatasource> {
+  const ScheduledMessageDatasourceProvider._()
     : super(
         from: null,
         argument: null,
         retry: null,
-        name: r'scheduledMessageApiServiceProvider',
+        name: r'scheduledMessageDatasourceProvider',
         isAutoDispose: true,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
 
   @override
-  String debugGetCreateSourceHash() => _$scheduledMessageApiServiceHash();
+  String debugGetCreateSourceHash() => _$scheduledMessageDatasourceHash();
 
   @$internal
   @override
-  $ProviderElement<ScheduledMessageApiService> $createElement(
+  $ProviderElement<ScheduledMessageDatasource> $createElement(
     $ProviderPointer pointer,
   ) => $ProviderElement(pointer);
 
   @override
-  ScheduledMessageApiService create(Ref ref) {
-    return scheduledMessageApiService(ref);
+  ScheduledMessageDatasource create(Ref ref) {
+    return scheduledMessageDatasource(ref);
   }
 
   /// {@macro riverpod.override_with_value}
-  Override overrideWithValue(ScheduledMessageApiService value) {
+  Override overrideWithValue(ScheduledMessageDatasource value) {
     return $ProviderOverride(
       origin: this,
-      providerOverride: $SyncValueProvider<ScheduledMessageApiService>(value),
+      providerOverride: $SyncValueProvider<ScheduledMessageDatasource>(value),
     );
   }
 }
 
-String _$scheduledMessageApiServiceHash() =>
-    r'381631a713ee879da47bba4b0e4b196b0e66de10';
+String _$scheduledMessageDatasourceHash() =>
+    r'e4e6bc2acfb8f544cd2f5e78d10022428b007d15';
 
 @ProviderFor(scheduledMessageRepository)
 const scheduledMessageRepositoryProvider =
@@ -109,7 +109,7 @@ final class ScheduledMessageRepositoryProvider
 }
 
 String _$scheduledMessageRepositoryHash() =>
-    r'911c35756d3ebba3e7551b29499a17b82266f0cd';
+    r'bd40b72b5aa4b23780f945f0bcadb3552fafd002';
 
 @ProviderFor(scheduleMessageUseCase)
 const scheduleMessageUseCaseProvider = ScheduleMessageUseCaseProvider._();

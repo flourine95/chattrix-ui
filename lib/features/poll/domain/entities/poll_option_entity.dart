@@ -1,11 +1,8 @@
+import 'package:chattrix_ui/features/auth/domain/entities/user.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import '../../../auth/domain/entities/user.dart';
 
 part 'poll_option_entity.freezed.dart';
 
-/// Poll option entity - framework agnostic
-///
-/// Represents a single voting option in a poll
 @freezed
 abstract class PollOptionEntity with _$PollOptionEntity {
   const factory PollOptionEntity({
@@ -19,12 +16,10 @@ abstract class PollOptionEntity with _$PollOptionEntity {
 
   const PollOptionEntity._();
 
-  /// Check if a specific user has voted for this option
   bool hasUserVoted(int userId) {
     return voters.any((voter) => voter.id == userId);
   }
 
-  /// Get voter names as comma-separated string
   String get voterNames {
     if (voters.isEmpty) return '';
     return voters.map((v) => v.fullName).join(', ');

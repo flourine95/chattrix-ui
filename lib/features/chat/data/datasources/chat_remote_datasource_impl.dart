@@ -10,7 +10,10 @@ import 'package:chattrix_ui/features/chat/data/models/message_model.dart';
 import 'package:chattrix_ui/features/chat/data/models/search_user_model.dart';
 import 'package:chattrix_ui/features/chat/data/models/user_status_model.dart';
 import 'package:chattrix_ui/features/chat/domain/datasources/chat_remote_datasource.dart';
+import 'package:chattrix_ui/features/poll/data/models/poll_dto.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 
 class ChatRemoteDatasourceImpl implements ChatRemoteDatasource {
   final Dio dio;
@@ -115,10 +118,7 @@ class ChatRemoteDatasourceImpl implements ChatRemoteDatasource {
     try {
       final response = await dio.get(
         ApiConstants.conversationMembers(conversationId),
-        queryParameters: {
-          if (cursor != null) 'cursor': cursor,
-          'limit': limit,
-        },
+        queryParameters: {if (cursor != null) 'cursor': cursor, 'limit': limit},
       );
 
       if (response.statusCode == 200) {
@@ -126,7 +126,10 @@ class ChatRemoteDatasourceImpl implements ChatRemoteDatasource {
         final paginatedData = response.data['data'] as Map<String, dynamic>;
         final membersData = paginatedData['items'] as List;
 
-        return membersData.whereType<Map<String, dynamic>>().map((json) => ConversationMemberDto.fromJson(json)).toList();
+        return membersData
+            .whereType<Map<String, dynamic>>()
+            .map((json) => ConversationMemberDto.fromJson(json))
+            .toList();
       }
 
       throw ServerException(message: 'Failed to fetch conversation members');
@@ -152,7 +155,34 @@ class ChatRemoteDatasourceImpl implements ChatRemoteDatasource {
         final paginatedData = response.data['data'] as Map<String, dynamic>;
         final data = paginatedData['items'] as List;
 
-        return data.whereType<Map<String, dynamic>>().map((json) => MessageModel.fromApi(json)).toList();
+        // Parse messages
+        final messages = <MessageModel>[];
+        for (var json in data.whereType<Map<String, dynamic>>()) {
+          // Check if this is a POLL message without poll data
+          if (json['type'] == 'POLL' && json['pollId'] != null && !json.containsKey('poll')) {
+            debugPrint('🗳️ [ChatRemoteDataSource] POLL message ${json['id']} missing poll data, fetching...');
+
+            try {
+              // Fetch poll details
+              final pollResponse = await dio.get('/v1/conversations/$conversationId/polls/${json['pollId']}');
+              if (pollResponse.statusCode == 200) {
+                final pollData = pollResponse.data['data'] as Map<String, dynamic>;
+                // Add poll data to message JSON
+                json['poll'] = pollData;
+                debugPrint(
+                  '🗳️ [ChatRemoteDataSource] Successfully fetched poll ${json['pollId']} for message ${json['id']}',
+                );
+              }
+            } catch (e) {
+              debugPrint('⚠️ [ChatRemoteDataSource] Failed to fetch poll ${json['pollId']}: $e');
+              // Continue without poll data - will show "not available" in UI
+            }
+          }
+
+          messages.add(MessageModel.fromApi(json));
+        }
+
+        return messages;
       }
 
       throw ServerException(message: 'Failed to fetch messages');
@@ -242,7 +272,7 @@ class ChatRemoteDatasourceImpl implements ChatRemoteDatasource {
     try {
       final url = ApiConstants.searchUsers;
 
-      final response = await dio.get(url, queryParameters: {'query': query, 'size': limit});
+      final response = await dio.get(url, queryParameters: {'query': query, 'limit': limit});
 
       if (response.statusCode == 200) {
         // API returns cursor-based paginated response: { success, message, data: { items: [...], meta: {...} } }
@@ -429,6 +459,359 @@ class ChatRemoteDatasourceImpl implements ChatRemoteDatasource {
     } catch (e) {
       AppLogger.error('❌ Unexpected error: $e', tag: 'ChatRemoteDataSource');
       throw ServerException(message: 'Failed to mark conversation as read: $e');
+    }
+  }
+
+  @override
+  Future<ConversationModel> updateConversation({
+    required String conversationId,
+    String? name,
+    String? description,
+  }) async {
+    try {
+      final response = await dio.put(
+        ApiConstants.conversationById(conversationId),
+        data: {if (name != null) 'name': name, if (description != null) 'description': description},
+      );
+
+      if (response.statusCode == 200) {
+        final data = response.data['data'] as Map<String, dynamic>;
+        return ConversationModel.fromApi(data);
+      }
+
+      throw ServerException(message: 'Failed to update conversation');
+    } on DioException catch (e) {
+      throw ServerException(message: e.response?.data['message'] ?? 'Failed to update conversation');
+    }
+  }
+
+  @override
+  Future<void> deleteConversation(String conversationId) async {
+    try {
+      final response = await dio.delete(ApiConstants.conversationById(conversationId));
+
+      if (response.statusCode == 200 || response.statusCode == 204) {
+        return;
+      }
+
+      throw ServerException(message: 'Failed to delete conversation');
+    } on DioException catch (e) {
+      throw ServerException(message: e.response?.data['message'] ?? 'Failed to delete conversation');
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> addMembers({required String conversationId, required List<int> userIds}) async {
+    try {
+      final response = await dio.post(ApiConstants.conversationMembers(conversationId), data: {'userIds': userIds});
+
+      if (response.statusCode == 200) {
+        return response.data['data'] as Map<String, dynamic>;
+      }
+
+      throw ServerException(message: 'Failed to add members');
+    } on DioException catch (e) {
+      throw ServerException(message: e.response?.data['message'] ?? 'Failed to add members');
+    }
+  }
+
+  @override
+  Future<void> removeMember({required String conversationId, required int userId}) async {
+    try {
+      final response = await dio.delete('${ApiConstants.conversationMembers(conversationId)}/$userId');
+
+      if (response.statusCode == 200 || response.statusCode == 204) {
+        return;
+      }
+
+      throw ServerException(message: 'Failed to remove member');
+    } on DioException catch (e) {
+      throw ServerException(message: e.response?.data['message'] ?? 'Failed to remove member');
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> updateMemberRole({
+    required String conversationId,
+    required int userId,
+    required String role,
+  }) async {
+    try {
+      final response = await dio.put(
+        '${ApiConstants.conversationMembers(conversationId)}/$userId/role',
+        data: {'role': role},
+      );
+
+      if (response.statusCode == 200) {
+        return response.data['data'] as Map<String, dynamic>;
+      }
+
+      throw ServerException(message: 'Failed to update member role');
+    } on DioException catch (e) {
+      throw ServerException(message: e.response?.data['message'] ?? 'Failed to update member role');
+    }
+  }
+
+  @override
+  Future<void> leaveConversation(String conversationId) async {
+    try {
+      final response = await dio.post('${ApiConstants.conversationMembers(conversationId)}/leave');
+
+      if (response.statusCode == 200 || response.statusCode == 204) {
+        return;
+      }
+
+      throw ServerException(message: 'Failed to leave conversation');
+    } on DioException catch (e) {
+      throw ServerException(message: e.response?.data['message'] ?? 'Failed to leave conversation');
+    }
+  }
+
+  @override
+  Future<ConversationModel> updateGroupAvatar({required String conversationId, required String imagePath}) async {
+    try {
+      final formData = FormData.fromMap({'avatar': await MultipartFile.fromFile(imagePath)});
+
+      final response = await dio.put('${ApiConstants.conversationById(conversationId)}/avatar', data: formData);
+
+      if (response.statusCode == 200) {
+        final data = response.data['data'] as Map<String, dynamic>;
+        return ConversationModel.fromApi(data);
+      }
+
+      throw ServerException(message: 'Failed to update group avatar');
+    } on DioException catch (e) {
+      throw ServerException(message: e.response?.data['message'] ?? 'Failed to update group avatar');
+    }
+  }
+
+  @override
+  Future<void> deleteGroupAvatar(String conversationId) async {
+    try {
+      final response = await dio.delete('${ApiConstants.conversationById(conversationId)}/avatar');
+
+      if (response.statusCode == 200 || response.statusCode == 204) {
+        return;
+      }
+
+      throw ServerException(message: 'Failed to delete group avatar');
+    } on DioException catch (e) {
+      throw ServerException(message: e.response?.data['message'] ?? 'Failed to delete group avatar');
+    }
+  }
+
+  @override
+  Future<MessageModel> pinMessage({required String conversationId, required String messageId}) async {
+    try {
+      final response = await dio.post('/v1/conversations/$conversationId/messages/$messageId/pin');
+
+      if (response.statusCode == 200) {
+        final data = response.data['data'] as Map<String, dynamic>;
+        return MessageModel.fromApi(data);
+      }
+
+      throw ServerException(message: 'Failed to pin message');
+    } on DioException catch (e) {
+      throw ServerException(message: e.response?.data['message'] ?? 'Failed to pin message');
+    }
+  }
+
+  @override
+  Future<void> unpinMessage({required String conversationId, required String messageId}) async {
+    try {
+      final response = await dio.delete('/v1/conversations/$conversationId/messages/$messageId/pin');
+
+      if (response.statusCode == 200 || response.statusCode == 204) {
+        return;
+      }
+
+      throw ServerException(message: 'Failed to unpin message');
+    } on DioException catch (e) {
+      throw ServerException(message: e.response?.data['message'] ?? 'Failed to unpin message');
+    }
+  }
+
+  @override
+  Future<List<MessageModel>> getPinnedMessages(String conversationId) async {
+    try {
+      final response = await dio.get('/v1/conversations/$conversationId/messages/pinned');
+
+      if (response.statusCode == 200) {
+        final data = response.data['data'] as List;
+        return data.whereType<Map<String, dynamic>>().map((json) => MessageModel.fromApi(json)).toList();
+      }
+
+      throw ServerException(message: 'Failed to get pinned messages');
+    } on DioException catch (e) {
+      throw ServerException(message: e.response?.data['message'] ?? 'Failed to get pinned messages');
+    }
+  }
+
+  @override
+  Future<MessageModel> createScheduledMessage({
+    required String conversationId,
+    required String content,
+    required String type,
+    required String scheduledTime,
+  }) async {
+    try {
+      final response = await dio.post(
+        '/v1/conversations/$conversationId/messages/schedule',
+        data: {'content': content, 'type': type, 'scheduledTime': scheduledTime},
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        final data = response.data['data'] as Map<String, dynamic>;
+        return MessageModel.fromApi(data);
+      }
+
+      throw ServerException(message: 'Failed to create scheduled message');
+    } on DioException catch (e) {
+      throw ServerException(message: e.response?.data['message'] ?? 'Failed to create scheduled message');
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> getScheduledMessages({
+    required String conversationId,
+    String? cursor,
+    int limit = 20,
+  }) async {
+    try {
+      final response = await dio.get(
+        '/v1/conversations/$conversationId/messages/scheduled',
+        queryParameters: {if (cursor != null) 'cursor': cursor, 'limit': limit},
+      );
+
+      if (response.statusCode == 200) {
+        return response.data['data'] as Map<String, dynamic>;
+      }
+
+      throw ServerException(message: 'Failed to get scheduled messages');
+    } on DioException catch (e) {
+      throw ServerException(message: e.response?.data['message'] ?? 'Failed to get scheduled messages');
+    }
+  }
+
+  @override
+  Future<MessageModel> getScheduledMessage({required String conversationId, required String scheduledMessageId}) async {
+    try {
+      final response = await dio.get('/v1/conversations/$conversationId/messages/scheduled/$scheduledMessageId');
+
+      if (response.statusCode == 200) {
+        final data = response.data['data'] as Map<String, dynamic>;
+        return MessageModel.fromApi(data);
+      }
+
+      throw ServerException(message: 'Failed to get scheduled message');
+    } on DioException catch (e) {
+      throw ServerException(message: e.response?.data['message'] ?? 'Failed to get scheduled message');
+    }
+  }
+
+  @override
+  Future<MessageModel> updateScheduledMessage({
+    required String conversationId,
+    required String scheduledMessageId,
+    String? content,
+    String? scheduledTime,
+  }) async {
+    try {
+      final response = await dio.put(
+        '/v1/conversations/$conversationId/messages/scheduled/$scheduledMessageId',
+        data: {if (content != null) 'content': content, if (scheduledTime != null) 'scheduledTime': scheduledTime},
+      );
+
+      if (response.statusCode == 200) {
+        final data = response.data['data'] as Map<String, dynamic>;
+        return MessageModel.fromApi(data);
+      }
+
+      throw ServerException(message: 'Failed to update scheduled message');
+    } on DioException catch (e) {
+      throw ServerException(message: e.response?.data['message'] ?? 'Failed to update scheduled message');
+    }
+  }
+
+  @override
+  Future<void> cancelScheduledMessage({required String conversationId, required String scheduledMessageId}) async {
+    try {
+      final response = await dio.delete('/v1/conversations/$conversationId/messages/scheduled/$scheduledMessageId');
+
+      if (response.statusCode == 200 || response.statusCode == 204) {
+        return;
+      }
+
+      throw ServerException(message: 'Failed to cancel scheduled message');
+    } on DioException catch (e) {
+      throw ServerException(message: e.response?.data['message'] ?? 'Failed to cancel scheduled message');
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> cancelScheduledMessagesBulk({
+    required String conversationId,
+    required List<int> scheduledMessageIds,
+  }) async {
+    try {
+      final response = await dio.delete(
+        '/v1/conversations/$conversationId/messages/scheduled/bulk',
+        data: {'scheduledMessageIds': scheduledMessageIds},
+      );
+
+      if (response.statusCode == 200) {
+        return response.data['data'] as Map<String, dynamic>;
+      }
+
+      throw ServerException(message: 'Failed to cancel scheduled messages');
+    } on DioException catch (e) {
+      throw ServerException(message: e.response?.data['message'] ?? 'Failed to cancel scheduled messages');
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> searchMessages({
+    required String conversationId,
+    required String query,
+    String? cursor,
+    int limit = 20,
+  }) async {
+    try {
+      final response = await dio.get(
+        '/v1/conversations/$conversationId/search/messages',
+        queryParameters: {'query': query, if (cursor != null) 'cursor': cursor, 'limit': limit},
+      );
+
+      if (response.statusCode == 200) {
+        return response.data['data'] as Map<String, dynamic>;
+      }
+
+      throw ServerException(message: 'Failed to search messages');
+    } on DioException catch (e) {
+      throw ServerException(message: e.response?.data['message'] ?? 'Failed to search messages');
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> searchMedia({
+    required String conversationId,
+    String? type,
+    String? cursor,
+    int limit = 20,
+  }) async {
+    try {
+      final response = await dio.get(
+        '/v1/conversations/$conversationId/search/media',
+        queryParameters: {if (type != null) 'type': type, if (cursor != null) 'cursor': cursor, 'limit': limit},
+      );
+
+      if (response.statusCode == 200) {
+        return response.data['data'] as Map<String, dynamic>;
+      }
+
+      throw ServerException(message: 'Failed to search media');
+    } on DioException catch (e) {
+      throw ServerException(message: e.response?.data['message'] ?? 'Failed to search media');
     }
   }
 }

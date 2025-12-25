@@ -1,13 +1,11 @@
+import 'package:chattrix_ui/features/poll/domain/entities/create_poll_params.dart';
+import 'package:chattrix_ui/features/poll/domain/entities/poll_entity.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import '../../domain/entities/poll_entity.dart';
-import '../../domain/entities/create_poll_params.dart';
+
 import 'poll_providers.dart';
 
 part 'create_poll_provider.g.dart';
 
-/// Provider for creating a poll
-///
-/// State: AsyncValue<PollEntity>
 @riverpod
 class CreatePoll extends _$CreatePoll {
   @override
@@ -15,7 +13,6 @@ class CreatePoll extends _$CreatePoll {
     return null;
   }
 
-  /// Create a new poll
   Future<void> execute({required CreatePollParams params}) async {
     state = const AsyncValue.loading();
 
@@ -28,7 +25,6 @@ class CreatePoll extends _$CreatePoll {
     );
   }
 
-  /// Map Failure to Exception for AsyncValue
   Exception _mapFailureToException(dynamic failure) {
     return Exception(failure.toString());
   }

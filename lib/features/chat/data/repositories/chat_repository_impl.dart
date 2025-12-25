@@ -2,6 +2,7 @@ import 'package:chattrix_ui/core/domain/enums/conversation_filter.dart';
 import 'package:chattrix_ui/core/errors/failures.dart';
 import 'package:chattrix_ui/core/repositories/base_repository.dart';
 import 'package:chattrix_ui/features/chat/data/models/chat_message_request.dart';
+import 'package:chattrix_ui/features/chat/data/models/message_model.dart';
 import 'package:chattrix_ui/features/chat/domain/datasources/chat_remote_datasource.dart';
 import 'package:chattrix_ui/features/chat/domain/entities/conversation.dart';
 import 'package:chattrix_ui/features/chat/domain/entities/message.dart';
@@ -56,18 +57,22 @@ class ChatRepositoryImpl extends BaseRepository implements ChatRepository {
         cursor: cursor,
         limit: limit,
       );
-      return memberDtos.map<SearchUser>((dto) => SearchUser(
-        id: dto.id,
-        username: dto.username,
-        email: dto.email,
-        fullName: dto.fullName,
-        avatarUrl: dto.avatarUrl,
-        isOnline: dto.online,
-        lastSeen: DateTime.now(),
-        isContact: false,
-        hasConversation: true,
-        conversationId: int.tryParse(conversationId),
-      )).toList();
+      return memberDtos
+          .map<SearchUser>(
+            (dto) => SearchUser(
+              id: dto.id,
+              username: dto.username,
+              email: dto.email,
+              fullName: dto.fullName,
+              avatarUrl: dto.avatarUrl,
+              isOnline: dto.online,
+              lastSeen: DateTime.now(),
+              isContact: false,
+              hasConversation: true,
+              conversationId: int.tryParse(conversationId),
+            ),
+          )
+          .toList();
     });
   }
 
@@ -155,6 +160,28 @@ class ChatRepositoryImpl extends BaseRepository implements ChatRepository {
   Future<Either<Failure, void>> markConversationAsRead({required int conversationId, int? lastMessageId}) async {
     return executeApiCall(() async {
       await remoteDatasource.markConversationAsRead(conversationId: conversationId, lastMessageId: lastMessageId);
+    });
+  }
+
+  @override
+  Future<Either<Failure, List<Message>>> searchMessages({
+    required String conversationId,
+    required String query,
+    String? cursor,
+    int limit = 20,
+  }) async {
+    return executeApiCall(() async {
+      final response = await remoteDatasource.searchMessages(
+        conversationId: conversationId,
+        query: query,
+        cursor: cursor,
+        limit: limit,
+      );
+
+      // Parse the paginated response
+      final items = response['items'] as List;
+      final models = items.whereType<Map<String, dynamic>>().map((json) => MessageModel.fromApi(json)).toList();
+      return models.map((model) => model.toEntity()).toList();
     });
   }
 }

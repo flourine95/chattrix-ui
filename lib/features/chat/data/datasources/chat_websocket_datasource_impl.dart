@@ -313,6 +313,7 @@ class ChatWebSocketDataSourceImpl implements ChatWebSocketDataSource {
   Stream<ScheduledMessageFailedDto> get scheduledMessageFailedStream => _scheduledMessageFailedController.stream;
 
   /// Stream for poll events
+  @override
   Stream<Map<String, dynamic>> get pollEventStream => _pollEventController.stream;
 
   @override

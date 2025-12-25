@@ -128,12 +128,30 @@ class MessagesNotifier extends _$MessagesNotifier {
       final eventType = event['type'] as String?;
       final pollData = event['poll'] as Map<String, dynamic>?;
 
-      if (eventType == null || pollData == null) {
-        debugPrint('❌ [Poll Event] Missing type or poll data');
+      if (eventType == null) {
+        debugPrint('❌ [Poll Event] Missing event type');
         return;
       }
 
       debugPrint('📊 [Poll Event] Received: $eventType');
+      debugPrint('📊 [Poll Event] Poll data: $pollData');
+
+      // For POLL_DELETED, we might not have full poll data
+      if (eventType == 'POLL_DELETED') {
+        final pollId = event['pollId'] as int?;
+        if (pollId != null) {
+          _handlePollDeletedById(pollId);
+        } else {
+          debugPrint('❌ [Poll Event] POLL_DELETED missing pollId');
+        }
+        return;
+      }
+
+      // For other events, we need poll data
+      if (pollData == null) {
+        debugPrint('❌ [Poll Event] Missing poll data for $eventType');
+        return;
+      }
 
       // Parse poll data
       final pollDto = PollDto.fromJson(pollData);
@@ -155,9 +173,6 @@ class MessagesNotifier extends _$MessagesNotifier {
         case 'POLL_CLOSED':
           _handlePollClosed(pollEntity);
           break;
-        case 'POLL_DELETED':
-          _handlePollDeleted(pollEntity);
-          break;
         default:
           debugPrint('📊 [Poll Event] Unknown event type: $eventType');
       }
@@ -170,22 +185,13 @@ class MessagesNotifier extends _$MessagesNotifier {
   void _handlePollCreated(pollEntity) {
     debugPrint('📊 [Poll Event] POLL_CREATED - Poll ID: ${pollEntity.id}');
 
-    // Create new message with poll data
-    final pollMessage = Message(
-      id: DateTime.now().millisecondsSinceEpoch, // Temporary ID
-      conversationId: pollEntity.conversationId,
-      senderId: pollEntity.creator.id,
-      senderUsername: pollEntity.creator.username,
-      senderFullName: pollEntity.creator.fullName,
-      content: pollEntity.question,
-      type: 'POLL',
-      createdAt: pollEntity.createdAt,
-      pollData: pollEntity,
-    );
-
-    // Add to messages list at the beginning
-    state.whenData((messages) {
-      state = AsyncValue.data([pollMessage, ...messages]);
+    // Instead of creating a temporary message, refresh messages to get the real poll message from backend
+    // This ensures we have the correct message ID and all data
+    // Add a small delay to ensure backend has created the message in database
+    debugPrint('📊 [Poll Event] Scheduling refresh to fetch new poll message...');
+    Future.delayed(const Duration(milliseconds: 500), () {
+      debugPrint('📊 [Poll Event] Executing delayed refresh for new poll...');
+      refresh();
     });
   }
 
@@ -195,27 +201,20 @@ class MessagesNotifier extends _$MessagesNotifier {
 
     debugPrint('📊 [Poll Event] POLL_VOTED - Poll ID: ${pollEntity.id}, Voter: $voterName');
 
-    // Create NEW message at top with updated poll data ("nổi lên" feature)
-    final pollMessage = Message(
-      id: DateTime.now().millisecondsSinceEpoch, // Temporary ID
-      conversationId: pollEntity.conversationId,
-      senderId: pollEntity.creator.id,
-      senderUsername: pollEntity.creator.username,
-      senderFullName: pollEntity.creator.fullName,
-      content: pollEntity.question,
-      type: 'POLL',
-      systemMessageType: 'POLL_UPDATE', // Mark as update
-      createdAt: DateTime.now(),
-      pollData: pollEntity,
-    );
-
-    // Add to top of messages
+    // Update existing poll message with new poll data
     state.whenData((messages) {
-      state = AsyncValue.data([pollMessage, ...messages]);
+      final updatedMessages = messages.map((msg) {
+        if (msg.type == 'POLL' && msg.pollData?.id == pollEntity.id) {
+          // Update the poll data while preserving the original message
+          return msg.copyWith(pollData: pollEntity);
+        }
+        return msg;
+      }).toList();
+
+      state = AsyncValue.data(updatedMessages);
     });
 
-    // TODO: Show notification toast
-    debugPrint('📊 [Poll Event] $voterName đã vote');
+    debugPrint('📊 [Poll Event] Poll updated in place - $voterName voted');
   }
 
   void _handlePollClosed(pollEntity) {
@@ -234,13 +233,13 @@ class MessagesNotifier extends _$MessagesNotifier {
     });
   }
 
-  void _handlePollDeleted(pollEntity) {
-    debugPrint('📊 [Poll Event] POLL_DELETED - Poll ID: ${pollEntity.id}');
+  void _handlePollDeletedById(int pollId) {
+    debugPrint('📊 [Poll Event] POLL_DELETED by ID - Poll ID: $pollId');
 
-    // Remove all poll instances from messages
+    // Remove all poll instances from messages by ID
     state.whenData((messages) {
       final filteredMessages = messages.where((msg) {
-        return !(msg.type == 'POLL' && msg.pollData?.id == pollEntity.id);
+        return !(msg.type == 'POLL' && msg.pollData?.id == pollId);
       }).toList();
 
       state = AsyncValue.data(filteredMessages);

@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$PollDto {
 
- int get id; String get question; int get conversationId; UserDto get creator; bool get allowMultipleVotes; DateTime? get expiresAt; bool get isClosed; bool get isExpired; bool get isActive; DateTime get createdAt; int get totalVoters; List<PollOptionDto> get options; List<int> get currentUserVotedOptionIds;
+ int get id; String get question; int get conversationId; UserDto get creator; bool get allowMultipleVotes; DateTime? get expiresAt;@JsonKey(name: 'closed') bool get isClosed;@JsonKey(name: 'expired') bool get isExpired;@JsonKey(name: 'active') bool get isActive; DateTime get createdAt; int get totalVoters; List<PollOptionDto> get options; List<int> get currentUserVotedOptionIds;
 /// Create a copy of PollDto
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -48,7 +48,7 @@ abstract mixin class $PollDtoCopyWith<$Res>  {
   factory $PollDtoCopyWith(PollDto value, $Res Function(PollDto) _then) = _$PollDtoCopyWithImpl;
 @useResult
 $Res call({
- int id, String question, int conversationId, UserDto creator, bool allowMultipleVotes, DateTime? expiresAt, bool isClosed, bool isExpired, bool isActive, DateTime createdAt, int totalVoters, List<PollOptionDto> options, List<int> currentUserVotedOptionIds
+ int id, String question, int conversationId, UserDto creator, bool allowMultipleVotes, DateTime? expiresAt,@JsonKey(name: 'closed') bool isClosed,@JsonKey(name: 'expired') bool isExpired,@JsonKey(name: 'active') bool isActive, DateTime createdAt, int totalVoters, List<PollOptionDto> options, List<int> currentUserVotedOptionIds
 });
 
 
@@ -174,7 +174,7 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int id,  String question,  int conversationId,  UserDto creator,  bool allowMultipleVotes,  DateTime? expiresAt,  bool isClosed,  bool isExpired,  bool isActive,  DateTime createdAt,  int totalVoters,  List<PollOptionDto> options,  List<int> currentUserVotedOptionIds)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int id,  String question,  int conversationId,  UserDto creator,  bool allowMultipleVotes,  DateTime? expiresAt, @JsonKey(name: 'closed')  bool isClosed, @JsonKey(name: 'expired')  bool isExpired, @JsonKey(name: 'active')  bool isActive,  DateTime createdAt,  int totalVoters,  List<PollOptionDto> options,  List<int> currentUserVotedOptionIds)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _PollDto() when $default != null:
 return $default(_that.id,_that.question,_that.conversationId,_that.creator,_that.allowMultipleVotes,_that.expiresAt,_that.isClosed,_that.isExpired,_that.isActive,_that.createdAt,_that.totalVoters,_that.options,_that.currentUserVotedOptionIds);case _:
@@ -195,7 +195,7 @@ return $default(_that.id,_that.question,_that.conversationId,_that.creator,_that
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int id,  String question,  int conversationId,  UserDto creator,  bool allowMultipleVotes,  DateTime? expiresAt,  bool isClosed,  bool isExpired,  bool isActive,  DateTime createdAt,  int totalVoters,  List<PollOptionDto> options,  List<int> currentUserVotedOptionIds)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int id,  String question,  int conversationId,  UserDto creator,  bool allowMultipleVotes,  DateTime? expiresAt, @JsonKey(name: 'closed')  bool isClosed, @JsonKey(name: 'expired')  bool isExpired, @JsonKey(name: 'active')  bool isActive,  DateTime createdAt,  int totalVoters,  List<PollOptionDto> options,  List<int> currentUserVotedOptionIds)  $default,) {final _that = this;
 switch (_that) {
 case _PollDto():
 return $default(_that.id,_that.question,_that.conversationId,_that.creator,_that.allowMultipleVotes,_that.expiresAt,_that.isClosed,_that.isExpired,_that.isActive,_that.createdAt,_that.totalVoters,_that.options,_that.currentUserVotedOptionIds);case _:
@@ -215,7 +215,7 @@ return $default(_that.id,_that.question,_that.conversationId,_that.creator,_that
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int id,  String question,  int conversationId,  UserDto creator,  bool allowMultipleVotes,  DateTime? expiresAt,  bool isClosed,  bool isExpired,  bool isActive,  DateTime createdAt,  int totalVoters,  List<PollOptionDto> options,  List<int> currentUserVotedOptionIds)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int id,  String question,  int conversationId,  UserDto creator,  bool allowMultipleVotes,  DateTime? expiresAt, @JsonKey(name: 'closed')  bool isClosed, @JsonKey(name: 'expired')  bool isExpired, @JsonKey(name: 'active')  bool isActive,  DateTime createdAt,  int totalVoters,  List<PollOptionDto> options,  List<int> currentUserVotedOptionIds)?  $default,) {final _that = this;
 switch (_that) {
 case _PollDto() when $default != null:
 return $default(_that.id,_that.question,_that.conversationId,_that.creator,_that.allowMultipleVotes,_that.expiresAt,_that.isClosed,_that.isExpired,_that.isActive,_that.createdAt,_that.totalVoters,_that.options,_that.currentUserVotedOptionIds);case _:
@@ -230,7 +230,7 @@ return $default(_that.id,_that.question,_that.conversationId,_that.creator,_that
 @JsonSerializable()
 
 class _PollDto implements PollDto {
-  const _PollDto({required this.id, required this.question, required this.conversationId, required this.creator, required this.allowMultipleVotes, this.expiresAt, required this.isClosed, required this.isExpired, required this.isActive, required this.createdAt, required this.totalVoters, required final  List<PollOptionDto> options, required final  List<int> currentUserVotedOptionIds}): _options = options,_currentUserVotedOptionIds = currentUserVotedOptionIds;
+  const _PollDto({required this.id, required this.question, required this.conversationId, required this.creator, required this.allowMultipleVotes, this.expiresAt, @JsonKey(name: 'closed') this.isClosed = false, @JsonKey(name: 'expired') this.isExpired = false, @JsonKey(name: 'active') this.isActive = true, required this.createdAt, required this.totalVoters, required final  List<PollOptionDto> options, required final  List<int> currentUserVotedOptionIds}): _options = options,_currentUserVotedOptionIds = currentUserVotedOptionIds;
   factory _PollDto.fromJson(Map<String, dynamic> json) => _$PollDtoFromJson(json);
 
 @override final  int id;
@@ -239,9 +239,9 @@ class _PollDto implements PollDto {
 @override final  UserDto creator;
 @override final  bool allowMultipleVotes;
 @override final  DateTime? expiresAt;
-@override final  bool isClosed;
-@override final  bool isExpired;
-@override final  bool isActive;
+@override@JsonKey(name: 'closed') final  bool isClosed;
+@override@JsonKey(name: 'expired') final  bool isExpired;
+@override@JsonKey(name: 'active') final  bool isActive;
 @override final  DateTime createdAt;
 @override final  int totalVoters;
  final  List<PollOptionDto> _options;
@@ -292,7 +292,7 @@ abstract mixin class _$PollDtoCopyWith<$Res> implements $PollDtoCopyWith<$Res> {
   factory _$PollDtoCopyWith(_PollDto value, $Res Function(_PollDto) _then) = __$PollDtoCopyWithImpl;
 @override @useResult
 $Res call({
- int id, String question, int conversationId, UserDto creator, bool allowMultipleVotes, DateTime? expiresAt, bool isClosed, bool isExpired, bool isActive, DateTime createdAt, int totalVoters, List<PollOptionDto> options, List<int> currentUserVotedOptionIds
+ int id, String question, int conversationId, UserDto creator, bool allowMultipleVotes, DateTime? expiresAt,@JsonKey(name: 'closed') bool isClosed,@JsonKey(name: 'expired') bool isExpired,@JsonKey(name: 'active') bool isActive, DateTime createdAt, int totalVoters, List<PollOptionDto> options, List<int> currentUserVotedOptionIds
 });
 
 

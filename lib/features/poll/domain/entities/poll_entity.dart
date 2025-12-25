@@ -1,6 +1,7 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
+
+import 'package:chattrix_ui/features/auth/domain/entities/user.dart';
 import 'poll_option_entity.dart';
-import '../../../auth/domain/entities/user.dart';
 
 part 'poll_entity.freezed.dart';
 
