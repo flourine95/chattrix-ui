@@ -1,15 +1,14 @@
+import 'package:chattrix_ui/features/chat/domain/entities/invite_link.dart';
+import 'package:chattrix_ui/features/chat/presentation/providers/invite_link_providers.dart';
 import 'package:flutter/material.dart';
-import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:go_router/go_router.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:go_router/go_router.dart';
-import '../providers/invite_link_providers.dart';
-import '../../domain/entities/invite_link.dart';
 
-/// Custom overlay shape for QR scanner
 class QrScannerOverlayShape extends ShapeBorder {
   final Color borderColor;
   final double borderWidth;
@@ -72,7 +71,6 @@ class QrScannerOverlayShape extends ShapeBorder {
     final right = cutOutRect.right;
     final bottom = cutOutRect.bottom;
 
-    // Top-left corner
     canvas.drawPath(
       Path()
         ..moveTo(left, top + borderLength)
@@ -82,7 +80,6 @@ class QrScannerOverlayShape extends ShapeBorder {
       borderPaint,
     );
 
-    // Top-right corner
     canvas.drawPath(
       Path()
         ..moveTo(right - borderLength, top)
@@ -92,7 +89,6 @@ class QrScannerOverlayShape extends ShapeBorder {
       borderPaint,
     );
 
-    // Bottom-left corner
     canvas.drawPath(
       Path()
         ..moveTo(left, bottom - borderLength)
@@ -102,7 +98,6 @@ class QrScannerOverlayShape extends ShapeBorder {
       borderPaint,
     );
 
-    // Bottom-right corner
     canvas.drawPath(
       Path()
         ..moveTo(right - borderLength, bottom)
@@ -123,7 +118,6 @@ class QrScannerOverlayShape extends ShapeBorder {
   );
 }
 
-/// Page for scanning QR codes to join groups via invite links
 class QrScannerPage extends HookConsumerWidget {
   const QrScannerPage({super.key});
 
@@ -136,13 +130,11 @@ class QrScannerPage extends HookConsumerWidget {
     final hasScanned = useState(false);
     final isProcessing = useState(false);
 
-    // Request camera permission on mount
     useEffect(() {
       _requestCameraPermission(context);
       return null;
     }, []);
 
-    // Dispose controller
     useEffect(() {
       return () => controller.dispose();
     }, []);
@@ -155,7 +147,6 @@ class QrScannerPage extends HookConsumerWidget {
         title: const Text('Scan QR Code', style: TextStyle(color: Colors.white)),
         iconTheme: const IconThemeData(color: Colors.white),
         actions: [
-          // Toggle flash
           IconButton(
             icon: ValueListenableBuilder(
               valueListenable: controller,
@@ -167,7 +158,6 @@ class QrScannerPage extends HookConsumerWidget {
             onPressed: () => controller.toggleTorch(),
             tooltip: 'Toggle flash',
           ),
-          // Pick from gallery button
           IconButton(
             icon: const Icon(Icons.photo_library, color: Colors.white),
             onPressed: () => _pickImageFromGallery(context, ref, controller, hasScanned, isProcessing),
@@ -177,7 +167,6 @@ class QrScannerPage extends HookConsumerWidget {
       ),
       body: Stack(
         children: [
-          // QR Scanner with overlay
           Stack(
             children: [
               MobileScanner(
@@ -196,10 +185,8 @@ class QrScannerPage extends HookConsumerWidget {
                   hasScanned.value = true;
                   isProcessing.value = true;
 
-                  // Stop scanning
                   await controller.stop();
 
-                  // Extract token from URL
                   final token = _extractTokenFromUrl(code);
 
                   if (token != null && context.mounted) {
@@ -217,7 +204,6 @@ class QrScannerPage extends HookConsumerWidget {
                   isProcessing.value = false;
                 },
               ),
-              // Custom overlay
               Container(
                 decoration: ShapeDecoration(
                   shape: QrScannerOverlayShape(
@@ -232,7 +218,6 @@ class QrScannerPage extends HookConsumerWidget {
             ],
           ),
 
-          // Instructions
           Positioned(
             bottom: 100,
             left: 0,
@@ -271,9 +256,7 @@ class QrScannerPage extends HookConsumerWidget {
 
     debugPrint('🔍 Scanning QR code: $url');
 
-    // Get base URL from env, default to chattrix.app
     var inviteBaseUrl = dotenv.env['INVITE_BASE_URL'] ?? 'https://chattrix.app';
-    // Remove trailing slash if present
     if (inviteBaseUrl.endsWith('/')) {
       inviteBaseUrl = inviteBaseUrl.substring(0, inviteBaseUrl.length - 1);
     }
@@ -285,52 +268,36 @@ class QrScannerPage extends HookConsumerWidget {
     // 3. {inviteBaseUrl}/v1/invite-links/{token} (API endpoint without /api prefix)
     final uri = Uri.tryParse(url);
     if (uri == null) {
-      debugPrint('❌ Failed to parse URL');
       return null;
     }
 
-    debugPrint('🌐 Parsed URI - Host: ${uri.host}, Path: ${uri.path}, Segments: ${uri.pathSegments}');
-
-    // Extract host from inviteBaseUrl for comparison
     final expectedUri = Uri.tryParse(inviteBaseUrl);
     if (expectedUri == null) {
-      debugPrint('❌ Failed to parse expected URL');
       return null;
     }
 
-    debugPrint('✅ Expected URI - Host: ${expectedUri.host}');
-
-    // Check if host matches
     if (uri.host != expectedUri.host) {
-      debugPrint('❌ Host mismatch: ${uri.host} != ${expectedUri.host}');
       return null;
     }
 
-    // Check for user-friendly format: /join/{token}
     if (uri.pathSegments.length >= 2 && uri.pathSegments[0] == 'join') {
       final token = uri.pathSegments[1];
-      debugPrint('✅ Token extracted from /join/ format: $token');
       return token;
     }
 
-    // Check for API endpoint format with /api prefix: /api/v1/invite-links/{token}
     if (uri.pathSegments.length >= 4 &&
         uri.pathSegments[0] == 'api' &&
         uri.pathSegments[1] == 'v1' &&
         uri.pathSegments[2] == 'invite-links') {
       final token = uri.pathSegments[3];
-      debugPrint('✅ Token extracted from /api/v1/invite-links/ format: $token');
       return token;
     }
 
-    // Check for API endpoint format without /api prefix: /v1/invite-links/{token}
     if (uri.pathSegments.length >= 3 && uri.pathSegments[0] == 'v1' && uri.pathSegments[1] == 'invite-links') {
       final token = uri.pathSegments[2];
-      debugPrint('✅ Token extracted from /v1/invite-links/ format: $token');
       return token;
     }
 
-    debugPrint('❌ URL validation failed - Path segments: ${uri.pathSegments}');
     return null;
   }
 
@@ -380,7 +347,6 @@ class QrScannerPage extends HookConsumerWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // Handle bar
             Container(
               width: 40,
               height: 4,
@@ -391,7 +357,6 @@ class QrScannerPage extends HookConsumerWidget {
               ),
             ),
 
-            // Icon
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(color: colors.primary.withValues(alpha: 0.1), shape: BoxShape.circle),
@@ -400,12 +365,10 @@ class QrScannerPage extends HookConsumerWidget {
 
             const SizedBox(height: 20),
 
-            // Title
             Text('Join Group?', style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
 
             const SizedBox(height: 12),
 
-            // Group info
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(color: colors.surfaceContainerHighest, borderRadius: BorderRadius.circular(12)),
@@ -420,7 +383,6 @@ class QrScannerPage extends HookConsumerWidget {
 
             const SizedBox(height: 24),
 
-            // Buttons
             Row(
               children: [
                 Expanded(
@@ -472,7 +434,6 @@ class QrScannerPage extends HookConsumerWidget {
   }
 
   Future<void> _joinGroup(BuildContext context, WidgetRef ref, String token, int conversationId) async {
-    // Show loading
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -484,7 +445,6 @@ class QrScannerPage extends HookConsumerWidget {
 
     if (!context.mounted) return;
 
-    // Dismiss loading
     Navigator.pop(context);
 
     result.fold(
@@ -494,22 +454,16 @@ class QrScannerPage extends HookConsumerWidget {
       (joinResult) async {
         debugPrint('✅ Join successful - conversationId: ${joinResult.conversationId}');
 
-        // Save router before popping
         final router = GoRouter.of(context);
 
-        // Pop scanner page first
         if (context.mounted) {
           Navigator.pop(context);
         }
 
-        // Wait a bit for navigation to settle
         await Future.delayed(const Duration(milliseconds: 100));
 
-        // Navigate using saved router - use correct route path
-        debugPrint('🚀 Navigating to conversation ${joinResult.conversationId}');
         router.push('/chat/${joinResult.conversationId}');
 
-        // Show success message after navigation
         await Future.delayed(const Duration(milliseconds: 500));
         if (context.mounted) {
           ScaffoldMessenger.of(
@@ -571,19 +525,16 @@ class QrScannerPage extends HookConsumerWidget {
       hasScanned.value = true;
       isProcessing.value = true;
 
-      // Show loading
       showDialog(
         context: context,
         barrierDismissible: false,
         builder: (context) => const Center(child: CircularProgressIndicator()),
       );
 
-      // Analyze image using mobile_scanner
       final BarcodeCapture? capture = await controller.analyzeImage(image.path);
 
       if (!context.mounted) return;
 
-      // Dismiss loading
       Navigator.pop(context);
 
       if (capture != null && capture.barcodes.isNotEmpty) {
@@ -591,7 +542,6 @@ class QrScannerPage extends HookConsumerWidget {
         final String? qrCode = barcode.rawValue;
 
         if (qrCode != null && qrCode.isNotEmpty) {
-          // Extract token from URL
           final token = _extractTokenFromUrl(qrCode);
 
           if (token != null && context.mounted) {
@@ -617,7 +567,6 @@ class QrScannerPage extends HookConsumerWidget {
     } catch (e) {
       debugPrint('Error scanning image: $e');
       if (context.mounted) {
-        // Dismiss loading if still showing
         Navigator.of(
           context,
           rootNavigator: true,

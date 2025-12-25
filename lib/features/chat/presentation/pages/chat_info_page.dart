@@ -16,6 +16,7 @@ import 'package:chattrix_ui/features/chat/presentation/providers/chat_providers.
 import 'package:chattrix_ui/features/chat/presentation/providers/conversation_settings_provider.dart';
 import 'package:chattrix_ui/features/chat/presentation/providers/poll_providers.dart';
 import 'package:chattrix_ui/features/chat/presentation/providers/social_providers.dart';
+import 'package:chattrix_ui/features/chat/presentation/state/conversations_notifier.dart';
 import 'package:chattrix_ui/features/chat/presentation/utils/conversation_utils.dart';
 import 'package:chattrix_ui/features/chat/presentation/widgets/chat_info_bottom_sheets.dart';
 import 'package:flutter/foundation.dart';
@@ -711,11 +712,18 @@ class ChatInfoPage extends HookConsumerWidget {
                 Expanded(
                   child: FilledButton(
                     onPressed: () async {
-                      Navigator.pop(context);
+                      Navigator.pop(context); // Close bottom sheet
                       try {
                         await ref.read(conversationSettingsProvider(conversation.id.toString()).notifier).leaveGroup();
                         if (context.mounted) {
-                          Navigator.pop(context); // Go back to chat list
+                          // Pop chat info page
+                          Navigator.pop(context);
+                          // Pop chat view page to go back to conversations list
+                          Navigator.pop(context);
+
+                          // Invalidate conversations list to refresh
+                          ref.invalidate(conversationsProvider);
+
                           ScaffoldMessenger.of(
                             context,
                           ).showSnackBar(const SnackBar(content: Text('Left group successfully')));
