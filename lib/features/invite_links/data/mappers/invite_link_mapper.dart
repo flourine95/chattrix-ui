@@ -1,5 +1,5 @@
-import '../models/invite_link_dto.dart';
-import '../../domain/entities/invite_link_entity.dart';
+import 'package:chattrix_ui/features/invite_links/data/models/invite_link_dto.dart';
+import 'package:chattrix_ui/features/invite_links/domain/entities/invite_link_entity.dart';
 
 extension InviteLinkDtoMapper on InviteLinkDto {
   InviteLinkEntity toEntity() {

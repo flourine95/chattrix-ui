@@ -564,6 +564,14 @@ class ChatViewPage extends HookConsumerWidget {
           showAttachmentPicker.value = false;
           context.push('/chat/$chatId/create-poll');
           break;
+        case AttachmentType.schedule:
+          // Navigate to schedule message page
+          showAttachmentPicker.value = false;
+          final conversationId = int.tryParse(chatId);
+          if (conversationId != null) {
+            context.push('/chat/$conversationId/schedule-message');
+          }
+          break;
       }
     }
 

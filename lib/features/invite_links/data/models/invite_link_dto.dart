@@ -3,7 +3,6 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 part 'invite_link_dto.freezed.dart';
 part 'invite_link_dto.g.dart';
 
-/// DTO for creating invite link request
 @freezed
 abstract class CreateInviteLinkRequestDto with _$CreateInviteLinkRequestDto {
   const factory CreateInviteLinkRequestDto({int? expiresIn, int? maxUses}) = _CreateInviteLinkRequestDto;
@@ -11,7 +10,6 @@ abstract class CreateInviteLinkRequestDto with _$CreateInviteLinkRequestDto {
   factory CreateInviteLinkRequestDto.fromJson(Map<String, dynamic> json) => _$CreateInviteLinkRequestDtoFromJson(json);
 }
 
-/// DTO for invite link response
 @freezed
 abstract class InviteLinkDto with _$InviteLinkDto {
   const factory InviteLinkDto({
@@ -33,7 +31,6 @@ abstract class InviteLinkDto with _$InviteLinkDto {
   factory InviteLinkDto.fromJson(Map<String, dynamic> json) => _$InviteLinkDtoFromJson(json);
 }
 
-/// DTO for invite link info (public)
 @freezed
 abstract class InviteLinkInfoDto with _$InviteLinkInfoDto {
   const factory InviteLinkInfoDto({
@@ -55,7 +52,6 @@ abstract class InviteLinkInfoDto with _$InviteLinkInfoDto {
   factory InviteLinkInfoDto.fromJson(Map<String, dynamic> json) => _$InviteLinkInfoDtoFromJson(json);
 }
 
-/// DTO for join group response
 @freezed
 abstract class JoinGroupResponseDto with _$JoinGroupResponseDto {
   const factory JoinGroupResponseDto({

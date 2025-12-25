@@ -36,13 +36,17 @@ abstract class ScheduledMessageRepository {
   ///
   /// Returns [Right] with [ScheduledMessage] on success
   /// Returns [Left] with [Failure] on error
-  Future<Either<Failure, ScheduledMessage>> getScheduledMessage({required int scheduledMessageId});
+  Future<Either<Failure, ScheduledMessage>> getScheduledMessage({
+    required int conversationId,
+    required int scheduledMessageId,
+  });
 
   /// Update scheduled message
   ///
   /// Returns [Right] with updated [ScheduledMessage] on success
   /// Returns [Left] with [Failure] on error
   Future<Either<Failure, ScheduledMessage>> updateScheduledMessage({
+    required int conversationId,
     required int scheduledMessageId,
     String? content,
     DateTime? scheduledTime,
@@ -55,11 +59,14 @@ abstract class ScheduledMessageRepository {
   ///
   /// Returns [Right] with void on success
   /// Returns [Left] with [Failure] on error
-  Future<Either<Failure, void>> cancelScheduledMessage({required int scheduledMessageId});
+  Future<Either<Failure, void>> cancelScheduledMessage({required int conversationId, required int scheduledMessageId});
 
   /// Bulk cancel scheduled messages
   ///
   /// Returns [Right] with count of cancelled messages on success
   /// Returns [Left] with [Failure] on error
-  Future<Either<Failure, int>> bulkCancelScheduledMessages({required List<int> scheduledMessageIds});
+  Future<Either<Failure, int>> bulkCancelScheduledMessages({
+    required int conversationId,
+    required List<int> scheduledMessageIds,
+  });
 }

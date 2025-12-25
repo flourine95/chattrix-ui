@@ -394,3 +394,78 @@ final class GetQrCodeUseCaseProvider
 }
 
 String _$getQrCodeUseCaseHash() => r'718eb2046f8722c27fa086051e93607335cb0baa';
+
+@ProviderFor(inviteLinksList)
+const inviteLinksListProvider = InviteLinksListFamily._();
+
+final class InviteLinksListProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<List<InviteLink>>,
+          List<InviteLink>,
+          FutureOr<List<InviteLink>>
+        >
+    with $FutureModifier<List<InviteLink>>, $FutureProvider<List<InviteLink>> {
+  const InviteLinksListProvider._({
+    required InviteLinksListFamily super.from,
+    required int super.argument,
+  }) : super(
+         retry: null,
+         name: r'inviteLinksListProvider',
+         isAutoDispose: true,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
+
+  @override
+  String debugGetCreateSourceHash() => _$inviteLinksListHash();
+
+  @override
+  String toString() {
+    return r'inviteLinksListProvider'
+        ''
+        '($argument)';
+  }
+
+  @$internal
+  @override
+  $FutureProviderElement<List<InviteLink>> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<List<InviteLink>> create(Ref ref) {
+    final argument = this.argument as int;
+    return inviteLinksList(ref, argument);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is InviteLinksListProvider && other.argument == argument;
+  }
+
+  @override
+  int get hashCode {
+    return argument.hashCode;
+  }
+}
+
+String _$inviteLinksListHash() => r'428a27d2fe0d245107e4909b9109f0ed4b21dfaa';
+
+final class InviteLinksListFamily extends $Family
+    with $FunctionalFamilyOverride<FutureOr<List<InviteLink>>, int> {
+  const InviteLinksListFamily._()
+    : super(
+        retry: null,
+        name: r'inviteLinksListProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: true,
+      );
+
+  InviteLinksListProvider call(int conversationId) =>
+      InviteLinksListProvider._(argument: conversationId, from: this);
+
+  @override
+  String toString() => r'inviteLinksListProvider';
+}

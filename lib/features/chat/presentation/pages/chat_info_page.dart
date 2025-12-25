@@ -10,7 +10,6 @@ import 'package:chattrix_ui/features/chat/presentation/pages/files_links_page.da
 import 'package:chattrix_ui/features/chat/presentation/pages/group_permissions_page.dart';
 import 'package:chattrix_ui/features/chat/presentation/pages/invite_links_page.dart';
 import 'package:chattrix_ui/features/chat/presentation/pages/polls_page.dart';
-import 'package:chattrix_ui/features/chat/presentation/pages/scheduled_messages_page.dart';
 import 'package:chattrix_ui/features/chat/presentation/pages/search_messages_page.dart';
 import 'package:chattrix_ui/features/chat/presentation/providers/chat_providers.dart';
 import 'package:chattrix_ui/features/chat/presentation/providers/conversation_settings_provider.dart';
@@ -22,6 +21,7 @@ import 'package:chattrix_ui/features/chat/presentation/widgets/chat_info_bottom_
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 class ChatInfoPage extends HookConsumerWidget {
@@ -155,7 +155,7 @@ class ChatInfoPage extends HookConsumerWidget {
             colors: colors,
             textTheme: textTheme,
             onTap: () {
-              Navigator.push(context, MaterialPageRoute(builder: (context) => const ScheduledMessagesPage()));
+              context.push('/chat/${conversation.id}/scheduled-messages');
             },
           ),
         ),
@@ -264,7 +264,7 @@ class ChatInfoPage extends HookConsumerWidget {
             colors: colors,
             textTheme: textTheme,
             onTap: () {
-              Navigator.push(context, MaterialPageRoute(builder: (context) => const ScheduledMessagesPage()));
+              context.push('/chat/${conversation.id}/scheduled-messages');
             },
           ),
         ),

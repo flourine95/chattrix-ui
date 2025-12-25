@@ -12,12 +12,9 @@ part of 'invite_links_providers.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
-/// API Service Provider
 
 @ProviderFor(inviteLinksApiService)
 const inviteLinksApiServiceProvider = InviteLinksApiServiceProvider._();
-
-/// API Service Provider
 
 final class InviteLinksApiServiceProvider
     extends
@@ -27,7 +24,6 @@ final class InviteLinksApiServiceProvider
           InviteLinksApiService
         >
     with $Provider<InviteLinksApiService> {
-  /// API Service Provider
   const InviteLinksApiServiceProvider._()
     : super(
         from: null,
@@ -65,12 +61,8 @@ final class InviteLinksApiServiceProvider
 String _$inviteLinksApiServiceHash() =>
     r'b8a6482d166b24d333468a352e1fe298f3e40388';
 
-/// Repository Provider
-
 @ProviderFor(inviteLinksRepository)
 const inviteLinksRepositoryProvider = InviteLinksRepositoryProvider._();
-
-/// Repository Provider
 
 final class InviteLinksRepositoryProvider
     extends
@@ -80,7 +72,6 @@ final class InviteLinksRepositoryProvider
           InviteLinksRepository
         >
     with $Provider<InviteLinksRepository> {
-  /// Repository Provider
   const InviteLinksRepositoryProvider._()
     : super(
         from: null,
@@ -118,12 +109,8 @@ final class InviteLinksRepositoryProvider
 String _$inviteLinksRepositoryHash() =>
     r'6bcd01dac30a56525b3c9b5e12ecf5360b6536f0';
 
-/// Create Invite Link Use Case
-
 @ProviderFor(createInviteLinkUseCase)
 const createInviteLinkUseCaseProvider = CreateInviteLinkUseCaseProvider._();
-
-/// Create Invite Link Use Case
 
 final class CreateInviteLinkUseCaseProvider
     extends
@@ -133,7 +120,6 @@ final class CreateInviteLinkUseCaseProvider
           CreateInviteLinkUseCase
         >
     with $Provider<CreateInviteLinkUseCase> {
-  /// Create Invite Link Use Case
   const CreateInviteLinkUseCaseProvider._()
     : super(
         from: null,
@@ -171,12 +157,8 @@ final class CreateInviteLinkUseCaseProvider
 String _$createInviteLinkUseCaseHash() =>
     r'778b17e9e331c1daa3e980a8cb4f66ab1e1d3729';
 
-/// Get Invite Links Use Case
-
 @ProviderFor(getInviteLinksUseCase)
 const getInviteLinksUseCaseProvider = GetInviteLinksUseCaseProvider._();
-
-/// Get Invite Links Use Case
 
 final class GetInviteLinksUseCaseProvider
     extends
@@ -186,7 +168,6 @@ final class GetInviteLinksUseCaseProvider
           GetInviteLinksUseCase
         >
     with $Provider<GetInviteLinksUseCase> {
-  /// Get Invite Links Use Case
   const GetInviteLinksUseCaseProvider._()
     : super(
         from: null,
@@ -224,12 +205,8 @@ final class GetInviteLinksUseCaseProvider
 String _$getInviteLinksUseCaseHash() =>
     r'fabb393e4c7390db5502af8161ce600fc4840817';
 
-/// Revoke Invite Link Use Case
-
 @ProviderFor(revokeInviteLinkUseCase)
 const revokeInviteLinkUseCaseProvider = RevokeInviteLinkUseCaseProvider._();
-
-/// Revoke Invite Link Use Case
 
 final class RevokeInviteLinkUseCaseProvider
     extends
@@ -239,7 +216,6 @@ final class RevokeInviteLinkUseCaseProvider
           RevokeInviteLinkUseCase
         >
     with $Provider<RevokeInviteLinkUseCase> {
-  /// Revoke Invite Link Use Case
   const RevokeInviteLinkUseCaseProvider._()
     : super(
         from: null,
@@ -277,12 +253,8 @@ final class RevokeInviteLinkUseCaseProvider
 String _$revokeInviteLinkUseCaseHash() =>
     r'84118726b90b552a8726c462e9c6b8e2a4b6f59e';
 
-/// Get QR Code Use Case
-
 @ProviderFor(getQRCodeUseCase)
 const getQRCodeUseCaseProvider = GetQRCodeUseCaseProvider._();
-
-/// Get QR Code Use Case
 
 final class GetQRCodeUseCaseProvider
     extends
@@ -292,7 +264,6 @@ final class GetQRCodeUseCaseProvider
           GetQRCodeUseCase
         >
     with $Provider<GetQRCodeUseCase> {
-  /// Get QR Code Use Case
   const GetQRCodeUseCaseProvider._()
     : super(
         from: null,
@@ -328,12 +299,8 @@ final class GetQRCodeUseCaseProvider
 
 String _$getQRCodeUseCaseHash() => r'6acca188df345d8c85d034a258948392e215ecef';
 
-/// Get Invite Link Info Use Case
-
 @ProviderFor(getInviteLinkInfoUseCase)
 const getInviteLinkInfoUseCaseProvider = GetInviteLinkInfoUseCaseProvider._();
-
-/// Get Invite Link Info Use Case
 
 final class GetInviteLinkInfoUseCaseProvider
     extends
@@ -343,7 +310,6 @@ final class GetInviteLinkInfoUseCaseProvider
           GetInviteLinkInfoUseCase
         >
     with $Provider<GetInviteLinkInfoUseCase> {
-  /// Get Invite Link Info Use Case
   const GetInviteLinkInfoUseCaseProvider._()
     : super(
         from: null,
@@ -381,12 +347,8 @@ final class GetInviteLinkInfoUseCaseProvider
 String _$getInviteLinkInfoUseCaseHash() =>
     r'1c24478e84c56718e9472bcc896110d758e3b0a0';
 
-/// Join Group Via Link Use Case
-
 @ProviderFor(joinGroupViaLinkUseCase)
 const joinGroupViaLinkUseCaseProvider = JoinGroupViaLinkUseCaseProvider._();
-
-/// Join Group Via Link Use Case
 
 final class JoinGroupViaLinkUseCaseProvider
     extends
@@ -396,7 +358,6 @@ final class JoinGroupViaLinkUseCaseProvider
           JoinGroupViaLinkUseCase
         >
     with $Provider<JoinGroupViaLinkUseCase> {
-  /// Join Group Via Link Use Case
   const JoinGroupViaLinkUseCaseProvider._()
     : super(
         from: null,

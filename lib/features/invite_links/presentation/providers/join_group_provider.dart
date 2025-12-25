@@ -1,12 +1,11 @@
-import 'package:flutter/foundation.dart';
+import 'package:chattrix_ui/core/errors/failures.dart';
+import 'package:chattrix_ui/features/invite_links/domain/entities/invite_link_entity.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import '../../../../core/errors/failures.dart';
-import '../../domain/entities/invite_link_entity.dart';
+
 import 'invite_links_providers.dart';
 
 part 'join_group_provider.g.dart';
 
-/// Provider for joining group via invite link
 @riverpod
 class JoinGroup extends _$JoinGroup {
   @override
@@ -14,7 +13,6 @@ class JoinGroup extends _$JoinGroup {
     return null;
   }
 
-  /// Join group via invite link
   Future<void> join(String token) async {
     state = const AsyncValue.loading();
 
@@ -24,13 +22,11 @@ class JoinGroup extends _$JoinGroup {
 
     if (ref.mounted) {
       state = result.fold((failure) {
-        debugPrint('Failed to join group: ${failure.userMessage}');
         return AsyncValue.error(Exception(failure.userMessage), StackTrace.current);
       }, (result) => AsyncValue.data(result));
     }
   }
 
-  /// Reset state
   void reset() {
     if (ref.mounted) {
       state = const AsyncValue.data(null);

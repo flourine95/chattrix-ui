@@ -1,12 +1,13 @@
-import 'dart:typed_data';
-import 'package:flutter/material.dart';
-import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:gal/gal.dart';
-import 'package:share_plus/share_plus.dart';
-import 'package:path_provider/path_provider.dart';
 import 'dart:io';
-import '../../../../core/errors/failures.dart';
-import '../providers/invite_links_providers.dart';
+import 'dart:typed_data';
+
+import 'package:chattrix_ui/core/errors/failures.dart';
+import 'package:chattrix_ui/features/invite_links/presentation/providers/invite_links_providers.dart';
+import 'package:flutter/material.dart';
+import 'package:gal/gal.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:share_plus/share_plus.dart';
 
 class QRCodeDialog extends ConsumerWidget {
   const QRCodeDialog({super.key, required this.conversationId, required this.linkId, required this.token});
@@ -26,7 +27,6 @@ class QRCodeDialog extends ConsumerWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // Header
             Row(
               children: [
                 Icon(Icons.qr_code, color: colors.primary),
@@ -39,7 +39,6 @@ class QRCodeDialog extends ConsumerWidget {
 
             const SizedBox(height: 24),
 
-            // QR Code Image
             FutureBuilder<Uint8List>(
               future: _loadQRCode(ref),
               builder: (context, snapshot) {
@@ -56,7 +55,7 @@ class QRCodeDialog extends ConsumerWidget {
                         children: [
                           Icon(Icons.error_outline, size: 48, color: colors.error),
                           const SizedBox(height: 16),
-                          Text('Không thể tải QR code', style: textTheme.bodyMedium),
+                          Text('Failed to load QR code', style: textTheme.bodyMedium),
                           const SizedBox(height: 8),
                           Text(
                             snapshot.error.toString(),
@@ -81,7 +80,6 @@ class QRCodeDialog extends ConsumerWidget {
 
             const SizedBox(height: 16),
 
-            // Token
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(color: colors.surfaceContainerHighest, borderRadius: BorderRadius.circular(8)),
@@ -93,14 +91,13 @@ class QRCodeDialog extends ConsumerWidget {
 
             const SizedBox(height: 24),
 
-            // Actions
             Row(
               children: [
                 Expanded(
                   child: OutlinedButton.icon(
                     onPressed: () => _saveQRCode(context, ref),
                     icon: const Icon(Icons.download),
-                    label: const Text('Lưu'),
+                    label: const Text('Save'),
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -108,7 +105,7 @@ class QRCodeDialog extends ConsumerWidget {
                   child: FilledButton.icon(
                     onPressed: () => _shareQRCode(context, ref),
                     icon: const Icon(Icons.share),
-                    label: const Text('Chia sẻ'),
+                    label: const Text('Share'),
                   ),
                 ),
               ],
@@ -125,7 +122,7 @@ class QRCodeDialog extends ConsumerWidget {
     final result = await useCase(conversationId: conversationId, linkId: linkId, size: 600);
 
     return result.fold((failure) {
-      final f = failure as Failure;
+      final f = failure;
       throw Exception(f.userMessage);
     }, (bytes) => Uint8List.fromList(bytes));
   }
@@ -134,20 +131,18 @@ class QRCodeDialog extends ConsumerWidget {
     try {
       final imageBytes = await _loadQRCode(ref);
 
-      // Save to temporary file first
       final tempDir = await getTemporaryDirectory();
       final file = File('${tempDir.path}/invite_link_$token.png');
       await file.writeAsBytes(imageBytes);
 
-      // Save to gallery using gal
       await Gal.putImage(file.path, album: 'Chattrix');
 
       if (!context.mounted) return;
 
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Đã lưu QR code vào thư viện')));
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('QR code saved to gallery')));
     } catch (e) {
       if (!context.mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Lỗi: $e')));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
     }
   }
 
@@ -155,16 +150,14 @@ class QRCodeDialog extends ConsumerWidget {
     try {
       final imageBytes = await _loadQRCode(ref);
 
-      // Save to temp directory
       final tempDir = await getTemporaryDirectory();
       final file = File('${tempDir.path}/invite_qr_$token.png');
       await file.writeAsBytes(imageBytes);
 
-      // Share
-      await Share.shareXFiles([XFile(file.path)], text: 'QR Code link mời vào nhóm');
+      await Share.shareXFiles([XFile(file.path)], text: 'Group invite QR Code');
     } catch (e) {
       if (!context.mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Lỗi: $e')));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
     }
   }
 }

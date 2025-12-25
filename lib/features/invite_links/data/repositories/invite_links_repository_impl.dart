@@ -1,12 +1,12 @@
 import 'package:chattrix_ui/core/errors/exceptions.dart';
 import 'package:chattrix_ui/core/errors/failures.dart';
+import 'package:chattrix_ui/core/repositories/base_repository.dart';
+import 'package:chattrix_ui/features/invite_links/data/datasources/remote/invite_links_api_service.dart';
+import 'package:chattrix_ui/features/invite_links/data/mappers/invite_link_mapper.dart';
+import 'package:chattrix_ui/features/invite_links/data/models/invite_link_dto.dart';
+import 'package:chattrix_ui/features/invite_links/domain/entities/invite_link_entity.dart';
+import 'package:chattrix_ui/features/invite_links/domain/repositories/invite_links_repository.dart';
 import 'package:fpdart/fpdart.dart';
-import '../../../../core/repositories/base_repository.dart';
-import '../../domain/entities/invite_link_entity.dart';
-import '../../domain/repositories/invite_links_repository.dart';
-import '../datasources/remote/invite_links_api_service.dart';
-import '../mappers/invite_link_mapper.dart';
-import '../models/invite_link_dto.dart';
 
 class InviteLinksRepositoryImpl extends BaseRepository implements InviteLinksRepository {
   final InviteLinksApiService _apiService;
@@ -29,11 +29,7 @@ class InviteLinksRepositoryImpl extends BaseRepository implements InviteLinksRep
       if (response.success && response.data != null) {
         return response.data!.toEntity();
       } else {
-        throw ApiException(
-          message: response.message ?? 'Failed to create invite link',
-          code: 'CREATE_LINK_ERROR',
-          statusCode: 500,
-        );
+        throw ApiException(message: response.message, code: 'CREATE_LINK_ERROR', statusCode: 500);
       }
     });
   }
@@ -65,11 +61,7 @@ class InviteLinksRepositoryImpl extends BaseRepository implements InviteLinksRep
 
         return (items: items, nextCursor: nextCursor, hasNextPage: hasNextPage);
       } else {
-        throw ApiException(
-          message: response.message ?? 'Failed to get invite links',
-          code: 'GET_LINKS_ERROR',
-          statusCode: 500,
-        );
+        throw ApiException(message: response.message, code: 'GET_LINKS_ERROR', statusCode: 500);
       }
     });
   }
@@ -82,11 +74,7 @@ class InviteLinksRepositoryImpl extends BaseRepository implements InviteLinksRep
       if (response.success && response.data != null) {
         return response.data!.toEntity();
       } else {
-        throw ApiException(
-          message: response.message ?? 'Failed to revoke invite link',
-          code: 'REVOKE_LINK_ERROR',
-          statusCode: 500,
-        );
+        throw ApiException(message: response.message, code: 'REVOKE_LINK_ERROR', statusCode: 500);
       }
     });
   }
@@ -111,11 +99,7 @@ class InviteLinksRepositoryImpl extends BaseRepository implements InviteLinksRep
       if (response.success && response.data != null) {
         return response.data!.toEntity();
       } else {
-        throw ApiException(
-          message: response.message ?? 'Failed to get invite link info',
-          code: 'GET_LINK_INFO_ERROR',
-          statusCode: 500,
-        );
+        throw ApiException(message: response.message, code: 'GET_LINK_INFO_ERROR', statusCode: 500);
       }
     });
   }
@@ -128,11 +112,7 @@ class InviteLinksRepositoryImpl extends BaseRepository implements InviteLinksRep
       if (response.success && response.data != null) {
         return response.data!.toEntity();
       } else {
-        throw ApiException(
-          message: response.message ?? 'Failed to join group',
-          code: 'JOIN_GROUP_ERROR',
-          statusCode: 500,
-        );
+        throw ApiException(message: response.message, code: 'JOIN_GROUP_ERROR', statusCode: 500);
       }
     });
   }

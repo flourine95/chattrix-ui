@@ -3,6 +3,7 @@ import '../../../../features/auth/presentation/providers/auth_repository_provide
 import '../../data/datasources/invite_link_datasource_impl.dart';
 import '../../data/repositories/invite_link_repository_impl.dart';
 import '../../domain/datasources/invite_link_datasource.dart';
+import '../../domain/entities/invite_link.dart';
 import '../../domain/repositories/invite_link_repository.dart';
 import '../../domain/usecases/invite_link/create_invite_link_usecase.dart';
 import '../../domain/usecases/invite_link/get_invite_links_usecase.dart';
@@ -62,4 +63,12 @@ JoinViaInviteLinkUseCase joinViaInviteLinkUseCase(Ref ref) {
 GetQrCodeUseCase getQrCodeUseCase(Ref ref) {
   final repository = ref.watch(inviteLinkRepositoryProvider);
   return GetQrCodeUseCase(repository);
+}
+
+// List Provider - fetches invite links for a conversation
+@riverpod
+Future<List<InviteLink>> inviteLinksList(Ref ref, int conversationId) async {
+  final useCase = ref.watch(getInviteLinksUseCaseProvider);
+  final result = await useCase(conversationId: conversationId);
+  return result.fold((failure) => throw Exception(failure.message), (links) => links);
 }

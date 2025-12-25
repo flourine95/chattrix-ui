@@ -12,15 +12,12 @@ part of 'join_group_provider.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
-/// Provider for joining group via invite link
 
 @ProviderFor(JoinGroup)
 const joinGroupProvider = JoinGroupProvider._();
 
-/// Provider for joining group via invite link
 final class JoinGroupProvider
     extends $AsyncNotifierProvider<JoinGroup, JoinGroupResultEntity?> {
-  /// Provider for joining group via invite link
   const JoinGroupProvider._()
     : super(
         from: null,
@@ -40,9 +37,7 @@ final class JoinGroupProvider
   JoinGroup create() => JoinGroup();
 }
 
-String _$joinGroupHash() => r'daaa673874e4b4ce0f22fd81a486b0495663e17d';
-
-/// Provider for joining group via invite link
+String _$joinGroupHash() => r'd4608afab99148f80bde87fdc18151c26d874dc7';
 
 abstract class _$JoinGroup extends $AsyncNotifier<JoinGroupResultEntity?> {
   FutureOr<JoinGroupResultEntity?> build();

@@ -129,8 +129,8 @@ Map<String, dynamic> _$ScheduledMessageListItemModelToJson(
 _ScheduledMessagesPaginationResponse
 _$ScheduledMessagesPaginationResponseFromJson(Map<String, dynamic> json) =>
     _ScheduledMessagesPaginationResponse(
-      messages:
-          (json['data'] as List<dynamic>?)
+      items:
+          (json['items'] as List<dynamic>?)
               ?.map(
                 (e) => ScheduledMessageListItemModel.fromJson(
                   e as Map<String, dynamic>,
@@ -138,20 +138,18 @@ _$ScheduledMessagesPaginationResponseFromJson(Map<String, dynamic> json) =>
               )
               .toList() ??
           const [],
-      totalElements: (json['total'] as num?)?.toInt() ?? 0,
-      totalPages: (json['totalPages'] as num?)?.toInt() ?? 0,
-      currentPage: (json['page'] as num?)?.toInt() ?? 0,
-      pageSize: (json['size'] as num?)?.toInt() ?? 0,
+      nextCursor: json['nextCursor'] as String?,
+      hasNextPage: json['hasNextPage'] as bool? ?? false,
+      itemsPerPage: (json['itemsPerPage'] as num?)?.toInt() ?? 20,
     );
 
 Map<String, dynamic> _$ScheduledMessagesPaginationResponseToJson(
   _ScheduledMessagesPaginationResponse instance,
 ) => <String, dynamic>{
-  'data': instance.messages,
-  'total': instance.totalElements,
-  'totalPages': instance.totalPages,
-  'page': instance.currentPage,
-  'size': instance.pageSize,
+  'items': instance.items,
+  'nextCursor': instance.nextCursor,
+  'hasNextPage': instance.hasNextPage,
+  'itemsPerPage': instance.itemsPerPage,
 };
 
 _UpdateScheduledMessageRequest _$UpdateScheduledMessageRequestFromJson(

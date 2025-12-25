@@ -27,6 +27,8 @@ class ScheduledMessageRepositoryImpl extends BaseRepository implements Scheduled
     int? replyToMessageId,
   }) async {
     return executeApiCall(() async {
+      debugPrint('🟡 Repository: Scheduling message for conversation $conversationId');
+
       final request = ScheduleMessageRequest(
         content: content,
         type: type,
@@ -41,9 +43,18 @@ class ScheduledMessageRepositoryImpl extends BaseRepository implements Scheduled
 
       final response = await _datasource.scheduleMessage(conversationId: conversationId, request: request);
 
+      debugPrint(
+        '🟢 Repository: Schedule message response - success=${response.success}, hasData=${response.data != null}',
+      );
+
       if (response.success && response.data != null) {
-        return response.data!.toEntity();
+        final entity = response.data!.toEntity();
+        debugPrint(
+          '🟢 Repository: Created message - ID=${entity.id}, conversationId=${entity.conversationId}, status=${entity.scheduledStatus}',
+        );
+        return entity;
       } else {
+        debugPrint('🔴 Repository: Failed to schedule message - ${response.message}');
         throw Exception(response.message);
       }
     });
@@ -70,7 +81,7 @@ class ScheduledMessageRepositoryImpl extends BaseRepository implements Scheduled
       debugPrint('🟢 Repository: API response data=${response.data}');
 
       if (response.success && response.data != null) {
-        final messages = response.data!.messages.map((model) => model.toEntity()).toList();
+        final messages = response.data!.items.map((model) => model.toEntity()).toList();
         debugPrint('🟢 Repository: Converted ${messages.length} messages to entities');
         return messages;
       } else {
@@ -81,9 +92,15 @@ class ScheduledMessageRepositoryImpl extends BaseRepository implements Scheduled
   }
 
   @override
-  Future<Either<Failure, ScheduledMessage>> getScheduledMessage({required int scheduledMessageId}) async {
+  Future<Either<Failure, ScheduledMessage>> getScheduledMessage({
+    required int conversationId,
+    required int scheduledMessageId,
+  }) async {
     return executeApiCall(() async {
-      final response = await _datasource.getScheduledMessage(scheduledMessageId: scheduledMessageId);
+      final response = await _datasource.getScheduledMessage(
+        conversationId: conversationId,
+        scheduledMessageId: scheduledMessageId,
+      );
 
       if (response.success && response.data != null) {
         return response.data!.toEntity();
@@ -95,6 +112,7 @@ class ScheduledMessageRepositoryImpl extends BaseRepository implements Scheduled
 
   @override
   Future<Either<Failure, ScheduledMessage>> updateScheduledMessage({
+    required int conversationId,
     required int scheduledMessageId,
     String? content,
     DateTime? scheduledTime,
@@ -112,6 +130,7 @@ class ScheduledMessageRepositoryImpl extends BaseRepository implements Scheduled
       );
 
       final response = await _datasource.updateScheduledMessage(
+        conversationId: conversationId,
         scheduledMessageId: scheduledMessageId,
         request: request,
       );
@@ -125,9 +144,15 @@ class ScheduledMessageRepositoryImpl extends BaseRepository implements Scheduled
   }
 
   @override
-  Future<Either<Failure, void>> cancelScheduledMessage({required int scheduledMessageId}) async {
+  Future<Either<Failure, void>> cancelScheduledMessage({
+    required int conversationId,
+    required int scheduledMessageId,
+  }) async {
     return executeApiCall(() async {
-      final response = await _datasource.cancelScheduledMessage(scheduledMessageId: scheduledMessageId);
+      final response = await _datasource.cancelScheduledMessage(
+        conversationId: conversationId,
+        scheduledMessageId: scheduledMessageId,
+      );
 
       if (response.success) {
         return;
@@ -138,9 +163,15 @@ class ScheduledMessageRepositoryImpl extends BaseRepository implements Scheduled
   }
 
   @override
-  Future<Either<Failure, int>> bulkCancelScheduledMessages({required List<int> scheduledMessageIds}) async {
+  Future<Either<Failure, int>> bulkCancelScheduledMessages({
+    required int conversationId,
+    required List<int> scheduledMessageIds,
+  }) async {
     return executeApiCall(() async {
-      final response = await _datasource.bulkCancelScheduledMessages(scheduledMessageIds: scheduledMessageIds);
+      final response = await _datasource.bulkCancelScheduledMessages(
+        conversationId: conversationId,
+        scheduledMessageIds: scheduledMessageIds,
+      );
 
       if (response.success && response.data != null) {
         return response.data!.cancelledCount;

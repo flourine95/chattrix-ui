@@ -13,7 +13,7 @@ part 'scheduled_messages_notifier.g.dart';
 /// Notifier for scheduled messages list
 ///
 /// Manages the state of scheduled messages with filtering by status
-@Riverpod(keepAlive: true)
+@riverpod
 class ScheduledMessagesNotifier extends _$ScheduledMessagesNotifier {
   late final GetScheduledMessagesUseCase _getScheduledMessagesUseCase;
   late final ScheduleMessageUseCase _scheduleMessageUseCase;
@@ -21,7 +21,7 @@ class ScheduledMessagesNotifier extends _$ScheduledMessagesNotifier {
   late final CancelScheduledMessageUseCase _cancelScheduledMessageUseCase;
 
   @override
-  Future<List<ScheduledMessage>> build({int? conversationId, String status = 'PENDING'}) async {
+  Future<List<ScheduledMessage>> build({required int conversationId, String status = 'PENDING'}) async {
     debugPrint('🟢 ScheduledMessagesNotifier: build() called with status=$status, conversationId=$conversationId');
 
     try {
@@ -41,7 +41,7 @@ class ScheduledMessagesNotifier extends _$ScheduledMessagesNotifier {
 
   /// Load scheduled messages from API
   Future<List<ScheduledMessage>> _loadScheduledMessages({
-    int? conversationId,
+    required int conversationId,
     String status = 'PENDING',
     int page = 0,
     int size = 20,
@@ -85,6 +85,8 @@ class ScheduledMessagesNotifier extends _$ScheduledMessagesNotifier {
     int? duration,
     int? replyToMessageId,
   }) async {
+    debugPrint('🟡 Notifier: Scheduling message for conversation $conversationId');
+
     final result = await _scheduleMessageUseCase(
       conversationId: conversationId,
       content: content,
@@ -98,18 +100,42 @@ class ScheduledMessagesNotifier extends _$ScheduledMessagesNotifier {
       replyToMessageId: replyToMessageId,
     );
 
-    result.fold((failure) => throw Exception(failure.userMessage), (scheduledMessage) {
-      // Add to current list if status matches (scheduledStatus field)
-      if (scheduledMessage.scheduledStatus == status) {
-        state.whenData((messages) {
-          state = AsyncValue.data([scheduledMessage, ...messages]);
-        });
-      }
-    });
+    result.fold(
+      (failure) {
+        debugPrint('🔴 Notifier: Failed to schedule message: ${failure.userMessage}');
+        throw Exception(failure.userMessage);
+      },
+      (scheduledMessage) {
+        debugPrint(
+          '🟢 Notifier: Message scheduled successfully - ID: ${scheduledMessage.id}, Status: ${scheduledMessage.scheduledStatus}',
+        );
+
+        // Check if provider is still mounted before updating state
+        if (!ref.mounted) {
+          debugPrint('⚠️ Notifier: Provider not mounted, skipping state update');
+          return;
+        }
+
+        // Add to current list if status matches (scheduledStatus field)
+        if (scheduledMessage.scheduledStatus == status) {
+          debugPrint('🟢 Notifier: Adding message to list (status matches: $status)');
+          state.whenData((messages) {
+            if (!ref.mounted) return;
+            state = AsyncValue.data([scheduledMessage, ...messages]);
+            debugPrint('🟢 Notifier: State updated, total messages: ${messages.length + 1}');
+          });
+        } else {
+          debugPrint(
+            '⚠️ Notifier: Message status (${scheduledMessage.scheduledStatus}) does not match filter ($status)',
+          );
+        }
+      },
+    );
   }
 
   /// Update a scheduled message
   Future<void> updateScheduledMessage({
+    required int conversationId,
     required int scheduledMessageId,
     String? content,
     DateTime? scheduledTime,
@@ -118,6 +144,7 @@ class ScheduledMessagesNotifier extends _$ScheduledMessagesNotifier {
     String? fileName,
   }) async {
     final result = await _updateScheduledMessageUseCase(
+      conversationId: conversationId,
       scheduledMessageId: scheduledMessageId,
       content: content,
       scheduledTime: scheduledTime,
@@ -127,8 +154,12 @@ class ScheduledMessagesNotifier extends _$ScheduledMessagesNotifier {
     );
 
     result.fold((failure) => throw Exception(failure.userMessage), (updatedMessage) {
+      // Check if provider is still mounted before updating state
+      if (!ref.mounted) return;
+
       // Update in current list
       state.whenData((messages) {
+        if (!ref.mounted) return;
         final updatedList = messages.map((msg) {
           return msg.id == scheduledMessageId ? updatedMessage : msg;
         }).toList();
@@ -138,12 +169,19 @@ class ScheduledMessagesNotifier extends _$ScheduledMessagesNotifier {
   }
 
   /// Cancel a scheduled message
-  Future<void> cancelScheduledMessage({required int scheduledMessageId}) async {
-    final result = await _cancelScheduledMessageUseCase(scheduledMessageId: scheduledMessageId);
+  Future<void> cancelScheduledMessage({required int conversationId, required int scheduledMessageId}) async {
+    final result = await _cancelScheduledMessageUseCase(
+      conversationId: conversationId,
+      scheduledMessageId: scheduledMessageId,
+    );
 
     result.fold((failure) => throw Exception((failure as Failure?)?.userMessage ?? 'Unknown error'), (_) {
+      // Check if provider is still mounted before updating state
+      if (!ref.mounted) return;
+
       // Remove from current list
       state.whenData((messages) {
+        if (!ref.mounted) return;
         final updatedList = messages.where((msg) => msg.id != scheduledMessageId).toList();
         state = AsyncValue.data(updatedList);
       });
@@ -158,9 +196,13 @@ class ScheduledMessagesNotifier extends _$ScheduledMessagesNotifier {
 
   /// Handle WebSocket event: scheduled message sent
   void onScheduledMessageSent(int scheduledMessageId) {
+    // Check if provider is still mounted
+    if (!ref.mounted) return;
+
     // Remove from PENDING list
     if (status == 'PENDING') {
       state.whenData((messages) {
+        if (!ref.mounted) return;
         final updatedList = messages.where((msg) => msg.id != scheduledMessageId).toList();
         state = AsyncValue.data(updatedList);
       });

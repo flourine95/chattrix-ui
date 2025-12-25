@@ -19,8 +19,8 @@ class RoutePaths {
   static const String qrScanner = '/qr-scanner';
   static const String chatInfo = '/chat/:id/info';
   static const String searchConversations = '/search-conversations';
-  static const String scheduledMessages = '/scheduled-messages';
-  static const String scheduleMessage = '/schedule-message';
+  static const String scheduledMessages = '/chat/:id/scheduled-messages';
+  static const String scheduleMessage = '/chat/:id/schedule-message';
   // chatListDemo removed - production ChatListPage is now used at '/' route
   static const String contactsDemo = '/contacts-demo';
 

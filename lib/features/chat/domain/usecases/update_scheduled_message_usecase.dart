@@ -12,6 +12,7 @@ class UpdateScheduledMessageUseCase {
   /// Execute the use case
   ///
   /// **Parameters:**
+  /// - [conversationId]: ID of the conversation
   /// - [scheduledMessageId]: ID of the scheduled message
   /// - [content]: Optional new content
   /// - [scheduledTime]: Optional new scheduled time
@@ -23,6 +24,7 @@ class UpdateScheduledMessageUseCase {
   /// - Right(ScheduledMessage): Success
   /// - Left(Failure): Error occurred
   Future<Either<Failure, ScheduledMessage>> call({
+    required int conversationId,
     required int scheduledMessageId,
     String? content,
     DateTime? scheduledTime,
@@ -43,6 +45,7 @@ class UpdateScheduledMessageUseCase {
     }
 
     return await _repository.updateScheduledMessage(
+      conversationId: conversationId,
       scheduledMessageId: scheduledMessageId,
       content: content,
       scheduledTime: scheduledTime,

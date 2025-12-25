@@ -3,8 +3,8 @@ import 'package:flutter/services.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import '../providers/invite_link_providers.dart';
-import '../../domain/entities/invite_link.dart';
+import 'package:chattrix_ui/features/chat/presentation/providers/invite_link_providers.dart';
+import 'package:chattrix_ui/features/chat/domain/entities/invite_link.dart';
 
 /// Page for managing invite links for a group conversation
 class InviteLinksPage extends HookConsumerWidget {
@@ -54,17 +54,8 @@ class _InviteLinksListView extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
 
-    // Create provider for this conversation's invite links
-    final inviteLinksProvider = useMemoized(
-      () => FutureProvider<List<InviteLink>>((ref) async {
-        final useCase = ref.read(getInviteLinksUseCaseProvider);
-        final result = await useCase(conversationId: conversationId);
-        return result.fold((failure) => throw Exception(failure.message), (links) => links);
-      }),
-      [conversationId],
-    );
-
-    final linksAsync = ref.watch(inviteLinksProvider);
+    // Watch the invite links for this conversation
+    final linksAsync = ref.watch(inviteLinksListProvider(conversationId));
 
     return linksAsync.when(
       data: (links) {
@@ -74,7 +65,7 @@ class _InviteLinksListView extends HookConsumerWidget {
 
         return RefreshIndicator(
           onRefresh: () async {
-            ref.invalidate(inviteLinksProvider);
+            ref.invalidate(inviteLinksListProvider(conversationId));
           },
           child: ListView.builder(
             padding: const EdgeInsets.all(16),
@@ -84,7 +75,7 @@ class _InviteLinksListView extends HookConsumerWidget {
               return _InviteLinkCard(
                 link: link,
                 conversationId: conversationId,
-                onRevoked: () => ref.invalidate(inviteLinksProvider),
+                onRevoked: () => ref.invalidate(inviteLinksListProvider(conversationId)),
               );
             },
           ),
@@ -629,8 +620,8 @@ class _CreateInviteLinkBottomSheet extends HookConsumerWidget {
       (link) {
         Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Link created successfully')));
-        // Refresh the list
-        ref.invalidate(getInviteLinksUseCaseProvider);
+        // Refresh the list by invalidating the provider
+        ref.invalidate(inviteLinksListProvider(conversationId));
       },
     );
   }

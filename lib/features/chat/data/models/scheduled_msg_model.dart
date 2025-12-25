@@ -129,11 +129,10 @@ abstract class ScheduledMessageListItemModel with _$ScheduledMessageListItemMode
 @freezed
 abstract class ScheduledMessagesPaginationResponse with _$ScheduledMessagesPaginationResponse {
   const factory ScheduledMessagesPaginationResponse({
-    @Default([]) @JsonKey(name: 'data') List<ScheduledMessageListItemModel> messages,
-    @Default(0) @JsonKey(name: 'total') int totalElements,
-    @Default(0) int totalPages,
-    @Default(0) @JsonKey(name: 'page') int currentPage,
-    @Default(0) @JsonKey(name: 'size') int pageSize,
+    @Default([]) List<ScheduledMessageListItemModel> items,
+    @JsonKey(name: 'nextCursor') String? nextCursor,
+    @Default(false) bool hasNextPage,
+    @Default(20) int itemsPerPage,
   }) = _ScheduledMessagesPaginationResponse;
 
   factory ScheduledMessagesPaginationResponse.fromJson(Map<String, dynamic> json) =>

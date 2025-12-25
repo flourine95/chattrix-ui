@@ -1,9 +1,9 @@
+import 'package:chattrix_ui/features/invite_links/domain/entities/invite_link_entity.dart';
+import 'package:chattrix_ui/features/invite_links/presentation/providers/create_invite_link_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl/intl.dart';
-import '../../domain/entities/invite_link_entity.dart';
-import '../providers/create_invite_link_provider.dart';
 
 class CreateInviteLinkBottomSheet extends HookConsumerWidget {
   const CreateInviteLinkBottomSheet({super.key, required this.conversationId, this.onCreated});
@@ -16,12 +16,10 @@ class CreateInviteLinkBottomSheet extends HookConsumerWidget {
     final textTheme = Theme.of(context).textTheme;
     final colors = Theme.of(context).colorScheme;
 
-    // State
     final expiryTime = useState<DateTime?>(null);
     final maxUses = useState<int?>(null);
     final maxUsesController = useTextEditingController();
 
-    // Watch create state
     final createState = ref.watch(createInviteLinkProvider);
 
     return Padding(
@@ -32,25 +30,23 @@ class CreateInviteLinkBottomSheet extends HookConsumerWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Header
             Row(
               children: [
                 Icon(Icons.add_link, color: colors.primary),
                 const SizedBox(width: 12),
-                Text('Tạo link mời mới', style: textTheme.titleLarge),
+                Text('Create New Invite Link', style: textTheme.titleLarge),
               ],
             ),
 
             const SizedBox(height: 24),
 
-            // Expiry time
             _buildSection(
               context,
               icon: Icons.access_time,
-              title: 'Thời gian hết hạn',
+              title: 'Expiration Time',
               subtitle: expiryTime.value != null
                   ? DateFormat('dd/MM/yyyy HH:mm').format(expiryTime.value!)
-                  : 'Không giới hạn',
+                  : 'Unlimited',
               onTap: () => _selectExpiryTime(context, expiryTime),
               trailing: expiryTime.value != null
                   ? IconButton(icon: const Icon(Icons.clear), onPressed: () => expiryTime.value = null)
@@ -59,12 +55,11 @@ class CreateInviteLinkBottomSheet extends HookConsumerWidget {
 
             const SizedBox(height: 16),
 
-            // Max uses
             _buildSection(
               context,
               icon: Icons.people_outline,
-              title: 'Số lần sử dụng tối đa',
-              subtitle: maxUses.value != null ? '${maxUses.value} lần' : 'Không giới hạn',
+              title: 'Maximum Uses',
+              subtitle: maxUses.value != null ? '${maxUses.value} uses' : 'Unlimited',
               onTap: () => _selectMaxUses(context, maxUses, maxUsesController),
               trailing: maxUses.value != null
                   ? IconButton(
@@ -79,14 +74,13 @@ class CreateInviteLinkBottomSheet extends HookConsumerWidget {
 
             const SizedBox(height: 24),
 
-            // Create button
             FilledButton(
               onPressed: createState.isLoading
                   ? null
                   : () => _createLink(context, ref, expiryTime.value, maxUses.value),
               child: createState.isLoading
                   ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2))
-                  : const Text('Tạo link'),
+                  : const Text('Create Link'),
             ),
           ],
         ),
@@ -150,18 +144,18 @@ class CreateInviteLinkBottomSheet extends HookConsumerWidget {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Số lần sử dụng tối đa'),
+        title: const Text('Maximum Uses'),
         content: TextField(
           controller: controller,
           keyboardType: TextInputType.number,
           decoration: const InputDecoration(
-            hintText: 'Nhập số lần (để trống = không giới hạn)',
+            hintText: 'Enter number (leave empty for unlimited)',
             border: OutlineInputBorder(),
           ),
           autofocus: true,
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Hủy')),
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
           TextButton(
             onPressed: () {
               final value = int.tryParse(controller.text);
@@ -172,7 +166,7 @@ class CreateInviteLinkBottomSheet extends HookConsumerWidget {
               }
               Navigator.pop(context);
             },
-            child: const Text('Xác nhận'),
+            child: const Text('Confirm'),
           ),
         ],
       ),
@@ -180,14 +174,15 @@ class CreateInviteLinkBottomSheet extends HookConsumerWidget {
   }
 
   Future<void> _createLink(BuildContext context, WidgetRef ref, DateTime? expiryTime, int? maxUses) async {
-    // Calculate expiresIn (seconds from now)
     int? expiresIn;
     if (expiryTime != null) {
       final now = DateTime.now();
       expiresIn = expiryTime.difference(now).inSeconds;
 
       if (expiresIn <= 0) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Thời gian hết hạn phải ở tương lai')));
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Expiration time must be in the future')));
         return;
       }
     }
@@ -209,7 +204,7 @@ class CreateInviteLinkBottomSheet extends HookConsumerWidget {
       },
       loading: () {},
       error: (error, stack) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Lỗi: $error')));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $error')));
       },
     );
   }
@@ -230,17 +225,17 @@ class _ExpiryTimePickerBottomSheet extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text('Chọn thời gian hết hạn', style: textTheme.titleMedium),
+          Text('Select Expiration Time', style: textTheme.titleMedium),
           const SizedBox(height: 16),
-          _buildQuickOption(context, '1 giờ', const Duration(hours: 1)),
-          _buildQuickOption(context, '1 ngày', const Duration(days: 1)),
-          _buildQuickOption(context, '7 ngày', const Duration(days: 7)),
-          _buildQuickOption(context, '30 ngày', const Duration(days: 30)),
+          _buildQuickOption(context, '1 hour', const Duration(hours: 1)),
+          _buildQuickOption(context, '1 day', const Duration(days: 1)),
+          _buildQuickOption(context, '7 days', const Duration(days: 7)),
+          _buildQuickOption(context, '30 days', const Duration(days: 30)),
           const SizedBox(height: 8),
           OutlinedButton.icon(
             onPressed: () => _selectCustomTime(context),
             icon: const Icon(Icons.calendar_today),
-            label: const Text('Chọn thời gian tùy chỉnh'),
+            label: const Text('Select Custom Time'),
           ),
         ],
       ),

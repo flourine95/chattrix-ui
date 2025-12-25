@@ -158,13 +158,15 @@ class ScheduleMessagePage extends HookConsumerWidget {
       try {
         if (isEditMode) {
           // Update existing message
-          await ref
-              .read(scheduledMessagesProvider(status: 'PENDING').notifier)
-              .updateScheduledMessage(
-                scheduledMessageId: existingMessage!.id,
-                content: contentController.text.trim(),
-                scheduledTime: selectedTime.value,
-              );
+          final notifier = ref.read(
+            scheduledMessagesProvider(conversationId: conversationId, status: 'PENDING').notifier,
+          );
+          await notifier.updateScheduledMessage(
+            conversationId: conversationId,
+            scheduledMessageId: existingMessage!.id,
+            content: contentController.text.trim(),
+            scheduledTime: selectedTime.value,
+          );
 
           if (context.mounted) {
             ScaffoldMessenger.of(
@@ -174,16 +176,20 @@ class ScheduleMessagePage extends HookConsumerWidget {
           }
         } else {
           // Create new message
-          await ref
-              .read(scheduledMessagesProvider(status: 'PENDING').notifier)
-              .scheduleMessage(
-                conversationId: conversationId,
-                content: contentController.text.trim(),
-                type: 'TEXT',
-                scheduledTime: selectedTime.value,
-              );
+          final notifier = ref.read(
+            scheduledMessagesProvider(conversationId: conversationId, status: 'PENDING').notifier,
+          );
+          await notifier.scheduleMessage(
+            conversationId: conversationId,
+            content: contentController.text.trim(),
+            type: 'TEXT',
+            scheduledTime: selectedTime.value,
+          );
 
           if (context.mounted) {
+            // Invalidate the provider to refresh the list
+            ref.invalidate(scheduledMessagesProvider(conversationId: conversationId, status: 'PENDING'));
+
             ScaffoldMessenger.of(
               context,
             ).showSnackBar(const SnackBar(content: Text('Message scheduled'), backgroundColor: Colors.green));
@@ -202,7 +208,9 @@ class ScheduleMessagePage extends HookConsumerWidget {
           );
         }
       } finally {
-        isLoading.value = false;
+        if (context.mounted) {
+          isLoading.value = false;
+        }
       }
     }
 
@@ -228,8 +236,8 @@ class ScheduleMessagePage extends HookConsumerWidget {
         isLoading.value = true;
         try {
           await ref
-              .read(scheduledMessagesProvider(status: 'PENDING').notifier)
-              .cancelScheduledMessage(scheduledMessageId: existingMessage!.id);
+              .read(scheduledMessagesProvider(conversationId: conversationId, status: 'PENDING').notifier)
+              .cancelScheduledMessage(conversationId: conversationId, scheduledMessageId: existingMessage!.id);
 
           if (context.mounted) {
             ScaffoldMessenger.of(
@@ -268,7 +276,7 @@ class ScheduleMessagePage extends HookConsumerWidget {
                 icon: const Icon(Icons.list),
                 tooltip: 'View Scheduled Messages',
                 onPressed: () {
-                  context.push('/scheduled-messages');
+                  context.push('/chat/$conversationId/scheduled-messages');
                 },
               ),
           ],

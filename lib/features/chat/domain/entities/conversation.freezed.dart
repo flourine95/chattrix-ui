@@ -14,7 +14,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$Conversation {
 
- int get id; String? get name; ConversationType get type; String? get avatarUrl; DateTime get createdAt; DateTime get updatedAt; List<Participant> get participants; Message? get lastMessage; int get unreadCount;
+ int get id; String? get name; ConversationType get type; String? get avatarUrl; DateTime get createdAt; DateTime get updatedAt; List<Participant> get participants; Message? get lastMessage; int get unreadCount; ConversationSettings? get settings;
 /// Create a copy of Conversation
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -25,16 +25,16 @@ $ConversationCopyWith<Conversation> get copyWith => _$ConversationCopyWithImpl<C
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is Conversation&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.type, type) || other.type == type)&&(identical(other.avatarUrl, avatarUrl) || other.avatarUrl == avatarUrl)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt)&&const DeepCollectionEquality().equals(other.participants, participants)&&(identical(other.lastMessage, lastMessage) || other.lastMessage == lastMessage)&&(identical(other.unreadCount, unreadCount) || other.unreadCount == unreadCount));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is Conversation&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.type, type) || other.type == type)&&(identical(other.avatarUrl, avatarUrl) || other.avatarUrl == avatarUrl)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt)&&const DeepCollectionEquality().equals(other.participants, participants)&&(identical(other.lastMessage, lastMessage) || other.lastMessage == lastMessage)&&(identical(other.unreadCount, unreadCount) || other.unreadCount == unreadCount)&&(identical(other.settings, settings) || other.settings == settings));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,id,name,type,avatarUrl,createdAt,updatedAt,const DeepCollectionEquality().hash(participants),lastMessage,unreadCount);
+int get hashCode => Object.hash(runtimeType,id,name,type,avatarUrl,createdAt,updatedAt,const DeepCollectionEquality().hash(participants),lastMessage,unreadCount,settings);
 
 @override
 String toString() {
-  return 'Conversation(id: $id, name: $name, type: $type, avatarUrl: $avatarUrl, createdAt: $createdAt, updatedAt: $updatedAt, participants: $participants, lastMessage: $lastMessage, unreadCount: $unreadCount)';
+  return 'Conversation(id: $id, name: $name, type: $type, avatarUrl: $avatarUrl, createdAt: $createdAt, updatedAt: $updatedAt, participants: $participants, lastMessage: $lastMessage, unreadCount: $unreadCount, settings: $settings)';
 }
 
 
@@ -45,11 +45,11 @@ abstract mixin class $ConversationCopyWith<$Res>  {
   factory $ConversationCopyWith(Conversation value, $Res Function(Conversation) _then) = _$ConversationCopyWithImpl;
 @useResult
 $Res call({
- int id, String? name, ConversationType type, String? avatarUrl, DateTime createdAt, DateTime updatedAt, List<Participant> participants, Message? lastMessage, int unreadCount
+ int id, String? name, ConversationType type, String? avatarUrl, DateTime createdAt, DateTime updatedAt, List<Participant> participants, Message? lastMessage, int unreadCount, ConversationSettings? settings
 });
 
 
-$MessageCopyWith<$Res>? get lastMessage;
+$MessageCopyWith<$Res>? get lastMessage;$ConversationSettingsCopyWith<$Res>? get settings;
 
 }
 /// @nodoc
@@ -62,7 +62,7 @@ class _$ConversationCopyWithImpl<$Res>
 
 /// Create a copy of Conversation
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? name = freezed,Object? type = null,Object? avatarUrl = freezed,Object? createdAt = null,Object? updatedAt = null,Object? participants = null,Object? lastMessage = freezed,Object? unreadCount = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? name = freezed,Object? type = null,Object? avatarUrl = freezed,Object? createdAt = null,Object? updatedAt = null,Object? participants = null,Object? lastMessage = freezed,Object? unreadCount = null,Object? settings = freezed,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as int,name: freezed == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
@@ -73,7 +73,8 @@ as DateTime,updatedAt: null == updatedAt ? _self.updatedAt : updatedAt // ignore
 as DateTime,participants: null == participants ? _self.participants : participants // ignore: cast_nullable_to_non_nullable
 as List<Participant>,lastMessage: freezed == lastMessage ? _self.lastMessage : lastMessage // ignore: cast_nullable_to_non_nullable
 as Message?,unreadCount: null == unreadCount ? _self.unreadCount : unreadCount // ignore: cast_nullable_to_non_nullable
-as int,
+as int,settings: freezed == settings ? _self.settings : settings // ignore: cast_nullable_to_non_nullable
+as ConversationSettings?,
   ));
 }
 /// Create a copy of Conversation
@@ -87,6 +88,18 @@ $MessageCopyWith<$Res>? get lastMessage {
 
   return $MessageCopyWith<$Res>(_self.lastMessage!, (value) {
     return _then(_self.copyWith(lastMessage: value));
+  });
+}/// Create a copy of Conversation
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$ConversationSettingsCopyWith<$Res>? get settings {
+    if (_self.settings == null) {
+    return null;
+  }
+
+  return $ConversationSettingsCopyWith<$Res>(_self.settings!, (value) {
+    return _then(_self.copyWith(settings: value));
   });
 }
 }
@@ -170,10 +183,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int id,  String? name,  ConversationType type,  String? avatarUrl,  DateTime createdAt,  DateTime updatedAt,  List<Participant> participants,  Message? lastMessage,  int unreadCount)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int id,  String? name,  ConversationType type,  String? avatarUrl,  DateTime createdAt,  DateTime updatedAt,  List<Participant> participants,  Message? lastMessage,  int unreadCount,  ConversationSettings? settings)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Conversation() when $default != null:
-return $default(_that.id,_that.name,_that.type,_that.avatarUrl,_that.createdAt,_that.updatedAt,_that.participants,_that.lastMessage,_that.unreadCount);case _:
+return $default(_that.id,_that.name,_that.type,_that.avatarUrl,_that.createdAt,_that.updatedAt,_that.participants,_that.lastMessage,_that.unreadCount,_that.settings);case _:
   return orElse();
 
 }
@@ -191,10 +204,10 @@ return $default(_that.id,_that.name,_that.type,_that.avatarUrl,_that.createdAt,_
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int id,  String? name,  ConversationType type,  String? avatarUrl,  DateTime createdAt,  DateTime updatedAt,  List<Participant> participants,  Message? lastMessage,  int unreadCount)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int id,  String? name,  ConversationType type,  String? avatarUrl,  DateTime createdAt,  DateTime updatedAt,  List<Participant> participants,  Message? lastMessage,  int unreadCount,  ConversationSettings? settings)  $default,) {final _that = this;
 switch (_that) {
 case _Conversation():
-return $default(_that.id,_that.name,_that.type,_that.avatarUrl,_that.createdAt,_that.updatedAt,_that.participants,_that.lastMessage,_that.unreadCount);case _:
+return $default(_that.id,_that.name,_that.type,_that.avatarUrl,_that.createdAt,_that.updatedAt,_that.participants,_that.lastMessage,_that.unreadCount,_that.settings);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -211,10 +224,10 @@ return $default(_that.id,_that.name,_that.type,_that.avatarUrl,_that.createdAt,_
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int id,  String? name,  ConversationType type,  String? avatarUrl,  DateTime createdAt,  DateTime updatedAt,  List<Participant> participants,  Message? lastMessage,  int unreadCount)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int id,  String? name,  ConversationType type,  String? avatarUrl,  DateTime createdAt,  DateTime updatedAt,  List<Participant> participants,  Message? lastMessage,  int unreadCount,  ConversationSettings? settings)?  $default,) {final _that = this;
 switch (_that) {
 case _Conversation() when $default != null:
-return $default(_that.id,_that.name,_that.type,_that.avatarUrl,_that.createdAt,_that.updatedAt,_that.participants,_that.lastMessage,_that.unreadCount);case _:
+return $default(_that.id,_that.name,_that.type,_that.avatarUrl,_that.createdAt,_that.updatedAt,_that.participants,_that.lastMessage,_that.unreadCount,_that.settings);case _:
   return null;
 
 }
@@ -226,7 +239,7 @@ return $default(_that.id,_that.name,_that.type,_that.avatarUrl,_that.createdAt,_
 
 
 class _Conversation implements Conversation {
-  const _Conversation({required this.id, this.name, required this.type, this.avatarUrl, required this.createdAt, required this.updatedAt, required final  List<Participant> participants, this.lastMessage, this.unreadCount = 0}): _participants = participants;
+  const _Conversation({required this.id, this.name, required this.type, this.avatarUrl, required this.createdAt, required this.updatedAt, required final  List<Participant> participants, this.lastMessage, this.unreadCount = 0, this.settings}): _participants = participants;
   
 
 @override final  int id;
@@ -244,6 +257,7 @@ class _Conversation implements Conversation {
 
 @override final  Message? lastMessage;
 @override@JsonKey() final  int unreadCount;
+@override final  ConversationSettings? settings;
 
 /// Create a copy of Conversation
 /// with the given fields replaced by the non-null parameter values.
@@ -255,16 +269,16 @@ _$ConversationCopyWith<_Conversation> get copyWith => __$ConversationCopyWithImp
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Conversation&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.type, type) || other.type == type)&&(identical(other.avatarUrl, avatarUrl) || other.avatarUrl == avatarUrl)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt)&&const DeepCollectionEquality().equals(other._participants, _participants)&&(identical(other.lastMessage, lastMessage) || other.lastMessage == lastMessage)&&(identical(other.unreadCount, unreadCount) || other.unreadCount == unreadCount));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Conversation&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.type, type) || other.type == type)&&(identical(other.avatarUrl, avatarUrl) || other.avatarUrl == avatarUrl)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt)&&const DeepCollectionEquality().equals(other._participants, _participants)&&(identical(other.lastMessage, lastMessage) || other.lastMessage == lastMessage)&&(identical(other.unreadCount, unreadCount) || other.unreadCount == unreadCount)&&(identical(other.settings, settings) || other.settings == settings));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,id,name,type,avatarUrl,createdAt,updatedAt,const DeepCollectionEquality().hash(_participants),lastMessage,unreadCount);
+int get hashCode => Object.hash(runtimeType,id,name,type,avatarUrl,createdAt,updatedAt,const DeepCollectionEquality().hash(_participants),lastMessage,unreadCount,settings);
 
 @override
 String toString() {
-  return 'Conversation(id: $id, name: $name, type: $type, avatarUrl: $avatarUrl, createdAt: $createdAt, updatedAt: $updatedAt, participants: $participants, lastMessage: $lastMessage, unreadCount: $unreadCount)';
+  return 'Conversation(id: $id, name: $name, type: $type, avatarUrl: $avatarUrl, createdAt: $createdAt, updatedAt: $updatedAt, participants: $participants, lastMessage: $lastMessage, unreadCount: $unreadCount, settings: $settings)';
 }
 
 
@@ -275,11 +289,11 @@ abstract mixin class _$ConversationCopyWith<$Res> implements $ConversationCopyWi
   factory _$ConversationCopyWith(_Conversation value, $Res Function(_Conversation) _then) = __$ConversationCopyWithImpl;
 @override @useResult
 $Res call({
- int id, String? name, ConversationType type, String? avatarUrl, DateTime createdAt, DateTime updatedAt, List<Participant> participants, Message? lastMessage, int unreadCount
+ int id, String? name, ConversationType type, String? avatarUrl, DateTime createdAt, DateTime updatedAt, List<Participant> participants, Message? lastMessage, int unreadCount, ConversationSettings? settings
 });
 
 
-@override $MessageCopyWith<$Res>? get lastMessage;
+@override $MessageCopyWith<$Res>? get lastMessage;@override $ConversationSettingsCopyWith<$Res>? get settings;
 
 }
 /// @nodoc
@@ -292,7 +306,7 @@ class __$ConversationCopyWithImpl<$Res>
 
 /// Create a copy of Conversation
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? name = freezed,Object? type = null,Object? avatarUrl = freezed,Object? createdAt = null,Object? updatedAt = null,Object? participants = null,Object? lastMessage = freezed,Object? unreadCount = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? name = freezed,Object? type = null,Object? avatarUrl = freezed,Object? createdAt = null,Object? updatedAt = null,Object? participants = null,Object? lastMessage = freezed,Object? unreadCount = null,Object? settings = freezed,}) {
   return _then(_Conversation(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as int,name: freezed == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
@@ -303,7 +317,8 @@ as DateTime,updatedAt: null == updatedAt ? _self.updatedAt : updatedAt // ignore
 as DateTime,participants: null == participants ? _self._participants : participants // ignore: cast_nullable_to_non_nullable
 as List<Participant>,lastMessage: freezed == lastMessage ? _self.lastMessage : lastMessage // ignore: cast_nullable_to_non_nullable
 as Message?,unreadCount: null == unreadCount ? _self.unreadCount : unreadCount // ignore: cast_nullable_to_non_nullable
-as int,
+as int,settings: freezed == settings ? _self.settings : settings // ignore: cast_nullable_to_non_nullable
+as ConversationSettings?,
   ));
 }
 
@@ -318,6 +333,18 @@ $MessageCopyWith<$Res>? get lastMessage {
 
   return $MessageCopyWith<$Res>(_self.lastMessage!, (value) {
     return _then(_self.copyWith(lastMessage: value));
+  });
+}/// Create a copy of Conversation
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$ConversationSettingsCopyWith<$Res>? get settings {
+    if (_self.settings == null) {
+    return null;
+  }
+
+  return $ConversationSettingsCopyWith<$Res>(_self.settings!, (value) {
+    return _then(_self.copyWith(settings: value));
   });
 }
 }

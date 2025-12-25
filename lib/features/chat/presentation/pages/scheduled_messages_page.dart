@@ -12,14 +12,16 @@ import '../utils/conversation_utils.dart';
 
 /// Scheduled messages list page
 ///
-/// Displays all pending, sent, or failed scheduled messages
+/// Displays all pending, sent, or failed scheduled messages for a specific conversation
 class ScheduledMessagesPage extends HookConsumerWidget {
-  const ScheduledMessagesPage({super.key});
+  final int conversationId;
+
+  const ScheduledMessagesPage({super.key, required this.conversationId});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return DefaultTabController(
-      length: 3,
+      length: 4,
       child: Scaffold(
         appBar: AppBar(
           title: const Text('Scheduled Messages'),
@@ -28,14 +30,16 @@ class ScheduledMessagesPage extends HookConsumerWidget {
               Tab(text: 'Pending'),
               Tab(text: 'Sent'),
               Tab(text: 'Failed'),
+              Tab(text: 'Cancelled'),
             ],
           ),
         ),
-        body: const TabBarView(
+        body: TabBarView(
           children: [
-            _ScheduledMessagesList(status: 'PENDING'),
-            _ScheduledMessagesList(status: 'SENT'),
-            _ScheduledMessagesList(status: 'FAILED'),
+            _ScheduledMessagesList(conversationId: conversationId, status: 'PENDING'),
+            _ScheduledMessagesList(conversationId: conversationId, status: 'SENT'),
+            _ScheduledMessagesList(conversationId: conversationId, status: 'FAILED'),
+            _ScheduledMessagesList(conversationId: conversationId, status: 'CANCELLED'),
           ],
         ),
       ),
@@ -44,13 +48,14 @@ class ScheduledMessagesPage extends HookConsumerWidget {
 }
 
 class _ScheduledMessagesList extends HookConsumerWidget {
+  final int conversationId;
   final String status;
 
-  const _ScheduledMessagesList({required this.status});
+  const _ScheduledMessagesList({required this.conversationId, required this.status});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final scheduledMessagesAsync = ref.watch(scheduledMessagesProvider(status: status));
+    final scheduledMessagesAsync = ref.watch(scheduledMessagesProvider(conversationId: conversationId, status: status));
 
     return scheduledMessagesAsync.when(
       data: (messages) {
@@ -64,7 +69,9 @@ class _ScheduledMessagesList extends HookConsumerWidget {
                       ? Icons.schedule
                       : status == 'SENT'
                       ? Icons.check_circle_outline
-                      : Icons.error_outline,
+                      : status == 'FAILED'
+                      ? Icons.error_outline
+                      : Icons.cancel_outlined,
                   size: 64,
                   color: Colors.grey,
                 ),
@@ -74,7 +81,9 @@ class _ScheduledMessagesList extends HookConsumerWidget {
                       ? 'No scheduled messages'
                       : status == 'SENT'
                       ? 'No sent messages'
-                      : 'No failed messages',
+                      : status == 'FAILED'
+                      ? 'No failed messages'
+                      : 'No cancelled messages',
                   style: const TextStyle(fontSize: 16, color: Colors.grey),
                 ),
               ],
@@ -84,7 +93,9 @@ class _ScheduledMessagesList extends HookConsumerWidget {
 
         return RefreshIndicator(
           onRefresh: () async {
-            await ref.read(scheduledMessagesProvider(status: status).notifier).refresh();
+            await ref
+                .read(scheduledMessagesProvider(conversationId: conversationId, status: status).notifier)
+                .refresh();
           },
           child: ListView.separated(
             padding: const EdgeInsets.all(16),
@@ -92,7 +103,7 @@ class _ScheduledMessagesList extends HookConsumerWidget {
             separatorBuilder: (context, index) => const SizedBox(height: 12),
             itemBuilder: (context, index) {
               final message = messages[index];
-              return _ScheduledMessageCard(message: message, status: status);
+              return _ScheduledMessageCard(conversationId: conversationId, message: message, status: status);
             },
           ),
         );
@@ -112,7 +123,7 @@ class _ScheduledMessagesList extends HookConsumerWidget {
             const SizedBox(height: 16),
             ElevatedButton(
               onPressed: () {
-                ref.read(scheduledMessagesProvider(status: status).notifier).refresh();
+                ref.read(scheduledMessagesProvider(conversationId: conversationId, status: status).notifier).refresh();
               },
               child: const Text('Retry'),
             ),
@@ -124,10 +135,11 @@ class _ScheduledMessagesList extends HookConsumerWidget {
 }
 
 class _ScheduledMessageCard extends ConsumerWidget {
+  final int conversationId;
   final ScheduledMessage message;
   final String status;
 
-  const _ScheduledMessageCard({required this.message, required this.status});
+  const _ScheduledMessageCard({required this.conversationId, required this.message, required this.status});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -349,8 +361,8 @@ class _ScheduledMessageCard extends ConsumerWidget {
                       icon: const Icon(Icons.edit, size: 20),
                       onPressed: () {
                         context.push(
-                          '/schedule-message',
-                          extra: {'conversationId': message.conversationId, 'existingMessage': message},
+                          '/chat/${message.conversationId}/schedule-message',
+                          extra: {'existingMessage': message},
                         );
                       },
                       padding: EdgeInsets.zero,
@@ -427,8 +439,8 @@ class _ScheduledMessageCard extends ConsumerWidget {
                       Navigator.pop(context);
                       try {
                         await ref
-                            .read(scheduledMessagesProvider(status: status).notifier)
-                            .cancelScheduledMessage(scheduledMessageId: message.id);
+                            .read(scheduledMessagesProvider(conversationId: conversationId, status: status).notifier)
+                            .cancelScheduledMessage(conversationId: conversationId, scheduledMessageId: message.id);
 
                         if (context.mounted) {
                           ScaffoldMessenger.of(context).showSnackBar(

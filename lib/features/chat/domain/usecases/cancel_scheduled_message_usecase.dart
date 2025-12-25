@@ -11,12 +11,16 @@ class CancelScheduledMessageUseCase {
   /// Execute the use case
   ///
   /// **Parameters:**
+  /// - [conversationId]: ID of the conversation
   /// - [scheduledMessageId]: ID of the scheduled message to cancel
   ///
   /// **Returns:**
   /// - Right(void): Success
   /// - Left(Failure): Error occurred
-  Future<Either<Failure, void>> call({required int scheduledMessageId}) async {
-    return await _repository.cancelScheduledMessage(scheduledMessageId: scheduledMessageId);
+  Future<Either<Failure, void>> call({required int conversationId, required int scheduledMessageId}) async {
+    return await _repository.cancelScheduledMessage(
+      conversationId: conversationId,
+      scheduledMessageId: scheduledMessageId,
+    );
   }
 }

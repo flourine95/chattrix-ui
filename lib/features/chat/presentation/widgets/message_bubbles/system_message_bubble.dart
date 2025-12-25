@@ -1,11 +1,9 @@
 import 'dart:convert';
+
 import 'package:chattrix_ui/features/chat/domain/entities/message.dart';
 import 'package:chattrix_ui/features/chat/presentation/utils/system_message_formatter.dart';
 import 'package:flutter/material.dart';
 
-/// System message bubble - centered, gray text, no avatar
-/// Used for events like: user joined, user left, name changed, etc.
-/// Similar to Messenger/Zalo system messages
 class SystemMessageBubble extends StatelessWidget {
   const SystemMessageBubble({super.key, required this.message});
 
@@ -16,22 +14,17 @@ class SystemMessageBubble extends StatelessWidget {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
 
-    // Parse system message type from JSON content
     String? systemMessageType;
 
     if (message.content.startsWith('{')) {
       try {
         final jsonData = jsonDecode(message.content);
         systemMessageType = jsonData['type'] as String?;
-        debugPrint('📨 SystemMessageBubble - Message ID: ${message.id}');
-        debugPrint('📨 Type: ${message.type}');
-        debugPrint('📨 Extracted type from JSON: $systemMessageType');
       } catch (e) {
         debugPrint('❌ Failed to parse system message JSON: $e');
       }
     }
 
-    // Format message content using formatter
     final formattedContent = systemMessageType != null
         ? SystemMessageFormatter.format(
             type: systemMessageType,
@@ -40,14 +33,11 @@ class SystemMessageBubble extends StatelessWidget {
           )
         : message.content;
 
-    debugPrint('📨 Formatted content: $formattedContent');
-
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 16),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          // Icon based on system message type
           if (systemMessageType != null) ...[
             Icon(
               _getIconForSystemMessageType(systemMessageType),
@@ -56,19 +46,15 @@ class SystemMessageBubble extends StatelessWidget {
             ),
             const SizedBox(width: 4),
           ],
-          // Message text with rich formatting (bold names)
           Flexible(child: _buildRichText(formattedContent, isDark, message.mentionedUsers)),
         ],
       ),
     );
   }
 
-  /// Build rich text with bold names for mentioned users
   Widget _buildRichText(String text, bool isDark, List<dynamic> mentionedUsers) {
-    // Extract all names that should be bold (names in quotes or mentioned users)
     final List<String> namesToBold = [];
 
-    // Add mentioned user names
     for (var user in mentionedUsers) {
       if (user.fullName != null && user.fullName.isNotEmpty) {
         namesToBold.add(user.fullName);
@@ -78,7 +64,6 @@ class SystemMessageBubble extends StatelessWidget {
       }
     }
 
-    // If no names to bold, return simple text
     if (namesToBold.isEmpty) {
       return Text(
         text,
@@ -91,12 +76,10 @@ class SystemMessageBubble extends StatelessWidget {
       );
     }
 
-    // Build TextSpan with bold names
     final List<TextSpan> spans = [];
     String remainingText = text;
 
     while (remainingText.isNotEmpty) {
-      // Find the earliest occurrence of any name
       int earliestIndex = -1;
       String? foundName;
 
@@ -109,17 +92,14 @@ class SystemMessageBubble extends StatelessWidget {
       }
 
       if (earliestIndex == -1) {
-        // No more names found, add remaining text
         spans.add(TextSpan(text: remainingText));
         break;
       }
 
-      // Add text before the name
       if (earliestIndex > 0) {
         spans.add(TextSpan(text: remainingText.substring(0, earliestIndex)));
       }
 
-      // Add the name in bold
       spans.add(
         TextSpan(
           text: foundName,
@@ -127,7 +107,6 @@ class SystemMessageBubble extends StatelessWidget {
         ),
       );
 
-      // Continue with remaining text
       remainingText = remainingText.substring(earliestIndex + foundName!.length);
     }
 
@@ -144,7 +123,6 @@ class SystemMessageBubble extends StatelessWidget {
     );
   }
 
-  /// Get icon based on system message type
   IconData _getIconForSystemMessageType(String type) {
     switch (type.toUpperCase()) {
       case 'USER_JOINED':

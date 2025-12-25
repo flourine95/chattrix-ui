@@ -1,12 +1,12 @@
+import 'package:chattrix_ui/core/errors/failures.dart';
+import 'package:chattrix_ui/features/invite_links/domain/entities/invite_link_entity.dart';
 import 'package:flutter/foundation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import '../../../../core/errors/failures.dart';
-import '../../domain/entities/invite_link_entity.dart';
+
 import 'invite_links_providers.dart';
 
 part 'invite_links_list_provider.g.dart';
 
-/// Provider for managing invite links list with pagination
 @riverpod
 class InviteLinksList extends _$InviteLinksList {
   List<InviteLinkEntity> _allLinks = [];
@@ -19,7 +19,6 @@ class InviteLinksList extends _$InviteLinksList {
     return _loadLinks(conversationId);
   }
 
-  /// Load initial links
   Future<List<InviteLinkEntity>> _loadLinks(int conversationId) async {
     final useCase = ref.read(getInviteLinksUseCaseProvider);
 
@@ -27,8 +26,7 @@ class InviteLinksList extends _$InviteLinksList {
 
     return result.fold(
       (failure) {
-        final f = failure as Failure;
-        debugPrint('Failed to load invite links: ${f.userMessage}');
+        final f = failure;
         throw Exception(f.userMessage);
       },
       (data) {
@@ -40,7 +38,6 @@ class InviteLinksList extends _$InviteLinksList {
     );
   }
 
-  /// Load more links (pagination)
   Future<void> loadMore(int conversationId) async {
     if (!_hasNextPage || state.isLoading) return;
 
@@ -55,7 +52,7 @@ class InviteLinksList extends _$InviteLinksList {
 
     result.fold(
       (failure) {
-        final f = failure as Failure;
+        final f = failure;
         debugPrint('Failed to load more invite links: ${f.userMessage}');
       },
       (data) {
@@ -69,7 +66,6 @@ class InviteLinksList extends _$InviteLinksList {
     );
   }
 
-  /// Toggle include revoked links
   Future<void> toggleIncludeRevoked(int conversationId) async {
     _includeRevoked = !_includeRevoked;
     _allLinks = [];
@@ -78,7 +74,6 @@ class InviteLinksList extends _$InviteLinksList {
     ref.invalidateSelf();
   }
 
-  /// Refresh the list
   Future<void> refresh(int conversationId) async {
     _allLinks = [];
     _nextCursor = null;
@@ -86,7 +81,6 @@ class InviteLinksList extends _$InviteLinksList {
     ref.invalidateSelf();
   }
 
-  /// Add new link to the list
   void addLink(InviteLinkEntity link) {
     if (ref.mounted) {
       _allLinks.insert(0, link);
@@ -94,7 +88,6 @@ class InviteLinksList extends _$InviteLinksList {
     }
   }
 
-  /// Update link in the list
   void updateLink(InviteLinkEntity updatedLink) {
     if (ref.mounted) {
       final index = _allLinks.indexWhere((link) => link.id == updatedLink.id);
@@ -105,9 +98,7 @@ class InviteLinksList extends _$InviteLinksList {
     }
   }
 
-  /// Check if has more pages
   bool get hasNextPage => _hasNextPage;
 
-  /// Check if include revoked
   bool get includeRevoked => _includeRevoked;
 }

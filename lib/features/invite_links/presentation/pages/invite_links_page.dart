@@ -1,13 +1,12 @@
+import 'package:chattrix_ui/features/invite_links/presentation/providers/invite_links_list_provider.dart';
+import 'package:chattrix_ui/features/invite_links/presentation/providers/invite_links_websocket_provider.dart';
+import 'package:chattrix_ui/features/invite_links/presentation/widgets/create_invite_link_bottom_sheet.dart';
+import 'package:chattrix_ui/features/invite_links/presentation/widgets/invite_link_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../providers/invite_links_list_provider.dart';
-import '../providers/invite_links_websocket_provider.dart';
-import '../widgets/invite_link_card.dart';
-import '../widgets/create_invite_link_bottom_sheet.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-/// Page for managing group invite links
 class InviteLinksPage extends HookConsumerWidget {
   const InviteLinksPage({super.key, required this.conversationId, required this.conversationName});
 
@@ -20,14 +19,11 @@ class InviteLinksPage extends HookConsumerWidget {
     final colors = Theme.of(context).colorScheme;
     final scrollController = useScrollController();
 
-    // Initialize WebSocket listener
     ref.watch(inviteLinksWebSocketListenerProvider);
 
-    // Watch providers
     final linksAsync = ref.watch(inviteLinksListProvider(conversationId));
     final linksNotifier = ref.read(inviteLinksListProvider(conversationId).notifier);
 
-    // Listen to scroll for pagination
     useEffect(() {
       void onScroll() {
         if (scrollController.position.pixels >= scrollController.position.maxScrollExtent - 200) {
@@ -47,7 +43,7 @@ class InviteLinksPage extends HookConsumerWidget {
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Link mời', style: textTheme.titleMedium),
+            Text('Invite Links', style: textTheme.titleMedium),
             Text(
               conversationName,
               style: textTheme.bodySmall?.copyWith(color: colors.onSurface.withValues(alpha: 0.6)),
@@ -55,13 +51,12 @@ class InviteLinksPage extends HookConsumerWidget {
           ],
         ),
         actions: [
-          // Toggle include revoked
           IconButton(
             icon: Icon(
               linksNotifier.includeRevoked ? Icons.visibility : Icons.visibility_off,
               color: linksNotifier.includeRevoked ? colors.primary : null,
             ),
-            tooltip: linksNotifier.includeRevoked ? 'Ẩn link đã thu hồi' : 'Hiện link đã thu hồi',
+            tooltip: linksNotifier.includeRevoked ? 'Hide revoked links' : 'Show revoked links',
             onPressed: () => linksNotifier.toggleIncludeRevoked(conversationId),
           ),
         ],
@@ -90,7 +85,6 @@ class InviteLinksPage extends HookConsumerWidget {
                   link: link,
                   conversationId: conversationId,
                   onRevoked: () {
-                    // Refresh list after revoke
                     linksNotifier.refresh(conversationId);
                   },
                 );
@@ -106,7 +100,7 @@ class InviteLinksPage extends HookConsumerWidget {
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _showCreateLinkBottomSheet(context, ref),
         icon: const Icon(Icons.add_link),
-        label: const Text('Tạo link mới'),
+        label: const Text('Create Link'),
       ),
     );
   }
@@ -122,12 +116,12 @@ class InviteLinksPage extends HookConsumerWidget {
           Icon(Icons.link_off, size: 80, color: colors.onSurface.withValues(alpha: 0.3)),
           const SizedBox(height: 16),
           Text(
-            'Chưa có link mời nào',
+            'No invite links yet',
             style: textTheme.titleMedium?.copyWith(color: colors.onSurface.withValues(alpha: 0.6)),
           ),
           const SizedBox(height: 8),
           Text(
-            'Tạo link mời để chia sẻ với người khác',
+            'Create an invite link to share with others',
             style: textTheme.bodySmall?.copyWith(color: colors.onSurface.withValues(alpha: 0.5)),
             textAlign: TextAlign.center,
           ),
@@ -146,7 +140,7 @@ class InviteLinksPage extends HookConsumerWidget {
         children: [
           Icon(Icons.error_outline, size: 80, color: colors.error),
           const SizedBox(height: 16),
-          Text('Có lỗi xảy ra', style: textTheme.titleMedium),
+          Text('Something went wrong', style: textTheme.titleMedium),
           const SizedBox(height: 8),
           Text(
             error,
@@ -154,7 +148,7 @@ class InviteLinksPage extends HookConsumerWidget {
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 16),
-          FilledButton.icon(onPressed: onRetry, icon: const Icon(Icons.refresh), label: const Text('Thử lại')),
+          FilledButton.icon(onPressed: onRetry, icon: const Icon(Icons.refresh), label: const Text('Try Again')),
         ],
       ),
     );
@@ -167,12 +161,12 @@ class InviteLinksPage extends HookConsumerWidget {
       builder: (context) => CreateInviteLinkBottomSheet(
         conversationId: conversationId,
         onCreated: (link) {
-          // Add to list
           ref.read(inviteLinksListProvider(conversationId).notifier).addLink(link);
 
-          // Show success message
           if (context.mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Tạo link mời thành công')));
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(const SnackBar(content: Text('Invite link created successfully')));
           }
         },
       ),

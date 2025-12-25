@@ -94,7 +94,10 @@ class RouteConfig {
     GoRoute(
       path: RoutePaths.scheduledMessages,
       name: 'scheduled-messages',
-      builder: (context, state) => RouterSetup(child: const ScheduledMessagesPage()),
+      builder: (context, state) {
+        final conversationId = int.parse(state.pathParameters['id']!);
+        return RouterSetup(child: ScheduledMessagesPage(conversationId: conversationId));
+      },
     ),
     GoRoute(
       path: RoutePaths.scheduleMessage,
@@ -193,15 +196,15 @@ class RouteConfig {
   }
 
   static Widget _buildScheduleMessagePage(GoRouterState state) {
+    final conversationId = int.parse(state.pathParameters['id']!);
+
     if (state.extra is Map) {
       final extraMap = state.extra as Map;
-      final conversationId = extraMap['conversationId'] as int?;
       final existingMessage = extraMap['existingMessage'];
-
-      return ScheduleMessagePage(conversationId: conversationId ?? 0, existingMessage: existingMessage);
+      return ScheduleMessagePage(conversationId: conversationId, existingMessage: existingMessage);
     }
 
-    return const ScheduleMessagePage(conversationId: 0);
+    return ScheduleMessagePage(conversationId: conversationId);
   }
 
   static Widget _buildCreatePollPage(GoRouterState state) {

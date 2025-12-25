@@ -12,15 +12,12 @@ part of 'revoke_invite_link_provider.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
-/// Provider for revoking invite link
 
 @ProviderFor(RevokeInviteLink)
 const revokeInviteLinkProvider = RevokeInviteLinkProvider._();
 
-/// Provider for revoking invite link
 final class RevokeInviteLinkProvider
     extends $AsyncNotifierProvider<RevokeInviteLink, InviteLinkEntity?> {
-  /// Provider for revoking invite link
   const RevokeInviteLinkProvider._()
     : super(
         from: null,
@@ -40,9 +37,7 @@ final class RevokeInviteLinkProvider
   RevokeInviteLink create() => RevokeInviteLink();
 }
 
-String _$revokeInviteLinkHash() => r'8ef22c3d1f1e1923143b69187dd9c10b5f736cca';
-
-/// Provider for revoking invite link
+String _$revokeInviteLinkHash() => r'd54072066a4112e0330bda523ffcd5a80e4dad24';
 
 abstract class _$RevokeInviteLink extends $AsyncNotifier<InviteLinkEntity?> {
   FutureOr<InviteLinkEntity?> build();

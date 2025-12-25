@@ -12,15 +12,12 @@ part of 'invite_link_info_provider.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
-/// Provider for getting public invite link info (no auth required)
 
 @ProviderFor(InviteLinkInfo)
 const inviteLinkInfoProvider = InviteLinkInfoFamily._();
 
-/// Provider for getting public invite link info (no auth required)
 final class InviteLinkInfoProvider
     extends $AsyncNotifierProvider<InviteLinkInfo, InviteLinkInfoEntity?> {
-  /// Provider for getting public invite link info (no auth required)
   const InviteLinkInfoProvider._({
     required InviteLinkInfoFamily super.from,
     required String super.argument,
@@ -57,9 +54,7 @@ final class InviteLinkInfoProvider
   }
 }
 
-String _$inviteLinkInfoHash() => r'37ae3d3db393afd4389cb933e0f37ae88f7ad434';
-
-/// Provider for getting public invite link info (no auth required)
+String _$inviteLinkInfoHash() => r'ee890d917991ace1873633d1612b42f5aa40837a';
 
 final class InviteLinkInfoFamily extends $Family
     with
@@ -79,16 +74,12 @@ final class InviteLinkInfoFamily extends $Family
         isAutoDispose: true,
       );
 
-  /// Provider for getting public invite link info (no auth required)
-
   InviteLinkInfoProvider call(String token) =>
       InviteLinkInfoProvider._(argument: token, from: this);
 
   @override
   String toString() => r'inviteLinkInfoProvider';
 }
-
-/// Provider for getting public invite link info (no auth required)
 
 abstract class _$InviteLinkInfo extends $AsyncNotifier<InviteLinkInfoEntity?> {
   late final _$args = ref.$arg as String;

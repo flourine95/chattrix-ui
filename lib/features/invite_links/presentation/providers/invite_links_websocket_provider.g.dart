@@ -12,16 +12,13 @@ part of 'invite_links_websocket_provider.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
-/// Provider for listening to invite link WebSocket events
 
 @ProviderFor(InviteLinksWebSocketListener)
 const inviteLinksWebSocketListenerProvider =
     InviteLinksWebSocketListenerProvider._();
 
-/// Provider for listening to invite link WebSocket events
 final class InviteLinksWebSocketListenerProvider
     extends $NotifierProvider<InviteLinksWebSocketListener, bool> {
-  /// Provider for listening to invite link WebSocket events
   const InviteLinksWebSocketListenerProvider._()
     : super(
         from: null,
@@ -50,9 +47,7 @@ final class InviteLinksWebSocketListenerProvider
 }
 
 String _$inviteLinksWebSocketListenerHash() =>
-    r'9324bd75e4b078503d223f18fada03869586971f';
-
-/// Provider for listening to invite link WebSocket events
+    r'6e0e8a586dc5763d881fae5ea711ec2cd795618e';
 
 abstract class _$InviteLinksWebSocketListener extends $Notifier<bool> {
   bool build();

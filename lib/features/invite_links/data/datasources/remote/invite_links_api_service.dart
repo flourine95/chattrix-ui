@@ -1,19 +1,12 @@
+import 'package:chattrix_ui/core/network/api_response.dart';
+import 'package:chattrix_ui/features/invite_links/data/models/invite_link_dto.dart';
 import 'package:dio/dio.dart';
-import '../../models/invite_link_dto.dart';
-import '../../../../../core/network/api_response.dart';
 
 class InviteLinksApiService {
   final Dio _dio;
 
   InviteLinksApiService(this._dio);
 
-  /// Create invite link
-  ///
-  /// **Endpoint**: `POST /v1/invite-links/conversations/{conversationId}`
-  ///
-  /// **Errors:**
-  /// - 403: Forbidden - No permission
-  /// - 404: Not found - Conversation not found
   Future<ApiResponse<InviteLinkDto>> createInviteLink({
     required int conversationId,
     int? expiresIn,
@@ -30,13 +23,6 @@ class InviteLinksApiService {
     );
   }
 
-  /// Get all invite links for a conversation
-  ///
-  /// **Endpoint**: `GET /v1/invite-links/conversations/{conversationId}`
-  ///
-  /// **Errors:**
-  /// - 403: Forbidden - No permission
-  /// - 404: Not found - Conversation not found
   Future<ApiResponse<Map<String, dynamic>>> getInviteLinks({
     required int conversationId,
     String? cursor,
@@ -51,13 +37,6 @@ class InviteLinksApiService {
     return ApiResponse<Map<String, dynamic>>.fromJson(response.data, (json) => json as Map<String, dynamic>);
   }
 
-  /// Revoke invite link
-  ///
-  /// **Endpoint**: `DELETE /v1/invite-links/conversations/{conversationId}/links/{linkId}`
-  ///
-  /// **Errors:**
-  /// - 403: Forbidden - No permission
-  /// - 404: Not found - Link not found
   Future<ApiResponse<InviteLinkDto>> revokeInviteLink({required int conversationId, required int linkId}) async {
     final response = await _dio.delete('/v1/invite-links/conversations/$conversationId/links/$linkId');
 
@@ -67,11 +46,6 @@ class InviteLinksApiService {
     );
   }
 
-  /// Get QR code for invite link
-  ///
-  /// **Endpoint**: `GET /v1/invite-links/conversations/{conversationId}/links/{linkId}/qr`
-  ///
-  /// **Returns**: Binary image data (PNG)
   Future<List<int>> getQRCode({
     required int conversationId,
     required int linkId,
@@ -87,12 +61,6 @@ class InviteLinksApiService {
     return response.data as List<int>;
   }
 
-  /// Get invite link info (public, no auth required)
-  ///
-  /// **Endpoint**: `GET /v1/invite-links/{token}`
-  ///
-  /// **Errors:**
-  /// - 404: Not found - Link not found
   Future<ApiResponse<InviteLinkInfoDto>> getInviteLinkInfo({required String token}) async {
     final response = await _dio.get('/v1/invite-links/$token');
 
@@ -102,14 +70,6 @@ class InviteLinksApiService {
     );
   }
 
-  /// Join group via invite link
-  ///
-  /// **Endpoint**: `POST /v1/invite-links/{token}`
-  ///
-  /// **Errors:**
-  /// - 400: Bad request - Link expired or max uses reached
-  /// - 401: Unauthorized - Not logged in
-  /// - 404: Not found - Link not found
   Future<ApiResponse<JoinGroupResponseDto>> joinGroupViaLink({required String token}) async {
     final response = await _dio.post('/v1/invite-links/$token');
 

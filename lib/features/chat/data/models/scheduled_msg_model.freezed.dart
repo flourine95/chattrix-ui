@@ -885,7 +885,7 @@ as DateTime,
 /// @nodoc
 mixin _$ScheduledMessagesPaginationResponse {
 
-@JsonKey(name: 'data') List<ScheduledMessageListItemModel> get messages;@JsonKey(name: 'total') int get totalElements; int get totalPages;@JsonKey(name: 'page') int get currentPage;@JsonKey(name: 'size') int get pageSize;
+ List<ScheduledMessageListItemModel> get items;@JsonKey(name: 'nextCursor') String? get nextCursor; bool get hasNextPage; int get itemsPerPage;
 /// Create a copy of ScheduledMessagesPaginationResponse
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -898,16 +898,16 @@ $ScheduledMessagesPaginationResponseCopyWith<ScheduledMessagesPaginationResponse
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ScheduledMessagesPaginationResponse&&const DeepCollectionEquality().equals(other.messages, messages)&&(identical(other.totalElements, totalElements) || other.totalElements == totalElements)&&(identical(other.totalPages, totalPages) || other.totalPages == totalPages)&&(identical(other.currentPage, currentPage) || other.currentPage == currentPage)&&(identical(other.pageSize, pageSize) || other.pageSize == pageSize));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ScheduledMessagesPaginationResponse&&const DeepCollectionEquality().equals(other.items, items)&&(identical(other.nextCursor, nextCursor) || other.nextCursor == nextCursor)&&(identical(other.hasNextPage, hasNextPage) || other.hasNextPage == hasNextPage)&&(identical(other.itemsPerPage, itemsPerPage) || other.itemsPerPage == itemsPerPage));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(messages),totalElements,totalPages,currentPage,pageSize);
+int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(items),nextCursor,hasNextPage,itemsPerPage);
 
 @override
 String toString() {
-  return 'ScheduledMessagesPaginationResponse(messages: $messages, totalElements: $totalElements, totalPages: $totalPages, currentPage: $currentPage, pageSize: $pageSize)';
+  return 'ScheduledMessagesPaginationResponse(items: $items, nextCursor: $nextCursor, hasNextPage: $hasNextPage, itemsPerPage: $itemsPerPage)';
 }
 
 
@@ -918,7 +918,7 @@ abstract mixin class $ScheduledMessagesPaginationResponseCopyWith<$Res>  {
   factory $ScheduledMessagesPaginationResponseCopyWith(ScheduledMessagesPaginationResponse value, $Res Function(ScheduledMessagesPaginationResponse) _then) = _$ScheduledMessagesPaginationResponseCopyWithImpl;
 @useResult
 $Res call({
-@JsonKey(name: 'data') List<ScheduledMessageListItemModel> messages,@JsonKey(name: 'total') int totalElements, int totalPages,@JsonKey(name: 'page') int currentPage,@JsonKey(name: 'size') int pageSize
+ List<ScheduledMessageListItemModel> items,@JsonKey(name: 'nextCursor') String? nextCursor, bool hasNextPage, int itemsPerPage
 });
 
 
@@ -935,13 +935,12 @@ class _$ScheduledMessagesPaginationResponseCopyWithImpl<$Res>
 
 /// Create a copy of ScheduledMessagesPaginationResponse
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? messages = null,Object? totalElements = null,Object? totalPages = null,Object? currentPage = null,Object? pageSize = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? items = null,Object? nextCursor = freezed,Object? hasNextPage = null,Object? itemsPerPage = null,}) {
   return _then(_self.copyWith(
-messages: null == messages ? _self.messages : messages // ignore: cast_nullable_to_non_nullable
-as List<ScheduledMessageListItemModel>,totalElements: null == totalElements ? _self.totalElements : totalElements // ignore: cast_nullable_to_non_nullable
-as int,totalPages: null == totalPages ? _self.totalPages : totalPages // ignore: cast_nullable_to_non_nullable
-as int,currentPage: null == currentPage ? _self.currentPage : currentPage // ignore: cast_nullable_to_non_nullable
-as int,pageSize: null == pageSize ? _self.pageSize : pageSize // ignore: cast_nullable_to_non_nullable
+items: null == items ? _self.items : items // ignore: cast_nullable_to_non_nullable
+as List<ScheduledMessageListItemModel>,nextCursor: freezed == nextCursor ? _self.nextCursor : nextCursor // ignore: cast_nullable_to_non_nullable
+as String?,hasNextPage: null == hasNextPage ? _self.hasNextPage : hasNextPage // ignore: cast_nullable_to_non_nullable
+as bool,itemsPerPage: null == itemsPerPage ? _self.itemsPerPage : itemsPerPage // ignore: cast_nullable_to_non_nullable
 as int,
   ));
 }
@@ -1027,10 +1026,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function(@JsonKey(name: 'data')  List<ScheduledMessageListItemModel> messages, @JsonKey(name: 'total')  int totalElements,  int totalPages, @JsonKey(name: 'page')  int currentPage, @JsonKey(name: 'size')  int pageSize)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( List<ScheduledMessageListItemModel> items, @JsonKey(name: 'nextCursor')  String? nextCursor,  bool hasNextPage,  int itemsPerPage)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _ScheduledMessagesPaginationResponse() when $default != null:
-return $default(_that.messages,_that.totalElements,_that.totalPages,_that.currentPage,_that.pageSize);case _:
+return $default(_that.items,_that.nextCursor,_that.hasNextPage,_that.itemsPerPage);case _:
   return orElse();
 
 }
@@ -1048,10 +1047,10 @@ return $default(_that.messages,_that.totalElements,_that.totalPages,_that.curren
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function(@JsonKey(name: 'data')  List<ScheduledMessageListItemModel> messages, @JsonKey(name: 'total')  int totalElements,  int totalPages, @JsonKey(name: 'page')  int currentPage, @JsonKey(name: 'size')  int pageSize)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( List<ScheduledMessageListItemModel> items, @JsonKey(name: 'nextCursor')  String? nextCursor,  bool hasNextPage,  int itemsPerPage)  $default,) {final _that = this;
 switch (_that) {
 case _ScheduledMessagesPaginationResponse():
-return $default(_that.messages,_that.totalElements,_that.totalPages,_that.currentPage,_that.pageSize);case _:
+return $default(_that.items,_that.nextCursor,_that.hasNextPage,_that.itemsPerPage);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -1068,10 +1067,10 @@ return $default(_that.messages,_that.totalElements,_that.totalPages,_that.curren
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function(@JsonKey(name: 'data')  List<ScheduledMessageListItemModel> messages, @JsonKey(name: 'total')  int totalElements,  int totalPages, @JsonKey(name: 'page')  int currentPage, @JsonKey(name: 'size')  int pageSize)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( List<ScheduledMessageListItemModel> items, @JsonKey(name: 'nextCursor')  String? nextCursor,  bool hasNextPage,  int itemsPerPage)?  $default,) {final _that = this;
 switch (_that) {
 case _ScheduledMessagesPaginationResponse() when $default != null:
-return $default(_that.messages,_that.totalElements,_that.totalPages,_that.currentPage,_that.pageSize);case _:
+return $default(_that.items,_that.nextCursor,_that.hasNextPage,_that.itemsPerPage);case _:
   return null;
 
 }
@@ -1083,20 +1082,19 @@ return $default(_that.messages,_that.totalElements,_that.totalPages,_that.curren
 @JsonSerializable()
 
 class _ScheduledMessagesPaginationResponse implements ScheduledMessagesPaginationResponse {
-  const _ScheduledMessagesPaginationResponse({@JsonKey(name: 'data') final  List<ScheduledMessageListItemModel> messages = const [], @JsonKey(name: 'total') this.totalElements = 0, this.totalPages = 0, @JsonKey(name: 'page') this.currentPage = 0, @JsonKey(name: 'size') this.pageSize = 0}): _messages = messages;
+  const _ScheduledMessagesPaginationResponse({final  List<ScheduledMessageListItemModel> items = const [], @JsonKey(name: 'nextCursor') this.nextCursor, this.hasNextPage = false, this.itemsPerPage = 20}): _items = items;
   factory _ScheduledMessagesPaginationResponse.fromJson(Map<String, dynamic> json) => _$ScheduledMessagesPaginationResponseFromJson(json);
 
- final  List<ScheduledMessageListItemModel> _messages;
-@override@JsonKey(name: 'data') List<ScheduledMessageListItemModel> get messages {
-  if (_messages is EqualUnmodifiableListView) return _messages;
+ final  List<ScheduledMessageListItemModel> _items;
+@override@JsonKey() List<ScheduledMessageListItemModel> get items {
+  if (_items is EqualUnmodifiableListView) return _items;
   // ignore: implicit_dynamic_type
-  return EqualUnmodifiableListView(_messages);
+  return EqualUnmodifiableListView(_items);
 }
 
-@override@JsonKey(name: 'total') final  int totalElements;
-@override@JsonKey() final  int totalPages;
-@override@JsonKey(name: 'page') final  int currentPage;
-@override@JsonKey(name: 'size') final  int pageSize;
+@override@JsonKey(name: 'nextCursor') final  String? nextCursor;
+@override@JsonKey() final  bool hasNextPage;
+@override@JsonKey() final  int itemsPerPage;
 
 /// Create a copy of ScheduledMessagesPaginationResponse
 /// with the given fields replaced by the non-null parameter values.
@@ -1111,16 +1109,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ScheduledMessagesPaginationResponse&&const DeepCollectionEquality().equals(other._messages, _messages)&&(identical(other.totalElements, totalElements) || other.totalElements == totalElements)&&(identical(other.totalPages, totalPages) || other.totalPages == totalPages)&&(identical(other.currentPage, currentPage) || other.currentPage == currentPage)&&(identical(other.pageSize, pageSize) || other.pageSize == pageSize));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ScheduledMessagesPaginationResponse&&const DeepCollectionEquality().equals(other._items, _items)&&(identical(other.nextCursor, nextCursor) || other.nextCursor == nextCursor)&&(identical(other.hasNextPage, hasNextPage) || other.hasNextPage == hasNextPage)&&(identical(other.itemsPerPage, itemsPerPage) || other.itemsPerPage == itemsPerPage));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_messages),totalElements,totalPages,currentPage,pageSize);
+int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_items),nextCursor,hasNextPage,itemsPerPage);
 
 @override
 String toString() {
-  return 'ScheduledMessagesPaginationResponse(messages: $messages, totalElements: $totalElements, totalPages: $totalPages, currentPage: $currentPage, pageSize: $pageSize)';
+  return 'ScheduledMessagesPaginationResponse(items: $items, nextCursor: $nextCursor, hasNextPage: $hasNextPage, itemsPerPage: $itemsPerPage)';
 }
 
 
@@ -1131,7 +1129,7 @@ abstract mixin class _$ScheduledMessagesPaginationResponseCopyWith<$Res> impleme
   factory _$ScheduledMessagesPaginationResponseCopyWith(_ScheduledMessagesPaginationResponse value, $Res Function(_ScheduledMessagesPaginationResponse) _then) = __$ScheduledMessagesPaginationResponseCopyWithImpl;
 @override @useResult
 $Res call({
-@JsonKey(name: 'data') List<ScheduledMessageListItemModel> messages,@JsonKey(name: 'total') int totalElements, int totalPages,@JsonKey(name: 'page') int currentPage,@JsonKey(name: 'size') int pageSize
+ List<ScheduledMessageListItemModel> items,@JsonKey(name: 'nextCursor') String? nextCursor, bool hasNextPage, int itemsPerPage
 });
 
 
@@ -1148,13 +1146,12 @@ class __$ScheduledMessagesPaginationResponseCopyWithImpl<$Res>
 
 /// Create a copy of ScheduledMessagesPaginationResponse
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? messages = null,Object? totalElements = null,Object? totalPages = null,Object? currentPage = null,Object? pageSize = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? items = null,Object? nextCursor = freezed,Object? hasNextPage = null,Object? itemsPerPage = null,}) {
   return _then(_ScheduledMessagesPaginationResponse(
-messages: null == messages ? _self._messages : messages // ignore: cast_nullable_to_non_nullable
-as List<ScheduledMessageListItemModel>,totalElements: null == totalElements ? _self.totalElements : totalElements // ignore: cast_nullable_to_non_nullable
-as int,totalPages: null == totalPages ? _self.totalPages : totalPages // ignore: cast_nullable_to_non_nullable
-as int,currentPage: null == currentPage ? _self.currentPage : currentPage // ignore: cast_nullable_to_non_nullable
-as int,pageSize: null == pageSize ? _self.pageSize : pageSize // ignore: cast_nullable_to_non_nullable
+items: null == items ? _self._items : items // ignore: cast_nullable_to_non_nullable
+as List<ScheduledMessageListItemModel>,nextCursor: freezed == nextCursor ? _self.nextCursor : nextCursor // ignore: cast_nullable_to_non_nullable
+as String?,hasNextPage: null == hasNextPage ? _self.hasNextPage : hasNextPage // ignore: cast_nullable_to_non_nullable
+as bool,itemsPerPage: null == itemsPerPage ? _self.itemsPerPage : itemsPerPage // ignore: cast_nullable_to_non_nullable
 as int,
   ));
 }

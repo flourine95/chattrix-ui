@@ -33,11 +33,11 @@ final class ScheduledMessagesNotifierProvider
   /// Manages the state of scheduled messages with filtering by status
   const ScheduledMessagesNotifierProvider._({
     required ScheduledMessagesNotifierFamily super.from,
-    required ({int? conversationId, String status}) super.argument,
+    required ({int conversationId, String status}) super.argument,
   }) : super(
          retry: null,
          name: r'scheduledMessagesProvider',
-         isAutoDispose: false,
+         isAutoDispose: true,
          dependencies: null,
          $allTransitiveDependencies: null,
        );
@@ -69,7 +69,7 @@ final class ScheduledMessagesNotifierProvider
 }
 
 String _$scheduledMessagesNotifierHash() =>
-    r'328711c831608b75c5fbe9fbedc09888a568cc52';
+    r'2cc2427f40a4d9ba33109f210022687b22cbf45a';
 
 /// Notifier for scheduled messages list
 ///
@@ -82,7 +82,7 @@ final class ScheduledMessagesNotifierFamily extends $Family
           AsyncValue<List<ScheduledMessage>>,
           List<ScheduledMessage>,
           FutureOr<List<ScheduledMessage>>,
-          ({int? conversationId, String status})
+          ({int conversationId, String status})
         > {
   const ScheduledMessagesNotifierFamily._()
     : super(
@@ -90,7 +90,7 @@ final class ScheduledMessagesNotifierFamily extends $Family
         name: r'scheduledMessagesProvider',
         dependencies: null,
         $allTransitiveDependencies: null,
-        isAutoDispose: false,
+        isAutoDispose: true,
       );
 
   /// Notifier for scheduled messages list
@@ -98,7 +98,7 @@ final class ScheduledMessagesNotifierFamily extends $Family
   /// Manages the state of scheduled messages with filtering by status
 
   ScheduledMessagesNotifierProvider call({
-    int? conversationId,
+    required int conversationId,
     String status = 'PENDING',
   }) => ScheduledMessagesNotifierProvider._(
     argument: (conversationId: conversationId, status: status),
@@ -115,12 +115,12 @@ final class ScheduledMessagesNotifierFamily extends $Family
 
 abstract class _$ScheduledMessagesNotifier
     extends $AsyncNotifier<List<ScheduledMessage>> {
-  late final _$args = ref.$arg as ({int? conversationId, String status});
-  int? get conversationId => _$args.conversationId;
+  late final _$args = ref.$arg as ({int conversationId, String status});
+  int get conversationId => _$args.conversationId;
   String get status => _$args.status;
 
   FutureOr<List<ScheduledMessage>> build({
-    int? conversationId,
+    required int conversationId,
     String status = 'PENDING',
   });
   @$mustCallSuper

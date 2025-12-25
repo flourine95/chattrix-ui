@@ -1,10 +1,11 @@
+import 'package:chattrix_ui/features/invite_links/domain/entities/invite_link_entity.dart';
+import 'package:chattrix_ui/features/invite_links/presentation/providers/revoke_invite_link_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:share_plus/share_plus.dart';
-import '../../domain/entities/invite_link_entity.dart';
-import '../providers/revoke_invite_link_provider.dart';
+
 import 'qr_code_dialog.dart';
 
 class InviteLinkCard extends ConsumerWidget {
@@ -30,7 +31,6 @@ class InviteLinkCard extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Header with status
             Row(
               children: [
                 Icon(
@@ -54,14 +54,13 @@ class InviteLinkCard extends ConsumerWidget {
 
             const SizedBox(height: 12),
 
-            // Info
-            _buildInfoRow(context, Icons.person_outline, 'Tạo bởi', link.createdByUsername),
-            _buildInfoRow(context, Icons.access_time, 'Tạo lúc', _formatDateTime(link.createdAt)),
+            _buildInfoRow(context, Icons.person_outline, 'Created by', link.createdByUsername),
+            _buildInfoRow(context, Icons.access_time, 'Created at', _formatDateTime(link.createdAt)),
             if (link.expiresAt != null)
               _buildInfoRow(
                 context,
                 Icons.event_outlined,
-                'Hết hạn',
+                'Expires',
                 _formatDateTime(link.expiresAt!),
                 isWarning: isExpired,
               ),
@@ -69,7 +68,7 @@ class InviteLinkCard extends ConsumerWidget {
               _buildInfoRow(
                 context,
                 Icons.people_outline,
-                'Số lần sử dụng',
+                'Usage',
                 '${link.currentUses}/${link.maxUses}',
                 isWarning: isMaxUsesReached,
               ),
@@ -84,7 +83,10 @@ class InviteLinkCard extends ConsumerWidget {
                     Icon(Icons.block, size: 16, color: colors.error),
                     const SizedBox(width: 8),
                     Expanded(
-                      child: Text('Link đã bị thu hồi', style: textTheme.bodySmall?.copyWith(color: colors.error)),
+                      child: Text(
+                        'This link has been revoked',
+                        style: textTheme.bodySmall?.copyWith(color: colors.error),
+                      ),
                     ),
                   ],
                 ),
@@ -93,20 +95,19 @@ class InviteLinkCard extends ConsumerWidget {
 
             const SizedBox(height: 12),
 
-            // Actions
             Wrap(
               spacing: 8,
               runSpacing: 8,
               children: [
                 if (!isInvalid) ...[
-                  _ActionButton(icon: Icons.copy, label: 'Sao chép', onPressed: () => _copyLink(context)),
-                  _ActionButton(icon: Icons.share, label: 'Chia sẻ', onPressed: () => _shareLink(context)),
+                  _ActionButton(icon: Icons.copy, label: 'Copy', onPressed: () => _copyLink(context)),
+                  _ActionButton(icon: Icons.share, label: 'Share', onPressed: () => _shareLink(context)),
                   _ActionButton(icon: Icons.qr_code, label: 'QR Code', onPressed: () => _showQRCode(context)),
                 ],
                 if (!link.revoked)
                   _ActionButton(
                     icon: Icons.block,
-                    label: 'Thu hồi',
+                    label: 'Revoke',
                     onPressed: () => _confirmRevoke(context, ref),
                     isDestructive: true,
                   ),
@@ -127,19 +128,19 @@ class InviteLinkCard extends ConsumerWidget {
     Color textColor;
 
     if (link.revoked) {
-      label = 'Đã thu hồi';
+      label = 'Revoked';
       backgroundColor = colors.errorContainer;
       textColor = colors.error;
     } else if (link.isExpired) {
-      label = 'Hết hạn';
+      label = 'Expired';
       backgroundColor = colors.errorContainer;
       textColor = colors.error;
     } else if (link.isMaxUsesReached) {
-      label = 'Đã đủ';
+      label = 'Full';
       backgroundColor = colors.errorContainer;
       textColor = colors.error;
     } else {
-      label = 'Hoạt động';
+      label = 'Active';
       backgroundColor = colors.primaryContainer;
       textColor = colors.primary;
     }
@@ -191,11 +192,11 @@ class InviteLinkCard extends ConsumerWidget {
 
   void _copyLink(BuildContext context) {
     Clipboard.setData(ClipboardData(text: link.inviteUrl));
-    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Đã sao chép link')));
+    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Link copied to clipboard')));
   }
 
   void _shareLink(BuildContext context) {
-    Share.share('Tham gia nhóm qua link: ${link.inviteUrl}', subject: 'Link mời vào nhóm');
+    Share.share('Join group via link: ${link.inviteUrl}', subject: 'Group Invitation Link');
   }
 
   void _showQRCode(BuildContext context) {
@@ -209,20 +210,20 @@ class InviteLinkCard extends ConsumerWidget {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Thu hồi link mời'),
+        title: const Text('Revoke Invite Link'),
         content: const Text(
-          'Bạn có chắc muốn thu hồi link này? '
-          'Sau khi thu hồi, link sẽ không thể sử dụng được nữa.',
+          'Are you sure you want to revoke this link? '
+          'Once revoked, this link can no longer be used.',
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Hủy')),
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
           TextButton(
             onPressed: () async {
               Navigator.pop(context);
               await _revokeLink(context, ref);
             },
             style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: const Text('Thu hồi'),
+            child: const Text('Revoke'),
           ),
         ],
       ),
@@ -241,13 +242,13 @@ class InviteLinkCard extends ConsumerWidget {
     state.when(
       data: (revokedLink) {
         if (revokedLink != null) {
-          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Thu hồi link thành công')));
+          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Invite link revoked successfully')));
           onRevoked?.call();
         }
       },
       loading: () {},
       error: (error, stack) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Lỗi: $error')));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $error')));
       },
     );
   }

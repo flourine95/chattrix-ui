@@ -1,12 +1,10 @@
+import 'package:chattrix_ui/features/invite_links/domain/entities/invite_link_entity.dart';
+import 'package:chattrix_ui/features/invite_links/presentation/providers/invite_link_info_provider.dart';
+import 'package:chattrix_ui/features/invite_links/presentation/providers/join_group_provider.dart';
 import 'package:flutter/material.dart';
-import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../../domain/entities/invite_link_entity.dart';
-import '../providers/invite_link_info_provider.dart';
-import '../providers/join_group_provider.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-/// Public page for viewing invite link info (no auth required)
-/// Shows group info and allows joining via the link
 class InviteLinkInfoPage extends HookConsumerWidget {
   final String token;
 
@@ -18,7 +16,7 @@ class InviteLinkInfoPage extends HookConsumerWidget {
     final joinGroupAsync = ref.watch(joinGroupProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Lời mời tham gia nhóm')),
+      appBar: AppBar(title: const Text('Group Invite')),
       body: linkInfoAsync.when(
         data: (linkInfo) {
           if (linkInfo == null) {
@@ -47,7 +45,6 @@ class InviteLinkInfoPage extends HookConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // Group Avatar
           Center(
             child: CircleAvatar(
               radius: 60,
@@ -67,63 +64,49 @@ class InviteLinkInfoPage extends HookConsumerWidget {
             ),
           ),
           const SizedBox(height: 24),
-
-          // Group Name
           Text(
             linkInfo.groupName,
             style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 8),
-
-          // Member Count
           Text(
-            '${linkInfo.memberCount} thành viên',
+            '${linkInfo.memberCount} members',
             style: theme.textTheme.bodyLarge?.copyWith(color: colorScheme.onSurfaceVariant),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 32),
-
-          // Invite Info Card
           Card(
             child: Padding(
               padding: const EdgeInsets.all(16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Thông tin lời mời', style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
+                  Text('Invitation Info', style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
                   const SizedBox(height: 16),
-
-                  // Creator
-                  _buildInfoRow(context, icon: Icons.person_outline, label: 'Người tạo', value: linkInfo.creatorName),
+                  _buildInfoRow(context, icon: Icons.person_outline, label: 'Created by', value: linkInfo.creatorName),
                   const SizedBox(height: 12),
-
-                  // Created At
                   _buildInfoRow(
                     context,
                     icon: Icons.access_time,
-                    label: 'Ngày tạo',
+                    label: 'Created at',
                     value: _formatDateTime(linkInfo.createdAt),
                   ),
-
-                  // Expiry
                   if (linkInfo.expiresAt != null) ...[
                     const SizedBox(height: 12),
                     _buildInfoRow(
                       context,
                       icon: Icons.event,
-                      label: 'Hết hạn',
+                      label: 'Expires at',
                       value: _formatDateTime(linkInfo.expiresAt!),
                     ),
                   ],
-
-                  // Max Uses
                   if (linkInfo.maxUses != null) ...[
                     const SizedBox(height: 12),
                     _buildInfoRow(
                       context,
                       icon: Icons.people_outline,
-                      label: 'Số lượt sử dụng',
+                      label: 'Usage',
                       value: '${linkInfo.usesCount}/${linkInfo.maxUses}',
                     ),
                   ],
@@ -132,18 +115,14 @@ class InviteLinkInfoPage extends HookConsumerWidget {
             ),
           ),
           const SizedBox(height: 32),
-
-          // Join Button
           FilledButton.icon(
             onPressed: linkInfo.isValid && !joinGroupAsync.isLoading ? () => _handleJoinGroup(context, ref) : null,
             icon: joinGroupAsync.isLoading
                 ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))
                 : const Icon(Icons.group_add),
-            label: Text(joinGroupAsync.isLoading ? 'Đang tham gia...' : 'Tham gia nhóm'),
+            label: Text(joinGroupAsync.isLoading ? 'Joining...' : 'Join Group'),
             style: FilledButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 16)),
           ),
-
-          // Invalid Link Warning
           if (!linkInfo.isValid) ...[
             const SizedBox(height: 16),
             Card(
@@ -157,12 +136,12 @@ class InviteLinkInfoPage extends HookConsumerWidget {
                     Expanded(
                       child: Text(
                         linkInfo.isExpired
-                            ? 'Liên kết này đã hết hạn'
+                            ? 'This link has expired'
                             : linkInfo.isMaxUsesReached
-                            ? 'Liên kết này đã đạt giới hạn sử dụng'
+                            ? 'This link has reached its usage limit'
                             : linkInfo.revoked
-                            ? 'Liên kết này đã bị thu hồi'
-                            : 'Liên kết không hợp lệ',
+                            ? 'This link has been revoked'
+                            : 'Invalid link',
                         style: TextStyle(color: colorScheme.onErrorContainer),
                       ),
                     ),
@@ -210,10 +189,10 @@ class InviteLinkInfoPage extends HookConsumerWidget {
           children: [
             Icon(Icons.link_off, size: 80, color: colorScheme.onSurfaceVariant.withOpacity(0.5)),
             const SizedBox(height: 24),
-            Text('Không tìm thấy lời mời', style: theme.textTheme.titleLarge, textAlign: TextAlign.center),
+            Text('Invite Not Found', style: theme.textTheme.titleLarge, textAlign: TextAlign.center),
             const SizedBox(height: 8),
             Text(
-              'Liên kết này không tồn tại hoặc đã bị xóa',
+              'This link does not exist or has been deleted',
               style: theme.textTheme.bodyMedium?.copyWith(color: colorScheme.onSurfaceVariant),
               textAlign: TextAlign.center,
             ),
@@ -235,7 +214,7 @@ class InviteLinkInfoPage extends HookConsumerWidget {
           children: [
             Icon(Icons.error_outline, size: 80, color: colorScheme.error),
             const SizedBox(height: 24),
-            Text('Không thể tải thông tin', style: theme.textTheme.titleLarge, textAlign: TextAlign.center),
+            Text('Failed to load info', style: theme.textTheme.titleLarge, textAlign: TextAlign.center),
             const SizedBox(height: 8),
             Text(
               error.toString(),
@@ -248,7 +227,7 @@ class InviteLinkInfoPage extends HookConsumerWidget {
                 ref.invalidate(inviteLinkInfoProvider(token));
               },
               icon: const Icon(Icons.refresh),
-              label: const Text('Thử lại'),
+              label: const Text('Try Again'),
             ),
           ],
         ),
@@ -268,15 +247,13 @@ class InviteLinkInfoPage extends HookConsumerWidget {
     joinResult.when(
       data: (result) {
         if (result != null) {
-          // Success - navigate to the group chat
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Đã tham gia nhóm "${result.groupName}"'),
+              content: Text('Joined group "${result.groupName}"'),
               backgroundColor: Theme.of(context).colorScheme.primary,
             ),
           );
 
-          // Navigate to chat view
           context.go('/chat/${result.conversationId}');
         }
       },
@@ -296,13 +273,13 @@ class InviteLinkInfoPage extends HookConsumerWidget {
     if (difference.inDays == 0) {
       if (difference.inHours == 0) {
         if (difference.inMinutes == 0) {
-          return 'Vừa xong';
+          return 'Just now';
         }
-        return '${difference.inMinutes} phút trước';
+        return '${difference.inMinutes}m ago';
       }
-      return '${difference.inHours} giờ trước';
+      return '${difference.inHours}h ago';
     } else if (difference.inDays < 7) {
-      return '${difference.inDays} ngày trước';
+      return '${difference.inDays}d ago';
     } else {
       return '${dateTime.day}/${dateTime.month}/${dateTime.year}';
     }

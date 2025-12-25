@@ -12,15 +12,12 @@ part of 'invite_links_list_provider.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
-/// Provider for managing invite links list with pagination
 
 @ProviderFor(InviteLinksList)
 const inviteLinksListProvider = InviteLinksListFamily._();
 
-/// Provider for managing invite links list with pagination
 final class InviteLinksListProvider
     extends $AsyncNotifierProvider<InviteLinksList, List<InviteLinkEntity>> {
-  /// Provider for managing invite links list with pagination
   const InviteLinksListProvider._({
     required InviteLinksListFamily super.from,
     required int super.argument,
@@ -57,9 +54,7 @@ final class InviteLinksListProvider
   }
 }
 
-String _$inviteLinksListHash() => r'316f643ae4556c0d38eb669f261a07df324109d2';
-
-/// Provider for managing invite links list with pagination
+String _$inviteLinksListHash() => r'0781d688873e0c565c440aa7f0bfe6b30e5f56cb';
 
 final class InviteLinksListFamily extends $Family
     with
@@ -79,16 +74,12 @@ final class InviteLinksListFamily extends $Family
         isAutoDispose: true,
       );
 
-  /// Provider for managing invite links list with pagination
-
   InviteLinksListProvider call(int conversationId) =>
       InviteLinksListProvider._(argument: conversationId, from: this);
 
   @override
   String toString() => r'inviteLinksListProvider';
 }
-
-/// Provider for managing invite links list with pagination
 
 abstract class _$InviteLinksList
     extends $AsyncNotifier<List<InviteLinkEntity>> {

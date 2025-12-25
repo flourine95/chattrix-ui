@@ -1,12 +1,11 @@
-import 'package:flutter/foundation.dart';
+import 'package:chattrix_ui/core/errors/failures.dart';
+import 'package:chattrix_ui/features/invite_links/domain/entities/invite_link_entity.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import '../../../../core/errors/failures.dart';
-import '../../domain/entities/invite_link_entity.dart';
+
 import 'invite_links_providers.dart';
 
 part 'invite_link_info_provider.g.dart';
 
-/// Provider for getting public invite link info (no auth required)
 @riverpod
 class InviteLinkInfo extends _$InviteLinkInfo {
   @override
@@ -20,12 +19,10 @@ class InviteLinkInfo extends _$InviteLinkInfo {
     final result = await useCase(token: token);
 
     return result.fold((failure) {
-      debugPrint('Failed to load invite link info: ${failure.userMessage}');
       throw Exception(failure.userMessage);
     }, (info) => info);
   }
 
-  /// Refresh link info
   Future<void> refresh() async {
     ref.invalidateSelf();
   }
