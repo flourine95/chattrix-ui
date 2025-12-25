@@ -41,14 +41,38 @@ class SystemMessageFormatter {
 
       case 'USER_ADDED':
         final userName = jsonData?['userName'] ?? actorName ?? 'Someone';
-        // addedBy is userId, we need to get name from somewhere else
-        // For now, use a generic message since we don't have the actor's name
-        return '$userName was added to the group';
+        final addedBy = jsonData?['addedBy'];
+        if (addedBy != null) {
+          // We have the userId but not the name, so use passive voice
+          return '$userName was added to the group';
+        }
+        return '$userName joined the group';
+
+      case 'USERS_ADDED':
+        // Multiple users added at once
+        final addedUserIds = jsonData?['addedUserIds'] as List?;
+
+        if (addedUserIds != null && addedUserIds.isNotEmpty) {
+          final count = addedUserIds.length;
+          if (count == 1) {
+            // Fallback to single user message
+            final userName = jsonData?['userName'] ?? 'Someone';
+            return '$userName was added to the group';
+          } else {
+            // Multiple users
+            return '$count members were added to the group';
+          }
+        }
+        return 'Members were added to the group';
 
       case 'USER_KICKED':
         final userName = jsonData?['userName'] ?? actorName ?? 'Someone';
-        // kickedBy is userId, we need to get name from somewhere else
-        return '$userName was removed from the group';
+        final kickedBy = jsonData?['kickedBy'];
+        if (kickedBy != null) {
+          // We have the userId but not the name, so use passive voice
+          return '$userName was removed from the group';
+        }
+        return '$userName left the group';
 
       case 'USER_REMOVED':
         final actor = jsonData?['actorName'] ?? actorName;
@@ -88,7 +112,11 @@ class SystemMessageFormatter {
 
       case 'USER_PROMOTED':
         final userName = jsonData?['userName'] ?? targetName ?? 'Someone';
-        // promotedBy is userId, we need to get name from somewhere else
+        final promotedBy = jsonData?['promotedBy'];
+        if (promotedBy != null) {
+          // We have the userId but not the name, so use passive voice
+          return '$userName was promoted to admin';
+        }
         return '$userName is now a group admin';
 
       case 'ADMIN_PROMOTED':
@@ -101,7 +129,11 @@ class SystemMessageFormatter {
 
       case 'USER_DEMOTED':
         final userName = jsonData?['userName'] ?? targetName ?? 'Someone';
-        // demotedBy is userId, we need to get name from somewhere else
+        final demotedBy = jsonData?['demotedBy'];
+        if (demotedBy != null) {
+          // We have the userId but not the name, so use passive voice
+          return '$userName was removed as admin';
+        }
         return '$userName is no longer a group admin';
 
       case 'ADMIN_DEMOTED':
@@ -114,16 +146,22 @@ class SystemMessageFormatter {
 
       case 'MEMBER_MUTED':
         final userName = jsonData?['userName'] ?? targetName ?? 'Someone';
-        // mutedBy is userId, we need to get name from somewhere else
+        final mutedBy = jsonData?['mutedBy'];
         final mutedUntil = jsonData?['mutedUntil'];
         if (mutedUntil != null) {
           return '$userName was muted temporarily';
+        }
+        if (mutedBy != null) {
+          return '$userName was muted';
         }
         return '$userName was muted';
 
       case 'MEMBER_UNMUTED':
         final userName = jsonData?['userName'] ?? targetName ?? 'Someone';
-        // unmutedBy is userId, we need to get name from somewhere else
+        final unmutedBy = jsonData?['unmutedBy'];
+        if (unmutedBy != null) {
+          return '$userName was unmuted';
+        }
         return '$userName was unmuted';
 
       case 'MESSAGE_PINNED':

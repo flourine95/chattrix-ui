@@ -78,6 +78,13 @@ abstract class ChatRemoteDatasource {
   /// **API:** `POST /v1/read-receipts/conversations/{conversationId}`
   Future<void> markConversationAsRead({required int conversationId, int? lastMessageId});
 
+  /// Mark conversation as unread
+  ///
+  /// Sets unreadCount to 1 if currently 0 (creates unread notification effect)
+  ///
+  /// **API:** `POST /v1/read-receipts/conversations/{conversationId}/unread`
+  Future<void> markConversationAsUnread({required int conversationId});
+
   /// Update conversation (name, description)
   ///
   /// **API:** `PUT /v1/conversations/{conversationId}`

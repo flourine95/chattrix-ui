@@ -15,7 +15,6 @@ import 'package:chattrix_ui/features/chat/presentation/widgets/message_reactions
 import 'package:chattrix_ui/features/chat/presentation/widgets/reply_message_preview.dart';
 import 'package:chattrix_ui/features/chat/presentation/widgets/seen_status_widget.dart';
 import 'package:chattrix_ui/features/poll/presentation/widgets/poll_message_bubble.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 /// Main message bubble widget that renders different types of messages

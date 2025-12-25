@@ -1,46 +1,102 @@
+import 'package:chattrix_ui/core/constants/api_constants.dart';
 import 'package:chattrix_ui/core/widgets/user_avatar.dart';
+import 'package:chattrix_ui/features/auth/presentation/providers/auth_repository_provider.dart';
+import 'package:chattrix_ui/features/chat/presentation/providers/chat_state_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-class AddMembersPage extends StatefulWidget {
+/// Page to add members to a group conversation
+///
+/// Uses searchUsersProvider to fetch and search users
+/// Calls POST /conversations/{conversationId}/members API
+class AddMembersPage extends HookConsumerWidget {
   const AddMembersPage({super.key, required this.conversationId});
 
   final String conversationId;
 
   @override
-  State<AddMembersPage> createState() => _AddMembersPageState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    final searchController = useTextEditingController();
+    final searchQuery = useState('');
+    final selectedUsers = useState<Set<int>>({});
 
-class _AddMembersPageState extends State<AddMembersPage> {
-  final TextEditingController _searchController = TextEditingController();
-  final Set<String> _selectedUsers = {};
+    // Fetch users based on search query
+    debugPrint('🔍 [AddMembers] Current search query: "${searchQuery.value}"');
+    final usersAsync = ref.watch(searchUsersProvider(searchQuery.value));
 
-  // Hardcoded contacts for demo
-  final List<Map<String, dynamic>> _allContacts = [
-    {'id': '1', 'name': 'Alice Johnson', 'username': '@alice', 'isOnline': true},
-    {'id': '2', 'name': 'Bob Smith', 'username': '@bob', 'isOnline': false},
-    {'id': '3', 'name': 'Charlie Brown', 'username': '@charlie', 'isOnline': true},
-    {'id': '4', 'name': 'Diana Prince', 'username': '@diana', 'isOnline': true},
-    {'id': '5', 'name': 'Ethan Hunt', 'username': '@ethan', 'isOnline': false},
-    {'id': '6', 'name': 'Fiona Green', 'username': '@fiona', 'isOnline': true},
-    {'id': '7', 'name': 'George Wilson', 'username': '@george', 'isOnline': false},
-    {'id': '8', 'name': 'Hannah Lee', 'username': '@hannah', 'isOnline': true},
-  ];
-
-  List<Map<String, dynamic>> get _filteredContacts {
-    if (_searchController.text.isEmpty) return _allContacts;
-    return _allContacts.where((contact) {
-      final name = contact['name'].toString().toLowerCase();
-      final username = contact['username'].toString().toLowerCase();
-      final query = _searchController.text.toLowerCase();
-      return name.contains(query) || username.contains(query);
-    }).toList();
-  }
-
-  @override
-  Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
+
+    Future<void> handleAddMembers() async {
+      if (selectedUsers.value.isEmpty) return;
+
+      // Show loading
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => const Center(child: CircularProgressIndicator()),
+      );
+
+      try {
+        final dio = ref.read(dioProvider);
+        final response = await dio.post(
+          ApiConstants.conversationMembers(int.parse(conversationId)),
+          data: {'userIds': selectedUsers.value.toList()},
+        );
+
+        debugPrint('✅ Add members response: ${response.data}');
+
+        if (context.mounted) {
+          // Close loading dialog
+          Navigator.of(context, rootNavigator: true).pop();
+
+          // Go back
+          context.pop();
+
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Row(
+                children: [
+                  const Icon(Icons.check_circle, color: Colors.white, size: 20),
+                  const SizedBox(width: 12),
+                  Text('${selectedUsers.value.length} member(s) added', style: const TextStyle(color: Colors.white)),
+                ],
+              ),
+              backgroundColor: Colors.grey.shade900,
+              behavior: SnackBarBehavior.floating,
+              margin: const EdgeInsets.all(16),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            ),
+          );
+        }
+      } catch (e) {
+        debugPrint('❌ Error adding members: $e');
+        if (context.mounted) {
+          // Close loading dialog using rootNavigator
+          Navigator.of(context, rootNavigator: true).pop();
+
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Row(
+                children: [
+                  const Icon(Icons.error_outline, color: Colors.white, size: 20),
+                  const SizedBox(width: 12),
+                  const Expanded(
+                    child: Text('Failed to add members', style: TextStyle(color: Colors.white)),
+                  ),
+                ],
+              ),
+              backgroundColor: Colors.grey.shade900,
+              behavior: SnackBarBehavior.floating,
+              margin: const EdgeInsets.all(16),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            ),
+          );
+        }
+      }
+    }
 
     return Scaffold(
       backgroundColor: colors.surface,
@@ -54,19 +110,10 @@ class _AddMembersPageState extends State<AddMembersPage> {
           icon: Icon(Icons.arrow_back, color: colors.onSurface),
           onPressed: () => context.pop(),
         ),
-        title: Text(
-          'Add Members',
-          style: textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w600),
-        ),
+        title: Text('Add Members', style: textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w600)),
         actions: [
-          if (_selectedUsers.isNotEmpty)
-            TextButton(
-              onPressed: () {
-                // TODO: Implement add members API call
-                context.pop();
-              },
-              child: Text('Add (${_selectedUsers.length})'),
-            ),
+          if (selectedUsers.value.isNotEmpty)
+            TextButton(onPressed: handleAddMembers, child: Text('Add (${selectedUsers.value.length})')),
         ],
       ),
       body: Column(
@@ -75,112 +122,186 @@ class _AddMembersPageState extends State<AddMembersPage> {
           Padding(
             padding: const EdgeInsets.all(16),
             child: TextField(
-              controller: _searchController,
+              controller: searchController,
               decoration: InputDecoration(
-                hintText: 'Search contacts...',
+                hintText: 'Search users...',
                 prefixIcon: const Icon(Icons.search),
                 filled: true,
                 fillColor: colors.surfaceContainerHighest,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide.none,
-                ),
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
               ),
-              onChanged: (value) => setState(() {}),
+              onChanged: (value) {
+                debugPrint('🔍 [AddMembers] TextField onChanged: "$value"');
+                searchQuery.value = value;
+              },
             ),
           ),
 
           // Selected users chips
-          if (_selectedUsers.isNotEmpty)
+          if (selectedUsers.value.isNotEmpty)
             Container(
               height: 60,
               padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: ListView.builder(
-                scrollDirection: Axis.horizontal,
-                itemCount: _selectedUsers.length,
-                itemBuilder: (context, index) {
-                  final userId = _selectedUsers.elementAt(index);
-                  final user = _allContacts.firstWhere((c) => c['id'] == userId);
-                  return Padding(
-                    padding: const EdgeInsets.only(right: 8),
-                    child: Chip(
-                      avatar: UserAvatar(
-                        displayName: user['name'],
-                        avatarUrl: null,
-                        radius: 16,
-                      ),
-                      label: Text(user['name']),
-                      onDeleted: () {
-                        setState(() => _selectedUsers.remove(userId));
-                      },
-                    ),
+              child: usersAsync.when(
+                data: (users) {
+                  final selectedUsersList = users.where((u) => selectedUsers.value.contains(u.id)).toList();
+                  return ListView.builder(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: selectedUsersList.length,
+                    itemBuilder: (context, index) {
+                      final user = selectedUsersList[index];
+                      return Padding(
+                        padding: const EdgeInsets.only(right: 8),
+                        child: Chip(
+                          avatar: UserAvatar(displayName: user.fullName, avatarUrl: user.avatarUrl, radius: 16),
+                          label: Text(user.fullName),
+                          onDeleted: () {
+                            selectedUsers.value = {...selectedUsers.value}..remove(user.id);
+                          },
+                        ),
+                      );
+                    },
                   );
                 },
+                loading: () => const SizedBox.shrink(),
+                error: (error, stack) => const SizedBox.shrink(),
               ),
             ),
 
-          // Contacts list
+          // Users list
           Expanded(
-            child: ListView.builder(
-              itemCount: _filteredContacts.length,
-              itemBuilder: (context, index) {
-                final contact = _filteredContacts[index];
-                final isSelected = _selectedUsers.contains(contact['id']);
-                final isOnline = contact['isOnline'] as bool;
-
-                return ListTile(
-                  leading: Stack(
-                    clipBehavior: Clip.none,
-                    children: [
-                      UserAvatar(
-                        displayName: contact['name'],
-                        avatarUrl: null,
-                        radius: 24,
-                      ),
-                      if (isOnline)
-                        Positioned(
-                          right: 0,
-                          bottom: 0,
-                          child: Container(
-                            width: 14,
-                            height: 14,
-                            decoration: BoxDecoration(
-                              color: Colors.green,
-                              shape: BoxShape.circle,
-                              border: Border.all(color: colors.surface, width: 2),
-                            ),
-                          ),
+            child: usersAsync.when(
+              loading: () => const Center(child: CircularProgressIndicator()),
+              error: (error, stack) => Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.error_outline, size: 48, color: colors.error),
+                    const SizedBox(height: 16),
+                    Text('Failed to load users', style: textTheme.bodyLarge),
+                    const SizedBox(height: 8),
+                    Text(
+                      error.toString().replaceAll('Exception: ', ''),
+                      style: textTheme.bodySmall?.copyWith(color: colors.onSurfaceVariant),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                ),
+              ),
+              data: (users) {
+                if (searchQuery.value.isEmpty) {
+                  return Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.search, size: 64, color: colors.onSurfaceVariant.withValues(alpha: 0.5)),
+                        const SizedBox(height: 16),
+                        Text(
+                          'Search for users to add',
+                          style: textTheme.titleMedium?.copyWith(color: colors.onSurfaceVariant),
                         ),
-                    ],
-                  ),
-                  title: Text(
-                    contact['name'],
-                    style: textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w500),
-                  ),
-                  subtitle: Text(
-                    contact['username'],
-                    style: textTheme.bodySmall?.copyWith(color: colors.onSurface.withValues(alpha: 0.6)),
-                  ),
-                  trailing: Checkbox(
-                    value: isSelected,
-                    onChanged: (value) {
-                      setState(() {
-                        if (value == true) {
-                          _selectedUsers.add(contact['id']);
+                        const SizedBox(height: 8),
+                        Text(
+                          'Type a name or username to find users',
+                          style: textTheme.bodySmall?.copyWith(color: colors.onSurfaceVariant.withValues(alpha: 0.7)),
+                        ),
+                      ],
+                    ),
+                  );
+                }
+
+                if (searchQuery.value.length < 2) {
+                  return Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.search, size: 64, color: colors.onSurfaceVariant.withValues(alpha: 0.5)),
+                        const SizedBox(height: 16),
+                        Text(
+                          'Type at least 2 characters',
+                          style: textTheme.titleMedium?.copyWith(color: colors.onSurfaceVariant),
+                        ),
+                      ],
+                    ),
+                  );
+                }
+
+                debugPrint(
+                  '🔍 [AddMembers] Search results: ${users.length} users found for query "${searchQuery.value}"',
+                );
+
+                if (users.isEmpty) {
+                  return Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.person_off_outlined,
+                          size: 64,
+                          color: colors.onSurfaceVariant.withValues(alpha: 0.5),
+                        ),
+                        const SizedBox(height: 16),
+                        Text('No users found', style: textTheme.titleMedium?.copyWith(color: colors.onSurfaceVariant)),
+                        const SizedBox(height: 8),
+                        Text(
+                          'Try a different search term',
+                          style: textTheme.bodySmall?.copyWith(color: colors.onSurfaceVariant.withValues(alpha: 0.7)),
+                        ),
+                      ],
+                    ),
+                  );
+                }
+
+                return ListView.builder(
+                  itemCount: users.length,
+                  itemBuilder: (context, index) {
+                    final user = users[index];
+                    final isSelected = selectedUsers.value.contains(user.id);
+
+                    return ListTile(
+                      leading: Stack(
+                        clipBehavior: Clip.none,
+                        children: [
+                          UserAvatar(displayName: user.fullName, avatarUrl: user.avatarUrl, radius: 24),
+                          if (user.isOnline)
+                            Positioned(
+                              right: 0,
+                              bottom: 0,
+                              child: Container(
+                                width: 14,
+                                height: 14,
+                                decoration: BoxDecoration(
+                                  color: Colors.green,
+                                  shape: BoxShape.circle,
+                                  border: Border.all(color: colors.surface, width: 2),
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
+                      title: Text(user.fullName, style: textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w500)),
+                      subtitle: Text(
+                        '@${user.username}',
+                        style: textTheme.bodySmall?.copyWith(color: colors.onSurface.withValues(alpha: 0.6)),
+                      ),
+                      trailing: Checkbox(
+                        value: isSelected,
+                        onChanged: (value) {
+                          if (value == true) {
+                            selectedUsers.value = {...selectedUsers.value, user.id};
+                          } else {
+                            selectedUsers.value = {...selectedUsers.value}..remove(user.id);
+                          }
+                        },
+                      ),
+                      onTap: () {
+                        if (isSelected) {
+                          selectedUsers.value = {...selectedUsers.value}..remove(user.id);
                         } else {
-                          _selectedUsers.remove(contact['id']);
+                          selectedUsers.value = {...selectedUsers.value, user.id};
                         }
-                      });
-                    },
-                  ),
-                  onTap: () {
-                    setState(() {
-                      if (isSelected) {
-                        _selectedUsers.remove(contact['id']);
-                      } else {
-                        _selectedUsers.add(contact['id']);
-                      }
-                    });
+                      },
+                    );
                   },
                 );
               },
@@ -190,11 +311,4 @@ class _AddMembersPageState extends State<AddMembersPage> {
       ),
     );
   }
-
-  @override
-  void dispose() {
-    _searchController.dispose();
-    super.dispose();
-  }
 }
-

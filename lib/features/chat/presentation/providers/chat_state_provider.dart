@@ -27,3 +27,22 @@ final searchUsersProvider = FutureProvider.family<List<SearchUser>, String>((ref
 
   return result.fold((failure) => throw Exception(failure.message), (users) => users);
 });
+
+/// Global map to store message ID to scroll to
+/// Used when navigating from search results to chat view
+final _scrollToMessageMap = <String, int?>{};
+
+/// Get message ID to scroll to for a conversation
+int? getScrollToMessage(String conversationId) {
+  return _scrollToMessageMap[conversationId];
+}
+
+/// Set message ID to scroll to for a conversation
+void setScrollToMessage(String conversationId, int? messageId) {
+  _scrollToMessageMap[conversationId] = messageId;
+}
+
+/// Clear message ID to scroll to for a conversation
+void clearScrollToMessage(String conversationId) {
+  _scrollToMessageMap.remove(conversationId);
+}

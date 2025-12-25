@@ -1,4 +1,5 @@
 import 'package:chattrix_ui/core/domain/enums/enums.dart';
+import 'package:chattrix_ui/core/widgets/bottom_sheets.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
@@ -191,67 +192,32 @@ class SettingsPage extends ConsumerWidget {
   void _showLanguagePicker(BuildContext context, WidgetRef ref, String current) {
     final languages = ['English', 'Vietnamese', 'Spanish', 'French'];
 
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Theme.of(context).colorScheme.surface,
-      showDragHandle: true,
-      builder: (context) {
-        return SafeArea(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Text('Select Language', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-              const SizedBox(height: 10),
-              ...languages.map(
-                (lang) => ListTile(
-                  leading: lang == current ? const Icon(Icons.check, color: Colors.blue) : const SizedBox(width: 24),
-                  title: Text(lang),
-                  onTap: () {
-                    ref.read(languageProvider.notifier).set(lang);
-                    Navigator.pop(context);
-                  },
-                ),
-              ),
-              const SizedBox(height: 10),
-            ],
+    final options = languages
+        .map(
+          (lang) => BottomSheetOption(
+            icon: lang == current ? Icons.check : null,
+            label: lang,
+            onTap: () => ref.read(languageProvider.notifier).set(lang),
           ),
-        );
-      },
-    );
+        )
+        .toList();
+
+    showOptionsBottomSheet(context: context, title: 'Select Language', options: options);
   }
 
   // --- LOGIC: VISIBILITY PICKER ---
   void _showVisibilityPicker(BuildContext context, WidgetRef ref, ProfileVisibility current) {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Theme.of(context).colorScheme.surface,
-      showDragHandle: true,
-      builder: (context) {
-        return SafeArea(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Text('Who can see your profile?', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-              const SizedBox(height: 10),
-              ...ProfileVisibility.values.map(
-                (visibility) => ListTile(
-                  leading: Icon(
-                    visibility == current ? Icons.radio_button_checked : Icons.radio_button_off,
-                    color: visibility == current ? Theme.of(context).colorScheme.primary : Colors.grey,
-                  ),
-                  title: Text(visibility.label),
-                  onTap: () {
-                    ref.read(visibilityProvider.notifier).set(visibility);
-                    Navigator.pop(context);
-                  },
-                ),
-              ),
-              const SizedBox(height: 10),
-            ],
+    final options = ProfileVisibility.values
+        .map(
+          (visibility) => BottomSheetOption(
+            icon: visibility == current ? Icons.radio_button_checked : Icons.radio_button_off,
+            label: visibility.label,
+            onTap: () => ref.read(visibilityProvider.notifier).set(visibility),
           ),
-        );
-      },
-    );
+        )
+        .toList();
+
+    showOptionsBottomSheet(context: context, title: 'Who can see your profile?', options: options);
   }
 
   // --- LOGIC: CHANGE PASSWORD DIALOG ---

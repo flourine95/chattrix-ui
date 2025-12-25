@@ -67,7 +67,7 @@ class ReplyMessagePreview extends StatelessWidget {
     final type = replyToMessage.type.toUpperCase();
     switch (type) {
       case 'EMOJI':
-        return replyToMessage.content; // Show the emoji itself
+        return replyToMessage.content;
       case 'STICKER':
         return '🎭 Sticker';
       case 'IMAGE':
@@ -116,7 +116,7 @@ class QuotedMessageWidget extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              replyToMessage.senderFullName ?? replyToMessage.senderUsername ?? 'User',
+              replyToMessage.senderFullName ?? replyToMessage.senderUsername,
               style: textTheme.labelSmall?.copyWith(color: colors.primary, fontWeight: FontWeight.w600),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,

@@ -110,7 +110,7 @@ final class ConversationSettingsProvider
 }
 
 String _$conversationSettingsHash() =>
-    r'26cfd470212d7a1bbbe785019810412b7e564bb9';
+    r'113d5658bc497892b6173191caaf48053751b6a0';
 
 final class ConversationSettingsFamily extends $Family
     with

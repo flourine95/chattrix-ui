@@ -182,4 +182,13 @@ class ConversationSettings extends _$ConversationSettings {
       rethrow;
     }
   }
+
+  Future<void> deleteGroupAvatar() async {
+    try {
+      final dio = ref.read(dioProvider);
+      await dio.delete(ApiConstants.conversationAvatar(conversationId));
+    } catch (e) {
+      rethrow;
+    }
+  }
 }

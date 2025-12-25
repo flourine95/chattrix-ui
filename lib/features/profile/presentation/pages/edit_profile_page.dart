@@ -3,9 +3,9 @@ import 'dart:io';
 import 'package:bottom_picker/bottom_picker.dart';
 import 'package:bottom_picker/resources/arrays.dart';
 import 'package:chattrix_ui/core/domain/enums/enums.dart';
+import 'package:chattrix_ui/core/widgets/bottom_sheets.dart';
 import 'package:chattrix_ui/features/profile/domain/entities/update_profile_params.dart';
 import 'package:chattrix_ui/features/profile/presentation/providers/profile_providers.dart';
-import 'package:chattrix_ui/features/profile/presentation/widgets/profile_picker_widgets.dart';
 import 'package:chattrix_ui/features/profile/presentation/widgets/profile_ui_components.dart';
 import 'package:chattrix_ui/features/profile/presentation/widgets/single_field_editor.dart';
 import 'package:flutter/cupertino.dart';
@@ -260,47 +260,32 @@ class EditProfilePage extends HookConsumerWidget {
 
     void showAvatarPicker() {
       final picker = ImagePicker();
-      showModalBottomSheet(
-        context: context,
-        backgroundColor: Colors.transparent,
-        builder: (context) => Container(
-          padding: const EdgeInsets.all(24),
-          decoration: BoxDecoration(
-            color: colors.surface,
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              PickerOption(
-                icon: Icons.camera_alt_rounded,
-                label: 'Take a photo',
-                onTap: () async {
-                  Navigator.pop(context);
-                  final img = await picker.pickImage(source: ImageSource.camera);
-                  if (img != null) avatarPath.value = img.path;
-                },
-              ),
-              const SizedBox(height: 12),
-              PickerOption(
-                icon: Icons.photo_library_rounded,
-                label: 'Choose from gallery',
-                onTap: () async {
-                  Navigator.pop(context);
-                  final img = await picker.pickImage(source: ImageSource.gallery);
-                  if (img != null) avatarPath.value = img.path;
-                },
-              ),
-              const SizedBox(height: 24),
-            ],
-          ),
+      final options = <BottomSheetOption>[
+        BottomSheetOption(
+          icon: Icons.camera_alt_rounded,
+          label: 'Take a photo',
+          onTap: () async {
+            final img = await picker.pickImage(source: ImageSource.camera);
+            if (img != null) avatarPath.value = img.path;
+          },
         ),
-      );
+        BottomSheetOption(
+          icon: Icons.photo_library_rounded,
+          label: 'Choose from gallery',
+          onTap: () async {
+            final img = await picker.pickImage(source: ImageSource.gallery);
+            if (img != null) avatarPath.value = img.path;
+          },
+        ),
+      ];
+
+      showOptionsBottomSheet(context: context, title: 'Change Avatar', options: options);
     }
 
     void showDatePickerDialog() {
       BottomPicker.date(
-        headerBuilder: (_) => const Text('Select Birthday', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+        headerBuilder: (_) =>
+            const Text('Select Birthday', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
         dateOrder: DatePickerDateOrder.dmy,
         initialDateTime: dob.value ?? DateTime(2000),
         maxDateTime: DateTime.now(),
@@ -326,68 +311,31 @@ class EditProfilePage extends HookConsumerWidget {
     }
 
     void showGenderPicker() {
-      showModalBottomSheet(
-        context: context,
-        shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
-        builder: (context) => Container(
-          padding: const EdgeInsets.symmetric(vertical: 20),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text('Select Gender', style: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
-              const SizedBox(height: 10),
-              ...Gender.values.map((g) {
-                final isSelected = gender.value == g;
-                return ListTile(
-                  leading: Icon(
-                    isSelected ? Icons.radio_button_checked : Icons.radio_button_off,
-                    color: isSelected ? colors.primary : colors.onSurfaceVariant,
-                  ),
-                  title: Text(g.label),
-                  onTap: () {
-                    gender.value = g;
-                    Navigator.pop(context);
-                  },
-                );
-              }),
-              const SizedBox(height: 20),
-            ],
-          ),
-        ),
-      );
+      final options = Gender.values
+          .map(
+            (g) => BottomSheetOption(
+              icon: gender.value == g ? Icons.radio_button_checked : Icons.radio_button_off,
+              label: g.label,
+              onTap: () => gender.value = g,
+            ),
+          )
+          .toList();
+
+      showOptionsBottomSheet(context: context, title: 'Select Gender', options: options);
     }
 
     void showVisibilityPicker() {
-      showModalBottomSheet(
-        context: context,
-        shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
-        builder: (context) {
-          return Container(
-            padding: const EdgeInsets.symmetric(vertical: 20),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text('Profile Visibility', style: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
-                const SizedBox(height: 10),
-                ...ProfileVisibility.values.map(
-                  (v) => ListTile(
-                    leading: Icon(
-                      visibility.value == v ? Icons.radio_button_checked : Icons.radio_button_off,
-                      color: visibility.value == v ? colors.primary : colors.onSurfaceVariant,
-                    ),
-                    title: Text(v.label),
-                    onTap: () {
-                      visibility.value = v;
-                      Navigator.pop(context);
-                    },
-                  ),
-                ),
-                const SizedBox(height: 20),
-              ],
+      final options = ProfileVisibility.values
+          .map(
+            (v) => BottomSheetOption(
+              icon: visibility.value == v ? Icons.radio_button_checked : Icons.radio_button_off,
+              label: v.label,
+              onTap: () => visibility.value = v,
             ),
-          );
-        },
-      );
+          )
+          .toList();
+
+      showOptionsBottomSheet(context: context, title: 'Profile Visibility', options: options);
     }
 
     if (profileAsync.isLoading && !isInitialized.value) {

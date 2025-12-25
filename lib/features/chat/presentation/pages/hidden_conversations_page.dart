@@ -2,7 +2,6 @@ import 'package:chattrix_ui/features/auth/presentation/providers/auth_providers.
 import 'package:chattrix_ui/features/chat/domain/entities/conversation.dart';
 import 'package:chattrix_ui/features/chat/presentation/providers/chat_repository_provider.dart';
 import 'package:chattrix_ui/features/chat/presentation/providers/conversation_settings_provider.dart';
-import 'package:chattrix_ui/features/chat/presentation/state/conversations_notifier.dart';
 import 'package:chattrix_ui/features/chat/presentation/widgets/conversation_list_item.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -223,22 +222,15 @@ class HiddenConversationsPage extends ConsumerWidget {
                               debugPrint('🔍 [Unhide] Unhide completed successfully: ${response.data}');
 
                               if (context.mounted) {
-                                Navigator.pop(context); // Close loading
-
-                                debugPrint('🔍 [Unhide] Invalidating providers...');
-                                // Refresh both providers
-                                ref.invalidate(hiddenConversationsProvider);
-                                ref.invalidate(conversationsProvider);
-                                // Also invalidate the settings provider for this conversation
-                                ref.invalidate(conversationSettingsProvider(conversationId));
-                                debugPrint('🔍 [Unhide] Providers invalidated');
+                                // Close loading dialog
+                                Navigator.of(context, rootNavigator: true).pop();
 
                                 // Show success message with dark theme
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
                                     content: Row(
                                       children: [
-                                        Icon(Icons.check_circle, color: Colors.white, size: 20),
+                                        const Icon(Icons.check_circle, color: Colors.white, size: 20),
                                         const SizedBox(width: 12),
                                         const Text('Conversation unhidden', style: TextStyle(color: Colors.white)),
                                       ],
@@ -254,7 +246,8 @@ class HiddenConversationsPage extends ConsumerWidget {
                             } catch (e) {
                               debugPrint('🔍 [Unhide] Error occurred: $e');
                               if (context.mounted) {
-                                Navigator.pop(context); // Close loading
+                                // Close loading dialog using rootNavigator
+                                Navigator.of(context, rootNavigator: true).pop();
 
                                 // Show error message with dark theme
                                 ScaffoldMessenger.of(context).showSnackBar(

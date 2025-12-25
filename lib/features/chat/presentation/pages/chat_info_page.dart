@@ -1,6 +1,8 @@
+import 'package:chattrix_ui/core/constants/api_constants.dart';
 import 'package:chattrix_ui/core/domain/enums/enums.dart';
 import 'package:chattrix_ui/core/widgets/group_avatar.dart';
 import 'package:chattrix_ui/core/widgets/user_avatar.dart';
+import 'package:chattrix_ui/core/widgets/bottom_sheets.dart';
 import 'package:chattrix_ui/features/auth/presentation/providers/auth_providers.dart';
 import 'package:chattrix_ui/features/chat/domain/entities/conversation.dart';
 import 'package:chattrix_ui/features/chat/presentation/pages/add_members_page.dart';
@@ -13,21 +15,26 @@ import 'package:chattrix_ui/features/chat/presentation/pages/polls_page.dart';
 import 'package:chattrix_ui/features/chat/presentation/pages/search_messages_page.dart';
 import 'package:chattrix_ui/features/chat/presentation/providers/chat_providers.dart';
 import 'package:chattrix_ui/features/chat/presentation/providers/conversation_settings_provider.dart';
+import 'package:chattrix_ui/features/chat/presentation/providers/media_providers.dart';
 import 'package:chattrix_ui/features/chat/presentation/providers/poll_providers.dart';
 import 'package:chattrix_ui/features/chat/presentation/providers/social_providers.dart';
-import 'package:chattrix_ui/features/chat/presentation/state/conversations_notifier.dart';
 import 'package:chattrix_ui/features/chat/presentation/utils/conversation_utils.dart';
 import 'package:chattrix_ui/features/chat/presentation/widgets/chat_info_bottom_sheets.dart';
-import 'package:flutter/foundation.dart';
+import 'package:cloudinary_public/cloudinary_public.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:image_picker/image_picker.dart';
 
 class ChatInfoPage extends HookConsumerWidget {
   const ChatInfoPage({super.key, required this.conversation});
 
   final Conversation conversation;
+
+  // Static const for media types to avoid provider recreation warnings
+  static const _mediaPreviewTypes = ['IMAGE', 'VIDEO'];
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -61,12 +68,12 @@ class ChatInfoPage extends HookConsumerWidget {
                 const SizedBox(height: 24),
 
                 // Avatar Section
-                _buildAvatarSection(context, displayName, isGroup, colors),
+                _buildAvatarSection(context, ref, displayName, isGroup, colors),
 
                 const SizedBox(height: 16),
 
                 // Name Section
-                _buildNameSection(context, displayName, isGroup, colors, textTheme),
+                _buildNameSection(context, ref, displayName, isGroup, colors, textTheme),
 
                 const SizedBox(height: 24),
 
@@ -245,9 +252,9 @@ class ChatInfoPage extends HookConsumerWidget {
         const SizedBox(height: 8),
 
         // Admin Permissions (only if user is admin)
-        if (_isUserAdmin()) _buildAdminPermissionsSection(context, colors, textTheme),
+        if (_isUserAdmin(ref)) _buildAdminPermissionsSection(context, colors, textTheme),
 
-        if (_isUserAdmin()) const SizedBox(height: 8),
+        if (_isUserAdmin(ref)) const SizedBox(height: 8),
 
         // Pin Conversation
         _buildRoundedSection(context, colors, child: _buildPinConversationTile(context, ref, colors, textTheme)),
@@ -299,10 +306,17 @@ class ChatInfoPage extends HookConsumerWidget {
   // HELPER METHODS
   // ============================================================================
 
-  bool _isUserAdmin() {
-    // Demo: Check if current user is admin
-    // TODO: Implement real admin check
-    return true; // For demo purposes
+  bool _isUserAdmin(WidgetRef ref) {
+    final me = ref.watch(currentUserProvider);
+    if (me == null) return false;
+
+    // Check if current user is admin in this conversation
+    final myParticipant = conversation.participants.firstWhere(
+      (p) => p.userId == me.id,
+      orElse: () => conversation.participants.first,
+    );
+
+    return myParticipant.role == 'ADMIN';
   }
 
   /// Build a rounded section container (Messenger style)
@@ -390,7 +404,13 @@ class ChatInfoPage extends HookConsumerWidget {
   // ============================================================================
 
   // Avatar Section
-  Widget _buildAvatarSection(BuildContext context, String displayName, bool isGroup, ColorScheme colors) {
+  Widget _buildAvatarSection(
+    BuildContext context,
+    WidgetRef ref,
+    String displayName,
+    bool isGroup,
+    ColorScheme colors,
+  ) {
     return Stack(
       clipBehavior: Clip.none,
       children: [
@@ -408,7 +428,7 @@ class ChatInfoPage extends HookConsumerWidget {
             right: 0,
             bottom: 0,
             child: GestureDetector(
-              onTap: () => _showChangePhotoBottomSheet(context, colors, Theme.of(context).textTheme),
+              onTap: () => _showChangePhotoBottomSheet(context, ref, colors, Theme.of(context).textTheme),
               child: Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
@@ -427,6 +447,7 @@ class ChatInfoPage extends HookConsumerWidget {
   // Name Section
   Widget _buildNameSection(
     BuildContext context,
+    WidgetRef ref,
     String displayName,
     bool isGroup,
     ColorScheme colors,
@@ -441,7 +462,7 @@ class ChatInfoPage extends HookConsumerWidget {
           const SizedBox(width: 8),
           IconButton(
             icon: Icon(Icons.edit, size: 20, color: colors.primary),
-            onPressed: () => _showRenameBottomSheet(context, colors, textTheme),
+            onPressed: () => _showRenameBottomSheet(context, ref, colors, textTheme),
           ),
         ],
       ],
@@ -551,7 +572,10 @@ class ChatInfoPage extends HookConsumerWidget {
     ColorScheme colors,
     TextTheme textTheme,
   ) {
-    // Always show the section with demo data
+    // Fetch media from API (only IMAGE and VIDEO for preview)
+    // ignore: provider_parameters
+    final mediaAsync = ref.watch(conversationMediaProvider(conversation.id, limit: 6, types: _mediaPreviewTypes));
+
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       padding: const EdgeInsets.all(16),
@@ -575,22 +599,122 @@ class ChatInfoPage extends HookConsumerWidget {
             ],
           ),
           const SizedBox(height: 12),
-          // Demo media grid
-          GridView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 3,
-              crossAxisSpacing: 8,
-              mainAxisSpacing: 8,
-            ),
-            itemCount: 6,
-            itemBuilder: (context, index) {
-              return Container(
-                decoration: BoxDecoration(color: colors.surfaceContainerHigh, borderRadius: BorderRadius.circular(8)),
-                child: Icon(Icons.image, color: colors.onSurface.withValues(alpha: 0.3), size: 40),
+          // Media grid
+          mediaAsync.when(
+            data: (mediaItems) {
+              if (mediaItems.isEmpty) {
+                return Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(24),
+                    child: Column(
+                      children: [
+                        Icon(Icons.photo, size: 48, color: colors.onSurface.withValues(alpha: 0.3)),
+                        const SizedBox(height: 8),
+                        Text(
+                          'No media yet',
+                          style: textTheme.bodyMedium?.copyWith(color: colors.onSurface.withValues(alpha: 0.5)),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              }
+
+              return GridView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 3,
+                  crossAxisSpacing: 8,
+                  mainAxisSpacing: 8,
+                ),
+                itemCount: mediaItems.length > 6 ? 6 : mediaItems.length,
+                itemBuilder: (context, index) {
+                  final item = mediaItems[index];
+                  final isVideo = item.type == 'VIDEO';
+                  final imageUrl = item.thumbnailUrl ?? item.url;
+
+                  return GestureDetector(
+                    onTap: () {
+                      // Navigate to full media view
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => FilesLinksPage(conversationId: conversation.id.toString()),
+                        ),
+                      );
+                    },
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: colors.surfaceContainerHigh,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Stack(
+                        fit: StackFit.expand,
+                        children: [
+                          if (imageUrl != null)
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(8),
+                              child: Image.network(
+                                imageUrl,
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) {
+                                  return Icon(
+                                    isVideo ? Icons.videocam : Icons.image,
+                                    color: colors.onSurface.withValues(alpha: 0.3),
+                                    size: 40,
+                                  );
+                                },
+                              ),
+                            )
+                          else
+                            Icon(
+                              isVideo ? Icons.videocam : Icons.image,
+                              color: colors.onSurface.withValues(alpha: 0.3),
+                              size: 40,
+                            ),
+                          if (isVideo)
+                            Container(
+                              decoration: BoxDecoration(color: Colors.black26, borderRadius: BorderRadius.circular(8)),
+                              child: const Center(
+                                child: Icon(Icons.play_circle_outline, color: Colors.white, size: 32),
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
               );
             },
+            loading: () => GridView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 3,
+                crossAxisSpacing: 8,
+                mainAxisSpacing: 8,
+              ),
+              itemCount: 6,
+              itemBuilder: (context, index) {
+                return Container(
+                  decoration: BoxDecoration(color: colors.surfaceContainerHigh, borderRadius: BorderRadius.circular(8)),
+                  child: const Center(child: CircularProgressIndicator()),
+                );
+              },
+            ),
+            error: (error, stack) => Center(
+              child: Padding(
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  children: [
+                    Icon(Icons.error_outline, size: 48, color: colors.error),
+                    const SizedBox(height: 8),
+                    Text('Failed to load media', style: textTheme.bodyMedium?.copyWith(color: colors.error)),
+                  ],
+                ),
+              ),
+            ),
           ),
         ],
       ),
@@ -604,12 +728,7 @@ class ChatInfoPage extends HookConsumerWidget {
       title: 'View Members',
       subtitle: '${conversation.participants.length} members',
       onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => AllMembersPage(conversationId: conversation.id.toString(), members: []),
-          ),
-        );
+        Navigator.push(context, MaterialPageRoute(builder: (context) => AllMembersPage(conversation: conversation)));
       },
       colors: colors,
       textTheme: textTheme,
@@ -651,106 +770,65 @@ class ChatInfoPage extends HookConsumerWidget {
   }
 
   void _showLeaveGroupBottomSheet(BuildContext context, WidgetRef ref, ColorScheme colors, TextTheme textTheme) {
-    showModalBottomSheet(
+    showConfirmationBottomSheet(
       context: context,
-      backgroundColor: colors.surface,
-      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
-      builder: (context) => Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // Handle bar
-            Container(
-              width: 40,
-              height: 4,
-              margin: const EdgeInsets.only(bottom: 20),
-              decoration: BoxDecoration(
-                color: colors.onSurface.withValues(alpha: 0.2),
-                borderRadius: BorderRadius.circular(2),
+      title: 'Leave Group?',
+      message: 'Are you sure you want to leave this group? You will no longer receive messages from this conversation.',
+      icon: Icons.exit_to_app,
+      isDangerous: true,
+      confirmText: 'Leave',
+      cancelText: 'Cancel',
+      onConfirm: () async {
+        try {
+          await ref.read(conversationSettingsProvider(conversation.id).notifier).leaveGroup();
+          if (context.mounted) {
+            // Pop chat info page
+            Navigator.pop(context);
+            // Pop chat view page to go back to conversations list
+            Navigator.pop(context);
+
+            // Invalidate conversations list to refresh
+            ref.invalidate(conversationsProvider);
+
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Row(
+                  children: [
+                    Icon(Icons.check_circle, color: Colors.white, size: 20),
+                    const SizedBox(width: 12),
+                    Text('Left group successfully', style: TextStyle(color: Colors.white)),
+                  ],
+                ),
+                backgroundColor: Colors.grey.shade900,
+                behavior: SnackBarBehavior.floating,
+                margin: const EdgeInsets.all(16),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
               ),
-            ),
-
-            // Warning icon
-            Container(
-              width: 64,
-              height: 64,
-              decoration: BoxDecoration(color: Colors.red.withValues(alpha: 0.1), shape: BoxShape.circle),
-              child: const Icon(Icons.exit_to_app, color: Colors.red, size: 32),
-            ),
-
-            const SizedBox(height: 20),
-
-            // Title
-            Text('Leave Group?', style: textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
-
-            const SizedBox(height: 12),
-
-            // Description
-            Text(
-              'Are you sure you want to leave this group? You will no longer receive messages from this conversation.',
-              style: textTheme.bodyMedium?.copyWith(color: colors.onSurface.withValues(alpha: 0.7)),
-              textAlign: TextAlign.center,
-            ),
-
-            const SizedBox(height: 32),
-
-            // Buttons
-            Row(
-              children: [
-                Expanded(
-                  child: OutlinedButton(
-                    onPressed: () => Navigator.pop(context),
-                    style: OutlinedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            );
+          }
+        } catch (e) {
+          debugPrint('Failed to leave group: $e');
+          if (context.mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Row(
+                  children: [
+                    Icon(Icons.error_outline, color: Colors.white, size: 20),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text('Failed to leave group: $e', style: TextStyle(color: Colors.white)),
                     ),
-                    child: const Text('Cancel'),
-                  ),
+                  ],
                 ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: FilledButton(
-                    onPressed: () async {
-                      Navigator.pop(context); // Close bottom sheet
-                      try {
-                        await ref.read(conversationSettingsProvider(conversation.id).notifier).leaveGroup();
-                        if (context.mounted) {
-                          // Pop chat info page
-                          Navigator.pop(context);
-                          // Pop chat view page to go back to conversations list
-                          Navigator.pop(context);
-
-                          // Invalidate conversations list to refresh
-                          ref.invalidate(conversationsProvider);
-
-                          ScaffoldMessenger.of(
-                            context,
-                          ).showSnackBar(const SnackBar(content: Text('Left group successfully')));
-                        }
-                      } catch (e) {
-                        if (context.mounted) {
-                          ScaffoldMessenger.of(
-                            context,
-                          ).showSnackBar(SnackBar(content: Text('Failed to leave group: $e')));
-                        }
-                      }
-                    },
-                    style: FilledButton.styleFrom(
-                      backgroundColor: Colors.red,
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                    ),
-                    child: const Text('Leave'),
-                  ),
-                ),
-              ],
-            ),
-
-            const SizedBox(height: 8),
-          ],
-        ),
-      ),
+                backgroundColor: Colors.grey.shade900,
+                behavior: SnackBarBehavior.floating,
+                margin: const EdgeInsets.all(16),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              ),
+            );
+          }
+        }
+      },
     );
   }
 
@@ -758,100 +836,253 @@ class ChatInfoPage extends HookConsumerWidget {
   // BOTTOM SHEETS
   // ============================================================================
 
-  void _showChangePhotoBottomSheet(BuildContext context, ColorScheme colors, TextTheme textTheme) {
-    showModalBottomSheet(
-      context: context,
-      builder: (context) => Container(
-        padding: const EdgeInsets.symmetric(vertical: 20),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
+  void _showChangePhotoBottomSheet(BuildContext context, WidgetRef ref, ColorScheme colors, TextTheme textTheme) {
+    final options = <BottomSheetOption>[
+      BottomSheetOption(
+        icon: Icons.camera_alt,
+        label: 'Take Photo',
+        onTap: () => _handleChangeAvatar(context, ref, ImageSource.camera),
+      ),
+      BottomSheetOption(
+        icon: Icons.photo_library,
+        label: 'Choose from Gallery',
+        onTap: () => _handleChangeAvatar(context, ref, ImageSource.gallery),
+      ),
+      if (conversation.avatarUrl != null)
+        BottomSheetOption(
+          icon: Icons.delete,
+          label: 'Remove Photo',
+          onTap: () => _handleRemoveAvatar(context, ref),
+          isDangerous: true,
+        ),
+    ];
+
+    showOptionsBottomSheet(context: context, title: 'Change Photo', options: options);
+  }
+
+  Future<void> _handleChangeAvatar(BuildContext context, WidgetRef ref, ImageSource source) async {
+    try {
+      final picker = ImagePicker();
+      final pickedFile = await picker.pickImage(source: source, maxWidth: 1024, maxHeight: 1024, imageQuality: 85);
+
+      if (pickedFile == null) return;
+
+      if (!context.mounted) return;
+
+      // Show loading
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => const Center(child: CircularProgressIndicator()),
+      );
+
+      // Compress image
+      final compressedFile = await FlutterImageCompress.compressAndGetFile(
+        pickedFile.path,
+        '${pickedFile.path}_compressed.jpg',
+        quality: 85,
+        minWidth: 512,
+        minHeight: 512,
+      );
+
+      if (compressedFile == null) {
+        if (context.mounted) {
+          Navigator.pop(context);
+          _showErrorSnackbar(context, 'Failed to compress image');
+        }
+        return;
+      }
+
+      // Upload to Cloudinary
+      final cloudinary = CloudinaryPublic(
+        dotenv.env['CLOUDINARY_CLOUD_NAME'] ?? '',
+        dotenv.env['CLOUDINARY_UPLOAD_PRESET'] ?? '',
+        cache: false,
+      );
+
+      final response = await cloudinary.uploadFile(
+        CloudinaryFile.fromFile(
+          compressedFile.path,
+          folder: 'group_avatars',
+          resourceType: CloudinaryResourceType.Image,
+        ),
+      );
+
+      final imageUrl = response.secureUrl;
+
+      // Update group avatar via API
+      final dio = ref.read(dioProvider);
+      await dio.put(ApiConstants.conversationAvatar(conversation.id), data: {'avatarUrl': imageUrl});
+
+      if (context.mounted) {
+        // Close loading dialog
+        Navigator.of(context, rootNavigator: true).pop();
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                const Icon(Icons.check_circle, color: Colors.white, size: 20),
+                const SizedBox(width: 12),
+                Text('Group photo updated', style: const TextStyle(color: Colors.white)),
+              ],
+            ),
+            backgroundColor: Colors.grey.shade900,
+            behavior: SnackBarBehavior.floating,
+            margin: const EdgeInsets.all(16),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+          ),
+        );
+      }
+    } catch (e) {
+      debugPrint('Error changing avatar: $e');
+      if (context.mounted) {
+        // Close loading dialog using rootNavigator
+        Navigator.of(context, rootNavigator: true).pop();
+        _showErrorSnackbar(context, 'Failed to update group photo');
+      }
+    }
+  }
+
+  Future<void> _handleRemoveAvatar(BuildContext context, WidgetRef ref) async {
+    try {
+      // Show loading
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => const Center(child: CircularProgressIndicator()),
+      );
+
+      final settingsNotifier = ref.read(conversationSettingsProvider(conversation.id).notifier);
+      await settingsNotifier.deleteGroupAvatar();
+
+      if (context.mounted) {
+        // Close loading dialog
+        Navigator.of(context, rootNavigator: true).pop();
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                const Icon(Icons.check_circle, color: Colors.white, size: 20),
+                const SizedBox(width: 12),
+                Text('Group photo removed', style: const TextStyle(color: Colors.white)),
+              ],
+            ),
+            backgroundColor: Colors.grey.shade900,
+            behavior: SnackBarBehavior.floating,
+            margin: const EdgeInsets.all(16),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+          ),
+        );
+      }
+    } catch (e) {
+      debugPrint('Error removing avatar: $e');
+      if (context.mounted) {
+        // Close loading dialog using rootNavigator
+        Navigator.of(context, rootNavigator: true).pop();
+        _showErrorSnackbar(context, 'Failed to remove group photo');
+      }
+    }
+  }
+
+  void _showErrorSnackbar(BuildContext context, String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
           children: [
-            Container(
-              width: 40,
-              height: 4,
-              margin: const EdgeInsets.only(bottom: 20),
-              decoration: BoxDecoration(
-                color: colors.onSurface.withValues(alpha: 0.2),
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
-            ListTile(
-              leading: const Icon(Icons.camera_alt),
-              title: const Text('Take Photo'),
-              onTap: () {
-                Navigator.pop(context);
-                // TODO: Implement camera
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.photo_library),
-              title: const Text('Choose from Gallery'),
-              onTap: () {
-                Navigator.pop(context);
-                // TODO: Implement gallery
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.delete, color: Colors.red),
-              title: const Text('Remove Photo', style: TextStyle(color: Colors.red)),
-              onTap: () {
-                Navigator.pop(context);
-                // TODO: Implement remove photo
-              },
+            Icon(Icons.error_outline, color: Colors.white, size: 20),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(message, style: TextStyle(color: Colors.white)),
             ),
           ],
         ),
+        backgroundColor: Colors.grey.shade900,
+        behavior: SnackBarBehavior.floating,
+        margin: const EdgeInsets.all(16),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       ),
     );
   }
 
-  void _showRenameBottomSheet(BuildContext context, ColorScheme colors, TextTheme textTheme) {
-    final controller = TextEditingController(text: conversation.name);
-    showModalBottomSheet(
+  void _showRenameBottomSheet(BuildContext context, WidgetRef ref, ColorScheme colors, TextTheme textTheme) async {
+    final newName = await showInputBottomSheet(
       context: context,
-      isScrollControlled: true,
-      builder: (context) => Padding(
-        padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
-        child: Container(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Center(
-                child: Container(
-                  width: 40,
-                  height: 4,
-                  margin: const EdgeInsets.only(bottom: 20),
-                  decoration: BoxDecoration(
-                    color: colors.onSurface.withValues(alpha: 0.2),
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                ),
-              ),
-              Text('Rename Group', style: textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
-              const SizedBox(height: 16),
-              TextField(
-                controller: controller,
-                decoration: const InputDecoration(labelText: 'Group Name', border: OutlineInputBorder()),
-                autofocus: true,
-              ),
-              const SizedBox(height: 16),
-              SizedBox(
-                width: double.infinity,
-                child: FilledButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                    // TODO: Implement rename
-                  },
-                  child: const Text('Save'),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
+      title: 'Rename Group',
+      subtitle: 'Enter a new name for this group',
+      initialValue: conversation.name,
+      labelText: 'Group Name',
+      hintText: 'Enter group name',
+      maxLength: 50,
+      prefixIcon: Icons.group,
+      validator: (value) {
+        if (value == null || value.isEmpty) {
+          return 'Group name cannot be empty';
+        }
+        return null;
+      },
     );
+
+    if (newName == null) return;
+    if (!context.mounted) return;
+
+    // Show loading
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => const Center(child: CircularProgressIndicator()),
+    );
+
+    try {
+      final settingsNotifier = ref.read(conversationSettingsProvider(conversation.id).notifier);
+      await settingsNotifier.updateGroupName(newName);
+
+      if (context.mounted) {
+        // Close loading dialog
+        Navigator.of(context, rootNavigator: true).pop();
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                const Icon(Icons.check_circle, color: Colors.white, size: 20),
+                const SizedBox(width: 12),
+                Text('Group name updated', style: const TextStyle(color: Colors.white)),
+              ],
+            ),
+            backgroundColor: Colors.grey.shade900,
+            behavior: SnackBarBehavior.floating,
+            margin: const EdgeInsets.all(16),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+          ),
+        );
+      }
+    } catch (e) {
+      debugPrint('❌ Error updating group name: $e');
+      if (context.mounted) {
+        // Close loading dialog using rootNavigator
+        Navigator.of(context, rootNavigator: true).pop();
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                const Icon(Icons.error_outline, color: Colors.white, size: 20),
+                const SizedBox(width: 12),
+                const Expanded(
+                  child: Text('Failed to update group name', style: TextStyle(color: Colors.white)),
+                ),
+              ],
+            ),
+            backgroundColor: Colors.grey.shade900,
+            behavior: SnackBarBehavior.floating,
+            margin: const EdgeInsets.all(16),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+          ),
+        );
+      }
+    }
   }
 
   void _showDescriptionBottomSheet(BuildContext context, WidgetRef ref, ColorScheme colors, TextTheme textTheme) {
@@ -931,66 +1162,99 @@ class ChatInfoPage extends HookConsumerWidget {
   }
 
   void _showWallpaperBottomSheet(BuildContext context, ColorScheme colors, TextTheme textTheme) {
-    showModalBottomSheet(
-      context: context,
-      builder: (context) => Container(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: 40,
-              height: 4,
-              margin: const EdgeInsets.only(bottom: 20),
-              decoration: BoxDecoration(
-                color: colors.onSurface.withValues(alpha: 0.2),
-                borderRadius: BorderRadius.circular(2),
+    final options = <BottomSheetOption>[
+      BottomSheetOption(
+        icon: Icons.image,
+        label: 'Choose from Gallery',
+        onTap: () {
+          // TODO: Implement gallery picker
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Row(
+                children: [
+                  Icon(Icons.info_outline, color: Colors.white, size: 20),
+                  const SizedBox(width: 12),
+                  Text('Gallery picker coming soon', style: TextStyle(color: Colors.white)),
+                ],
               ),
+              backgroundColor: Colors.grey.shade900,
+              behavior: SnackBarBehavior.floating,
+              margin: const EdgeInsets.all(16),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
             ),
-            Text('Chat Wallpaper', style: textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
-            const SizedBox(height: 24),
-            ListTile(
-              leading: const Icon(Icons.image),
-              title: const Text('Choose from Gallery'),
-              onTap: () {
-                Navigator.pop(context);
-                // TODO: Implement gallery picker
-                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Gallery picker coming soon')));
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.color_lens),
-              title: const Text('Solid Color'),
-              onTap: () {
-                Navigator.pop(context);
-                // TODO: Implement color picker
-                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Color picker coming soon')));
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.wallpaper),
-              title: const Text('Default Wallpapers'),
-              onTap: () {
-                Navigator.pop(context);
-                // TODO: Show default wallpapers
-                ScaffoldMessenger.of(
-                  context,
-                ).showSnackBar(const SnackBar(content: Text('Default wallpapers coming soon')));
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.delete, color: Colors.red),
-              title: const Text('Remove Wallpaper', style: TextStyle(color: Colors.red)),
-              onTap: () {
-                Navigator.pop(context);
-                // TODO: Remove wallpaper
-                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Wallpaper removed')));
-              },
-            ),
-          ],
-        ),
+          );
+        },
       ),
-    );
+      BottomSheetOption(
+        icon: Icons.color_lens,
+        label: 'Solid Color',
+        onTap: () {
+          // TODO: Implement color picker
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Row(
+                children: [
+                  Icon(Icons.info_outline, color: Colors.white, size: 20),
+                  const SizedBox(width: 12),
+                  Text('Color picker coming soon', style: TextStyle(color: Colors.white)),
+                ],
+              ),
+              backgroundColor: Colors.grey.shade900,
+              behavior: SnackBarBehavior.floating,
+              margin: const EdgeInsets.all(16),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            ),
+          );
+        },
+      ),
+      BottomSheetOption(
+        icon: Icons.wallpaper,
+        label: 'Default Wallpapers',
+        onTap: () {
+          // TODO: Show default wallpapers
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Row(
+                children: [
+                  Icon(Icons.info_outline, color: Colors.white, size: 20),
+                  const SizedBox(width: 12),
+                  Text('Default wallpapers coming soon', style: TextStyle(color: Colors.white)),
+                ],
+              ),
+              backgroundColor: Colors.grey.shade900,
+              behavior: SnackBarBehavior.floating,
+              margin: const EdgeInsets.all(16),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            ),
+          );
+        },
+      ),
+      BottomSheetOption(
+        icon: Icons.delete,
+        label: 'Remove Wallpaper',
+        isDangerous: true,
+        onTap: () {
+          // TODO: Remove wallpaper
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Row(
+                children: [
+                  Icon(Icons.check_circle, color: Colors.white, size: 20),
+                  const SizedBox(width: 12),
+                  Text('Wallpaper removed', style: TextStyle(color: Colors.white)),
+                ],
+              ),
+              backgroundColor: Colors.grey.shade900,
+              behavior: SnackBarBehavior.floating,
+              margin: const EdgeInsets.all(16),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            ),
+          );
+        },
+      ),
+    ];
+
+    showOptionsBottomSheet(context: context, title: 'Chat Wallpaper', options: options);
   }
 
   void _showNotificationsBottomSheet(BuildContext context, WidgetRef ref, ColorScheme colors, TextTheme textTheme) {

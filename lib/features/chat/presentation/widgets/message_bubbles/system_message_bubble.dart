@@ -133,6 +133,8 @@ class SystemMessageBubble extends StatelessWidget {
         return Icons.person_remove_rounded;
       case 'USER_ADDED':
         return Icons.group_add_rounded;
+      case 'USERS_ADDED':
+        return Icons.group_add_rounded;
       case 'USER_KICKED':
         return Icons.person_remove_rounded;
       case 'USER_REMOVED':

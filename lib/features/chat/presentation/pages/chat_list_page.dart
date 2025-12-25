@@ -5,6 +5,7 @@ import 'package:chattrix_ui/features/birthday/presentation/providers/birthday_pr
 import 'package:chattrix_ui/features/birthday/presentation/widgets/birthday_banner.dart';
 import 'package:chattrix_ui/features/birthday/presentation/widgets/birthday_list_sheet.dart';
 import 'package:chattrix_ui/features/birthday/presentation/widgets/birthday_wishes_dialog.dart';
+import 'package:chattrix_ui/features/chat/presentation/providers/chat_usecase_provider.dart';
 import 'package:chattrix_ui/features/chat/presentation/providers/chat_websocket_provider_new.dart';
 import 'package:chattrix_ui/features/chat/presentation/providers/conversation_settings_provider.dart';
 import 'package:chattrix_ui/features/chat/presentation/providers/marked_unread_provider.dart';
@@ -307,10 +308,8 @@ class _ConversationList extends ConsumerWidget {
         isMarkedUnread: isMarkedUnread,
         hasUnreadMessages: hasUnreadMessages,
         onMarkAsUnread: () {
-          markedUnreadNotifier.markAsUnread(conversation.id);
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(const SnackBar(content: Text('Marked as unread'), duration: Duration(seconds: 2)));
+          // Call async method (fire and forget)
+          _markConversationAsUnread(context, ref, conversation, markedUnreadNotifier);
         },
         onMarkAsRead: () {
           markedUnreadNotifier.removeUnreadMark(conversation.id);
@@ -533,6 +532,89 @@ class _ErrorView extends ConsumerWidget {
             child: const Text('Retry'),
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// Helper function to mark conversation as unread
+Future<void> _markConversationAsUnread(
+  BuildContext context,
+  WidgetRef ref,
+  dynamic conversation,
+  dynamic markedUnreadNotifier,
+) async {
+  try {
+    // Call API to mark as unread
+    final markAsUnreadUseCase = ref.read(markConversationAsUnreadUsecaseProvider);
+    final result = await markAsUnreadUseCase(conversationId: conversation.id);
+
+    result.fold(
+      (failure) {
+        debugPrint('Failed to mark as unread: ${failure.message}');
+        if (!context.mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                Icon(Icons.error_outline, color: Colors.white, size: 20),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text('Failed to mark as unread', style: TextStyle(color: Colors.white)),
+                ),
+              ],
+            ),
+            backgroundColor: Colors.grey.shade900,
+            behavior: SnackBarBehavior.floating,
+            margin: const EdgeInsets.all(16),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+          ),
+        );
+      },
+      (_) {
+        // Also update local state
+        markedUnreadNotifier.markAsUnread(conversation.id);
+
+        // Refresh conversations to update unread count
+        ref.invalidate(conversationsProvider);
+
+        if (!context.mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                Icon(Icons.mark_email_unread, color: Colors.white, size: 20),
+                const SizedBox(width: 12),
+                Text('Marked as unread', style: TextStyle(color: Colors.white)),
+              ],
+            ),
+            backgroundColor: Colors.grey.shade900,
+            behavior: SnackBarBehavior.floating,
+            margin: const EdgeInsets.all(16),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      },
+    );
+  } catch (e) {
+    debugPrint('Error marking as unread: $e');
+    if (!context.mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            Icon(Icons.error_outline, color: Colors.white, size: 20),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text('Error: $e', style: TextStyle(color: Colors.white)),
+            ),
+          ],
+        ),
+        backgroundColor: Colors.grey.shade900,
+        behavior: SnackBarBehavior.floating,
+        margin: const EdgeInsets.all(16),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       ),
     );
   }

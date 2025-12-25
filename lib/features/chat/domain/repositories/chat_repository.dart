@@ -73,6 +73,16 @@ abstract class ChatRepository {
   /// **API:** `POST /v1/read-receipts/conversations/{conversationId}`
   Future<Either<Failure, void>> markConversationAsRead({required int conversationId, int? lastMessageId});
 
+  /// Mark conversation as unread
+  ///
+  /// Sets unreadCount to 1 if currently 0 (creates unread notification effect)
+  ///
+  /// **Parameters:**
+  /// - [conversationId]: ID of the conversation
+  ///
+  /// **API:** `POST /v1/read-receipts/conversations/{conversationId}/unread`
+  Future<Either<Failure, void>> markConversationAsUnread({required int conversationId});
+
   /// Search messages in a conversation
   ///
   /// **Parameters:**

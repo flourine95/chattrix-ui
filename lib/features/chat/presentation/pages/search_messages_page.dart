@@ -1,4 +1,7 @@
+import 'package:chattrix_ui/core/widgets/user_avatar.dart';
+import 'package:chattrix_ui/features/chat/presentation/providers/chat_state_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import '../providers/search_messages_provider.dart';
@@ -95,7 +98,7 @@ class SearchMessagesPage extends HookConsumerWidget {
 
         return ListView.builder(
           itemCount: messages.length,
-          itemBuilder: (context, index) => _buildResultItem(context, messages[index], query, colors, textTheme),
+          itemBuilder: (context, index) => _buildResultItem(context, ref, messages[index], query, colors, textTheme),
         );
       },
       loading: () => const Center(child: CircularProgressIndicator()),
@@ -118,6 +121,7 @@ class SearchMessagesPage extends HookConsumerWidget {
 
   Widget _buildResultItem(
     BuildContext context,
+    WidgetRef ref,
     dynamic message,
     String query,
     ColorScheme colors,
@@ -130,8 +134,12 @@ class SearchMessagesPage extends HookConsumerWidget {
 
     return InkWell(
       onTap: () {
-        // Navigate back with message ID to scroll to it
-        Navigator.pop(context, message.id);
+        // Set message ID to scroll to
+        setScrollToMessage(conversationId, message.id);
+
+        // Navigate back to chat view
+        context.pop();
+        context.pop(); // Pop chat info page too
       },
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -142,12 +150,10 @@ class SearchMessagesPage extends HookConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Avatar
-            CircleAvatar(
+            UserAvatar(
+              displayName: message.senderFullName ?? message.senderUsername ?? 'Unknown',
+              avatarUrl: null,
               radius: 20,
-              backgroundImage: message.senderAvatarUrl != null ? NetworkImage(message.senderAvatarUrl!) : null,
-              child: message.senderAvatarUrl == null
-                  ? Text(message.senderFullName?.substring(0, 1).toUpperCase() ?? '?')
-                  : null,
             ),
             const SizedBox(width: 12),
 

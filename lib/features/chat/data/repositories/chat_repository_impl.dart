@@ -164,6 +164,13 @@ class ChatRepositoryImpl extends BaseRepository implements ChatRepository {
   }
 
   @override
+  Future<Either<Failure, void>> markConversationAsUnread({required int conversationId}) async {
+    return executeApiCall(() async {
+      await remoteDatasource.markConversationAsUnread(conversationId: conversationId);
+    });
+  }
+
+  @override
   Future<Either<Failure, List<Message>>> searchMessages({
     required String conversationId,
     required String query,

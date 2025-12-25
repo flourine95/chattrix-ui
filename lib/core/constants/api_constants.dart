@@ -129,6 +129,9 @@ class ApiConstants {
   static String markConversationAsRead(int conversationId) =>
       '$_baseUrl/$_v1/read-receipts/conversations/$conversationId';
 
+  static String markConversationAsUnread(int conversationId) =>
+      '$_baseUrl/$_v1/read-receipts/conversations/$conversationId/unread';
+
   static String get globalUnreadCount => '$_baseUrl/$_v1/read-receipts/unread-count';
 
   // Typing endpoints

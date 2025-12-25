@@ -85,6 +85,17 @@ class ChatViewPage extends HookConsumerWidget {
     // Highlight message state
     final highlightedMessageId = useState<int?>(highlightMessageId);
 
+    // Check for scroll to message from search on every build
+    final scrollToMessage = getScrollToMessage(chatId);
+    if (scrollToMessage != null && highlightedMessageId.value != scrollToMessage) {
+      debugPrint('🔍 [ChatView] Found scroll to message: $scrollToMessage');
+      // Use post frame callback to avoid setState during build
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        highlightedMessageId.value = scrollToMessage;
+        clearScrollToMessage(chatId);
+      });
+    }
+
     // --- MARK AS READ WHEN OPENING CONVERSATION ---
     useEffect(() {
       Future.microtask(() async {
@@ -121,6 +132,9 @@ class ChatViewPage extends HookConsumerWidget {
         final messages = messagesAsync.value!;
         final messageIndex = messages.indexWhere((m) => m.id == highlightedMessageId.value);
 
+        debugPrint('🔍 [ChatView] Scroll to message ${highlightedMessageId.value}');
+        debugPrint('🔍 [ChatView] Message index: $messageIndex / ${messages.length}');
+
         if (messageIndex != -1) {
           // Wait for list to build, then scroll using itemScrollController
           Future.delayed(const Duration(milliseconds: 500), () {
@@ -128,6 +142,8 @@ class ChatViewPage extends HookConsumerWidget {
               // For reversed list, calculate from bottom
               final reversedIndex = messages.length - messageIndex;
               final targetPosition = reversedIndex * 100.0; // Approximate height
+
+              debugPrint('🔍 [ChatView] Scrolling to position: $targetPosition (reversed index: $reversedIndex)');
 
               scrollController.animateTo(
                 targetPosition,

@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 /// iOS-style date range picker for media filter
@@ -44,10 +43,7 @@ class _MediaDateFilterBottomSheetState extends State<MediaDateFilterBottomSheet>
             // Title
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              child: Text(
-                'Filter Media by Date',
-                style: textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
-              ),
+              child: Text('Filter Media by Date', style: textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
             ),
 
             const SizedBox(height: 16),
@@ -58,7 +54,7 @@ class _MediaDateFilterBottomSheetState extends State<MediaDateFilterBottomSheet>
             _buildQuickFilter('This Week', colors, textTheme),
             _buildQuickFilter('This Month', colors, textTheme),
             _buildQuickFilter('This Year', colors, textTheme),
-            
+
             Divider(height: 1, color: colors.outlineVariant),
 
             // Custom date range
@@ -66,16 +62,12 @@ class _MediaDateFilterBottomSheetState extends State<MediaDateFilterBottomSheet>
               leading: Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: _selectedFilter == 'Custom' 
-                      ? colors.primaryContainer 
-                      : colors.surfaceContainerHighest,
+                  color: _selectedFilter == 'Custom' ? colors.primaryContainer : colors.surfaceContainerHighest,
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
                   Icons.date_range,
-                  color: _selectedFilter == 'Custom' 
-                      ? colors.onPrimaryContainer 
-                      : colors.onSurface,
+                  color: _selectedFilter == 'Custom' ? colors.onPrimaryContainer : colors.onSurface,
                   size: 22,
                 ),
               ),
@@ -88,9 +80,7 @@ class _MediaDateFilterBottomSheetState extends State<MediaDateFilterBottomSheet>
               subtitle: _customStartDate != null && _customEndDate != null
                   ? Text('${_formatDate(_customStartDate!)} - ${_formatDate(_customEndDate!)}')
                   : null,
-              trailing: _selectedFilter == 'Custom' 
-                  ? Icon(Icons.check_circle, color: colors.primary)
-                  : null,
+              trailing: _selectedFilter == 'Custom' ? Icon(Icons.check_circle, color: colors.primary) : null,
               onTap: () => _showCustomDatePicker(context, colors, textTheme),
             ),
 
@@ -109,9 +99,7 @@ class _MediaDateFilterBottomSheetState extends State<MediaDateFilterBottomSheet>
                   }),
                   style: FilledButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   ),
                   child: const Text('Apply Filter', style: TextStyle(fontWeight: FontWeight.bold)),
                 ),
@@ -140,9 +128,7 @@ class _MediaDateFilterBottomSheetState extends State<MediaDateFilterBottomSheet>
       ),
       title: Text(
         label,
-        style: textTheme.bodyLarge?.copyWith(
-          fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-        ),
+        style: textTheme.bodyLarge?.copyWith(fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal),
       ),
       trailing: isSelected ? Icon(Icons.check_circle, color: colors.primary) : null,
       onTap: () => setState(() => _selectedFilter = label),
@@ -151,12 +137,18 @@ class _MediaDateFilterBottomSheetState extends State<MediaDateFilterBottomSheet>
 
   IconData _getIconForFilter(String filter) {
     switch (filter) {
-      case 'All': return Icons.all_inclusive;
-      case 'Today': return Icons.today;
-      case 'This Week': return Icons.view_week;
-      case 'This Month': return Icons.calendar_month;
-      case 'This Year': return Icons.calendar_today;
-      default: return Icons.filter_list;
+      case 'All':
+        return Icons.all_inclusive;
+      case 'Today':
+        return Icons.today;
+      case 'This Week':
+        return Icons.view_week;
+      case 'This Month':
+        return Icons.calendar_month;
+      case 'This Year':
+        return Icons.calendar_today;
+      default:
+        return Icons.filter_list;
     }
   }
 
@@ -175,9 +167,7 @@ class _MediaDateFilterBottomSheetState extends State<MediaDateFilterBottomSheet>
       lastDate: now,
       builder: (context, child) {
         return Theme(
-          data: Theme.of(context).copyWith(
-            colorScheme: colors,
-          ),
+          data: Theme.of(context).copyWith(colorScheme: colors),
           child: child!,
         );
       },
@@ -193,9 +183,7 @@ class _MediaDateFilterBottomSheetState extends State<MediaDateFilterBottomSheet>
       lastDate: now,
       builder: (context, child) {
         return Theme(
-          data: Theme.of(context).copyWith(
-            colorScheme: colors,
-          ),
+          data: Theme.of(context).copyWith(colorScheme: colors),
           child: child!,
         );
       },
@@ -209,7 +197,6 @@ class _MediaDateFilterBottomSheetState extends State<MediaDateFilterBottomSheet>
       _customEndDate = endDate;
     });
   }
-
 }
 
 /// Show the media date filter bottom sheet
@@ -221,4 +208,3 @@ Future<Map<String, dynamic>?> showMediaDateFilterBottomSheet(BuildContext contex
     builder: (context) => const MediaDateFilterBottomSheet(),
   );
 }
-

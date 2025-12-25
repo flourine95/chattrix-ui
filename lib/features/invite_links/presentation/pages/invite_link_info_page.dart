@@ -187,7 +187,7 @@ class InviteLinkInfoPage extends HookConsumerWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.link_off, size: 80, color: colorScheme.onSurfaceVariant.withOpacity(0.5)),
+            Icon(Icons.link_off, size: 80, color: colorScheme.onSurfaceVariant.withValues(alpha: 0.5)),
             const SizedBox(height: 24),
             Text('Invite Not Found', style: theme.textTheme.titleLarge, textAlign: TextAlign.center),
             const SizedBox(height: 8),

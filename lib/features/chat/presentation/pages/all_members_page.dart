@@ -1,14 +1,18 @@
+import 'package:chattrix_ui/core/constants/api_constants.dart';
 import 'package:chattrix_ui/core/widgets/user_avatar.dart';
-import 'package:chattrix_ui/features/chat/domain/entities/search_user.dart';
+import 'package:chattrix_ui/core/widgets/bottom_sheets.dart';
+import 'package:chattrix_ui/features/auth/presentation/providers/auth_providers.dart';
+import 'package:chattrix_ui/features/chat/data/models/conversation_model.dart';
+import 'package:chattrix_ui/features/chat/domain/entities/conversation.dart';
+import 'package:chattrix_ui/features/chat/presentation/pages/add_members_page.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 class AllMembersPage extends ConsumerStatefulWidget {
-  const AllMembersPage({super.key, required this.conversationId, required this.members});
+  const AllMembersPage({super.key, required this.conversation});
 
-  final String conversationId;
-  final List<SearchUser> members;
+  final Conversation conversation;
 
   @override
   ConsumerState<AllMembersPage> createState() => _AllMembersPageState();
@@ -17,9 +21,16 @@ class AllMembersPage extends ConsumerStatefulWidget {
 class _AllMembersPageState extends ConsumerState<AllMembersPage> {
   final TextEditingController _searchController = TextEditingController();
   String _selectedFilter = 'All';
+  late Conversation _currentConversation;
 
-  List<SearchUser> get _filteredMembers {
-    var filtered = widget.members;
+  @override
+  void initState() {
+    super.initState();
+    _currentConversation = widget.conversation;
+  }
+
+  List<dynamic> get _filteredMembers {
+    var filtered = _currentConversation.participants;
 
     // Apply search filter
     if (_searchController.text.isNotEmpty) {
@@ -32,8 +43,7 @@ class _AllMembersPageState extends ConsumerState<AllMembersPage> {
 
     // Apply role filter
     if (_selectedFilter == 'Admins') {
-      // TODO: Filter by admin role when backend supports it
-      filtered = filtered.take(2).toList(); // Demo: show first 2 as admins
+      filtered = filtered.where((member) => member.role == 'ADMIN').toList();
     }
 
     return filtered;
@@ -43,6 +53,12 @@ class _AllMembersPageState extends ConsumerState<AllMembersPage> {
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
+    final me = ref.watch(currentUserProvider);
+    final isAdmin =
+        _currentConversation.participants
+            .firstWhere((p) => p.userId == me?.id, orElse: () => _currentConversation.participants.first)
+            .role ==
+        'ADMIN';
 
     return Scaffold(
       backgroundColor: colors.surface,
@@ -57,16 +73,26 @@ class _AllMembersPageState extends ConsumerState<AllMembersPage> {
           onPressed: () => context.pop(),
         ),
         title: Text(
-          'Members (${widget.members.length})',
+          'Members (${_currentConversation.participants.length})',
           style: textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w600),
         ),
         actions: [
-          IconButton(
-            icon: Icon(Icons.person_add, color: colors.primary),
-            onPressed: () {
-              // TODO: Navigate to add members page
-            },
-          ),
+          if (isAdmin)
+            IconButton(
+              icon: Icon(Icons.person_add, color: colors.primary),
+              onPressed: () async {
+                final result = await Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => AddMembersPage(conversationId: _currentConversation.id.toString()),
+                  ),
+                );
+                // Refresh conversation data after adding members
+                if (result == true && mounted) {
+                  _refreshConversation();
+                }
+              },
+            ),
         ],
       ),
       body: Column(
@@ -81,10 +107,7 @@ class _AllMembersPageState extends ConsumerState<AllMembersPage> {
                 prefixIcon: const Icon(Icons.search),
                 filled: true,
                 fillColor: colors.surfaceContainerHighest,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide.none,
-                ),
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
               ),
               onChanged: (value) => setState(() {}),
             ),
@@ -120,18 +143,15 @@ class _AllMembersPageState extends ConsumerState<AllMembersPage> {
               itemCount: _filteredMembers.length,
               itemBuilder: (context, index) {
                 final member = _filteredMembers[index];
-                final isAdmin = index < 2; // Demo: first 2 are admins
-                final isOnline = member.isOnline;
+                final isMemberAdmin = member.role == 'ADMIN';
+                final isOnline = member.online ?? false;
+                final isMe = member.userId == me?.id;
 
                 return ListTile(
                   leading: Stack(
                     clipBehavior: Clip.none,
                     children: [
-                      UserAvatar(
-                        displayName: member.fullName,
-                        avatarUrl: member.avatarUrl,
-                        radius: 24,
-                      ),
+                      UserAvatar(displayName: member.fullName ?? 'User', avatarUrl: member.avatarUrl, radius: 24),
                       if (isOnline)
                         Positioned(
                           right: 0,
@@ -152,12 +172,19 @@ class _AllMembersPageState extends ConsumerState<AllMembersPage> {
                     children: [
                       Flexible(
                         child: Text(
-                          member.fullName,
+                          member.fullName ?? 'User',
                           style: textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w500),
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
-                      if (isAdmin) ...[
+                      if (isMe) ...[
+                        const SizedBox(width: 8),
+                        Text(
+                          '(You)',
+                          style: textTheme.bodySmall?.copyWith(color: colors.onSurface.withValues(alpha: 0.6)),
+                        ),
+                      ],
+                      if (isMemberAdmin) ...[
                         const SizedBox(width: 8),
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
@@ -182,13 +209,12 @@ class _AllMembersPageState extends ConsumerState<AllMembersPage> {
                       color: isOnline ? Colors.green : colors.onSurface.withValues(alpha: 0.6),
                     ),
                   ),
-                  trailing: IconButton(
-                    icon: Icon(Icons.more_vert, color: colors.onSurface),
-                    onPressed: () => _showMemberOptions(context, member, isAdmin, colors, textTheme),
-                  ),
-                  onTap: () {
-                    // TODO: Navigate to member profile
-                  },
+                  trailing: isAdmin && !isMe
+                      ? IconButton(
+                          icon: Icon(Icons.more_vert, color: colors.onSurface),
+                          onPressed: () => _showMemberOptions(context, member, isMemberAdmin, colors, textTheme),
+                        )
+                      : null,
                 );
               },
             ),
@@ -198,81 +224,228 @@ class _AllMembersPageState extends ConsumerState<AllMembersPage> {
     );
   }
 
+  Future<void> _refreshConversation() async {
+    try {
+      debugPrint('🔄 Refreshing conversation data...');
+      final dio = ref.read(dioProvider);
+      final response = await dio.get('${ApiConstants.conversations}/${_currentConversation.id}');
+
+      if (response.data['success'] == true && response.data['data'] != null) {
+        final conversationData = response.data['data'];
+
+        // Parse using ConversationModel.fromApi (handles nullable fields properly)
+        final conversationModel = ConversationModel.fromApi(conversationData);
+        setState(() {
+          _currentConversation = conversationModel.toEntity();
+        });
+        debugPrint('✅ Conversation refreshed: ${_currentConversation.participants.length} members');
+      }
+    } catch (e, stackTrace) {
+      debugPrint('❌ Error refreshing conversation: $e');
+      debugPrint('Stack trace: $stackTrace');
+    }
+  }
+
   void _showMemberOptions(
     BuildContext context,
-    SearchUser member,
-    bool isAdmin,
+    dynamic member,
+    bool isMemberAdmin,
     ColorScheme colors,
     TextTheme textTheme,
-  ) {
-    showModalBottomSheet(
+  ) async {
+    final action = await showOptionsBottomSheet<String>(
       context: context,
-      backgroundColor: colors.surface,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (context) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // Handle bar
-            Container(
-              width: 40,
-              height: 4,
-              margin: const EdgeInsets.only(top: 12, bottom: 20),
-              decoration: BoxDecoration(
-                color: colors.onSurface.withValues(alpha: 0.3),
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
-            ListTile(
-              leading: Icon(Icons.person_outline, color: colors.onSurface),
-              title: Text('View Profile', style: textTheme.bodyLarge),
-              onTap: () {
-                Navigator.pop(context);
-                // TODO: Navigate to profile
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.message_outlined, color: colors.onSurface),
-              title: Text('Send Message', style: textTheme.bodyLarge),
-              onTap: () {
-                Navigator.pop(context);
-                // TODO: Navigate to chat
-              },
-            ),
-            if (isAdmin)
-              ListTile(
-                leading: Icon(Icons.remove_moderator_outlined, color: colors.onSurface),
-                title: Text('Remove Admin', style: textTheme.bodyLarge),
-                onTap: () {
-                  Navigator.pop(context);
-                  // TODO: Implement remove admin
-                },
-              )
-            else
-              ListTile(
-                leading: Icon(Icons.admin_panel_settings_outlined, color: colors.onSurface),
-                title: Text('Make Admin', style: textTheme.bodyLarge),
-                onTap: () {
-                  Navigator.pop(context);
-                  // TODO: Implement make admin
-                },
-              ),
-            const Divider(),
-            ListTile(
-              leading: Icon(Icons.person_remove_outlined, color: Colors.red),
-              title: Text('Remove from Group', style: textTheme.bodyLarge?.copyWith(color: Colors.red)),
-              onTap: () {
-                Navigator.pop(context);
-                // TODO: Implement remove member
-              },
-            ),
-            const SizedBox(height: 8),
-          ],
+      title: 'Member Options',
+      subtitle: member.fullName ?? 'User',
+      options: [
+        if (isMemberAdmin)
+          BottomSheetOption(label: 'Remove Admin', icon: Icons.remove_moderator_outlined, value: 'remove_admin')
+        else
+          BottomSheetOption(label: 'Make Admin', icon: Icons.admin_panel_settings_outlined, value: 'make_admin'),
+        BottomSheetOption(
+          label: 'Remove from Group',
+          icon: Icons.person_remove_outlined,
+          iconColor: Colors.red,
+          value: 'remove',
+          isDangerous: true,
         ),
-      ),
+      ],
     );
+
+    if (action == null) return;
+
+    switch (action) {
+      case 'make_admin':
+        _handleUpdateRole(member.userId, 'ADMIN');
+        break;
+      case 'remove_admin':
+        _handleUpdateRole(member.userId, 'MEMBER');
+        break;
+      case 'remove':
+        _handleRemoveMember(member.userId, member.fullName ?? 'User');
+        break;
+    }
+  }
+
+  Future<void> _handleUpdateRole(int userId, String newRole) async {
+    // Show loading
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => const Center(child: CircularProgressIndicator()),
+    );
+
+    try {
+      debugPrint('🔄 Updating role for user $userId to $newRole in conversation ${_currentConversation.id}...');
+      final dio = ref.read(dioProvider);
+      final response = await dio.put(
+        '${ApiConstants.conversationMembers(_currentConversation.id)}/$userId/role',
+        data: {'role': newRole},
+      );
+      debugPrint('✅ Update role response: ${response.statusCode} - ${response.data}');
+
+      if (!mounted) return;
+
+      // Refresh conversation data to update UI
+      await _refreshConversation();
+
+      // Close loading dialog AFTER refresh
+      if (mounted) {
+        Navigator.of(context, rootNavigator: true).pop();
+      }
+
+      // Show success snackbar
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                const Icon(Icons.check_circle, color: Colors.white, size: 20),
+                const SizedBox(width: 12),
+                Text(
+                  newRole == 'ADMIN' ? 'Member promoted to admin' : 'Admin role removed',
+                  style: const TextStyle(color: Colors.white),
+                ),
+              ],
+            ),
+            backgroundColor: Colors.grey.shade900,
+            behavior: SnackBarBehavior.floating,
+            margin: const EdgeInsets.all(16),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+          ),
+        );
+      }
+    } catch (e) {
+      debugPrint('❌ Error updating role: $e');
+      if (!mounted) return;
+
+      // Close loading dialog
+      Navigator.pop(context);
+
+      // Show error snackbar
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Row(
+            children: [
+              const Icon(Icons.error_outline, color: Colors.white, size: 20),
+              const SizedBox(width: 12),
+              const Expanded(
+                child: Text('Failed to update role', style: TextStyle(color: Colors.white)),
+              ),
+            ],
+          ),
+          backgroundColor: Colors.grey.shade900,
+          behavior: SnackBarBehavior.floating,
+          margin: const EdgeInsets.all(16),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        ),
+      );
+    }
+  }
+
+  Future<void> _handleRemoveMember(int userId, String userName) async {
+    // Show confirmation bottom sheet
+    final confirmed = await showConfirmationBottomSheet(
+      context: context,
+      title: 'Remove Member',
+      message: 'Are you sure you want to remove $userName from this group?',
+      confirmText: 'Remove',
+      cancelText: 'Cancel',
+      icon: Icons.person_remove_outlined,
+      isDangerous: true,
+    );
+
+    if (confirmed != true || !mounted) return;
+
+    // Show loading
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => const Center(child: CircularProgressIndicator()),
+    );
+
+    try {
+      debugPrint('🔄 Removing member $userId from conversation ${_currentConversation.id}...');
+      final dio = ref.read(dioProvider);
+      final response = await dio.delete('${ApiConstants.conversationMembers(_currentConversation.id)}/$userId');
+      debugPrint('✅ Remove member response: ${response.statusCode} - ${response.data}');
+
+      if (!mounted) return;
+
+      // Refresh conversation data to update UI
+      await _refreshConversation();
+
+      // Close loading dialog AFTER refresh
+      if (mounted) {
+        Navigator.of(context, rootNavigator: true).pop();
+      }
+
+      // Show success snackbar
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                const Icon(Icons.check_circle, color: Colors.white, size: 20),
+                const SizedBox(width: 12),
+                Text('$userName removed from group', style: const TextStyle(color: Colors.white)),
+              ],
+            ),
+            backgroundColor: Colors.grey.shade900,
+            behavior: SnackBarBehavior.floating,
+            margin: const EdgeInsets.all(16),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+          ),
+        );
+      }
+    } catch (e) {
+      debugPrint('❌ Error removing member: $e');
+      if (!mounted) return;
+
+      // Close loading dialog using rootNavigator
+      Navigator.of(context, rootNavigator: true).pop();
+
+      // Show error snackbar
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                const Icon(Icons.error_outline, color: Colors.white, size: 20),
+                const SizedBox(width: 12),
+                const Expanded(
+                  child: Text('Failed to remove member', style: TextStyle(color: Colors.white)),
+                ),
+              ],
+            ),
+            backgroundColor: Colors.grey.shade900,
+            behavior: SnackBarBehavior.floating,
+            margin: const EdgeInsets.all(16),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+          ),
+        );
+      }
+    }
   }
 
   @override
@@ -283,12 +456,7 @@ class _AllMembersPageState extends ConsumerState<AllMembersPage> {
 }
 
 class _FilterChip extends StatelessWidget {
-  const _FilterChip({
-    required this.label,
-    required this.isSelected,
-    required this.onTap,
-    required this.colors,
-  });
+  const _FilterChip({required this.label, required this.isSelected, required this.onTap, required this.colors});
 
   final String label;
   final bool isSelected;
@@ -316,4 +484,3 @@ class _FilterChip extends StatelessWidget {
     );
   }
 }
-
