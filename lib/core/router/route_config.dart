@@ -14,6 +14,7 @@ import 'package:chattrix_ui/features/chat/presentation/pages/chat_list_page.dart
 import 'package:chattrix_ui/features/chat/presentation/pages/chat_view_page.dart';
 import 'package:chattrix_ui/features/chat/presentation/pages/new_chat_page.dart';
 import 'package:chattrix_ui/features/chat/presentation/pages/new_group_chat_page.dart';
+import 'package:chattrix_ui/features/chat/presentation/pages/qr_scanner_page.dart';
 import 'package:chattrix_ui/features/chat/presentation/pages/search_conversations_page.dart';
 import 'package:chattrix_ui/features/chat/presentation/pages/schedule_message_page.dart';
 import 'package:chattrix_ui/features/chat/presentation/pages/scheduled_messages_page.dart';
@@ -136,6 +137,18 @@ class RouteConfig {
       path: RoutePaths.inviteLinkInfo,
       name: 'invite-link-info',
       builder: (context, state) => RouterSetup(child: _buildInviteLinkInfoPage(state)),
+    ),
+    // QR Scanner - Fullscreen (no shell/bottom nav)
+    GoRoute(
+      path: RoutePaths.qrScanner,
+      name: 'qr-scanner',
+      pageBuilder: (context, state) => CustomTransitionPage(
+        key: state.pageKey,
+        child: RouterSetup(child: const QrScannerPage()),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          return FadeTransition(opacity: animation, child: child);
+        },
+      ),
     ),
   ];
 

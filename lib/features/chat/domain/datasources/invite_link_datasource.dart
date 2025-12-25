@@ -11,5 +11,5 @@ abstract class InviteLinkDatasource {
 
   Future<JoinViaInviteLinkResponse> joinViaInviteLink({required String token});
 
-  Future<List<int>> getQrCode({required String token});
+  Future<List<int>> getQrCode({required int conversationId, required int linkId, String? apiUrl});
 }

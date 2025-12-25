@@ -8,12 +8,15 @@ class GetQrCodeUseCase {
 
   GetQrCodeUseCase(this._repository);
 
-  Future<Either<Failure, List<int>>> call({required String token}) async {
+  Future<Either<Failure, List<int>>> call({required int conversationId, required int linkId, String? apiUrl}) async {
     // Validation
-    if (token.trim().isEmpty) {
-      return left(const Failure.validation(message: 'Token cannot be empty', code: 'INVALID_TOKEN'));
+    if (conversationId <= 0) {
+      return left(const Failure.validation(message: 'Invalid conversation ID', code: 'INVALID_CONVERSATION_ID'));
+    }
+    if (linkId <= 0) {
+      return left(const Failure.validation(message: 'Invalid link ID', code: 'INVALID_LINK_ID'));
     }
 
-    return await _repository.getQrCode(token: token);
+    return await _repository.getQrCode(conversationId: conversationId, linkId: linkId, apiUrl: apiUrl);
   }
 }

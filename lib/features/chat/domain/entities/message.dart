@@ -16,8 +16,6 @@ abstract class Message with _$Message {
     String? senderFullName,
     required String content,
     required String type, // 'TEXT', 'IMAGE', 'VIDEO', 'AUDIO', 'FILE', 'LOCATION', 'SYSTEM'
-    String?
-    systemMessageType, // 'USER_JOINED', 'USER_LEFT', 'USER_ADDED', 'USER_REMOVED', 'NAME_CHANGED', 'AVATAR_CHANGED', 'ADMIN_PROMOTED', 'ADMIN_DEMOTED', 'MESSAGE_PINNED', 'MESSAGE_UNPINNED'
     required DateTime createdAt,
     String? mediaUrl,
     String? thumbnailUrl,

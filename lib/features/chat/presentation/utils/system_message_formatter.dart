@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'package:flutter/foundation.dart';
+
 /// Utility class for formatting system messages
 /// Similar to Messenger/Zalo system message formatting
 class SystemMessageFormatter {
@@ -8,6 +11,9 @@ class SystemMessageFormatter {
   /// - USER_LEFT: "John left the group"
   /// - USER_ADDED: "Alice added John to the group"
   /// - NAME_CHANGED: "Alice changed the group name to 'Team Chat'"
+  /// - USER_JOINED_VIA_LINK: "John joined via invite link"
+  /// - MUTED: "Alice muted the conversation"
+  /// - UNMUTED: "Alice unmuted the conversation"
   static String format({
     required String type,
     required String content,
@@ -15,74 +21,126 @@ class SystemMessageFormatter {
     String? targetName,
     String? additionalInfo,
   }) {
+    // Try to parse JSON content for additional data
+    Map<String, dynamic>? jsonData;
+    try {
+      if (content.startsWith('{')) {
+        jsonData = jsonDecode(content);
+      }
+    } catch (e) {
+      debugPrint('⚠️ Failed to parse system message JSON: $e');
+    }
+
     switch (type.toUpperCase()) {
       case 'USER_JOINED':
-        return content.isNotEmpty ? content : '${actorName ?? 'Someone'} joined the group';
+        final userName = jsonData?['userName'] ?? actorName ?? 'Someone';
+        return '$userName joined the group';
+
+      case 'USER_JOINED_VIA_LINK':
+        debugPrint('🔍 USER_JOINED_VIA_LINK - Raw content: $content');
+        debugPrint('🔍 USER_JOINED_VIA_LINK - actorName: $actorName');
+        try {
+          final userName = jsonData?['userName'] as String?;
+          final username = jsonData?['username'] as String?;
+          final displayName = userName ?? username ?? actorName ?? 'Someone';
+          final formattedMessage = '$displayName joined via invite link';
+          debugPrint('🔍 USER_JOINED_VIA_LINK - Formatted: $formattedMessage');
+          return formattedMessage;
+        } catch (e) {
+          debugPrint('❌ Error parsing user_joined_via_link content: $e');
+          return '${actorName ?? 'Someone'} joined via invite link';
+        }
 
       case 'USER_LEFT':
-        return content.isNotEmpty ? content : '${actorName ?? 'Someone'} left the group';
+        final userName = jsonData?['userName'] ?? actorName ?? 'Someone';
+        return '$userName left the group';
 
       case 'USER_ADDED':
-        if (content.isNotEmpty) return content;
-        if (actorName != null && targetName != null) {
-          return '$actorName added $targetName to the group';
+        final actor = jsonData?['actorName'] ?? actorName;
+        final target = jsonData?['targetName'] ?? targetName;
+        if (actor != null && target != null) {
+          return '$actor added $target to the group';
         }
-        return '${actorName ?? 'Someone'} added a member to the group';
+        return '${actor ?? 'Someone'} added a member to the group';
 
       case 'USER_REMOVED':
-        if (content.isNotEmpty) return content;
-        if (actorName != null && targetName != null) {
-          return '$actorName removed $targetName from the group';
+        final actor = jsonData?['actorName'] ?? actorName;
+        final target = jsonData?['targetName'] ?? targetName;
+        if (actor != null && target != null) {
+          return '$actor removed $target from the group';
         }
-        return '${actorName ?? 'Someone'} removed a member from the group';
+        return '${actor ?? 'Someone'} removed a member from the group';
 
       case 'NAME_CHANGED':
-        if (content.isNotEmpty) return content;
-        if (actorName != null && additionalInfo != null) {
-          return '$actorName changed the group name to "$additionalInfo"';
+        final actor = jsonData?['actorName'] ?? actorName;
+        final newName = jsonData?['newName'] ?? additionalInfo;
+        if (actor != null && newName != null) {
+          return '$actor changed the group name to "$newName"';
         }
-        return '${actorName ?? 'Someone'} changed the group name';
+        return '${actor ?? 'Someone'} changed the group name';
 
       case 'AVATAR_CHANGED':
-        return content.isNotEmpty ? content : '${actorName ?? 'Someone'} changed the group photo';
+        final actor = jsonData?['actorName'] ?? actorName ?? 'Someone';
+        return '$actor changed the group photo';
 
       case 'ADMIN_PROMOTED':
-        if (content.isNotEmpty) return content;
-        if (actorName != null && targetName != null) {
-          return '$actorName made $targetName a group admin';
+        final actor = jsonData?['actorName'] ?? actorName;
+        final target = jsonData?['targetName'] ?? targetName;
+        if (actor != null && target != null) {
+          return '$actor made $target a group admin';
         }
-        return '${targetName ?? 'Someone'} is now a group admin';
+        return '${target ?? 'Someone'} is now a group admin';
 
       case 'ADMIN_DEMOTED':
-        if (content.isNotEmpty) return content;
-        if (actorName != null && targetName != null) {
-          return '$actorName removed $targetName as a group admin';
+        final actor = jsonData?['actorName'] ?? actorName;
+        final target = jsonData?['targetName'] ?? targetName;
+        if (actor != null && target != null) {
+          return '$actor removed $target as a group admin';
         }
-        return '${targetName ?? 'Someone'} is no longer a group admin';
+        return '${target ?? 'Someone'} is no longer a group admin';
 
       case 'MESSAGE_PINNED':
-        return content.isNotEmpty ? content : '${actorName ?? 'Someone'} pinned a message';
+        final actor = jsonData?['actorName'] ?? actorName ?? 'Someone';
+        return '$actor pinned a message';
 
       case 'MESSAGE_UNPINNED':
-        return content.isNotEmpty ? content : '${actorName ?? 'Someone'} unpinned a message';
+        final actor = jsonData?['actorName'] ?? actorName ?? 'Someone';
+        return '$actor unpinned a message';
 
       case 'GROUP_CREATED':
-        return content.isNotEmpty ? content : '${actorName ?? 'Someone'} created the group';
+        final actor = jsonData?['actorName'] ?? actorName ?? 'Someone';
+        return '$actor created the group';
+
+      case 'MUTED':
+      case 'CONVERSATION_MUTED':
+        final actor = jsonData?['actorName'] ?? actorName ?? 'Someone';
+        return '$actor muted the conversation';
+
+      case 'UNMUTED':
+      case 'CONVERSATION_UNMUTED':
+        final actor = jsonData?['actorName'] ?? actorName ?? 'Someone';
+        return '$actor unmuted the conversation';
 
       case 'CALL_STARTED':
-        return content.isNotEmpty ? content : '${actorName ?? 'Someone'} started a call';
+        final actor = jsonData?['actorName'] ?? actorName ?? 'Someone';
+        return '$actor started a call';
 
       case 'CALL_ENDED':
-        if (content.isNotEmpty) return content;
-        if (additionalInfo != null) {
-          return 'Call ended • $additionalInfo';
+        final duration = jsonData?['duration'] ?? additionalInfo;
+        if (duration != null) {
+          return 'Call ended • $duration';
         }
         return 'Call ended';
 
       case 'CALL_MISSED':
-        return content.isNotEmpty ? content : 'Missed call from ${actorName ?? 'someone'}';
+        final actor = jsonData?['actorName'] ?? actorName ?? 'someone';
+        return 'Missed call from $actor';
 
       default:
+        // If we have JSON data, try to extract a message
+        if (jsonData != null && jsonData['message'] != null) {
+          return jsonData['message'].toString();
+        }
         return content;
     }
   }

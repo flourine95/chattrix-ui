@@ -89,9 +89,13 @@ class InviteLinkDatasourceImpl implements InviteLinkDatasource {
   }
 
   @override
-  Future<List<int>> getQrCode({required String token}) async {
+  Future<List<int>> getQrCode({required int conversationId, required int linkId, String? apiUrl}) async {
     try {
-      final response = await dio.get('/v1/invite-links/$token/qr', options: Options(responseType: ResponseType.bytes));
+      final response = await dio.get(
+        '/v1/conversations/$conversationId/invite-links/$linkId/qr',
+        queryParameters: apiUrl != null ? {'apiUrl': apiUrl} : null,
+        options: Options(responseType: ResponseType.bytes),
+      );
 
       if (response.statusCode == 200) {
         return response.data as List<int>;

@@ -10,7 +10,6 @@ import 'package:chattrix_ui/features/chat/data/models/message_model.dart';
 import 'package:chattrix_ui/features/chat/data/models/search_user_model.dart';
 import 'package:chattrix_ui/features/chat/data/models/user_status_model.dart';
 import 'package:chattrix_ui/features/chat/domain/datasources/chat_remote_datasource.dart';
-import 'package:chattrix_ui/features/poll/data/models/poll_dto.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';

@@ -16,6 +16,7 @@ class RoutePaths {
   static const String chatView = '/chat/:id';
   static const String newChat = '/new-chat';
   static const String newGroup = '/new-group';
+  static const String qrScanner = '/qr-scanner';
   static const String chatInfo = '/chat/:id/info';
   static const String searchConversations = '/search-conversations';
   static const String scheduledMessages = '/scheduled-messages';

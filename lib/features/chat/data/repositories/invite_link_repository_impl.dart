@@ -58,9 +58,13 @@ class InviteLinkRepositoryImpl extends BaseRepository implements InviteLinkRepos
   }
 
   @override
-  Future<Either<Failure, List<int>>> getQrCode({required String token}) async {
+  Future<Either<Failure, List<int>>> getQrCode({
+    required int conversationId,
+    required int linkId,
+    String? apiUrl,
+  }) async {
     return executeApiCall(() async {
-      return await _datasource.getQrCode(token: token);
+      return await _datasource.getQrCode(conversationId: conversationId, linkId: linkId, apiUrl: apiUrl);
     });
   }
 }

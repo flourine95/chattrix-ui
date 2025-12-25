@@ -63,6 +63,15 @@ class ChatListPage extends HookConsumerWidget {
             tooltip: 'Refresh birthdays',
           ),
         ),
+        // QR Scanner button
+        Padding(
+          padding: const EdgeInsets.only(right: 8),
+          child: IconButton(
+            icon: Icon(Icons.qr_code_scanner, color: Theme.of(context).colorScheme.primary),
+            onPressed: () => context.push('/qr-scanner'),
+            tooltip: 'Scan QR Code',
+          ),
+        ),
         Padding(
           padding: const EdgeInsets.only(right: 8),
           child: IconButton(

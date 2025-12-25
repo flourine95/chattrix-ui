@@ -1131,8 +1131,9 @@ class _MessageList extends HookConsumerWidget {
             final m = messages[messageIndex];
             final isMe = m.senderId == me?.id;
             final isLastMessageFromMe = isMe && messageIndex == lastMessageFromMeIndex;
+            final isSystemMessage = m.type == 'SYSTEM';
 
-            bool showAvatar = !isMe;
+            bool showAvatar = !isMe && !isSystemMessage;
             if (messageIndex > 0 && messages[messageIndex - 1].senderId == m.senderId) showAvatar = false;
             // Khoảng cách giữa các tin nhắn
             double marginBottom = (messageIndex > 0 && messages[messageIndex - 1].senderId != m.senderId) ? 8.0 : 0.0;
@@ -1158,9 +1159,11 @@ class _MessageList extends HookConsumerWidget {
                     ),
                   // Message bubble with highlight border
                   Padding(
-                    padding: EdgeInsets.only(left: isMe ? 0 : 36), // Space for avatar
+                    padding: EdgeInsets.only(left: isMe || isSystemMessage ? 0 : 36), // No space for system messages
                     child: Align(
-                      alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
+                      alignment: isMe
+                          ? Alignment.centerRight
+                          : (isSystemMessage ? Alignment.center : Alignment.centerLeft),
                       child: m.scheduled
                           ? // Scheduled message - no border container, pass highlight directly
                             MessageBubble(

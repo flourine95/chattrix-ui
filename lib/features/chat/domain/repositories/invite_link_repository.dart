@@ -25,5 +25,5 @@ abstract class InviteLinkRepository {
   Future<Either<Failure, JoinViaInviteLink>> joinViaInviteLink({required String token});
 
   /// Get QR code for invite link
-  Future<Either<Failure, List<int>>> getQrCode({required String token});
+  Future<Either<Failure, List<int>>> getQrCode({required int conversationId, required int linkId, String? apiUrl});
 }

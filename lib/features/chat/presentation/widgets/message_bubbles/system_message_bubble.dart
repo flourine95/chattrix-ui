@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:chattrix_ui/features/chat/domain/entities/message.dart';
 import 'package:chattrix_ui/features/chat/presentation/utils/system_message_formatter.dart';
 import 'package:flutter/material.dart';
@@ -15,14 +16,31 @@ class SystemMessageBubble extends StatelessWidget {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
 
+    // Parse system message type from JSON content
+    String? systemMessageType;
+
+    if (message.content.startsWith('{')) {
+      try {
+        final jsonData = jsonDecode(message.content);
+        systemMessageType = jsonData['type'] as String?;
+        debugPrint('📨 SystemMessageBubble - Message ID: ${message.id}');
+        debugPrint('📨 Type: ${message.type}');
+        debugPrint('📨 Extracted type from JSON: $systemMessageType');
+      } catch (e) {
+        debugPrint('❌ Failed to parse system message JSON: $e');
+      }
+    }
+
     // Format message content using formatter
-    final formattedContent = message.systemMessageType != null
+    final formattedContent = systemMessageType != null
         ? SystemMessageFormatter.format(
-            type: message.systemMessageType!,
+            type: systemMessageType,
             content: message.content,
             actorName: message.senderFullName ?? message.senderUsername,
           )
         : message.content;
+
+    debugPrint('📨 Formatted content: $formattedContent');
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 16),
@@ -30,9 +48,9 @@ class SystemMessageBubble extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           // Icon based on system message type
-          if (message.systemMessageType != null) ...[
+          if (systemMessageType != null) ...[
             Icon(
-              _getIconForSystemMessageType(message.systemMessageType!),
+              _getIconForSystemMessageType(systemMessageType),
               size: 13,
               color: isDark ? Colors.grey.shade500 : Colors.grey.shade600,
             ),
@@ -131,6 +149,8 @@ class SystemMessageBubble extends StatelessWidget {
     switch (type.toUpperCase()) {
       case 'USER_JOINED':
         return Icons.person_add_rounded;
+      case 'USER_JOINED_VIA_LINK':
+        return Icons.link_rounded;
       case 'USER_LEFT':
         return Icons.person_remove_rounded;
       case 'USER_ADDED':
@@ -151,6 +171,18 @@ class SystemMessageBubble extends StatelessWidget {
         return Icons.push_pin_outlined;
       case 'GROUP_CREATED':
         return Icons.group_rounded;
+      case 'MUTED':
+      case 'CONVERSATION_MUTED':
+        return Icons.notifications_off_rounded;
+      case 'UNMUTED':
+      case 'CONVERSATION_UNMUTED':
+        return Icons.notifications_active_rounded;
+      case 'CALL_STARTED':
+        return Icons.call_rounded;
+      case 'CALL_ENDED':
+        return Icons.call_end_rounded;
+      case 'CALL_MISSED':
+        return Icons.phone_missed_rounded;
       default:
         return Icons.info_outline_rounded;
     }

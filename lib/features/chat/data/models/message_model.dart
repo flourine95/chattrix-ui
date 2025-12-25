@@ -22,7 +22,6 @@ abstract class MessageModel with _$MessageModel {
     String? senderFullName,
     required String content,
     required String type,
-    String? systemMessageType,
     required String createdAt,
     // Rich media fields
     String? mediaUrl,
@@ -133,7 +132,6 @@ abstract class MessageModel with _$MessageModel {
       senderFullName: json['senderFullName']?.toString() ?? json['sender']?['fullName']?.toString(),
       content: (json['content'] ?? '').toString(),
       type: (json['type'] ?? 'TEXT').toString(),
-      systemMessageType: json['systemMessageType']?.toString(),
       createdAt: (json['createdAt'] ?? json['sentAt'] ?? DateTime.now().toIso8601String()).toString(),
       mediaUrl: json['mediaUrl']?.toString(),
       thumbnailUrl: json['thumbnailUrl']?.toString(),
@@ -176,7 +174,6 @@ abstract class MessageModel with _$MessageModel {
       senderFullName: senderFullName,
       content: content,
       type: type,
-      systemMessageType: systemMessageType,
       createdAt: DateTime.parse(createdAt),
       mediaUrl: mediaUrl,
       thumbnailUrl: thumbnailUrl,

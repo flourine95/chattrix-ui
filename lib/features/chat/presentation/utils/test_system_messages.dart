@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:chattrix_ui/features/chat/domain/entities/mentioned_user.dart';
 import 'package:chattrix_ui/features/chat/domain/entities/message.dart';
 
@@ -11,9 +12,13 @@ class TestSystemMessages {
       conversationId: conversationId,
       senderId: userId ?? 999,
       senderFullName: userName,
-      content: '$userName joined the group',
+      content: jsonEncode({
+        'type': 'user_joined',
+        'userName': userName,
+        'userId': userId ?? 999,
+        'timestamp': DateTime.now().millisecondsSinceEpoch,
+      }),
       type: 'SYSTEM',
-      systemMessageType: 'USER_JOINED',
       createdAt: DateTime.now(),
       mentionedUsers: [
         MentionedUser(userId: userId ?? 999, username: userName.toLowerCase().replaceAll(' ', '_'), fullName: userName),
@@ -28,9 +33,13 @@ class TestSystemMessages {
       conversationId: conversationId,
       senderId: userId ?? 999,
       senderFullName: userName,
-      content: '$userName left the group',
+      content: jsonEncode({
+        'type': 'user_left',
+        'userName': userName,
+        'userId': userId ?? 999,
+        'timestamp': DateTime.now().millisecondsSinceEpoch,
+      }),
       type: 'SYSTEM',
-      systemMessageType: 'USER_LEFT',
       createdAt: DateTime.now(),
       mentionedUsers: [
         MentionedUser(userId: userId ?? 999, username: userName.toLowerCase().replaceAll(' ', '_'), fullName: userName),
@@ -52,9 +61,15 @@ class TestSystemMessages {
       conversationId: conversationId,
       senderId: actorId ?? 998,
       senderFullName: actorName,
-      content: '$actorName added $targetName to the group',
+      content: jsonEncode({
+        'type': 'user_added',
+        'actorName': actorName,
+        'actorId': actorId ?? 998,
+        'targetName': targetName,
+        'targetId': targetId ?? 999,
+        'timestamp': DateTime.now().millisecondsSinceEpoch,
+      }),
       type: 'SYSTEM',
-      systemMessageType: 'USER_ADDED',
       createdAt: DateTime.now(),
       mentionedUsers: [
         MentionedUser(
@@ -84,9 +99,14 @@ class TestSystemMessages {
       conversationId: conversationId,
       senderId: actorId ?? 998,
       senderFullName: actorName,
-      content: '$actorName changed the group name to "$newName"',
+      content: jsonEncode({
+        'type': 'name_changed',
+        'actorName': actorName,
+        'actorId': actorId ?? 998,
+        'newName': newName,
+        'timestamp': DateTime.now().millisecondsSinceEpoch,
+      }),
       type: 'SYSTEM',
-      systemMessageType: 'NAME_CHANGED',
       createdAt: DateTime.now(),
       mentionedUsers: [
         MentionedUser(
@@ -112,9 +132,15 @@ class TestSystemMessages {
       conversationId: conversationId,
       senderId: actorId ?? 998,
       senderFullName: actorName,
-      content: '$actorName made $targetName a group admin',
+      content: jsonEncode({
+        'type': 'admin_promoted',
+        'actorName': actorName,
+        'actorId': actorId ?? 998,
+        'targetName': targetName,
+        'targetId': targetId ?? 999,
+        'timestamp': DateTime.now().millisecondsSinceEpoch,
+      }),
       type: 'SYSTEM',
-      systemMessageType: 'ADMIN_PROMOTED',
       createdAt: DateTime.now(),
       mentionedUsers: [
         MentionedUser(
@@ -143,9 +169,13 @@ class TestSystemMessages {
       conversationId: conversationId,
       senderId: actorId ?? 998,
       senderFullName: actorName,
-      content: '$actorName pinned a message',
+      content: jsonEncode({
+        'type': 'message_pinned',
+        'actorName': actorName,
+        'actorId': actorId ?? 998,
+        'timestamp': DateTime.now().millisecondsSinceEpoch,
+      }),
       type: 'SYSTEM',
-      systemMessageType: 'MESSAGE_PINNED',
       createdAt: DateTime.now(),
       mentionedUsers: [
         MentionedUser(

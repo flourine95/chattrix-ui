@@ -8,6 +8,7 @@ import 'package:chattrix_ui/features/chat/presentation/pages/all_members_page.da
 import 'package:chattrix_ui/features/chat/presentation/pages/community_calendar_page.dart';
 import 'package:chattrix_ui/features/chat/presentation/pages/files_links_page.dart';
 import 'package:chattrix_ui/features/chat/presentation/pages/group_permissions_page.dart';
+import 'package:chattrix_ui/features/chat/presentation/pages/invite_links_page.dart';
 import 'package:chattrix_ui/features/chat/presentation/pages/polls_page.dart';
 import 'package:chattrix_ui/features/chat/presentation/pages/scheduled_messages_page.dart';
 import 'package:chattrix_ui/features/chat/presentation/pages/search_messages_page.dart';
@@ -618,9 +619,14 @@ class ChatInfoPage extends HookConsumerWidget {
   Widget _buildCommunityLinkSection(BuildContext context, ColorScheme colors, TextTheme textTheme) {
     return _buildListTile(
       icon: Icons.link,
-      title: 'Community Link',
-      subtitle: 'Share group link',
-      onTap: () => _showShareLinkBottomSheet(context, colors, textTheme),
+      title: 'Invite Links',
+      subtitle: 'Manage group invite links',
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => InviteLinksPage(conversationId: conversation.id)),
+        );
+      },
       colors: colors,
       textTheme: textTheme,
     );
@@ -1065,7 +1071,6 @@ class ChatInfoPage extends HookConsumerWidget {
     final convId = conversation.id;
     final pollsAsync = ref.watch(pollsListProvider(convId));
 
-
     return switch (pollsAsync) {
       AsyncData(:final value) => _buildRoundedSection(
         context,
@@ -1113,63 +1118,6 @@ class ChatInfoPage extends HookConsumerWidget {
   // ============================================================================
   // BOTTOM SHEETS
   // ============================================================================
-
-  void _showShareLinkBottomSheet(BuildContext context, ColorScheme colors, TextTheme textTheme) {
-    const groupLink = 'https://chattrix.app/join/abc123xyz';
-    showModalBottomSheet(
-      context: context,
-      builder: (context) => Container(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: 40,
-              height: 4,
-              margin: const EdgeInsets.only(bottom: 20),
-              decoration: BoxDecoration(
-                color: colors.onSurface.withValues(alpha: 0.2),
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
-            Text('Share Group Link', style: textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
-            const SizedBox(height: 24),
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(color: colors.surfaceContainerHighest, borderRadius: BorderRadius.circular(12)),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Text(groupLink, style: textTheme.bodyMedium, overflow: TextOverflow.ellipsis),
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.copy),
-                    onPressed: () {
-                      Clipboard.setData(const ClipboardData(text: groupLink));
-                      ScaffoldMessenger.of(
-                        context,
-                      ).showSnackBar(const SnackBar(content: Text('Link copied to clipboard')));
-                    },
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 16),
-            SizedBox(
-              width: double.infinity,
-              child: FilledButton.icon(
-                onPressed: () {
-                  // TODO: Implement share
-                },
-                icon: const Icon(Icons.share),
-                label: const Text('Share Link'),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 
   void _showMutualGroupsBottomSheet(BuildContext context, WidgetRef ref, ColorScheme colors, TextTheme textTheme) {
     // Get the other user's ID (for 1-1 chats)
