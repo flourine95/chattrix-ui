@@ -20,7 +20,7 @@ class BirthdayListSheet extends StatelessWidget {
           children: [
             const Text('🎂', style: TextStyle(fontSize: 64)),
             const SizedBox(height: 16),
-            Text('Không có ai sinh nhật hôm nay', style: TextStyle(fontSize: 16, color: Colors.grey[600])),
+            Text('No birthdays today', style: TextStyle(fontSize: 16, color: Colors.grey[600])),
           ],
         ),
       );
@@ -36,7 +36,7 @@ class BirthdayListSheet extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Row(
               children: [
-                const Text('🎂 Sinh nhật hôm nay', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                const Text('🎂 Birthdays Today', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                 const Spacer(),
                 IconButton(icon: const Icon(Icons.close), onPressed: () => Navigator.pop(context)),
               ],
@@ -98,7 +98,8 @@ class _BirthdayListItem extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(user.fullName, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                if (user.age != null) Text('${user.age} tuổi', style: TextStyle(fontSize: 14, color: Colors.grey[600])),
+                if (user.age != null)
+                  Text('Turning ${user.age}', style: TextStyle(fontSize: 14, color: Colors.grey[600])),
                 Text(
                   user.birthdayMessage,
                   style: const TextStyle(fontSize: 12, color: Colors.orange, fontWeight: FontWeight.bold),
@@ -108,15 +109,15 @@ class _BirthdayListItem extends StatelessWidget {
           ),
           const SizedBox(width: 8),
           SizedBox(
-            width: 130,
+            width: 110,
             child: ElevatedButton.icon(
               onPressed: onSendWishes,
-              icon: const Text('🎂'),
-              label: const Text('Gửi lời chúc'),
+              icon: const Icon(Icons.send, size: 16),
+              label: const Text('Send'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFFFFD700),
                 foregroundColor: Colors.black87,
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
               ),
             ),
           ),

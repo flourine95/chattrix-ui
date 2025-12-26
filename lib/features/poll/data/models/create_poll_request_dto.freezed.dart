@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$CreatePollRequestDto {
 
- String get question; List<String> get options; bool get allowMultipleVotes; DateTime? get expiresAt;
+ String get question; List<String> get options; bool get allowMultipleVotes;@JsonKey(name: 'expiresAt', toJson: _dateTimeToMilliseconds, fromJson: _millisecondsToDateTime) DateTime? get expiresAt;
 /// Create a copy of CreatePollRequestDto
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -48,7 +48,7 @@ abstract mixin class $CreatePollRequestDtoCopyWith<$Res>  {
   factory $CreatePollRequestDtoCopyWith(CreatePollRequestDto value, $Res Function(CreatePollRequestDto) _then) = _$CreatePollRequestDtoCopyWithImpl;
 @useResult
 $Res call({
- String question, List<String> options, bool allowMultipleVotes, DateTime? expiresAt
+ String question, List<String> options, bool allowMultipleVotes,@JsonKey(name: 'expiresAt', toJson: _dateTimeToMilliseconds, fromJson: _millisecondsToDateTime) DateTime? expiresAt
 });
 
 
@@ -156,7 +156,7 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String question,  List<String> options,  bool allowMultipleVotes,  DateTime? expiresAt)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String question,  List<String> options,  bool allowMultipleVotes, @JsonKey(name: 'expiresAt', toJson: _dateTimeToMilliseconds, fromJson: _millisecondsToDateTime)  DateTime? expiresAt)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _CreatePollRequestDto() when $default != null:
 return $default(_that.question,_that.options,_that.allowMultipleVotes,_that.expiresAt);case _:
@@ -177,7 +177,7 @@ return $default(_that.question,_that.options,_that.allowMultipleVotes,_that.expi
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String question,  List<String> options,  bool allowMultipleVotes,  DateTime? expiresAt)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String question,  List<String> options,  bool allowMultipleVotes, @JsonKey(name: 'expiresAt', toJson: _dateTimeToMilliseconds, fromJson: _millisecondsToDateTime)  DateTime? expiresAt)  $default,) {final _that = this;
 switch (_that) {
 case _CreatePollRequestDto():
 return $default(_that.question,_that.options,_that.allowMultipleVotes,_that.expiresAt);case _:
@@ -197,7 +197,7 @@ return $default(_that.question,_that.options,_that.allowMultipleVotes,_that.expi
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String question,  List<String> options,  bool allowMultipleVotes,  DateTime? expiresAt)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String question,  List<String> options,  bool allowMultipleVotes, @JsonKey(name: 'expiresAt', toJson: _dateTimeToMilliseconds, fromJson: _millisecondsToDateTime)  DateTime? expiresAt)?  $default,) {final _that = this;
 switch (_that) {
 case _CreatePollRequestDto() when $default != null:
 return $default(_that.question,_that.options,_that.allowMultipleVotes,_that.expiresAt);case _:
@@ -212,7 +212,7 @@ return $default(_that.question,_that.options,_that.allowMultipleVotes,_that.expi
 @JsonSerializable()
 
 class _CreatePollRequestDto implements CreatePollRequestDto {
-  const _CreatePollRequestDto({required this.question, required final  List<String> options, required this.allowMultipleVotes, this.expiresAt}): _options = options;
+  const _CreatePollRequestDto({required this.question, required final  List<String> options, required this.allowMultipleVotes, @JsonKey(name: 'expiresAt', toJson: _dateTimeToMilliseconds, fromJson: _millisecondsToDateTime) this.expiresAt}): _options = options;
   factory _CreatePollRequestDto.fromJson(Map<String, dynamic> json) => _$CreatePollRequestDtoFromJson(json);
 
 @override final  String question;
@@ -224,7 +224,7 @@ class _CreatePollRequestDto implements CreatePollRequestDto {
 }
 
 @override final  bool allowMultipleVotes;
-@override final  DateTime? expiresAt;
+@override@JsonKey(name: 'expiresAt', toJson: _dateTimeToMilliseconds, fromJson: _millisecondsToDateTime) final  DateTime? expiresAt;
 
 /// Create a copy of CreatePollRequestDto
 /// with the given fields replaced by the non-null parameter values.
@@ -259,7 +259,7 @@ abstract mixin class _$CreatePollRequestDtoCopyWith<$Res> implements $CreatePoll
   factory _$CreatePollRequestDtoCopyWith(_CreatePollRequestDto value, $Res Function(_CreatePollRequestDto) _then) = __$CreatePollRequestDtoCopyWithImpl;
 @override @useResult
 $Res call({
- String question, List<String> options, bool allowMultipleVotes, DateTime? expiresAt
+ String question, List<String> options, bool allowMultipleVotes,@JsonKey(name: 'expiresAt', toJson: _dateTimeToMilliseconds, fromJson: _millisecondsToDateTime) DateTime? expiresAt
 });
 
 

@@ -14,6 +14,7 @@ import 'package:chattrix_ui/features/chat/presentation/pages/chat_list_page.dart
 import 'package:chattrix_ui/features/chat/presentation/pages/chat_view_page.dart';
 import 'package:chattrix_ui/features/chat/presentation/pages/new_chat_page.dart';
 import 'package:chattrix_ui/features/chat/presentation/pages/new_group_chat_page.dart';
+import 'package:chattrix_ui/features/chat/presentation/pages/pinned_messages_page.dart';
 import 'package:chattrix_ui/features/chat/presentation/pages/qr_scanner_page.dart';
 import 'package:chattrix_ui/features/chat/presentation/pages/search_conversations_page.dart';
 import 'package:chattrix_ui/features/chat/presentation/pages/schedule_message_page.dart';
@@ -92,6 +93,14 @@ class RouteConfig {
   );
 
   static List<RouteBase> get scheduleRoutes => [
+    GoRoute(
+      path: RoutePaths.pinnedMessages,
+      name: 'pinned-messages',
+      builder: (context, state) {
+        final conversationId = state.pathParameters['id']!;
+        return RouterSetup(child: PinnedMessagesPage(conversationId: conversationId));
+      },
+    ),
     GoRoute(
       path: RoutePaths.scheduledMessages,
       name: 'scheduled-messages',

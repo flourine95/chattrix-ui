@@ -277,6 +277,13 @@ class ApiConstants {
   // Event endpoints
   static String events(int conversationId) => '$_baseUrl/$_v1/conversations/$conversationId/events';
 
+  static String event(int conversationId, int eventId) =>
+      '$_baseUrl/$_v1/conversations/$conversationId/events/$eventId';
+
+  static String eventRsvp(int conversationId, int eventId) =>
+      '$_baseUrl/$_v1/conversations/$conversationId/events/$eventId/rsvp';
+
+  // Legacy event endpoint names (for backward compatibility)
   static String eventById(int conversationId, int eventId) =>
       '$_baseUrl/$_v1/conversations/$conversationId/events/$eventId';
 

@@ -5,6 +5,9 @@ import 'package:chattrix_ui/features/chat/presentation/providers/chat_usecase_pr
 import 'package:chattrix_ui/features/chat/presentation/providers/chat_websocket_provider_new.dart';
 import 'package:chattrix_ui/features/poll/data/mappers/poll_mapper.dart';
 import 'package:chattrix_ui/features/poll/data/models/poll_dto.dart';
+import 'package:chattrix_ui/features/chat/data/mappers/event_mapper.dart';
+import 'package:chattrix_ui/features/chat/data/models/event_dto.dart';
+import 'package:chattrix_ui/features/chat/data/datasources/chat_websocket_datasource_impl.dart';
 import 'package:flutter/foundation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -20,7 +23,7 @@ class MessagesNotifier extends _$MessagesNotifier {
   FutureOr<List<Message>> build(String conversationId) async {
     ref.keepAlive();
 
-    final wsDataSource = ref.watch(chatWebSocketDataSourceProvider);
+    final wsDataSource = ref.watch(chatWebSocketDataSourceProvider) as ChatWebSocketDataSourceImpl;
 
     final messageSubscription = wsDataSource.messageStream.listen((message) {
       if (message.conversationId.toString() == conversationId) {
@@ -36,6 +39,10 @@ class MessagesNotifier extends _$MessagesNotifier {
       _handlePollEvent(event);
     });
 
+    final eventEventSubscription = wsDataSource.eventEventStream.listen((event) {
+      _handleEventEvent(event);
+    });
+
     _connectionSubscription = wsDataSource.connectionStream.listen((isConnected) {
       isConnected ? _stopPolling() : _startPolling();
     });
@@ -45,6 +52,7 @@ class MessagesNotifier extends _$MessagesNotifier {
     ref.onDispose(() {
       messageSubscription.cancel();
       pollEventSubscription.cancel();
+      eventEventSubscription.cancel();
       _connectionSubscription?.cancel();
       _stopPolling();
     });
@@ -125,6 +133,64 @@ class MessagesNotifier extends _$MessagesNotifier {
       state = AsyncValue.data(
         messages.where((msg) {
           return !(msg.type == 'POLL' && msg.pollData?.id == pollId);
+        }).toList(),
+      );
+    });
+  }
+
+  void _handleEventEvent(Map<String, dynamic> event) {
+    try {
+      final eventType = event['type'] as String?;
+      final eventData = event['event'] as Map<String, dynamic>?;
+
+      if (eventType == null) return;
+
+      if (eventType == 'EVENT_DELETED') {
+        final eventId = event['eventId'] as int?;
+        if (eventId != null) _handleEventDeletedById(eventId);
+        return;
+      }
+
+      if (eventData == null) return;
+
+      final eventEntity = EventDto.fromJson(eventData).toEntity();
+
+      if (eventEntity.conversationId.toString() != conversationId) return;
+
+      switch (eventType) {
+        case 'EVENT_CREATED':
+          Future.delayed(const Duration(milliseconds: 500), () => refresh());
+          break;
+        case 'EVENT_UPDATED':
+        case 'EVENT_RSVP_UPDATED':
+          _updateEventInState(eventEntity);
+          break;
+        default:
+          debugPrint('📅 [Event Event] Unknown type: $eventType');
+      }
+    } catch (e, st) {
+      debugPrint('❌ [Event Event] Error: $e \n $st');
+    }
+  }
+
+  void _updateEventInState(dynamic eventEntity) {
+    state.whenData((messages) {
+      state = AsyncValue.data(
+        messages.map((msg) {
+          if (msg.type == 'EVENT' && msg.eventData?.id == eventEntity.id) {
+            return msg.copyWith(eventData: eventEntity);
+          }
+          return msg;
+        }).toList(),
+      );
+    });
+  }
+
+  void _handleEventDeletedById(int eventId) {
+    state.whenData((messages) {
+      state = AsyncValue.data(
+        messages.where((msg) {
+          return !(msg.type == 'EVENT' && msg.eventData?.id == eventId);
         }).toList(),
       );
     });

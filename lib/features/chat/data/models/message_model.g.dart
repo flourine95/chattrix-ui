@@ -68,9 +68,17 @@ _MessageModel _$MessageModelFromJson(Map<String, dynamic> json) =>
       scheduled: json['scheduled'] as bool? ?? false,
       scheduledTime: json['scheduledTime'] as String?,
       scheduledStatus: json['scheduledStatus'] as String?,
+      pinned: json['pinned'] as bool? ?? false,
+      pinnedAt: json['pinnedAt'] as String?,
+      pinnedBy: (json['pinnedBy'] as num?)?.toInt(),
+      pinnedByUsername: json['pinnedByUsername'] as String?,
+      pinnedByFullName: json['pinnedByFullName'] as String?,
       pollData: json['pollData'] == null
           ? null
           : PollDto.fromJson(json['pollData'] as Map<String, dynamic>),
+      eventData: json['eventData'] == null
+          ? null
+          : EventDto.fromJson(json['eventData'] as Map<String, dynamic>),
     );
 
 Map<String, dynamic> _$MessageModelToJson(_MessageModel instance) =>
@@ -110,5 +118,11 @@ Map<String, dynamic> _$MessageModelToJson(_MessageModel instance) =>
       'scheduled': instance.scheduled,
       'scheduledTime': instance.scheduledTime,
       'scheduledStatus': instance.scheduledStatus,
+      'pinned': instance.pinned,
+      'pinnedAt': instance.pinnedAt,
+      'pinnedBy': instance.pinnedBy,
+      'pinnedByUsername': instance.pinnedByUsername,
+      'pinnedByFullName': instance.pinnedByFullName,
       'pollData': instance.pollData,
+      'eventData': instance.eventData,
     };

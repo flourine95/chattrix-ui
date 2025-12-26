@@ -3,6 +3,7 @@ import 'package:chattrix_ui/features/chat/domain/entities/reply_to_message.dart'
 import 'package:chattrix_ui/features/chat/presentation/widgets/message_bubbles/audio_message_bubble.dart';
 import 'package:chattrix_ui/features/chat/presentation/widgets/message_bubbles/document_message_bubble.dart';
 import 'package:chattrix_ui/features/chat/presentation/widgets/message_bubbles/emoji_message_bubble.dart';
+import 'package:chattrix_ui/features/chat/presentation/widgets/message_bubbles/event_message_bubble.dart';
 import 'package:chattrix_ui/features/chat/presentation/widgets/message_bubbles/image_message_bubble.dart';
 import 'package:chattrix_ui/features/chat/presentation/widgets/message_bubbles/location_message_bubble.dart';
 import 'package:chattrix_ui/features/chat/presentation/widgets/message_bubbles/scheduled_message_bubble.dart';
@@ -24,6 +25,7 @@ class MessageBubble extends StatelessWidget {
     required this.message,
     required this.isMe,
     this.onReply,
+    this.onPin,
     this.onReactionTap,
     this.onAddReaction,
     this.currentUserId,
@@ -38,6 +40,7 @@ class MessageBubble extends StatelessWidget {
   final Message message;
   final bool isMe;
   final VoidCallback? onReply;
+  final VoidCallback? onPin;
   final Function(String emoji)? onReactionTap;
   final VoidCallback? onAddReaction;
   final int? currentUserId;
@@ -69,10 +72,12 @@ class MessageBubble extends StatelessWidget {
       child: switch (messageType) {
         'SYSTEM' => SystemMessageBubble(message: message),
         'POLL' => PollMessageBubble(message: message, currentUserId: currentUserId ?? 0),
+        'EVENT' => EventMessageBubble(message: message, currentUserId: currentUserId ?? 0),
         'EMOJI' => EmojiMessageBubble(
           message: message,
           isMe: isMe,
           onReply: onReply,
+          onPin: onPin,
           onReactionTap: onReactionTap,
           onAddReaction: onAddReaction,
           currentUserId: currentUserId,
@@ -86,6 +91,7 @@ class MessageBubble extends StatelessWidget {
           message: message,
           isMe: isMe,
           onReply: onReply,
+          onPin: onPin,
           onReactionTap: onReactionTap,
           onAddReaction: onAddReaction,
           currentUserId: currentUserId,
@@ -99,6 +105,7 @@ class MessageBubble extends StatelessWidget {
           message: message,
           isMe: isMe,
           onReply: onReply,
+          onPin: onPin,
           onReactionTap: onReactionTap,
           onAddReaction: onAddReaction,
           currentUserId: currentUserId,
@@ -112,6 +119,7 @@ class MessageBubble extends StatelessWidget {
           message: message,
           isMe: isMe,
           onReply: onReply,
+          onPin: onPin,
           onReactionTap: onReactionTap,
           onAddReaction: onAddReaction,
           currentUserId: currentUserId,
@@ -125,6 +133,7 @@ class MessageBubble extends StatelessWidget {
           message: message,
           isMe: isMe,
           onReply: onReply,
+          onPin: onPin,
           onReactionTap: onReactionTap,
           onAddReaction: onAddReaction,
           currentUserId: currentUserId,
@@ -138,6 +147,7 @@ class MessageBubble extends StatelessWidget {
           message: message,
           isMe: isMe,
           onReply: onReply,
+          onPin: onPin,
           onReactionTap: onReactionTap,
           onAddReaction: onAddReaction,
           currentUserId: currentUserId,
@@ -151,6 +161,7 @@ class MessageBubble extends StatelessWidget {
           message: message,
           isMe: isMe,
           onReply: onReply,
+          onPin: onPin,
           onReactionTap: onReactionTap,
           onAddReaction: onAddReaction,
           currentUserId: currentUserId,
@@ -164,6 +175,7 @@ class MessageBubble extends StatelessWidget {
           message: message,
           isMe: isMe,
           onReply: onReply,
+          onPin: onPin,
           onReactionTap: onReactionTap,
           onAddReaction: onAddReaction,
           currentUserId: currentUserId,
@@ -187,6 +199,7 @@ class BaseBubbleContainer extends StatefulWidget {
     this.maxWidth = 280,
     this.message,
     this.onReply,
+    this.onPin,
     this.onReactionTap,
     this.onAddReaction,
     this.currentUserId,
@@ -202,6 +215,7 @@ class BaseBubbleContainer extends StatefulWidget {
   final double maxWidth;
   final Message? message;
   final VoidCallback? onReply;
+  final VoidCallback? onPin;
   final Function(String emoji)? onReactionTap;
   final VoidCallback? onAddReaction;
   final int? currentUserId;
@@ -311,7 +325,8 @@ class _BaseBubbleContainerState extends State<BaseBubbleContainer> with Automati
           if (widget.onReply == null &&
               widget.onAddReaction == null &&
               widget.onEdit == null &&
-              widget.onDelete == null) {
+              widget.onDelete == null &&
+              widget.onPin == null) {
             return;
           }
 
@@ -324,6 +339,7 @@ class _BaseBubbleContainerState extends State<BaseBubbleContainer> with Automati
             onAddReaction: widget.onAddReaction,
             onEdit: widget.onEdit,
             onDelete: widget.onDelete,
+            onPin: widget.onPin,
             onQuickReaction: _handleQuickReaction,
             canEdit: widget.message?.type == 'TEXT',
           );

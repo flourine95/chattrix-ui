@@ -10,6 +10,8 @@ import 'package:chattrix_ui/features/chat/data/models/chat_message_request.dart'
 import 'package:chattrix_ui/features/chat/domain/entities/message.dart';
 import 'package:chattrix_ui/features/chat/domain/entities/typing_indicator.dart';
 import 'package:chattrix_ui/features/chat/presentation/providers/chat_providers.dart';
+import 'package:chattrix_ui/features/chat/presentation/providers/chat_usecase_provider.dart';
+import 'package:chattrix_ui/features/chat/presentation/providers/pinned_messages_provider.dart';
 import 'package:chattrix_ui/features/chat/presentation/providers/typing_indicator_provider.dart';
 import 'package:chattrix_ui/features/chat/presentation/utils/conversation_utils.dart';
 import 'package:chattrix_ui/features/chat/presentation/widgets/attachment_picker.dart';
@@ -17,6 +19,7 @@ import 'package:chattrix_ui/features/chat/presentation/widgets/edit_message_bott
 import 'package:chattrix_ui/features/chat/presentation/widgets/emoji_sticker_picker.dart';
 import 'package:chattrix_ui/features/chat/presentation/widgets/mention_text_field.dart';
 import 'package:chattrix_ui/features/chat/presentation/widgets/message_bubble.dart';
+import 'package:chattrix_ui/features/chat/presentation/widgets/pinned_messages_banner.dart';
 import 'package:chattrix_ui/features/chat/presentation/widgets/reply_message_preview.dart';
 import 'package:chattrix_ui/features/chat/presentation/widgets/typing_indicator_widget.dart';
 import 'package:chattrix_ui/features/chat/services/cloudinary_provider.dart';
@@ -81,6 +84,7 @@ class ChatViewPage extends HookConsumerWidget {
     final wsDataSource = ref.watch(chatWebSocketDataSourceProvider);
     final conversationsAsync = ref.watch(conversationsProvider);
     final conversation = conversationsAsync.value?.lookup(chatId);
+    final pinnedMessagesAsync = ref.watch(pinnedMessagesProvider(chatId));
 
     // Highlight message state
     final highlightedMessageId = useState<int?>(highlightMessageId);
@@ -744,6 +748,59 @@ class ChatViewPage extends HookConsumerWidget {
       context.push('/chat/$chatId/info', extra: conversation);
     }
 
+    Future<void> handlePinMessage(Message message) async {
+      try {
+        if (message.pinned) {
+          // Unpin message
+          await ref.read(unpinMessageUsecaseProvider)(conversationId: chatId, messageId: message.id.toString());
+        } else {
+          // Pin message
+          await ref.read(pinMessageUsecaseProvider)(conversationId: chatId, messageId: message.id.toString());
+        }
+
+        // Refresh both messages and pinned messages
+        ref.read(messagesProvider(chatId).notifier).refresh();
+        ref.invalidate(pinnedMessagesProvider(chatId));
+
+        if (!context.mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                Icon(Icons.check_circle, color: Colors.white, size: 20),
+                const SizedBox(width: 12),
+                Text(message.pinned ? 'Message unpinned' : 'Message pinned', style: TextStyle(color: Colors.white)),
+              ],
+            ),
+            backgroundColor: Colors.grey.shade900,
+            behavior: SnackBarBehavior.floating,
+            margin: const EdgeInsets.all(16),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      } catch (e) {
+        if (!context.mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                Icon(Icons.error_outline, color: Colors.white, size: 20),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text('Failed: $e', style: TextStyle(color: Colors.white)),
+                ),
+              ],
+            ),
+            backgroundColor: Colors.grey.shade900,
+            behavior: SnackBarBehavior.floating,
+            margin: const EdgeInsets.all(16),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+          ),
+        );
+      }
+    }
+
     // --- UI ---
     return PopScope(
       canPop: !showGallery.value,
@@ -774,6 +831,9 @@ class ChatViewPage extends HookConsumerWidget {
           },
           child: Column(
             children: [
+              // Pinned Messages Banner
+              if (pinnedMessagesAsync.hasValue && pinnedMessagesAsync.value!.isNotEmpty)
+                PinnedMessagesBanner(pinnedMessages: pinnedMessagesAsync.value!, conversationId: chatId),
               Expanded(
                 child: Stack(
                   children: [
@@ -785,6 +845,7 @@ class ChatViewPage extends HookConsumerWidget {
                       typingIndicator: typingIndicator,
                       highlightedMessageId: highlightedMessageId.value,
                       onReply: (m) => replyToMessage.value = m,
+                      onPin: handlePinMessage,
                       onReactionTap: (m, e) async {
                         final result = await ref.read(toggleReactionUsecaseProvider)(
                           messageId: m.id.toString(),
@@ -1090,6 +1151,7 @@ class _MessageList extends HookConsumerWidget {
   final TypingIndicator typingIndicator;
   final int? highlightedMessageId;
   final Function(Message) onReply;
+  final Function(Message) onPin;
   final Function(Message, String) onReactionTap;
   final Function(Message) onAddReaction;
   final Function(Message) onEdit;
@@ -1103,6 +1165,7 @@ class _MessageList extends HookConsumerWidget {
     required this.typingIndicator,
     this.highlightedMessageId,
     required this.onReply,
+    required this.onPin,
     required this.onReactionTap,
     required this.onAddReaction,
     required this.onEdit,
@@ -1196,6 +1259,7 @@ class _MessageList extends HookConsumerWidget {
                               currentUserId: me?.id,
                               replyToMessage: m.replyToMessage,
                               onReply: () => onReply(m),
+                              onPin: () => onPin(m),
                               onReactionTap: (e) => onReactionTap(m, e),
                               onAddReaction: () => onAddReaction(m),
                               onEdit: isMe ? () => onEdit(m) : null,
@@ -1218,6 +1282,7 @@ class _MessageList extends HookConsumerWidget {
                                 currentUserId: me?.id,
                                 replyToMessage: m.replyToMessage,
                                 onReply: () => onReply(m),
+                                onPin: () => onPin(m),
                                 onReactionTap: (e) => onReactionTap(m, e),
                                 onAddReaction: () => onAddReaction(m),
                                 onEdit: isMe ? () => onEdit(m) : null,

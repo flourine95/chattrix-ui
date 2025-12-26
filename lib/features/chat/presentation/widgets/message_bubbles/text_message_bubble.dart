@@ -12,6 +12,7 @@ class TextMessageBubble extends StatelessWidget {
     required this.message,
     required this.isMe,
     this.onReply,
+    this.onPin,
     this.onReactionTap,
     this.onAddReaction,
     this.currentUserId,
@@ -25,6 +26,7 @@ class TextMessageBubble extends StatelessWidget {
   final Message message;
   final bool isMe;
   final VoidCallback? onReply;
+  final VoidCallback? onPin;
   final Function(String emoji)? onReactionTap;
   final VoidCallback? onAddReaction;
   final int? currentUserId;
@@ -48,6 +50,7 @@ class TextMessageBubble extends StatelessWidget {
       isMe: isMe,
       message: message,
       onReply: onReply,
+      onPin: onPin,
       onReactionTap: onReactionTap,
       onAddReaction: onAddReaction,
       currentUserId: currentUserId,

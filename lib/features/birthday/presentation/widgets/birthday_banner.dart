@@ -47,15 +47,12 @@ class BirthdayBanner extends StatelessWidget {
                   children: [
                     Text(
                       todayBirthdays.length == 1
-                          ? 'Hôm nay là sinh nhật của ${todayBirthdays[0].fullName}!'
-                          : 'Hôm nay có ${todayBirthdays.length} người sinh nhật!',
+                          ? 'It\'s ${todayBirthdays[0].fullName}\'s birthday today!'
+                          : '${todayBirthdays.length} birthdays today!',
                       style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: textColor),
                     ),
                     const SizedBox(height: 2),
-                    Text(
-                      'Nhấn để gửi lời chúc',
-                      style: TextStyle(fontSize: 12, color: textColor.withValues(alpha: 0.7)),
-                    ),
+                    Text('Tap to send wishes', style: TextStyle(fontSize: 12, color: textColor.withValues(alpha: 0.7))),
                   ],
                 ),
               ),

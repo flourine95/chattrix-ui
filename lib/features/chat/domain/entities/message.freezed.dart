@@ -14,13 +14,15 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$Message {
 
- int get id; int get conversationId; int get senderId; String? get senderUsername; String? get senderFullName; String get content; String get type;// 'TEXT', 'IMAGE', 'VIDEO', 'AUDIO', 'FILE', 'LOCATION', 'SYSTEM'
+ int get id; int get conversationId; int get senderId; String? get senderUsername; String? get senderFullName; String get content; String get type;// 'TEXT', 'IMAGE', 'VIDEO', 'AUDIO', 'FILE', 'LOCATION', 'SYSTEM', 'POLL', 'EVENT'
  DateTime get createdAt; String? get mediaUrl; String? get thumbnailUrl; String? get fileName; int? get fileSize; int? get duration; double? get latitude; double? get longitude; String? get locationName; int? get replyToMessageId; ReplyToMessage? get replyToMessage;// Reactions: Map of emoji to array of user IDs (e.g., {"👍": [1, 2], "❤️": [3]})
  Map<String, List<int>>? get reactions;// Mentions: Array of user IDs mentioned in message (e.g., [1, 2, 3])
  List<int>? get mentions; List<MentionedUser> get mentionedUsers; DateTime? get sentAt; DateTime? get updatedAt; bool get edited; DateTime? get editedAt; bool get deleted; DateTime? get deletedAt; bool get forwarded; int? get originalMessageId; int get forwardCount; int get readCount; List<ReadReceipt> get readBy;// Scheduled message fields
  bool get scheduled; DateTime? get scheduledTime; String? get scheduledStatus;// PENDING, SENT, CANCELLED, FAILED
-// Poll data (for POLL type messages)
- PollEntity? get pollData;
+// Pinned message fields
+ bool get pinned; DateTime? get pinnedAt; int? get pinnedBy; String? get pinnedByUsername; String? get pinnedByFullName;// Poll data (for POLL type messages)
+ PollEntity? get pollData;// Event data (for EVENT type messages)
+ EventEntity? get eventData;
 /// Create a copy of Message
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -31,16 +33,16 @@ $MessageCopyWith<Message> get copyWith => _$MessageCopyWithImpl<Message>(this as
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is Message&&(identical(other.id, id) || other.id == id)&&(identical(other.conversationId, conversationId) || other.conversationId == conversationId)&&(identical(other.senderId, senderId) || other.senderId == senderId)&&(identical(other.senderUsername, senderUsername) || other.senderUsername == senderUsername)&&(identical(other.senderFullName, senderFullName) || other.senderFullName == senderFullName)&&(identical(other.content, content) || other.content == content)&&(identical(other.type, type) || other.type == type)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.mediaUrl, mediaUrl) || other.mediaUrl == mediaUrl)&&(identical(other.thumbnailUrl, thumbnailUrl) || other.thumbnailUrl == thumbnailUrl)&&(identical(other.fileName, fileName) || other.fileName == fileName)&&(identical(other.fileSize, fileSize) || other.fileSize == fileSize)&&(identical(other.duration, duration) || other.duration == duration)&&(identical(other.latitude, latitude) || other.latitude == latitude)&&(identical(other.longitude, longitude) || other.longitude == longitude)&&(identical(other.locationName, locationName) || other.locationName == locationName)&&(identical(other.replyToMessageId, replyToMessageId) || other.replyToMessageId == replyToMessageId)&&(identical(other.replyToMessage, replyToMessage) || other.replyToMessage == replyToMessage)&&const DeepCollectionEquality().equals(other.reactions, reactions)&&const DeepCollectionEquality().equals(other.mentions, mentions)&&const DeepCollectionEquality().equals(other.mentionedUsers, mentionedUsers)&&(identical(other.sentAt, sentAt) || other.sentAt == sentAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt)&&(identical(other.edited, edited) || other.edited == edited)&&(identical(other.editedAt, editedAt) || other.editedAt == editedAt)&&(identical(other.deleted, deleted) || other.deleted == deleted)&&(identical(other.deletedAt, deletedAt) || other.deletedAt == deletedAt)&&(identical(other.forwarded, forwarded) || other.forwarded == forwarded)&&(identical(other.originalMessageId, originalMessageId) || other.originalMessageId == originalMessageId)&&(identical(other.forwardCount, forwardCount) || other.forwardCount == forwardCount)&&(identical(other.readCount, readCount) || other.readCount == readCount)&&const DeepCollectionEquality().equals(other.readBy, readBy)&&(identical(other.scheduled, scheduled) || other.scheduled == scheduled)&&(identical(other.scheduledTime, scheduledTime) || other.scheduledTime == scheduledTime)&&(identical(other.scheduledStatus, scheduledStatus) || other.scheduledStatus == scheduledStatus)&&(identical(other.pollData, pollData) || other.pollData == pollData));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is Message&&(identical(other.id, id) || other.id == id)&&(identical(other.conversationId, conversationId) || other.conversationId == conversationId)&&(identical(other.senderId, senderId) || other.senderId == senderId)&&(identical(other.senderUsername, senderUsername) || other.senderUsername == senderUsername)&&(identical(other.senderFullName, senderFullName) || other.senderFullName == senderFullName)&&(identical(other.content, content) || other.content == content)&&(identical(other.type, type) || other.type == type)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.mediaUrl, mediaUrl) || other.mediaUrl == mediaUrl)&&(identical(other.thumbnailUrl, thumbnailUrl) || other.thumbnailUrl == thumbnailUrl)&&(identical(other.fileName, fileName) || other.fileName == fileName)&&(identical(other.fileSize, fileSize) || other.fileSize == fileSize)&&(identical(other.duration, duration) || other.duration == duration)&&(identical(other.latitude, latitude) || other.latitude == latitude)&&(identical(other.longitude, longitude) || other.longitude == longitude)&&(identical(other.locationName, locationName) || other.locationName == locationName)&&(identical(other.replyToMessageId, replyToMessageId) || other.replyToMessageId == replyToMessageId)&&(identical(other.replyToMessage, replyToMessage) || other.replyToMessage == replyToMessage)&&const DeepCollectionEquality().equals(other.reactions, reactions)&&const DeepCollectionEquality().equals(other.mentions, mentions)&&const DeepCollectionEquality().equals(other.mentionedUsers, mentionedUsers)&&(identical(other.sentAt, sentAt) || other.sentAt == sentAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt)&&(identical(other.edited, edited) || other.edited == edited)&&(identical(other.editedAt, editedAt) || other.editedAt == editedAt)&&(identical(other.deleted, deleted) || other.deleted == deleted)&&(identical(other.deletedAt, deletedAt) || other.deletedAt == deletedAt)&&(identical(other.forwarded, forwarded) || other.forwarded == forwarded)&&(identical(other.originalMessageId, originalMessageId) || other.originalMessageId == originalMessageId)&&(identical(other.forwardCount, forwardCount) || other.forwardCount == forwardCount)&&(identical(other.readCount, readCount) || other.readCount == readCount)&&const DeepCollectionEquality().equals(other.readBy, readBy)&&(identical(other.scheduled, scheduled) || other.scheduled == scheduled)&&(identical(other.scheduledTime, scheduledTime) || other.scheduledTime == scheduledTime)&&(identical(other.scheduledStatus, scheduledStatus) || other.scheduledStatus == scheduledStatus)&&(identical(other.pinned, pinned) || other.pinned == pinned)&&(identical(other.pinnedAt, pinnedAt) || other.pinnedAt == pinnedAt)&&(identical(other.pinnedBy, pinnedBy) || other.pinnedBy == pinnedBy)&&(identical(other.pinnedByUsername, pinnedByUsername) || other.pinnedByUsername == pinnedByUsername)&&(identical(other.pinnedByFullName, pinnedByFullName) || other.pinnedByFullName == pinnedByFullName)&&(identical(other.pollData, pollData) || other.pollData == pollData)&&(identical(other.eventData, eventData) || other.eventData == eventData));
 }
 
 
 @override
-int get hashCode => Object.hashAll([runtimeType,id,conversationId,senderId,senderUsername,senderFullName,content,type,createdAt,mediaUrl,thumbnailUrl,fileName,fileSize,duration,latitude,longitude,locationName,replyToMessageId,replyToMessage,const DeepCollectionEquality().hash(reactions),const DeepCollectionEquality().hash(mentions),const DeepCollectionEquality().hash(mentionedUsers),sentAt,updatedAt,edited,editedAt,deleted,deletedAt,forwarded,originalMessageId,forwardCount,readCount,const DeepCollectionEquality().hash(readBy),scheduled,scheduledTime,scheduledStatus,pollData]);
+int get hashCode => Object.hashAll([runtimeType,id,conversationId,senderId,senderUsername,senderFullName,content,type,createdAt,mediaUrl,thumbnailUrl,fileName,fileSize,duration,latitude,longitude,locationName,replyToMessageId,replyToMessage,const DeepCollectionEquality().hash(reactions),const DeepCollectionEquality().hash(mentions),const DeepCollectionEquality().hash(mentionedUsers),sentAt,updatedAt,edited,editedAt,deleted,deletedAt,forwarded,originalMessageId,forwardCount,readCount,const DeepCollectionEquality().hash(readBy),scheduled,scheduledTime,scheduledStatus,pinned,pinnedAt,pinnedBy,pinnedByUsername,pinnedByFullName,pollData,eventData]);
 
 @override
 String toString() {
-  return 'Message(id: $id, conversationId: $conversationId, senderId: $senderId, senderUsername: $senderUsername, senderFullName: $senderFullName, content: $content, type: $type, createdAt: $createdAt, mediaUrl: $mediaUrl, thumbnailUrl: $thumbnailUrl, fileName: $fileName, fileSize: $fileSize, duration: $duration, latitude: $latitude, longitude: $longitude, locationName: $locationName, replyToMessageId: $replyToMessageId, replyToMessage: $replyToMessage, reactions: $reactions, mentions: $mentions, mentionedUsers: $mentionedUsers, sentAt: $sentAt, updatedAt: $updatedAt, edited: $edited, editedAt: $editedAt, deleted: $deleted, deletedAt: $deletedAt, forwarded: $forwarded, originalMessageId: $originalMessageId, forwardCount: $forwardCount, readCount: $readCount, readBy: $readBy, scheduled: $scheduled, scheduledTime: $scheduledTime, scheduledStatus: $scheduledStatus, pollData: $pollData)';
+  return 'Message(id: $id, conversationId: $conversationId, senderId: $senderId, senderUsername: $senderUsername, senderFullName: $senderFullName, content: $content, type: $type, createdAt: $createdAt, mediaUrl: $mediaUrl, thumbnailUrl: $thumbnailUrl, fileName: $fileName, fileSize: $fileSize, duration: $duration, latitude: $latitude, longitude: $longitude, locationName: $locationName, replyToMessageId: $replyToMessageId, replyToMessage: $replyToMessage, reactions: $reactions, mentions: $mentions, mentionedUsers: $mentionedUsers, sentAt: $sentAt, updatedAt: $updatedAt, edited: $edited, editedAt: $editedAt, deleted: $deleted, deletedAt: $deletedAt, forwarded: $forwarded, originalMessageId: $originalMessageId, forwardCount: $forwardCount, readCount: $readCount, readBy: $readBy, scheduled: $scheduled, scheduledTime: $scheduledTime, scheduledStatus: $scheduledStatus, pinned: $pinned, pinnedAt: $pinnedAt, pinnedBy: $pinnedBy, pinnedByUsername: $pinnedByUsername, pinnedByFullName: $pinnedByFullName, pollData: $pollData, eventData: $eventData)';
 }
 
 
@@ -51,11 +53,11 @@ abstract mixin class $MessageCopyWith<$Res>  {
   factory $MessageCopyWith(Message value, $Res Function(Message) _then) = _$MessageCopyWithImpl;
 @useResult
 $Res call({
- int id, int conversationId, int senderId, String? senderUsername, String? senderFullName, String content, String type, DateTime createdAt, String? mediaUrl, String? thumbnailUrl, String? fileName, int? fileSize, int? duration, double? latitude, double? longitude, String? locationName, int? replyToMessageId, ReplyToMessage? replyToMessage, Map<String, List<int>>? reactions, List<int>? mentions, List<MentionedUser> mentionedUsers, DateTime? sentAt, DateTime? updatedAt, bool edited, DateTime? editedAt, bool deleted, DateTime? deletedAt, bool forwarded, int? originalMessageId, int forwardCount, int readCount, List<ReadReceipt> readBy, bool scheduled, DateTime? scheduledTime, String? scheduledStatus, PollEntity? pollData
+ int id, int conversationId, int senderId, String? senderUsername, String? senderFullName, String content, String type, DateTime createdAt, String? mediaUrl, String? thumbnailUrl, String? fileName, int? fileSize, int? duration, double? latitude, double? longitude, String? locationName, int? replyToMessageId, ReplyToMessage? replyToMessage, Map<String, List<int>>? reactions, List<int>? mentions, List<MentionedUser> mentionedUsers, DateTime? sentAt, DateTime? updatedAt, bool edited, DateTime? editedAt, bool deleted, DateTime? deletedAt, bool forwarded, int? originalMessageId, int forwardCount, int readCount, List<ReadReceipt> readBy, bool scheduled, DateTime? scheduledTime, String? scheduledStatus, bool pinned, DateTime? pinnedAt, int? pinnedBy, String? pinnedByUsername, String? pinnedByFullName, PollEntity? pollData, EventEntity? eventData
 });
 
 
-$ReplyToMessageCopyWith<$Res>? get replyToMessage;$PollEntityCopyWith<$Res>? get pollData;
+$ReplyToMessageCopyWith<$Res>? get replyToMessage;$PollEntityCopyWith<$Res>? get pollData;$EventEntityCopyWith<$Res>? get eventData;
 
 }
 /// @nodoc
@@ -68,7 +70,7 @@ class _$MessageCopyWithImpl<$Res>
 
 /// Create a copy of Message
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? conversationId = null,Object? senderId = null,Object? senderUsername = freezed,Object? senderFullName = freezed,Object? content = null,Object? type = null,Object? createdAt = null,Object? mediaUrl = freezed,Object? thumbnailUrl = freezed,Object? fileName = freezed,Object? fileSize = freezed,Object? duration = freezed,Object? latitude = freezed,Object? longitude = freezed,Object? locationName = freezed,Object? replyToMessageId = freezed,Object? replyToMessage = freezed,Object? reactions = freezed,Object? mentions = freezed,Object? mentionedUsers = null,Object? sentAt = freezed,Object? updatedAt = freezed,Object? edited = null,Object? editedAt = freezed,Object? deleted = null,Object? deletedAt = freezed,Object? forwarded = null,Object? originalMessageId = freezed,Object? forwardCount = null,Object? readCount = null,Object? readBy = null,Object? scheduled = null,Object? scheduledTime = freezed,Object? scheduledStatus = freezed,Object? pollData = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? conversationId = null,Object? senderId = null,Object? senderUsername = freezed,Object? senderFullName = freezed,Object? content = null,Object? type = null,Object? createdAt = null,Object? mediaUrl = freezed,Object? thumbnailUrl = freezed,Object? fileName = freezed,Object? fileSize = freezed,Object? duration = freezed,Object? latitude = freezed,Object? longitude = freezed,Object? locationName = freezed,Object? replyToMessageId = freezed,Object? replyToMessage = freezed,Object? reactions = freezed,Object? mentions = freezed,Object? mentionedUsers = null,Object? sentAt = freezed,Object? updatedAt = freezed,Object? edited = null,Object? editedAt = freezed,Object? deleted = null,Object? deletedAt = freezed,Object? forwarded = null,Object? originalMessageId = freezed,Object? forwardCount = null,Object? readCount = null,Object? readBy = null,Object? scheduled = null,Object? scheduledTime = freezed,Object? scheduledStatus = freezed,Object? pinned = null,Object? pinnedAt = freezed,Object? pinnedBy = freezed,Object? pinnedByUsername = freezed,Object? pinnedByFullName = freezed,Object? pollData = freezed,Object? eventData = freezed,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as int,conversationId: null == conversationId ? _self.conversationId : conversationId // ignore: cast_nullable_to_non_nullable
@@ -105,8 +107,14 @@ as int,readBy: null == readBy ? _self.readBy : readBy // ignore: cast_nullable_t
 as List<ReadReceipt>,scheduled: null == scheduled ? _self.scheduled : scheduled // ignore: cast_nullable_to_non_nullable
 as bool,scheduledTime: freezed == scheduledTime ? _self.scheduledTime : scheduledTime // ignore: cast_nullable_to_non_nullable
 as DateTime?,scheduledStatus: freezed == scheduledStatus ? _self.scheduledStatus : scheduledStatus // ignore: cast_nullable_to_non_nullable
+as String?,pinned: null == pinned ? _self.pinned : pinned // ignore: cast_nullable_to_non_nullable
+as bool,pinnedAt: freezed == pinnedAt ? _self.pinnedAt : pinnedAt // ignore: cast_nullable_to_non_nullable
+as DateTime?,pinnedBy: freezed == pinnedBy ? _self.pinnedBy : pinnedBy // ignore: cast_nullable_to_non_nullable
+as int?,pinnedByUsername: freezed == pinnedByUsername ? _self.pinnedByUsername : pinnedByUsername // ignore: cast_nullable_to_non_nullable
+as String?,pinnedByFullName: freezed == pinnedByFullName ? _self.pinnedByFullName : pinnedByFullName // ignore: cast_nullable_to_non_nullable
 as String?,pollData: freezed == pollData ? _self.pollData : pollData // ignore: cast_nullable_to_non_nullable
-as PollEntity?,
+as PollEntity?,eventData: freezed == eventData ? _self.eventData : eventData // ignore: cast_nullable_to_non_nullable
+as EventEntity?,
   ));
 }
 /// Create a copy of Message
@@ -132,6 +140,18 @@ $PollEntityCopyWith<$Res>? get pollData {
 
   return $PollEntityCopyWith<$Res>(_self.pollData!, (value) {
     return _then(_self.copyWith(pollData: value));
+  });
+}/// Create a copy of Message
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$EventEntityCopyWith<$Res>? get eventData {
+    if (_self.eventData == null) {
+    return null;
+  }
+
+  return $EventEntityCopyWith<$Res>(_self.eventData!, (value) {
+    return _then(_self.copyWith(eventData: value));
   });
 }
 }
@@ -215,10 +235,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int id,  int conversationId,  int senderId,  String? senderUsername,  String? senderFullName,  String content,  String type,  DateTime createdAt,  String? mediaUrl,  String? thumbnailUrl,  String? fileName,  int? fileSize,  int? duration,  double? latitude,  double? longitude,  String? locationName,  int? replyToMessageId,  ReplyToMessage? replyToMessage,  Map<String, List<int>>? reactions,  List<int>? mentions,  List<MentionedUser> mentionedUsers,  DateTime? sentAt,  DateTime? updatedAt,  bool edited,  DateTime? editedAt,  bool deleted,  DateTime? deletedAt,  bool forwarded,  int? originalMessageId,  int forwardCount,  int readCount,  List<ReadReceipt> readBy,  bool scheduled,  DateTime? scheduledTime,  String? scheduledStatus,  PollEntity? pollData)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int id,  int conversationId,  int senderId,  String? senderUsername,  String? senderFullName,  String content,  String type,  DateTime createdAt,  String? mediaUrl,  String? thumbnailUrl,  String? fileName,  int? fileSize,  int? duration,  double? latitude,  double? longitude,  String? locationName,  int? replyToMessageId,  ReplyToMessage? replyToMessage,  Map<String, List<int>>? reactions,  List<int>? mentions,  List<MentionedUser> mentionedUsers,  DateTime? sentAt,  DateTime? updatedAt,  bool edited,  DateTime? editedAt,  bool deleted,  DateTime? deletedAt,  bool forwarded,  int? originalMessageId,  int forwardCount,  int readCount,  List<ReadReceipt> readBy,  bool scheduled,  DateTime? scheduledTime,  String? scheduledStatus,  bool pinned,  DateTime? pinnedAt,  int? pinnedBy,  String? pinnedByUsername,  String? pinnedByFullName,  PollEntity? pollData,  EventEntity? eventData)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Message() when $default != null:
-return $default(_that.id,_that.conversationId,_that.senderId,_that.senderUsername,_that.senderFullName,_that.content,_that.type,_that.createdAt,_that.mediaUrl,_that.thumbnailUrl,_that.fileName,_that.fileSize,_that.duration,_that.latitude,_that.longitude,_that.locationName,_that.replyToMessageId,_that.replyToMessage,_that.reactions,_that.mentions,_that.mentionedUsers,_that.sentAt,_that.updatedAt,_that.edited,_that.editedAt,_that.deleted,_that.deletedAt,_that.forwarded,_that.originalMessageId,_that.forwardCount,_that.readCount,_that.readBy,_that.scheduled,_that.scheduledTime,_that.scheduledStatus,_that.pollData);case _:
+return $default(_that.id,_that.conversationId,_that.senderId,_that.senderUsername,_that.senderFullName,_that.content,_that.type,_that.createdAt,_that.mediaUrl,_that.thumbnailUrl,_that.fileName,_that.fileSize,_that.duration,_that.latitude,_that.longitude,_that.locationName,_that.replyToMessageId,_that.replyToMessage,_that.reactions,_that.mentions,_that.mentionedUsers,_that.sentAt,_that.updatedAt,_that.edited,_that.editedAt,_that.deleted,_that.deletedAt,_that.forwarded,_that.originalMessageId,_that.forwardCount,_that.readCount,_that.readBy,_that.scheduled,_that.scheduledTime,_that.scheduledStatus,_that.pinned,_that.pinnedAt,_that.pinnedBy,_that.pinnedByUsername,_that.pinnedByFullName,_that.pollData,_that.eventData);case _:
   return orElse();
 
 }
@@ -236,10 +256,10 @@ return $default(_that.id,_that.conversationId,_that.senderId,_that.senderUsernam
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int id,  int conversationId,  int senderId,  String? senderUsername,  String? senderFullName,  String content,  String type,  DateTime createdAt,  String? mediaUrl,  String? thumbnailUrl,  String? fileName,  int? fileSize,  int? duration,  double? latitude,  double? longitude,  String? locationName,  int? replyToMessageId,  ReplyToMessage? replyToMessage,  Map<String, List<int>>? reactions,  List<int>? mentions,  List<MentionedUser> mentionedUsers,  DateTime? sentAt,  DateTime? updatedAt,  bool edited,  DateTime? editedAt,  bool deleted,  DateTime? deletedAt,  bool forwarded,  int? originalMessageId,  int forwardCount,  int readCount,  List<ReadReceipt> readBy,  bool scheduled,  DateTime? scheduledTime,  String? scheduledStatus,  PollEntity? pollData)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int id,  int conversationId,  int senderId,  String? senderUsername,  String? senderFullName,  String content,  String type,  DateTime createdAt,  String? mediaUrl,  String? thumbnailUrl,  String? fileName,  int? fileSize,  int? duration,  double? latitude,  double? longitude,  String? locationName,  int? replyToMessageId,  ReplyToMessage? replyToMessage,  Map<String, List<int>>? reactions,  List<int>? mentions,  List<MentionedUser> mentionedUsers,  DateTime? sentAt,  DateTime? updatedAt,  bool edited,  DateTime? editedAt,  bool deleted,  DateTime? deletedAt,  bool forwarded,  int? originalMessageId,  int forwardCount,  int readCount,  List<ReadReceipt> readBy,  bool scheduled,  DateTime? scheduledTime,  String? scheduledStatus,  bool pinned,  DateTime? pinnedAt,  int? pinnedBy,  String? pinnedByUsername,  String? pinnedByFullName,  PollEntity? pollData,  EventEntity? eventData)  $default,) {final _that = this;
 switch (_that) {
 case _Message():
-return $default(_that.id,_that.conversationId,_that.senderId,_that.senderUsername,_that.senderFullName,_that.content,_that.type,_that.createdAt,_that.mediaUrl,_that.thumbnailUrl,_that.fileName,_that.fileSize,_that.duration,_that.latitude,_that.longitude,_that.locationName,_that.replyToMessageId,_that.replyToMessage,_that.reactions,_that.mentions,_that.mentionedUsers,_that.sentAt,_that.updatedAt,_that.edited,_that.editedAt,_that.deleted,_that.deletedAt,_that.forwarded,_that.originalMessageId,_that.forwardCount,_that.readCount,_that.readBy,_that.scheduled,_that.scheduledTime,_that.scheduledStatus,_that.pollData);case _:
+return $default(_that.id,_that.conversationId,_that.senderId,_that.senderUsername,_that.senderFullName,_that.content,_that.type,_that.createdAt,_that.mediaUrl,_that.thumbnailUrl,_that.fileName,_that.fileSize,_that.duration,_that.latitude,_that.longitude,_that.locationName,_that.replyToMessageId,_that.replyToMessage,_that.reactions,_that.mentions,_that.mentionedUsers,_that.sentAt,_that.updatedAt,_that.edited,_that.editedAt,_that.deleted,_that.deletedAt,_that.forwarded,_that.originalMessageId,_that.forwardCount,_that.readCount,_that.readBy,_that.scheduled,_that.scheduledTime,_that.scheduledStatus,_that.pinned,_that.pinnedAt,_that.pinnedBy,_that.pinnedByUsername,_that.pinnedByFullName,_that.pollData,_that.eventData);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -256,10 +276,10 @@ return $default(_that.id,_that.conversationId,_that.senderId,_that.senderUsernam
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int id,  int conversationId,  int senderId,  String? senderUsername,  String? senderFullName,  String content,  String type,  DateTime createdAt,  String? mediaUrl,  String? thumbnailUrl,  String? fileName,  int? fileSize,  int? duration,  double? latitude,  double? longitude,  String? locationName,  int? replyToMessageId,  ReplyToMessage? replyToMessage,  Map<String, List<int>>? reactions,  List<int>? mentions,  List<MentionedUser> mentionedUsers,  DateTime? sentAt,  DateTime? updatedAt,  bool edited,  DateTime? editedAt,  bool deleted,  DateTime? deletedAt,  bool forwarded,  int? originalMessageId,  int forwardCount,  int readCount,  List<ReadReceipt> readBy,  bool scheduled,  DateTime? scheduledTime,  String? scheduledStatus,  PollEntity? pollData)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int id,  int conversationId,  int senderId,  String? senderUsername,  String? senderFullName,  String content,  String type,  DateTime createdAt,  String? mediaUrl,  String? thumbnailUrl,  String? fileName,  int? fileSize,  int? duration,  double? latitude,  double? longitude,  String? locationName,  int? replyToMessageId,  ReplyToMessage? replyToMessage,  Map<String, List<int>>? reactions,  List<int>? mentions,  List<MentionedUser> mentionedUsers,  DateTime? sentAt,  DateTime? updatedAt,  bool edited,  DateTime? editedAt,  bool deleted,  DateTime? deletedAt,  bool forwarded,  int? originalMessageId,  int forwardCount,  int readCount,  List<ReadReceipt> readBy,  bool scheduled,  DateTime? scheduledTime,  String? scheduledStatus,  bool pinned,  DateTime? pinnedAt,  int? pinnedBy,  String? pinnedByUsername,  String? pinnedByFullName,  PollEntity? pollData,  EventEntity? eventData)?  $default,) {final _that = this;
 switch (_that) {
 case _Message() when $default != null:
-return $default(_that.id,_that.conversationId,_that.senderId,_that.senderUsername,_that.senderFullName,_that.content,_that.type,_that.createdAt,_that.mediaUrl,_that.thumbnailUrl,_that.fileName,_that.fileSize,_that.duration,_that.latitude,_that.longitude,_that.locationName,_that.replyToMessageId,_that.replyToMessage,_that.reactions,_that.mentions,_that.mentionedUsers,_that.sentAt,_that.updatedAt,_that.edited,_that.editedAt,_that.deleted,_that.deletedAt,_that.forwarded,_that.originalMessageId,_that.forwardCount,_that.readCount,_that.readBy,_that.scheduled,_that.scheduledTime,_that.scheduledStatus,_that.pollData);case _:
+return $default(_that.id,_that.conversationId,_that.senderId,_that.senderUsername,_that.senderFullName,_that.content,_that.type,_that.createdAt,_that.mediaUrl,_that.thumbnailUrl,_that.fileName,_that.fileSize,_that.duration,_that.latitude,_that.longitude,_that.locationName,_that.replyToMessageId,_that.replyToMessage,_that.reactions,_that.mentions,_that.mentionedUsers,_that.sentAt,_that.updatedAt,_that.edited,_that.editedAt,_that.deleted,_that.deletedAt,_that.forwarded,_that.originalMessageId,_that.forwardCount,_that.readCount,_that.readBy,_that.scheduled,_that.scheduledTime,_that.scheduledStatus,_that.pinned,_that.pinnedAt,_that.pinnedBy,_that.pinnedByUsername,_that.pinnedByFullName,_that.pollData,_that.eventData);case _:
   return null;
 
 }
@@ -271,7 +291,7 @@ return $default(_that.id,_that.conversationId,_that.senderId,_that.senderUsernam
 
 
 class _Message implements Message {
-  const _Message({required this.id, required this.conversationId, required this.senderId, this.senderUsername, this.senderFullName, required this.content, required this.type, required this.createdAt, this.mediaUrl, this.thumbnailUrl, this.fileName, this.fileSize, this.duration, this.latitude, this.longitude, this.locationName, this.replyToMessageId, this.replyToMessage, final  Map<String, List<int>>? reactions, final  List<int>? mentions, final  List<MentionedUser> mentionedUsers = const [], this.sentAt, this.updatedAt, this.edited = false, this.editedAt, this.deleted = false, this.deletedAt, this.forwarded = false, this.originalMessageId, this.forwardCount = 0, this.readCount = 0, final  List<ReadReceipt> readBy = const [], this.scheduled = false, this.scheduledTime, this.scheduledStatus, this.pollData}): _reactions = reactions,_mentions = mentions,_mentionedUsers = mentionedUsers,_readBy = readBy;
+  const _Message({required this.id, required this.conversationId, required this.senderId, this.senderUsername, this.senderFullName, required this.content, required this.type, required this.createdAt, this.mediaUrl, this.thumbnailUrl, this.fileName, this.fileSize, this.duration, this.latitude, this.longitude, this.locationName, this.replyToMessageId, this.replyToMessage, final  Map<String, List<int>>? reactions, final  List<int>? mentions, final  List<MentionedUser> mentionedUsers = const [], this.sentAt, this.updatedAt, this.edited = false, this.editedAt, this.deleted = false, this.deletedAt, this.forwarded = false, this.originalMessageId, this.forwardCount = 0, this.readCount = 0, final  List<ReadReceipt> readBy = const [], this.scheduled = false, this.scheduledTime, this.scheduledStatus, this.pinned = false, this.pinnedAt, this.pinnedBy, this.pinnedByUsername, this.pinnedByFullName, this.pollData, this.eventData}): _reactions = reactions,_mentions = mentions,_mentionedUsers = mentionedUsers,_readBy = readBy;
   
 
 @override final  int id;
@@ -281,7 +301,7 @@ class _Message implements Message {
 @override final  String? senderFullName;
 @override final  String content;
 @override final  String type;
-// 'TEXT', 'IMAGE', 'VIDEO', 'AUDIO', 'FILE', 'LOCATION', 'SYSTEM'
+// 'TEXT', 'IMAGE', 'VIDEO', 'AUDIO', 'FILE', 'LOCATION', 'SYSTEM', 'POLL', 'EVENT'
 @override final  DateTime createdAt;
 @override final  String? mediaUrl;
 @override final  String? thumbnailUrl;
@@ -344,8 +364,16 @@ class _Message implements Message {
 @override final  DateTime? scheduledTime;
 @override final  String? scheduledStatus;
 // PENDING, SENT, CANCELLED, FAILED
+// Pinned message fields
+@override@JsonKey() final  bool pinned;
+@override final  DateTime? pinnedAt;
+@override final  int? pinnedBy;
+@override final  String? pinnedByUsername;
+@override final  String? pinnedByFullName;
 // Poll data (for POLL type messages)
 @override final  PollEntity? pollData;
+// Event data (for EVENT type messages)
+@override final  EventEntity? eventData;
 
 /// Create a copy of Message
 /// with the given fields replaced by the non-null parameter values.
@@ -357,16 +385,16 @@ _$MessageCopyWith<_Message> get copyWith => __$MessageCopyWithImpl<_Message>(thi
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Message&&(identical(other.id, id) || other.id == id)&&(identical(other.conversationId, conversationId) || other.conversationId == conversationId)&&(identical(other.senderId, senderId) || other.senderId == senderId)&&(identical(other.senderUsername, senderUsername) || other.senderUsername == senderUsername)&&(identical(other.senderFullName, senderFullName) || other.senderFullName == senderFullName)&&(identical(other.content, content) || other.content == content)&&(identical(other.type, type) || other.type == type)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.mediaUrl, mediaUrl) || other.mediaUrl == mediaUrl)&&(identical(other.thumbnailUrl, thumbnailUrl) || other.thumbnailUrl == thumbnailUrl)&&(identical(other.fileName, fileName) || other.fileName == fileName)&&(identical(other.fileSize, fileSize) || other.fileSize == fileSize)&&(identical(other.duration, duration) || other.duration == duration)&&(identical(other.latitude, latitude) || other.latitude == latitude)&&(identical(other.longitude, longitude) || other.longitude == longitude)&&(identical(other.locationName, locationName) || other.locationName == locationName)&&(identical(other.replyToMessageId, replyToMessageId) || other.replyToMessageId == replyToMessageId)&&(identical(other.replyToMessage, replyToMessage) || other.replyToMessage == replyToMessage)&&const DeepCollectionEquality().equals(other._reactions, _reactions)&&const DeepCollectionEquality().equals(other._mentions, _mentions)&&const DeepCollectionEquality().equals(other._mentionedUsers, _mentionedUsers)&&(identical(other.sentAt, sentAt) || other.sentAt == sentAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt)&&(identical(other.edited, edited) || other.edited == edited)&&(identical(other.editedAt, editedAt) || other.editedAt == editedAt)&&(identical(other.deleted, deleted) || other.deleted == deleted)&&(identical(other.deletedAt, deletedAt) || other.deletedAt == deletedAt)&&(identical(other.forwarded, forwarded) || other.forwarded == forwarded)&&(identical(other.originalMessageId, originalMessageId) || other.originalMessageId == originalMessageId)&&(identical(other.forwardCount, forwardCount) || other.forwardCount == forwardCount)&&(identical(other.readCount, readCount) || other.readCount == readCount)&&const DeepCollectionEquality().equals(other._readBy, _readBy)&&(identical(other.scheduled, scheduled) || other.scheduled == scheduled)&&(identical(other.scheduledTime, scheduledTime) || other.scheduledTime == scheduledTime)&&(identical(other.scheduledStatus, scheduledStatus) || other.scheduledStatus == scheduledStatus)&&(identical(other.pollData, pollData) || other.pollData == pollData));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Message&&(identical(other.id, id) || other.id == id)&&(identical(other.conversationId, conversationId) || other.conversationId == conversationId)&&(identical(other.senderId, senderId) || other.senderId == senderId)&&(identical(other.senderUsername, senderUsername) || other.senderUsername == senderUsername)&&(identical(other.senderFullName, senderFullName) || other.senderFullName == senderFullName)&&(identical(other.content, content) || other.content == content)&&(identical(other.type, type) || other.type == type)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.mediaUrl, mediaUrl) || other.mediaUrl == mediaUrl)&&(identical(other.thumbnailUrl, thumbnailUrl) || other.thumbnailUrl == thumbnailUrl)&&(identical(other.fileName, fileName) || other.fileName == fileName)&&(identical(other.fileSize, fileSize) || other.fileSize == fileSize)&&(identical(other.duration, duration) || other.duration == duration)&&(identical(other.latitude, latitude) || other.latitude == latitude)&&(identical(other.longitude, longitude) || other.longitude == longitude)&&(identical(other.locationName, locationName) || other.locationName == locationName)&&(identical(other.replyToMessageId, replyToMessageId) || other.replyToMessageId == replyToMessageId)&&(identical(other.replyToMessage, replyToMessage) || other.replyToMessage == replyToMessage)&&const DeepCollectionEquality().equals(other._reactions, _reactions)&&const DeepCollectionEquality().equals(other._mentions, _mentions)&&const DeepCollectionEquality().equals(other._mentionedUsers, _mentionedUsers)&&(identical(other.sentAt, sentAt) || other.sentAt == sentAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt)&&(identical(other.edited, edited) || other.edited == edited)&&(identical(other.editedAt, editedAt) || other.editedAt == editedAt)&&(identical(other.deleted, deleted) || other.deleted == deleted)&&(identical(other.deletedAt, deletedAt) || other.deletedAt == deletedAt)&&(identical(other.forwarded, forwarded) || other.forwarded == forwarded)&&(identical(other.originalMessageId, originalMessageId) || other.originalMessageId == originalMessageId)&&(identical(other.forwardCount, forwardCount) || other.forwardCount == forwardCount)&&(identical(other.readCount, readCount) || other.readCount == readCount)&&const DeepCollectionEquality().equals(other._readBy, _readBy)&&(identical(other.scheduled, scheduled) || other.scheduled == scheduled)&&(identical(other.scheduledTime, scheduledTime) || other.scheduledTime == scheduledTime)&&(identical(other.scheduledStatus, scheduledStatus) || other.scheduledStatus == scheduledStatus)&&(identical(other.pinned, pinned) || other.pinned == pinned)&&(identical(other.pinnedAt, pinnedAt) || other.pinnedAt == pinnedAt)&&(identical(other.pinnedBy, pinnedBy) || other.pinnedBy == pinnedBy)&&(identical(other.pinnedByUsername, pinnedByUsername) || other.pinnedByUsername == pinnedByUsername)&&(identical(other.pinnedByFullName, pinnedByFullName) || other.pinnedByFullName == pinnedByFullName)&&(identical(other.pollData, pollData) || other.pollData == pollData)&&(identical(other.eventData, eventData) || other.eventData == eventData));
 }
 
 
 @override
-int get hashCode => Object.hashAll([runtimeType,id,conversationId,senderId,senderUsername,senderFullName,content,type,createdAt,mediaUrl,thumbnailUrl,fileName,fileSize,duration,latitude,longitude,locationName,replyToMessageId,replyToMessage,const DeepCollectionEquality().hash(_reactions),const DeepCollectionEquality().hash(_mentions),const DeepCollectionEquality().hash(_mentionedUsers),sentAt,updatedAt,edited,editedAt,deleted,deletedAt,forwarded,originalMessageId,forwardCount,readCount,const DeepCollectionEquality().hash(_readBy),scheduled,scheduledTime,scheduledStatus,pollData]);
+int get hashCode => Object.hashAll([runtimeType,id,conversationId,senderId,senderUsername,senderFullName,content,type,createdAt,mediaUrl,thumbnailUrl,fileName,fileSize,duration,latitude,longitude,locationName,replyToMessageId,replyToMessage,const DeepCollectionEquality().hash(_reactions),const DeepCollectionEquality().hash(_mentions),const DeepCollectionEquality().hash(_mentionedUsers),sentAt,updatedAt,edited,editedAt,deleted,deletedAt,forwarded,originalMessageId,forwardCount,readCount,const DeepCollectionEquality().hash(_readBy),scheduled,scheduledTime,scheduledStatus,pinned,pinnedAt,pinnedBy,pinnedByUsername,pinnedByFullName,pollData,eventData]);
 
 @override
 String toString() {
-  return 'Message(id: $id, conversationId: $conversationId, senderId: $senderId, senderUsername: $senderUsername, senderFullName: $senderFullName, content: $content, type: $type, createdAt: $createdAt, mediaUrl: $mediaUrl, thumbnailUrl: $thumbnailUrl, fileName: $fileName, fileSize: $fileSize, duration: $duration, latitude: $latitude, longitude: $longitude, locationName: $locationName, replyToMessageId: $replyToMessageId, replyToMessage: $replyToMessage, reactions: $reactions, mentions: $mentions, mentionedUsers: $mentionedUsers, sentAt: $sentAt, updatedAt: $updatedAt, edited: $edited, editedAt: $editedAt, deleted: $deleted, deletedAt: $deletedAt, forwarded: $forwarded, originalMessageId: $originalMessageId, forwardCount: $forwardCount, readCount: $readCount, readBy: $readBy, scheduled: $scheduled, scheduledTime: $scheduledTime, scheduledStatus: $scheduledStatus, pollData: $pollData)';
+  return 'Message(id: $id, conversationId: $conversationId, senderId: $senderId, senderUsername: $senderUsername, senderFullName: $senderFullName, content: $content, type: $type, createdAt: $createdAt, mediaUrl: $mediaUrl, thumbnailUrl: $thumbnailUrl, fileName: $fileName, fileSize: $fileSize, duration: $duration, latitude: $latitude, longitude: $longitude, locationName: $locationName, replyToMessageId: $replyToMessageId, replyToMessage: $replyToMessage, reactions: $reactions, mentions: $mentions, mentionedUsers: $mentionedUsers, sentAt: $sentAt, updatedAt: $updatedAt, edited: $edited, editedAt: $editedAt, deleted: $deleted, deletedAt: $deletedAt, forwarded: $forwarded, originalMessageId: $originalMessageId, forwardCount: $forwardCount, readCount: $readCount, readBy: $readBy, scheduled: $scheduled, scheduledTime: $scheduledTime, scheduledStatus: $scheduledStatus, pinned: $pinned, pinnedAt: $pinnedAt, pinnedBy: $pinnedBy, pinnedByUsername: $pinnedByUsername, pinnedByFullName: $pinnedByFullName, pollData: $pollData, eventData: $eventData)';
 }
 
 
@@ -377,11 +405,11 @@ abstract mixin class _$MessageCopyWith<$Res> implements $MessageCopyWith<$Res> {
   factory _$MessageCopyWith(_Message value, $Res Function(_Message) _then) = __$MessageCopyWithImpl;
 @override @useResult
 $Res call({
- int id, int conversationId, int senderId, String? senderUsername, String? senderFullName, String content, String type, DateTime createdAt, String? mediaUrl, String? thumbnailUrl, String? fileName, int? fileSize, int? duration, double? latitude, double? longitude, String? locationName, int? replyToMessageId, ReplyToMessage? replyToMessage, Map<String, List<int>>? reactions, List<int>? mentions, List<MentionedUser> mentionedUsers, DateTime? sentAt, DateTime? updatedAt, bool edited, DateTime? editedAt, bool deleted, DateTime? deletedAt, bool forwarded, int? originalMessageId, int forwardCount, int readCount, List<ReadReceipt> readBy, bool scheduled, DateTime? scheduledTime, String? scheduledStatus, PollEntity? pollData
+ int id, int conversationId, int senderId, String? senderUsername, String? senderFullName, String content, String type, DateTime createdAt, String? mediaUrl, String? thumbnailUrl, String? fileName, int? fileSize, int? duration, double? latitude, double? longitude, String? locationName, int? replyToMessageId, ReplyToMessage? replyToMessage, Map<String, List<int>>? reactions, List<int>? mentions, List<MentionedUser> mentionedUsers, DateTime? sentAt, DateTime? updatedAt, bool edited, DateTime? editedAt, bool deleted, DateTime? deletedAt, bool forwarded, int? originalMessageId, int forwardCount, int readCount, List<ReadReceipt> readBy, bool scheduled, DateTime? scheduledTime, String? scheduledStatus, bool pinned, DateTime? pinnedAt, int? pinnedBy, String? pinnedByUsername, String? pinnedByFullName, PollEntity? pollData, EventEntity? eventData
 });
 
 
-@override $ReplyToMessageCopyWith<$Res>? get replyToMessage;@override $PollEntityCopyWith<$Res>? get pollData;
+@override $ReplyToMessageCopyWith<$Res>? get replyToMessage;@override $PollEntityCopyWith<$Res>? get pollData;@override $EventEntityCopyWith<$Res>? get eventData;
 
 }
 /// @nodoc
@@ -394,7 +422,7 @@ class __$MessageCopyWithImpl<$Res>
 
 /// Create a copy of Message
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? conversationId = null,Object? senderId = null,Object? senderUsername = freezed,Object? senderFullName = freezed,Object? content = null,Object? type = null,Object? createdAt = null,Object? mediaUrl = freezed,Object? thumbnailUrl = freezed,Object? fileName = freezed,Object? fileSize = freezed,Object? duration = freezed,Object? latitude = freezed,Object? longitude = freezed,Object? locationName = freezed,Object? replyToMessageId = freezed,Object? replyToMessage = freezed,Object? reactions = freezed,Object? mentions = freezed,Object? mentionedUsers = null,Object? sentAt = freezed,Object? updatedAt = freezed,Object? edited = null,Object? editedAt = freezed,Object? deleted = null,Object? deletedAt = freezed,Object? forwarded = null,Object? originalMessageId = freezed,Object? forwardCount = null,Object? readCount = null,Object? readBy = null,Object? scheduled = null,Object? scheduledTime = freezed,Object? scheduledStatus = freezed,Object? pollData = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? conversationId = null,Object? senderId = null,Object? senderUsername = freezed,Object? senderFullName = freezed,Object? content = null,Object? type = null,Object? createdAt = null,Object? mediaUrl = freezed,Object? thumbnailUrl = freezed,Object? fileName = freezed,Object? fileSize = freezed,Object? duration = freezed,Object? latitude = freezed,Object? longitude = freezed,Object? locationName = freezed,Object? replyToMessageId = freezed,Object? replyToMessage = freezed,Object? reactions = freezed,Object? mentions = freezed,Object? mentionedUsers = null,Object? sentAt = freezed,Object? updatedAt = freezed,Object? edited = null,Object? editedAt = freezed,Object? deleted = null,Object? deletedAt = freezed,Object? forwarded = null,Object? originalMessageId = freezed,Object? forwardCount = null,Object? readCount = null,Object? readBy = null,Object? scheduled = null,Object? scheduledTime = freezed,Object? scheduledStatus = freezed,Object? pinned = null,Object? pinnedAt = freezed,Object? pinnedBy = freezed,Object? pinnedByUsername = freezed,Object? pinnedByFullName = freezed,Object? pollData = freezed,Object? eventData = freezed,}) {
   return _then(_Message(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as int,conversationId: null == conversationId ? _self.conversationId : conversationId // ignore: cast_nullable_to_non_nullable
@@ -431,8 +459,14 @@ as int,readBy: null == readBy ? _self._readBy : readBy // ignore: cast_nullable_
 as List<ReadReceipt>,scheduled: null == scheduled ? _self.scheduled : scheduled // ignore: cast_nullable_to_non_nullable
 as bool,scheduledTime: freezed == scheduledTime ? _self.scheduledTime : scheduledTime // ignore: cast_nullable_to_non_nullable
 as DateTime?,scheduledStatus: freezed == scheduledStatus ? _self.scheduledStatus : scheduledStatus // ignore: cast_nullable_to_non_nullable
+as String?,pinned: null == pinned ? _self.pinned : pinned // ignore: cast_nullable_to_non_nullable
+as bool,pinnedAt: freezed == pinnedAt ? _self.pinnedAt : pinnedAt // ignore: cast_nullable_to_non_nullable
+as DateTime?,pinnedBy: freezed == pinnedBy ? _self.pinnedBy : pinnedBy // ignore: cast_nullable_to_non_nullable
+as int?,pinnedByUsername: freezed == pinnedByUsername ? _self.pinnedByUsername : pinnedByUsername // ignore: cast_nullable_to_non_nullable
+as String?,pinnedByFullName: freezed == pinnedByFullName ? _self.pinnedByFullName : pinnedByFullName // ignore: cast_nullable_to_non_nullable
 as String?,pollData: freezed == pollData ? _self.pollData : pollData // ignore: cast_nullable_to_non_nullable
-as PollEntity?,
+as PollEntity?,eventData: freezed == eventData ? _self.eventData : eventData // ignore: cast_nullable_to_non_nullable
+as EventEntity?,
   ));
 }
 
@@ -459,6 +493,18 @@ $PollEntityCopyWith<$Res>? get pollData {
 
   return $PollEntityCopyWith<$Res>(_self.pollData!, (value) {
     return _then(_self.copyWith(pollData: value));
+  });
+}/// Create a copy of Message
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$EventEntityCopyWith<$Res>? get eventData {
+    if (_self.eventData == null) {
+    return null;
+  }
+
+  return $EventEntityCopyWith<$Res>(_self.eventData!, (value) {
+    return _then(_self.copyWith(eventData: value));
   });
 }
 }

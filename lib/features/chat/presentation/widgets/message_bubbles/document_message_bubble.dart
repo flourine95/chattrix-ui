@@ -14,6 +14,7 @@ class DocumentMessageBubble extends StatelessWidget {
     required this.message,
     required this.isMe,
     this.onReply,
+    this.onPin,
     this.onReactionTap,
     this.onAddReaction,
     this.currentUserId,
@@ -27,6 +28,7 @@ class DocumentMessageBubble extends StatelessWidget {
   final Message message;
   final bool isMe;
   final VoidCallback? onReply;
+  final VoidCallback? onPin;
   final Function(String emoji)? onReactionTap;
   final VoidCallback? onAddReaction;
   final int? currentUserId;
@@ -126,6 +128,7 @@ class DocumentMessageBubble extends StatelessWidget {
       message: message,
       maxWidth: isLink ? 320.0 : 280.0,
       onReply: onReply,
+      onPin: onPin,
       onReactionTap: onReactionTap,
       onAddReaction: onAddReaction,
       currentUserId: currentUserId,

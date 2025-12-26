@@ -14,13 +14,48 @@ class BirthdayApiService {
   /// **Errors:**
   /// - 401: Unauthorized
   Future<List<BirthdayUserDto>> getTodayBirthdays() async {
-    final response = await _dio.get('/v1/birthdays/today');
+    final now = DateTime.now();
+    debugPrint('🌐 [BirthdayAPI] GET /v1/birthdays/today');
+    debugPrint(
+      '   📅 Current date: ${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}',
+    );
+    debugPrint('   🕐 Current time: ${now.hour}:${now.minute}:${now.second}');
+    debugPrint('   🌍 Timezone: ${now.timeZoneName} (offset: ${now.timeZoneOffset})');
 
-    if (response.data is List) {
-      return (response.data as List).map((json) => BirthdayUserDto.fromJson(json as Map<String, dynamic>)).toList();
+    try {
+      final response = await _dio.get('/v1/birthdays/today');
+
+      debugPrint('✅ [BirthdayAPI] Response status: ${response.statusCode}');
+      debugPrint('   Response data type: ${response.data.runtimeType}');
+      debugPrint('   Response data: ${response.data}');
+
+      // API returns: {success: true, message: "...", data: [...]}
+      if (response.data is Map<String, dynamic>) {
+        final data = response.data['data'];
+
+        if (data is List) {
+          debugPrint('   📊 Data array length: ${data.length}');
+          if (data.isEmpty) {
+            debugPrint('   ⚠️ Backend returned empty array - possible issues:');
+            debugPrint('      1. No users have dateOfBirth set in database');
+            debugPrint('      2. Backend timezone mismatch (server date != client date)');
+            debugPrint('      3. Backend date comparison logic bug');
+            debugPrint('      4. Date format mismatch in database');
+          }
+
+          final birthdays = data.map((json) => BirthdayUserDto.fromJson(json as Map<String, dynamic>)).toList();
+          debugPrint('   ✅ Parsed ${birthdays.length} birthdays from data field');
+          return birthdays;
+        }
+      }
+
+      debugPrint('⚠️ [BirthdayAPI] Unexpected response format, returning empty');
+      return [];
+    } catch (e, st) {
+      debugPrint('❌ [BirthdayAPI] Error: $e');
+      debugPrint('   Stack trace: $st');
+      rethrow;
     }
-
-    return [];
   }
 
   /// Get users with upcoming birthdays
@@ -30,13 +65,30 @@ class BirthdayApiService {
   /// **Errors:**
   /// - 401: Unauthorized
   Future<List<BirthdayUserDto>> getUpcomingBirthdays({int days = 7}) async {
-    final response = await _dio.get('/v1/birthdays/upcoming', queryParameters: {'days': days});
+    debugPrint('🌐 [BirthdayAPI] GET /v1/birthdays/upcoming?days=$days');
 
-    if (response.data is List) {
-      return (response.data as List).map((json) => BirthdayUserDto.fromJson(json as Map<String, dynamic>)).toList();
+    try {
+      final response = await _dio.get('/v1/birthdays/upcoming', queryParameters: {'days': days});
+
+      debugPrint('✅ [BirthdayAPI] Response status: ${response.statusCode}');
+
+      // API returns: {success: true, message: "...", data: [...]}
+      if (response.data is Map<String, dynamic>) {
+        final data = response.data['data'];
+
+        if (data is List) {
+          final birthdays = data.map((json) => BirthdayUserDto.fromJson(json as Map<String, dynamic>)).toList();
+          debugPrint('   Parsed ${birthdays.length} upcoming birthdays');
+          return birthdays;
+        }
+      }
+
+      debugPrint('⚠️ [BirthdayAPI] Unexpected response format, returning empty');
+      return [];
+    } catch (e) {
+      debugPrint('❌ [BirthdayAPI] Error: $e');
+      rethrow;
     }
-
-    return [];
   }
 
   /// Send birthday wishes

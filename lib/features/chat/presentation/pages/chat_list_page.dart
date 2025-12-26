@@ -4,7 +4,7 @@ import 'package:chattrix_ui/features/auth/presentation/providers/auth_providers.
 import 'package:chattrix_ui/features/birthday/presentation/providers/birthday_providers.dart';
 import 'package:chattrix_ui/features/birthday/presentation/widgets/birthday_banner.dart';
 import 'package:chattrix_ui/features/birthday/presentation/widgets/birthday_list_sheet.dart';
-import 'package:chattrix_ui/features/birthday/presentation/widgets/birthday_wishes_dialog.dart';
+import 'package:chattrix_ui/features/birthday/presentation/widgets/birthday_wishes_bottom_sheet.dart';
 import 'package:chattrix_ui/features/chat/presentation/providers/chat_usecase_provider.dart';
 import 'package:chattrix_ui/features/chat/presentation/providers/chat_websocket_provider_new.dart';
 import 'package:chattrix_ui/features/chat/presentation/providers/conversation_settings_provider.dart';
@@ -926,40 +926,19 @@ class _BirthdayBannerSliver extends ConsumerWidget {
           users: birthdays.cast(),
           onSendWishes: (user) {
             Navigator.pop(context);
-            _showBirthdayWishesDialog(context, ref, user);
+            _showBirthdayWishesBottomSheet(context, user);
           },
         ),
       ),
     );
   }
 
-  void _showBirthdayWishesDialog(BuildContext context, WidgetRef ref, dynamic user) async {
-    // Get user's conversations
-    final conversationsAsync = ref.read(conversationsProvider);
-    final conversations = conversationsAsync.value ?? [];
-
-    // Filter GROUP conversations where the birthday user is a member
-    final groupConversations = conversations.where((c) {
-      // Must be a group conversation
-      if (c.type != ConversationType.group) return false;
-
-      // Check if birthday user is a participant in this conversation
-      final isMember = c.participants.any((p) => p.userId == user.userId);
-      return isMember;
-    }).toList();
-
-    if (!context.mounted) return;
-
-    showDialog(
+  void _showBirthdayWishesBottomSheet(BuildContext context, dynamic user) {
+    showModalBottomSheet(
       context: context,
-      builder: (context) => BirthdayWishesDialog(
-        user: user,
-        conversations: groupConversations,
-        onSendDirect: () {
-          // Navigate to direct message with the birthday user
-          context.push('/chat/${user.userId}');
-        },
-      ),
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => BirthdayWishesBottomSheet(user: user),
     );
   }
 }

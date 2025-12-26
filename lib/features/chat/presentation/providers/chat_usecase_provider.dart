@@ -6,13 +6,17 @@ import 'package:chattrix_ui/features/chat/domain/usecases/get_conversation_useca
 import 'package:chattrix_ui/features/chat/domain/usecases/get_conversations_usecase.dart';
 import 'package:chattrix_ui/features/chat/domain/usecases/get_messages_usecase.dart';
 import 'package:chattrix_ui/features/chat/domain/usecases/get_online_users_usecase.dart';
+import 'package:chattrix_ui/features/chat/domain/usecases/get_pinned_messages_usecase.dart';
 import 'package:chattrix_ui/features/chat/domain/usecases/get_user_status_usecase.dart';
 import 'package:chattrix_ui/features/chat/domain/usecases/mark_conversation_as_read_usecase.dart';
 import 'package:chattrix_ui/features/chat/domain/usecases/mark_conversation_as_unread_usecase.dart';
+import 'package:chattrix_ui/features/chat/domain/usecases/pin_message_usecase.dart';
 import 'package:chattrix_ui/features/chat/domain/usecases/search_messages_usecase.dart';
 import 'package:chattrix_ui/features/chat/domain/usecases/search_users_usecase.dart';
 import 'package:chattrix_ui/features/chat/domain/usecases/send_message_usecase.dart';
 import 'package:chattrix_ui/features/chat/domain/usecases/toggle_reaction_usecase.dart';
+import 'package:chattrix_ui/features/chat/domain/usecases/unpin_message_usecase.dart';
+import 'package:chattrix_ui/features/chat/presentation/providers/chat_datasource_provider.dart';
 import 'package:chattrix_ui/features/chat/presentation/providers/chat_repository_provider.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
@@ -89,4 +93,19 @@ final getConversationMembersUsecaseProvider = Provider<GetConversationMembersUse
 final searchMessagesUsecaseProvider = Provider<SearchMessagesUseCase>((ref) {
   final repository = ref.watch(chatRepositoryProvider);
   return SearchMessagesUseCase(repository);
+});
+
+final pinMessageUsecaseProvider = Provider<PinMessageUsecase>((ref) {
+  final datasource = ref.watch(chatRemoteDatasourceProvider);
+  return PinMessageUsecase(datasource);
+});
+
+final unpinMessageUsecaseProvider = Provider<UnpinMessageUsecase>((ref) {
+  final datasource = ref.watch(chatRemoteDatasourceProvider);
+  return UnpinMessageUsecase(datasource);
+});
+
+final getPinnedMessagesUsecaseProvider = Provider<GetPinnedMessagesUsecase>((ref) {
+  final datasource = ref.watch(chatRemoteDatasourceProvider);
+  return GetPinnedMessagesUsecase(datasource);
 });

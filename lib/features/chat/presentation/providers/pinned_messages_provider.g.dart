@@ -4,7 +4,7 @@
 // coverage:ignore-file
 
 
-part of 'messages_notifier.dart';
+part of 'pinned_messages_provider.dart';
 
 // **************************************************************************
 // RiverpodGenerator
@@ -12,40 +12,43 @@ part of 'messages_notifier.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
+/// Provider for pinned messages in a conversation
 
-@ProviderFor(MessagesNotifier)
-const messagesProvider = MessagesNotifierFamily._();
+@ProviderFor(PinnedMessages)
+const pinnedMessagesProvider = PinnedMessagesFamily._();
 
-final class MessagesNotifierProvider
-    extends $AsyncNotifierProvider<MessagesNotifier, List<Message>> {
-  const MessagesNotifierProvider._({
-    required MessagesNotifierFamily super.from,
+/// Provider for pinned messages in a conversation
+final class PinnedMessagesProvider
+    extends $AsyncNotifierProvider<PinnedMessages, List<Message>> {
+  /// Provider for pinned messages in a conversation
+  const PinnedMessagesProvider._({
+    required PinnedMessagesFamily super.from,
     required String super.argument,
   }) : super(
          retry: null,
-         name: r'messagesProvider',
+         name: r'pinnedMessagesProvider',
          isAutoDispose: true,
          dependencies: null,
          $allTransitiveDependencies: null,
        );
 
   @override
-  String debugGetCreateSourceHash() => _$messagesNotifierHash();
+  String debugGetCreateSourceHash() => _$pinnedMessagesHash();
 
   @override
   String toString() {
-    return r'messagesProvider'
+    return r'pinnedMessagesProvider'
         ''
         '($argument)';
   }
 
   @$internal
   @override
-  MessagesNotifier create() => MessagesNotifier();
+  PinnedMessages create() => PinnedMessages();
 
   @override
   bool operator ==(Object other) {
-    return other is MessagesNotifierProvider && other.argument == argument;
+    return other is PinnedMessagesProvider && other.argument == argument;
   }
 
   @override
@@ -54,34 +57,40 @@ final class MessagesNotifierProvider
   }
 }
 
-String _$messagesNotifierHash() => r'c6212ae4816c57c5620a069565ef3f673078653d';
+String _$pinnedMessagesHash() => r'd1b6762eeb095d402aefc2b23397602fb01df1ca';
 
-final class MessagesNotifierFamily extends $Family
+/// Provider for pinned messages in a conversation
+
+final class PinnedMessagesFamily extends $Family
     with
         $ClassFamilyOverride<
-          MessagesNotifier,
+          PinnedMessages,
           AsyncValue<List<Message>>,
           List<Message>,
           FutureOr<List<Message>>,
           String
         > {
-  const MessagesNotifierFamily._()
+  const PinnedMessagesFamily._()
     : super(
         retry: null,
-        name: r'messagesProvider',
+        name: r'pinnedMessagesProvider',
         dependencies: null,
         $allTransitiveDependencies: null,
         isAutoDispose: true,
       );
 
-  MessagesNotifierProvider call(String conversationId) =>
-      MessagesNotifierProvider._(argument: conversationId, from: this);
+  /// Provider for pinned messages in a conversation
+
+  PinnedMessagesProvider call(String conversationId) =>
+      PinnedMessagesProvider._(argument: conversationId, from: this);
 
   @override
-  String toString() => r'messagesProvider';
+  String toString() => r'pinnedMessagesProvider';
 }
 
-abstract class _$MessagesNotifier extends $AsyncNotifier<List<Message>> {
+/// Provider for pinned messages in a conversation
+
+abstract class _$PinnedMessages extends $AsyncNotifier<List<Message>> {
   late final _$args = ref.$arg as String;
   String get conversationId => _$args;
 

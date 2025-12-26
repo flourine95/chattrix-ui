@@ -278,7 +278,7 @@ final class TodayBirthdaysProvider
   TodayBirthdays create() => TodayBirthdays();
 }
 
-String _$todayBirthdaysHash() => r'cd56579938b01cf5179ff382796410a74a49b28c';
+String _$todayBirthdaysHash() => r'28621f201133a061d9aa0b4daa0ea4f77fae1b2e';
 
 abstract class _$TodayBirthdays
     extends $AsyncNotifier<List<BirthdayUserEntity>> {

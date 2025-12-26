@@ -76,14 +76,14 @@ class CreatePollPage extends HookConsumerWidget {
     Future<void> createPoll() async {
       // Validation
       if (questionController.text.trim().isEmpty) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Vui lòng nhập câu hỏi')));
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please enter a question')));
         return;
       }
 
       final options = optionControllers.value.map((c) => c.text.trim()).where((text) => text.isNotEmpty).toList();
 
       if (options.length < 2) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Cần ít nhất 2 lựa chọn')));
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('At least 2 options required')));
         return;
       }
 
@@ -100,36 +100,64 @@ class CreatePollPage extends HookConsumerWidget {
       );
 
       // Execute
-      final notifier = ref.read(createPollProvider.notifier);
-      await notifier.execute(params: params);
+      try {
+        final notifier = ref.read(createPollProvider.notifier);
+        await notifier.execute(params: params);
 
-      if (!context.mounted) return;
+        if (!context.mounted) return;
 
-      // Check result
-      if (asyncState.hasValue && asyncState.value != null) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Tạo poll thành công!')));
+        // Success - navigate back
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                Icon(Icons.check_circle, color: Colors.white, size: 20),
+                const SizedBox(width: 12),
+                Text('Poll created successfully!', style: TextStyle(color: Colors.white)),
+              ],
+            ),
+            backgroundColor: Colors.grey.shade900,
+            behavior: SnackBarBehavior.floating,
+            duration: Duration(seconds: 2),
+          ),
+        );
         context.pop();
-      } else if (asyncState.hasError) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Lỗi: ${asyncState.error}')));
+      } catch (e) {
+        if (!context.mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                Icon(Icons.error_outline, color: Colors.white, size: 20),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text('Failed to create poll: $e', style: TextStyle(color: Colors.white)),
+                ),
+              ],
+            ),
+            backgroundColor: Colors.red.shade900,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
       }
     }
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Tạo Poll')),
+      appBar: AppBar(title: const Text('Create Poll')),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Question
-            Text('Câu hỏi', style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600)),
+            Text('Question', style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600)),
             const SizedBox(height: 8),
             TextField(
               controller: questionController,
               maxLength: 500,
               maxLines: 3,
               decoration: InputDecoration(
-                hintText: 'Nhập câu hỏi của bạn...',
+                hintText: 'Enter your question...',
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                   borderSide: BorderSide(color: isDark ? Colors.grey.shade700 : Colors.grey.shade300),
@@ -140,14 +168,14 @@ class CreatePollPage extends HookConsumerWidget {
             Align(
               alignment: Alignment.centerRight,
               child: Text(
-                '${characterCount.value}/500 ký tự',
+                '${characterCount.value}/500 characters',
                 style: theme.textTheme.bodySmall?.copyWith(color: Colors.grey.shade600),
               ),
             ),
             const SizedBox(height: 24),
 
             // Options
-            Text('Các lựa chọn', style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600)),
+            Text('Options', style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600)),
             const SizedBox(height: 8),
             ...List.generate(optionControllers.value.length, (index) {
               return Padding(
@@ -158,7 +186,7 @@ class CreatePollPage extends HookConsumerWidget {
                       child: TextField(
                         controller: optionControllers.value[index],
                         decoration: InputDecoration(
-                          hintText: 'Lựa chọn ${index + 1}',
+                          hintText: 'Option ${index + 1}',
                           prefixText: '${index + 1}. ',
                           border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                         ),
@@ -176,7 +204,7 @@ class CreatePollPage extends HookConsumerWidget {
               OutlinedButton.icon(
                 onPressed: addOption,
                 icon: const Icon(Icons.add),
-                label: const Text('Thêm lựa chọn'),
+                label: const Text('Add Option'),
                 style: OutlinedButton.styleFrom(
                   minimumSize: const Size(double.infinity, 48),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -185,14 +213,14 @@ class CreatePollPage extends HookConsumerWidget {
             const SizedBox(height: 24),
 
             // Settings
-            Text('Cài đặt', style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600)),
+            Text('Settings', style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600)),
             const SizedBox(height: 8),
 
             // Allow multiple
             SwitchListTile(
               value: allowMultiple.value,
               onChanged: (value) => allowMultiple.value = value,
-              title: const Text('Cho phép chọn nhiều đáp án'),
+              title: const Text('Allow multiple answers'),
               contentPadding: EdgeInsets.zero,
             ),
 
@@ -223,14 +251,14 @@ class CreatePollPage extends HookConsumerWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Thời gian kết thúc',
+                              'End Time',
                               style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
                             ),
                             const SizedBox(height: 4),
                             Text(
                               selectedDateTime.value != null
                                   ? DateFormat('HH:mm, dd/MM/yyyy').format(selectedDateTime.value!)
-                                  : 'Không giới hạn',
+                                  : 'No limit',
                               style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
                             ),
                           ],
@@ -240,7 +268,7 @@ class CreatePollPage extends HookConsumerWidget {
                         IconButton(
                           icon: const Icon(Icons.close),
                           onPressed: () => selectedDateTime.value = null,
-                          tooltip: 'Xóa thời gian',
+                          tooltip: 'Remove time',
                         )
                       else
                         Icon(Icons.chevron_right, color: theme.colorScheme.onSurfaceVariant),
@@ -261,7 +289,7 @@ class CreatePollPage extends HookConsumerWidget {
               ),
               child: asyncState.isLoading
                   ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2))
-                  : const Text('Tạo Poll', style: TextStyle(fontWeight: FontWeight.bold)),
+                  : const Text('Create Poll', style: TextStyle(fontWeight: FontWeight.bold)),
             ),
           ],
         ),

@@ -7,7 +7,7 @@ import 'package:chattrix_ui/features/auth/presentation/providers/auth_providers.
 import 'package:chattrix_ui/features/chat/domain/entities/conversation.dart';
 import 'package:chattrix_ui/features/chat/presentation/pages/add_members_page.dart';
 import 'package:chattrix_ui/features/chat/presentation/pages/all_members_page.dart';
-import 'package:chattrix_ui/features/chat/presentation/pages/community_calendar_page.dart';
+import 'package:chattrix_ui/features/chat/presentation/pages/events_page.dart';
 import 'package:chattrix_ui/features/chat/presentation/pages/files_links_page.dart';
 import 'package:chattrix_ui/features/chat/presentation/pages/group_permissions_page.dart';
 import 'package:chattrix_ui/features/chat/presentation/pages/invite_links_page.dart';
@@ -15,6 +15,7 @@ import 'package:chattrix_ui/features/chat/presentation/pages/polls_page.dart';
 import 'package:chattrix_ui/features/chat/presentation/pages/search_messages_page.dart';
 import 'package:chattrix_ui/features/chat/presentation/providers/chat_providers.dart';
 import 'package:chattrix_ui/features/chat/presentation/providers/conversation_settings_provider.dart';
+import 'package:chattrix_ui/features/chat/presentation/providers/events_providers.dart';
 import 'package:chattrix_ui/features/chat/presentation/providers/media_providers.dart';
 import 'package:chattrix_ui/features/chat/presentation/providers/poll_providers.dart';
 import 'package:chattrix_ui/features/chat/presentation/providers/social_providers.dart';
@@ -217,22 +218,8 @@ class ChatInfoPage extends HookConsumerWidget {
 
         const SizedBox(height: 8),
 
-        // Community Calendar
-        _buildRoundedSection(
-          context,
-          colors,
-          child: _buildActionTile(
-            icon: Icons.calendar_today,
-            title: 'Community Calendar',
-            subtitle: '3 upcoming events',
-            colors: colors,
-            textTheme: textTheme,
-            onTap: () => Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => CommunityCalendarPage(conversationId: conversation.id.toString())),
-            ),
-          ),
-        ),
+        // Events
+        _buildEventsSection(context, ref, colors, textTheme),
 
         const SizedBox(height: 8),
 
@@ -1335,6 +1322,53 @@ class ChatInfoPage extends HookConsumerWidget {
         ),
       ),
       _ => const SizedBox.shrink(), // Hide if no birthdays or loading/error
+    };
+  }
+
+  /// Build events section for group chats
+  Widget _buildEventsSection(BuildContext context, WidgetRef ref, ColorScheme colors, TextTheme textTheme) {
+    final convId = conversation.id;
+    final eventsAsync = ref.watch(eventsListProvider(convId.toString()));
+
+    return switch (eventsAsync) {
+      AsyncData(:final value) => _buildRoundedSection(
+        context,
+        colors,
+        child: _buildActionTile(
+          icon: Icons.event,
+          title: 'Events',
+          subtitle: value.isEmpty ? 'No events yet' : '${value.length} ${value.length == 1 ? 'event' : 'events'}',
+          colors: colors,
+          textTheme: textTheme,
+          onTap: () =>
+              Navigator.push(context, MaterialPageRoute(builder: (_) => EventsPage(conversationId: convId.toString()))),
+        ),
+      ),
+      AsyncLoading() => _buildRoundedSection(
+        context,
+        colors,
+        child: _buildActionTile(
+          icon: Icons.event,
+          title: 'Events',
+          subtitle: 'Loading...',
+          colors: colors,
+          textTheme: textTheme,
+          onTap: null,
+        ),
+      ),
+      AsyncError(:final error) => _buildRoundedSection(
+        context,
+        colors,
+        child: _buildActionTile(
+          icon: Icons.event,
+          title: 'Events',
+          subtitle: 'Error loading events',
+          colors: colors,
+          textTheme: textTheme,
+          onTap: () =>
+              Navigator.push(context, MaterialPageRoute(builder: (_) => EventsPage(conversationId: convId.toString()))),
+        ),
+      ),
     };
   }
 

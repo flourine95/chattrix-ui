@@ -14,7 +14,7 @@ abstract class PollDto with _$PollDto {
     required int conversationId,
     required UserDto creator,
     required bool allowMultipleVotes,
-    DateTime? expiresAt,
+    @JsonKey(name: 'expiresAt', toJson: _dateTimeToMilliseconds, fromJson: _millisecondsToDateTime) DateTime? expiresAt,
     @JsonKey(name: 'closed') @Default(false) bool isClosed,
     @JsonKey(name: 'expired') @Default(false) bool isExpired,
     @JsonKey(name: 'active') @Default(true) bool isActive,
@@ -25,4 +25,17 @@ abstract class PollDto with _$PollDto {
   }) = _PollDto;
 
   factory PollDto.fromJson(Map<String, dynamic> json) => _$PollDtoFromJson(json);
+}
+
+/// Convert DateTime to milliseconds timestamp for Java Instant
+int? _dateTimeToMilliseconds(DateTime? dateTime) {
+  return dateTime?.millisecondsSinceEpoch;
+}
+
+/// Convert milliseconds timestamp to DateTime
+DateTime? _millisecondsToDateTime(dynamic value) {
+  if (value == null) return null;
+  if (value is int) return DateTime.fromMillisecondsSinceEpoch(value);
+  if (value is String) return DateTime.parse(value);
+  return null;
 }

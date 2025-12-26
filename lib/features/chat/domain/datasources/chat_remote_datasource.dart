@@ -241,4 +241,48 @@ abstract class ChatRemoteDatasource {
     String? cursor,
     int limit = 20,
   });
+
+  // ============================================================================
+  // EVENTS
+  // ============================================================================
+
+  /// Get events in conversation
+  ///
+  /// **API:** `GET /v1/conversations/{conversationId}/events`
+  Future<List<dynamic>> getEvents({required String conversationId});
+
+  /// Create event
+  ///
+  /// **API:** `POST /v1/conversations/{conversationId}/events`
+  Future<dynamic> createEvent({
+    required String conversationId,
+    required String title,
+    String? description,
+    required DateTime startTime,
+    required DateTime endTime,
+    String? location,
+  });
+
+  /// Update event
+  ///
+  /// **API:** `PUT /v1/conversations/{conversationId}/events/{eventId}`
+  Future<dynamic> updateEvent({
+    required String conversationId,
+    required int eventId,
+    String? title,
+    String? description,
+    DateTime? startTime,
+    DateTime? endTime,
+    String? location,
+  });
+
+  /// RSVP to event
+  ///
+  /// **API:** `POST /v1/conversations/{conversationId}/events/{eventId}/rsvp`
+  Future<dynamic> rsvpEvent({required String conversationId, required int eventId, required String status});
+
+  /// Delete event
+  ///
+  /// **API:** `DELETE /v1/conversations/{conversationId}/events/{eventId}`
+  Future<void> deleteEvent({required String conversationId, required int eventId});
 }

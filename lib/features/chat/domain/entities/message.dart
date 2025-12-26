@@ -1,3 +1,4 @@
+import 'package:chattrix_ui/features/chat/domain/entities/event_entity.dart';
 import 'package:chattrix_ui/features/chat/domain/entities/mentioned_user.dart';
 import 'package:chattrix_ui/features/chat/domain/entities/read_receipt.dart';
 import 'package:chattrix_ui/features/chat/domain/entities/reply_to_message.dart';
@@ -15,7 +16,7 @@ abstract class Message with _$Message {
     String? senderUsername,
     String? senderFullName,
     required String content,
-    required String type, // 'TEXT', 'IMAGE', 'VIDEO', 'AUDIO', 'FILE', 'LOCATION', 'SYSTEM'
+    required String type, // 'TEXT', 'IMAGE', 'VIDEO', 'AUDIO', 'FILE', 'LOCATION', 'SYSTEM', 'POLL', 'EVENT'
     required DateTime createdAt,
     String? mediaUrl,
     String? thumbnailUrl,
@@ -47,7 +48,15 @@ abstract class Message with _$Message {
     @Default(false) bool scheduled,
     DateTime? scheduledTime,
     String? scheduledStatus, // PENDING, SENT, CANCELLED, FAILED
+    // Pinned message fields
+    @Default(false) bool pinned,
+    DateTime? pinnedAt,
+    int? pinnedBy,
+    String? pinnedByUsername,
+    String? pinnedByFullName,
     // Poll data (for POLL type messages)
     PollEntity? pollData,
+    // Event data (for EVENT type messages)
+    EventEntity? eventData,
   }) = _Message;
 }

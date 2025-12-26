@@ -15,6 +15,7 @@ class MessageLongPressOverlay extends StatefulWidget {
     required this.onDelete,
     required this.onQuickReaction,
     required this.canEdit,
+    this.onPin,
   });
 
   final Message message;
@@ -26,6 +27,7 @@ class MessageLongPressOverlay extends StatefulWidget {
   final VoidCallback? onDelete;
   final Function(String emoji) onQuickReaction;
   final bool canEdit;
+  final VoidCallback? onPin;
 
   @override
   State<MessageLongPressOverlay> createState() => _MessageLongPressOverlayState();
@@ -198,6 +200,7 @@ class _MessageLongPressOverlayState extends State<MessageLongPressOverlay> with 
                 onReply: widget.onReply != null ? () => _handleAction(widget.onReply) : null,
                 onCopy: _handleCopy,
                 onEdit: widget.canEdit && widget.onEdit != null ? () => _handleAction(widget.onEdit) : null,
+                onPin: widget.onPin != null ? () => _handleAction(widget.onPin) : null,
                 onDelete: widget.isMe && widget.onDelete != null ? () => _handleAction(widget.onDelete) : null,
                 onMoreReactions: widget.onAddReaction != null ? _handleMoreReactions : null,
               ),
@@ -306,6 +309,7 @@ class _ActionBar extends StatelessWidget {
     required this.onReply,
     required this.onCopy,
     required this.onEdit,
+    required this.onPin,
     required this.onDelete,
     required this.onMoreReactions,
   });
@@ -313,6 +317,7 @@ class _ActionBar extends StatelessWidget {
   final VoidCallback? onReply;
   final VoidCallback? onCopy;
   final VoidCallback? onEdit;
+  final VoidCallback? onPin;
   final VoidCallback? onDelete;
   final VoidCallback? onMoreReactions;
 
@@ -335,6 +340,12 @@ class _ActionBar extends StatelessWidget {
 
     if (onEdit != null) {
       actions.add(_ActionButton(icon: Icons.edit, label: 'Edit', onTap: onEdit!, textTheme: textTheme, colors: colors));
+    }
+
+    if (onPin != null) {
+      actions.add(
+        _ActionButton(icon: Icons.push_pin, label: 'Pin', onTap: onPin!, textTheme: textTheme, colors: colors),
+      );
     }
 
     if (onMoreReactions != null) {
@@ -430,6 +441,7 @@ void showMessageLongPressOverlay({
   VoidCallback? onDelete,
   required Function(String emoji) onQuickReaction,
   required bool canEdit,
+  VoidCallback? onPin,
 }) {
   FocusScope.of(context).unfocus();
   showDialog(
@@ -447,6 +459,7 @@ void showMessageLongPressOverlay({
       onDelete: onDelete,
       onQuickReaction: onQuickReaction,
       canEdit: canEdit,
+      onPin: onPin,
     ),
   );
 }

@@ -4,6 +4,8 @@ import 'package:chattrix_ui/features/chat/data/models/reply_to_message_model.dar
 import 'package:chattrix_ui/features/chat/domain/entities/message.dart';
 import 'package:chattrix_ui/features/poll/data/models/poll_dto.dart';
 import 'package:chattrix_ui/features/poll/data/mappers/poll_mapper.dart';
+import 'package:chattrix_ui/features/chat/data/models/event_dto.dart';
+import 'package:chattrix_ui/features/chat/data/mappers/event_mapper.dart';
 import 'package:flutter/foundation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -59,8 +61,16 @@ abstract class MessageModel with _$MessageModel {
     @Default(false) bool scheduled,
     String? scheduledTime,
     String? scheduledStatus, // PENDING, SENT, CANCELLED, FAILED
+    // Pinned message fields
+    @Default(false) bool pinned,
+    String? pinnedAt,
+    int? pinnedBy,
+    String? pinnedByUsername,
+    String? pinnedByFullName,
     // Poll data (for POLL type messages)
     PollDto? pollData,
+    // Event data (for EVENT type messages)
+    EventDto? eventData,
   }) = _MessageModel;
 
   factory MessageModel.fromJson(Map<String, dynamic> json) => _$MessageModelFromJson(json);
@@ -124,6 +134,23 @@ abstract class MessageModel with _$MessageModel {
       }
     }
 
+    // Parse event data - API returns 'event' object for EVENT type messages
+    EventDto? eventData;
+    // Try 'event' field first (messages API), then 'eventData' (WebSocket)
+    final eventJson = json['event'] ?? json['eventData'];
+    if (eventJson != null && eventJson is Map) {
+      try {
+        eventData = EventDto.fromJson(eventJson as Map<String, dynamic>);
+        debugPrint('📅 [MessageModel] ✅ Successfully parsed event ${eventData.id} for message ${json['id']}');
+      } catch (e) {
+        debugPrint('⚠️ [MessageModel] Failed to parse event for message ${json['id']}: $e');
+      }
+    } else {
+      if (json['type'] == 'EVENT') {
+        debugPrint('📅 [MessageModel] ⚠️ EVENT message ${json['id']} has no event data');
+      }
+    }
+
     return MessageModel(
       id: (json['id'] ?? json['messageId'] ?? 0) as int,
       conversationId: (json['conversationId'] ?? json['conversation_id'] ?? 0) as int,
@@ -160,7 +187,13 @@ abstract class MessageModel with _$MessageModel {
       scheduled: json['scheduled'] ?? false,
       scheduledTime: json['scheduledTime']?.toString(),
       scheduledStatus: json['scheduledStatus']?.toString(),
+      pinned: json['pinned'] ?? false,
+      pinnedAt: json['pinnedAt']?.toString(),
+      pinnedBy: json['pinnedBy'] != null ? (json['pinnedBy'] as num).toInt() : null,
+      pinnedByUsername: json['pinnedByUsername']?.toString(),
+      pinnedByFullName: json['pinnedByFullName']?.toString(),
       pollData: pollData,
+      eventData: eventData,
     );
   }
 
@@ -202,7 +235,13 @@ abstract class MessageModel with _$MessageModel {
       scheduled: scheduled,
       scheduledTime: scheduledTime != null ? DateTime.parse(scheduledTime!) : null,
       scheduledStatus: scheduledStatus,
+      pinned: pinned,
+      pinnedAt: pinnedAt != null ? DateTime.parse(pinnedAt!) : null,
+      pinnedBy: pinnedBy,
+      pinnedByUsername: pinnedByUsername,
+      pinnedByFullName: pinnedByFullName,
       pollData: pollData?.toEntity(),
+      eventData: eventData?.toEntity(),
     );
   }
 }

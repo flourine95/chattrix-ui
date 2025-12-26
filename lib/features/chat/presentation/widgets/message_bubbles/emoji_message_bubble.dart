@@ -10,6 +10,7 @@ class EmojiMessageBubble extends StatefulWidget {
     required this.message,
     required this.isMe,
     this.onReply,
+    this.onPin,
     this.onReactionTap,
     this.onAddReaction,
     this.currentUserId,
@@ -23,6 +24,7 @@ class EmojiMessageBubble extends StatefulWidget {
   final Message message;
   final bool isMe;
   final VoidCallback? onReply;
+  final VoidCallback? onPin;
   final Function(String emoji)? onReactionTap;
   final VoidCallback? onAddReaction;
   final int? currentUserId;

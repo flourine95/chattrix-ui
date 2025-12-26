@@ -16,9 +16,7 @@ _CreatePollRequestDto _$CreatePollRequestDtoFromJson(
   question: json['question'] as String,
   options: (json['options'] as List<dynamic>).map((e) => e as String).toList(),
   allowMultipleVotes: json['allowMultipleVotes'] as bool,
-  expiresAt: json['expiresAt'] == null
-      ? null
-      : DateTime.parse(json['expiresAt'] as String),
+  expiresAt: _millisecondsToDateTime(json['expiresAt']),
 );
 
 Map<String, dynamic> _$CreatePollRequestDtoToJson(
@@ -27,5 +25,5 @@ Map<String, dynamic> _$CreatePollRequestDtoToJson(
   'question': instance.question,
   'options': instance.options,
   'allowMultipleVotes': instance.allowMultipleVotes,
-  'expiresAt': instance.expiresAt?.toIso8601String(),
+  'expiresAt': _dateTimeToMilliseconds(instance.expiresAt),
 };

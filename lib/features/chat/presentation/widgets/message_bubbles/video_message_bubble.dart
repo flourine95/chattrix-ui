@@ -14,6 +14,7 @@ class VideoMessageBubble extends StatefulWidget {
     required this.message,
     required this.isMe,
     this.onReply,
+    this.onPin,
     this.onReactionTap,
     this.onAddReaction,
     this.currentUserId,
@@ -27,6 +28,7 @@ class VideoMessageBubble extends StatefulWidget {
   final Message message;
   final bool isMe;
   final VoidCallback? onReply;
+  final VoidCallback? onPin;
   final Function(String emoji)? onReactionTap;
   final VoidCallback? onAddReaction;
   final int? currentUserId;
@@ -120,6 +122,7 @@ class _VideoMessageBubbleState extends State<VideoMessageBubble> with AutomaticK
       maxWidth: 280,
       message: widget.message,
       onReply: widget.onReply,
+      onPin: widget.onPin,
       onReactionTap: widget.onReactionTap,
       onAddReaction: widget.onAddReaction,
       currentUserId: widget.currentUserId,
