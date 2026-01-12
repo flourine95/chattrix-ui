@@ -7,11 +7,21 @@ import 'package:chattrix_ui/features/call/domain/entities/call_type.dart';
 import 'package:fpdart/fpdart.dart';
 
 abstract class CallRepository {
-  Future<Either<Failure, CallConnection>> initiateCall({required int calleeId, required CallType callType});
+  /// Initiate a new call in a conversation (Direct or Group)
+  Future<Either<Failure, CallConnection>> initiateCall({required int conversationId, required CallType callType});
 
+  /// Accept an incoming call
   Future<Either<Failure, CallConnection>> acceptCall({required String callId});
 
+  /// Join an ongoing call (for late joiners)
+  Future<Either<Failure, CallConnection>> joinCall({required String callId});
+
+  /// Reject an incoming call
   Future<Either<Failure, CallInfo>> rejectCall({required String callId, required CallRejectReason reason});
 
+  /// End/Leave a call
   Future<Either<Failure, CallInfo>> endCall({required String callId, required CallEndReason reason});
+
+  /// Check if there's an active call in a conversation
+  Future<Either<Failure, CallInfo?>> getActiveCall({required int conversationId});
 }

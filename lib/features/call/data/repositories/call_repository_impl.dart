@@ -15,9 +15,12 @@ class CallRepositoryImpl extends BaseRepository implements CallRepository {
   CallRepositoryImpl({required this.remoteDataSource});
 
   @override
-  Future<Either<Failure, CallConnection>> initiateCall({required int calleeId, required CallType callType}) async {
+  Future<Either<Failure, CallConnection>> initiateCall({
+    required int conversationId,
+    required CallType callType,
+  }) async {
     return executeApiCall(() async {
-      final result = await remoteDataSource.initiateCall(calleeId: calleeId, callType: callType);
+      final result = await remoteDataSource.initiateCall(conversationId: conversationId, callType: callType);
       return result.toEntity();
     });
   }
@@ -26,6 +29,14 @@ class CallRepositoryImpl extends BaseRepository implements CallRepository {
   Future<Either<Failure, CallConnection>> acceptCall({required String callId}) async {
     return executeApiCall(() async {
       final result = await remoteDataSource.acceptCall(callId: callId);
+      return result.toEntity();
+    });
+  }
+
+  @override
+  Future<Either<Failure, CallConnection>> joinCall({required String callId}) async {
+    return executeApiCall(() async {
+      final result = await remoteDataSource.joinCall(callId: callId);
       return result.toEntity();
     });
   }
@@ -43,6 +54,14 @@ class CallRepositoryImpl extends BaseRepository implements CallRepository {
     return executeApiCall(() async {
       final result = await remoteDataSource.endCall(callId: callId, reason: reason);
       return result.toEntity();
+    });
+  }
+
+  @override
+  Future<Either<Failure, CallInfo?>> getActiveCall({required int conversationId}) async {
+    return executeApiCall(() async {
+      final result = await remoteDataSource.getActiveCall(conversationId: conversationId);
+      return result?.toEntity();
     });
   }
 }

@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$CallInfoModel {
 
- String get id; String get channelId; CallStatus get status; CallType get callType; int get callerId; String get callerName; String? get callerAvatar; int get calleeId; String get calleeName; String? get calleeAvatar; String get createdAt; int? get durationSeconds;
+ String get id; String get channelId; int get conversationId; CallStatus get status; CallType get callType; int get callerId; String get callerName; String? get callerAvatar; String get createdAt; int? get durationSeconds; List<CallParticipantModel> get participants;
 /// Create a copy of CallInfoModel
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -28,16 +28,16 @@ $CallInfoModelCopyWith<CallInfoModel> get copyWith => _$CallInfoModelCopyWithImp
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is CallInfoModel&&(identical(other.id, id) || other.id == id)&&(identical(other.channelId, channelId) || other.channelId == channelId)&&(identical(other.status, status) || other.status == status)&&(identical(other.callType, callType) || other.callType == callType)&&(identical(other.callerId, callerId) || other.callerId == callerId)&&(identical(other.callerName, callerName) || other.callerName == callerName)&&(identical(other.callerAvatar, callerAvatar) || other.callerAvatar == callerAvatar)&&(identical(other.calleeId, calleeId) || other.calleeId == calleeId)&&(identical(other.calleeName, calleeName) || other.calleeName == calleeName)&&(identical(other.calleeAvatar, calleeAvatar) || other.calleeAvatar == calleeAvatar)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.durationSeconds, durationSeconds) || other.durationSeconds == durationSeconds));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is CallInfoModel&&(identical(other.id, id) || other.id == id)&&(identical(other.channelId, channelId) || other.channelId == channelId)&&(identical(other.conversationId, conversationId) || other.conversationId == conversationId)&&(identical(other.status, status) || other.status == status)&&(identical(other.callType, callType) || other.callType == callType)&&(identical(other.callerId, callerId) || other.callerId == callerId)&&(identical(other.callerName, callerName) || other.callerName == callerName)&&(identical(other.callerAvatar, callerAvatar) || other.callerAvatar == callerAvatar)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.durationSeconds, durationSeconds) || other.durationSeconds == durationSeconds)&&const DeepCollectionEquality().equals(other.participants, participants));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,channelId,status,callType,callerId,callerName,callerAvatar,calleeId,calleeName,calleeAvatar,createdAt,durationSeconds);
+int get hashCode => Object.hash(runtimeType,id,channelId,conversationId,status,callType,callerId,callerName,callerAvatar,createdAt,durationSeconds,const DeepCollectionEquality().hash(participants));
 
 @override
 String toString() {
-  return 'CallInfoModel(id: $id, channelId: $channelId, status: $status, callType: $callType, callerId: $callerId, callerName: $callerName, callerAvatar: $callerAvatar, calleeId: $calleeId, calleeName: $calleeName, calleeAvatar: $calleeAvatar, createdAt: $createdAt, durationSeconds: $durationSeconds)';
+  return 'CallInfoModel(id: $id, channelId: $channelId, conversationId: $conversationId, status: $status, callType: $callType, callerId: $callerId, callerName: $callerName, callerAvatar: $callerAvatar, createdAt: $createdAt, durationSeconds: $durationSeconds, participants: $participants)';
 }
 
 
@@ -48,7 +48,7 @@ abstract mixin class $CallInfoModelCopyWith<$Res>  {
   factory $CallInfoModelCopyWith(CallInfoModel value, $Res Function(CallInfoModel) _then) = _$CallInfoModelCopyWithImpl;
 @useResult
 $Res call({
- String id, String channelId, CallStatus status, CallType callType, int callerId, String callerName, String? callerAvatar, int calleeId, String calleeName, String? calleeAvatar, String createdAt, int? durationSeconds
+ String id, String channelId, int conversationId, CallStatus status, CallType callType, int callerId, String callerName, String? callerAvatar, String createdAt, int? durationSeconds, List<CallParticipantModel> participants
 });
 
 
@@ -65,21 +65,20 @@ class _$CallInfoModelCopyWithImpl<$Res>
 
 /// Create a copy of CallInfoModel
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? channelId = null,Object? status = null,Object? callType = null,Object? callerId = null,Object? callerName = null,Object? callerAvatar = freezed,Object? calleeId = null,Object? calleeName = null,Object? calleeAvatar = freezed,Object? createdAt = null,Object? durationSeconds = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? channelId = null,Object? conversationId = null,Object? status = null,Object? callType = null,Object? callerId = null,Object? callerName = null,Object? callerAvatar = freezed,Object? createdAt = null,Object? durationSeconds = freezed,Object? participants = null,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,channelId: null == channelId ? _self.channelId : channelId // ignore: cast_nullable_to_non_nullable
-as String,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
+as String,conversationId: null == conversationId ? _self.conversationId : conversationId // ignore: cast_nullable_to_non_nullable
+as int,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
 as CallStatus,callType: null == callType ? _self.callType : callType // ignore: cast_nullable_to_non_nullable
 as CallType,callerId: null == callerId ? _self.callerId : callerId // ignore: cast_nullable_to_non_nullable
 as int,callerName: null == callerName ? _self.callerName : callerName // ignore: cast_nullable_to_non_nullable
 as String,callerAvatar: freezed == callerAvatar ? _self.callerAvatar : callerAvatar // ignore: cast_nullable_to_non_nullable
-as String?,calleeId: null == calleeId ? _self.calleeId : calleeId // ignore: cast_nullable_to_non_nullable
-as int,calleeName: null == calleeName ? _self.calleeName : calleeName // ignore: cast_nullable_to_non_nullable
-as String,calleeAvatar: freezed == calleeAvatar ? _self.calleeAvatar : calleeAvatar // ignore: cast_nullable_to_non_nullable
 as String?,createdAt: null == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
 as String,durationSeconds: freezed == durationSeconds ? _self.durationSeconds : durationSeconds // ignore: cast_nullable_to_non_nullable
-as int?,
+as int?,participants: null == participants ? _self.participants : participants // ignore: cast_nullable_to_non_nullable
+as List<CallParticipantModel>,
   ));
 }
 
@@ -164,10 +163,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String channelId,  CallStatus status,  CallType callType,  int callerId,  String callerName,  String? callerAvatar,  int calleeId,  String calleeName,  String? calleeAvatar,  String createdAt,  int? durationSeconds)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String channelId,  int conversationId,  CallStatus status,  CallType callType,  int callerId,  String callerName,  String? callerAvatar,  String createdAt,  int? durationSeconds,  List<CallParticipantModel> participants)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _CallInfoModel() when $default != null:
-return $default(_that.id,_that.channelId,_that.status,_that.callType,_that.callerId,_that.callerName,_that.callerAvatar,_that.calleeId,_that.calleeName,_that.calleeAvatar,_that.createdAt,_that.durationSeconds);case _:
+return $default(_that.id,_that.channelId,_that.conversationId,_that.status,_that.callType,_that.callerId,_that.callerName,_that.callerAvatar,_that.createdAt,_that.durationSeconds,_that.participants);case _:
   return orElse();
 
 }
@@ -185,10 +184,10 @@ return $default(_that.id,_that.channelId,_that.status,_that.callType,_that.calle
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String channelId,  CallStatus status,  CallType callType,  int callerId,  String callerName,  String? callerAvatar,  int calleeId,  String calleeName,  String? calleeAvatar,  String createdAt,  int? durationSeconds)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String channelId,  int conversationId,  CallStatus status,  CallType callType,  int callerId,  String callerName,  String? callerAvatar,  String createdAt,  int? durationSeconds,  List<CallParticipantModel> participants)  $default,) {final _that = this;
 switch (_that) {
 case _CallInfoModel():
-return $default(_that.id,_that.channelId,_that.status,_that.callType,_that.callerId,_that.callerName,_that.callerAvatar,_that.calleeId,_that.calleeName,_that.calleeAvatar,_that.createdAt,_that.durationSeconds);case _:
+return $default(_that.id,_that.channelId,_that.conversationId,_that.status,_that.callType,_that.callerId,_that.callerName,_that.callerAvatar,_that.createdAt,_that.durationSeconds,_that.participants);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -205,10 +204,10 @@ return $default(_that.id,_that.channelId,_that.status,_that.callType,_that.calle
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String channelId,  CallStatus status,  CallType callType,  int callerId,  String callerName,  String? callerAvatar,  int calleeId,  String calleeName,  String? calleeAvatar,  String createdAt,  int? durationSeconds)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String channelId,  int conversationId,  CallStatus status,  CallType callType,  int callerId,  String callerName,  String? callerAvatar,  String createdAt,  int? durationSeconds,  List<CallParticipantModel> participants)?  $default,) {final _that = this;
 switch (_that) {
 case _CallInfoModel() when $default != null:
-return $default(_that.id,_that.channelId,_that.status,_that.callType,_that.callerId,_that.callerName,_that.callerAvatar,_that.calleeId,_that.calleeName,_that.calleeAvatar,_that.createdAt,_that.durationSeconds);case _:
+return $default(_that.id,_that.channelId,_that.conversationId,_that.status,_that.callType,_that.callerId,_that.callerName,_that.callerAvatar,_that.createdAt,_that.durationSeconds,_that.participants);case _:
   return null;
 
 }
@@ -220,21 +219,26 @@ return $default(_that.id,_that.channelId,_that.status,_that.callType,_that.calle
 @JsonSerializable()
 
 class _CallInfoModel extends CallInfoModel {
-  const _CallInfoModel({required this.id, required this.channelId, required this.status, required this.callType, required this.callerId, required this.callerName, this.callerAvatar, required this.calleeId, required this.calleeName, this.calleeAvatar, required this.createdAt, this.durationSeconds}): super._();
+  const _CallInfoModel({required this.id, required this.channelId, required this.conversationId, required this.status, required this.callType, required this.callerId, required this.callerName, this.callerAvatar, required this.createdAt, this.durationSeconds, required final  List<CallParticipantModel> participants}): _participants = participants,super._();
   factory _CallInfoModel.fromJson(Map<String, dynamic> json) => _$CallInfoModelFromJson(json);
 
 @override final  String id;
 @override final  String channelId;
+@override final  int conversationId;
 @override final  CallStatus status;
 @override final  CallType callType;
 @override final  int callerId;
 @override final  String callerName;
 @override final  String? callerAvatar;
-@override final  int calleeId;
-@override final  String calleeName;
-@override final  String? calleeAvatar;
 @override final  String createdAt;
 @override final  int? durationSeconds;
+ final  List<CallParticipantModel> _participants;
+@override List<CallParticipantModel> get participants {
+  if (_participants is EqualUnmodifiableListView) return _participants;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_participants);
+}
+
 
 /// Create a copy of CallInfoModel
 /// with the given fields replaced by the non-null parameter values.
@@ -249,16 +253,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _CallInfoModel&&(identical(other.id, id) || other.id == id)&&(identical(other.channelId, channelId) || other.channelId == channelId)&&(identical(other.status, status) || other.status == status)&&(identical(other.callType, callType) || other.callType == callType)&&(identical(other.callerId, callerId) || other.callerId == callerId)&&(identical(other.callerName, callerName) || other.callerName == callerName)&&(identical(other.callerAvatar, callerAvatar) || other.callerAvatar == callerAvatar)&&(identical(other.calleeId, calleeId) || other.calleeId == calleeId)&&(identical(other.calleeName, calleeName) || other.calleeName == calleeName)&&(identical(other.calleeAvatar, calleeAvatar) || other.calleeAvatar == calleeAvatar)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.durationSeconds, durationSeconds) || other.durationSeconds == durationSeconds));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _CallInfoModel&&(identical(other.id, id) || other.id == id)&&(identical(other.channelId, channelId) || other.channelId == channelId)&&(identical(other.conversationId, conversationId) || other.conversationId == conversationId)&&(identical(other.status, status) || other.status == status)&&(identical(other.callType, callType) || other.callType == callType)&&(identical(other.callerId, callerId) || other.callerId == callerId)&&(identical(other.callerName, callerName) || other.callerName == callerName)&&(identical(other.callerAvatar, callerAvatar) || other.callerAvatar == callerAvatar)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.durationSeconds, durationSeconds) || other.durationSeconds == durationSeconds)&&const DeepCollectionEquality().equals(other._participants, _participants));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,channelId,status,callType,callerId,callerName,callerAvatar,calleeId,calleeName,calleeAvatar,createdAt,durationSeconds);
+int get hashCode => Object.hash(runtimeType,id,channelId,conversationId,status,callType,callerId,callerName,callerAvatar,createdAt,durationSeconds,const DeepCollectionEquality().hash(_participants));
 
 @override
 String toString() {
-  return 'CallInfoModel(id: $id, channelId: $channelId, status: $status, callType: $callType, callerId: $callerId, callerName: $callerName, callerAvatar: $callerAvatar, calleeId: $calleeId, calleeName: $calleeName, calleeAvatar: $calleeAvatar, createdAt: $createdAt, durationSeconds: $durationSeconds)';
+  return 'CallInfoModel(id: $id, channelId: $channelId, conversationId: $conversationId, status: $status, callType: $callType, callerId: $callerId, callerName: $callerName, callerAvatar: $callerAvatar, createdAt: $createdAt, durationSeconds: $durationSeconds, participants: $participants)';
 }
 
 
@@ -269,7 +273,7 @@ abstract mixin class _$CallInfoModelCopyWith<$Res> implements $CallInfoModelCopy
   factory _$CallInfoModelCopyWith(_CallInfoModel value, $Res Function(_CallInfoModel) _then) = __$CallInfoModelCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String channelId, CallStatus status, CallType callType, int callerId, String callerName, String? callerAvatar, int calleeId, String calleeName, String? calleeAvatar, String createdAt, int? durationSeconds
+ String id, String channelId, int conversationId, CallStatus status, CallType callType, int callerId, String callerName, String? callerAvatar, String createdAt, int? durationSeconds, List<CallParticipantModel> participants
 });
 
 
@@ -286,21 +290,20 @@ class __$CallInfoModelCopyWithImpl<$Res>
 
 /// Create a copy of CallInfoModel
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? channelId = null,Object? status = null,Object? callType = null,Object? callerId = null,Object? callerName = null,Object? callerAvatar = freezed,Object? calleeId = null,Object? calleeName = null,Object? calleeAvatar = freezed,Object? createdAt = null,Object? durationSeconds = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? channelId = null,Object? conversationId = null,Object? status = null,Object? callType = null,Object? callerId = null,Object? callerName = null,Object? callerAvatar = freezed,Object? createdAt = null,Object? durationSeconds = freezed,Object? participants = null,}) {
   return _then(_CallInfoModel(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,channelId: null == channelId ? _self.channelId : channelId // ignore: cast_nullable_to_non_nullable
-as String,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
+as String,conversationId: null == conversationId ? _self.conversationId : conversationId // ignore: cast_nullable_to_non_nullable
+as int,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
 as CallStatus,callType: null == callType ? _self.callType : callType // ignore: cast_nullable_to_non_nullable
 as CallType,callerId: null == callerId ? _self.callerId : callerId // ignore: cast_nullable_to_non_nullable
 as int,callerName: null == callerName ? _self.callerName : callerName // ignore: cast_nullable_to_non_nullable
 as String,callerAvatar: freezed == callerAvatar ? _self.callerAvatar : callerAvatar // ignore: cast_nullable_to_non_nullable
-as String?,calleeId: null == calleeId ? _self.calleeId : calleeId // ignore: cast_nullable_to_non_nullable
-as int,calleeName: null == calleeName ? _self.calleeName : calleeName // ignore: cast_nullable_to_non_nullable
-as String,calleeAvatar: freezed == calleeAvatar ? _self.calleeAvatar : calleeAvatar // ignore: cast_nullable_to_non_nullable
 as String?,createdAt: null == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
 as String,durationSeconds: freezed == durationSeconds ? _self.durationSeconds : durationSeconds // ignore: cast_nullable_to_non_nullable
-as int?,
+as int?,participants: null == participants ? _self._participants : participants // ignore: cast_nullable_to_non_nullable
+as List<CallParticipantModel>,
   ));
 }
 

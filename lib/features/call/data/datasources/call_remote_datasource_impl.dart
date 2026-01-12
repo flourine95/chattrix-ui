@@ -14,11 +14,11 @@ class CallRemoteDataSourceImpl implements CallRemoteDataSource {
   CallRemoteDataSourceImpl({required this.dio});
 
   @override
-  Future<CallConnectionModel> initiateCall({required int calleeId, required CallType callType}) async {
+  Future<CallConnectionModel> initiateCall({required int conversationId, required CallType callType}) async {
     try {
       final response = await dio.post(
         ApiConstants.initiateCall,
-        data: {'calleeId': calleeId, 'callType': callType.name.toUpperCase()},
+        data: {'conversationId': conversationId, 'callType': callType.name.toUpperCase()},
       );
 
       if (response.statusCode == 200 || response.statusCode == 201) {
@@ -47,6 +47,21 @@ class CallRemoteDataSourceImpl implements CallRemoteDataSource {
   }
 
   @override
+  Future<CallConnectionModel> joinCall({required String callId}) async {
+    try {
+      final response = await dio.post(ApiConstants.joinCall(callId));
+
+      if (response.statusCode == 200) {
+        return CallConnectionModel.fromJson(response.data['data']);
+      } else {
+        throw ServerException(message: response.data['message'] ?? 'Failed to join call');
+      }
+    } on DioException catch (e) {
+      throw ServerException(message: e.response?.data['message'] ?? 'Network error occurred');
+    }
+  }
+
+  @override
   Future<CallInfoModel> rejectCall({required String callId, required CallRejectReason reason}) async {
     try {
       final response = await dio.post(ApiConstants.rejectCall(callId), data: {'reason': reason.name});
@@ -64,7 +79,6 @@ class CallRemoteDataSourceImpl implements CallRemoteDataSource {
   @override
   Future<CallInfoModel> endCall({required String callId, required CallEndReason reason}) async {
     try {
-      // Serialize enum to JSON value (e.g., "network error" instead of "networkError")
       final reasonValue = _serializeCallEndReason(reason);
       final response = await dio.post(ApiConstants.endCall(callId), data: {'reason': reasonValue});
 
@@ -72,6 +86,25 @@ class CallRemoteDataSourceImpl implements CallRemoteDataSource {
         return CallInfoModel.fromJson(response.data['data']);
       } else {
         throw ServerException(message: response.data['message'] ?? 'Failed to end call');
+      }
+    } on DioException catch (e) {
+      throw ServerException(message: e.response?.data['message'] ?? 'Network error occurred');
+    }
+  }
+
+  @override
+  Future<CallInfoModel?> getActiveCall({required int conversationId}) async {
+    try {
+      final response = await dio.get(ApiConstants.activeCall(conversationId));
+
+      if (response.statusCode == 200) {
+        final data = response.data['data'];
+        if (data == null) {
+          return null;
+        }
+        return CallInfoModel.fromJson(data);
+      } else {
+        throw ServerException(message: response.data['message'] ?? 'Failed to get active call');
       }
     } on DioException catch (e) {
       throw ServerException(message: e.response?.data['message'] ?? 'Network error occurred');

@@ -38,6 +38,7 @@ class WebSocketConnectionNotifier extends Notifier<WebSocketConnectionState> {
   int _reconnectAttempts = 0;
   static const int _maxReconnectAttempts = 5;
   Timer? _reconnectTimer;
+  bool _shouldStopReconnecting = false;
 
   @override
   WebSocketConnectionState build() {
@@ -52,11 +53,20 @@ class WebSocketConnectionNotifier extends Notifier<WebSocketConnectionState> {
 
   Future<void> _initializeConnection() async {
     try {
+      // Check if we should stop reconnecting (e.g., after auth error)
+      if (_shouldStopReconnecting) {
+        debugPrint('🛑 WebSocket reconnection stopped due to auth error');
+        return;
+      }
+
       final tokenCache = ref.read(tokenCacheServiceProvider);
       final accessToken = await tokenCache.getAccessToken();
 
       if (accessToken == null || accessToken.isEmpty) {
+        debugPrint('⚠️ WebSocket: No access token available');
         state = state.copyWith(error: 'Not authenticated', clearError: false);
+        // Don't reconnect if no token
+        _shouldStopReconnecting = true;
         return;
       }
 
@@ -82,10 +92,43 @@ class WebSocketConnectionNotifier extends Notifier<WebSocketConnectionState> {
       state = state.copyWith(isConnected: true, clearError: true);
       _reconnectAttempts = 0;
     } catch (e) {
-      state = state.copyWith(error: e.toString());
-      // Schedule reconnect on connection failure
+      final errorMessage = e.toString();
+      debugPrint('❌ WebSocket connection error: $errorMessage');
+      
+      // Check if error is auth-related
+      if (_isAuthError(errorMessage)) {
+        debugPrint('🛑 Auth error detected - stopping WebSocket reconnection');
+        _shouldStopReconnecting = true;
+        _reconnectTimer?.cancel();
+        
+        // Clear tokens on auth error
+        try {
+          final tokenCache = ref.read(tokenCacheServiceProvider);
+          await tokenCache.clearTokens();
+          debugPrint('🧹 Tokens cleared due to WebSocket auth error');
+        } catch (e) {
+          debugPrint('⚠️ Failed to clear tokens: $e');
+        }
+        
+        state = state.copyWith(error: 'Authentication failed', clearError: false);
+        return;
+      }
+      
+      state = state.copyWith(error: errorMessage);
+      // Schedule reconnect on connection failure (if not auth error)
       _scheduleReconnect();
     }
+  }
+
+  /// Check if error message indicates authentication failure
+  bool _isAuthError(String errorMessage) {
+    final lowerError = errorMessage.toLowerCase();
+    return lowerError.contains('unauthorized') ||
+        lowerError.contains('401') ||
+        lowerError.contains('user not found') ||
+        lowerError.contains('invalid token') ||
+        lowerError.contains('token expired') ||
+        lowerError.contains('authentication failed');
   }
 
   /// Schedule reconnection with exponential backoff
@@ -94,6 +137,12 @@ class WebSocketConnectionNotifier extends Notifier<WebSocketConnectionState> {
   /// Enables polling fallback when WebSocket is disconnected
   void _scheduleReconnect() {
     _reconnectTimer?.cancel();
+
+    // Don't reconnect if we should stop (e.g., auth error)
+    if (_shouldStopReconnecting) {
+      debugPrint('🛑 Reconnection cancelled - should stop reconnecting');
+      return;
+    }
 
     if (_reconnectAttempts >= _maxReconnectAttempts) {
       state = state.copyWith(error: 'Max reconnection attempts reached. Using polling fallback.', clearError: false);
@@ -110,7 +159,7 @@ class WebSocketConnectionNotifier extends Notifier<WebSocketConnectionState> {
     );
 
     _reconnectTimer = Timer(delay, () {
-      if (!state.isConnected) {
+      if (!state.isConnected && !_shouldStopReconnecting) {
         debugPrint('🔄 Attempting WebSocket reconnection...');
         _initializeConnection();
       }
@@ -119,6 +168,7 @@ class WebSocketConnectionNotifier extends Notifier<WebSocketConnectionState> {
 
   Future<void> reconnect() async {
     _reconnectAttempts = 0;
+    _shouldStopReconnecting = false; // Reset flag when manually reconnecting
     _reconnectTimer?.cancel();
     await _initializeConnection();
   }
@@ -126,6 +176,7 @@ class WebSocketConnectionNotifier extends Notifier<WebSocketConnectionState> {
   Future<void> disconnect() async {
     _reconnectTimer?.cancel();
     _reconnectAttempts = 0;
+    _shouldStopReconnecting = false;
     final webSocketService = ref.read(webSocketServiceProvider);
     await webSocketService.disconnect();
     state = state.copyWith(isConnected: false, clearError: true);

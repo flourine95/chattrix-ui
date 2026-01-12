@@ -94,7 +94,15 @@ class ChatRemoteDatasourceImpl implements ChatRemoteDatasource {
       }
 
       throw ServerException(message: 'Failed to fetch conversations');
+    } on ApiException {
+      // ✅ Re-throw ApiException from interceptor (don't convert to ServerException)
+      rethrow;
     } on DioException catch (e) {
+      // ✅ Check if DioException wraps an ApiException
+      if (e.error is ApiException) {
+        rethrow; // Re-throw the wrapped ApiException
+      }
+      
       AppLogger.error('❌ Failed to fetch conversations - DioException', error: e, tag: 'ChatRemoteDataSource');
       AppLogger.debug(
         'Status Code: ${e.response?.statusCode}, Message: ${e.response?.data}',

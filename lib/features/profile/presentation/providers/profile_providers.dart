@@ -46,7 +46,41 @@ class ProfileController extends _$ProfileController {
     final useCase = ref.read(getProfileUseCaseProvider);
     final result = await useCase();
 
-    return result.fold((failure) => throw _mapFailureToException(failure), (profile) => profile);
+    return result.fold(
+      (failure) {
+        // Auto-logout on auth errors (token expired/invalid)
+        if (failure is AuthFailure) {
+          _handleAuthError();
+        }
+        throw _mapFailureToException(failure);
+      },
+      (profile) => profile,
+    );
+  }
+
+  /// Handle authentication errors by clearing tokens
+  void _handleAuthError() {
+    try {
+      // Clear tokens from cache
+      final tokenCache = ref.read(tokenCacheServiceProvider);
+      tokenCache.clearTokens();
+    } catch (e) {
+      // Silently handle error
+    }
+  }
+
+  /// Force logout - clear everything without API call
+  Future<void> forceLogout() async {
+    try {
+      // Clear tokens
+      final tokenCache = ref.read(tokenCacheServiceProvider);
+      await tokenCache.clearTokens();
+
+      // Reset auth state
+      ref.invalidate(authNotifierProvider);
+    } catch (e) {
+      // Silently handle error
+    }
   }
 
   Future<void> updateProfile({required UpdateProfileParams params, File? newAvatarFile}) async {

@@ -183,9 +183,13 @@ class ApiConstants {
 
   static String acceptCall(String callId) => '$_baseUrl/$_v1/calls/$callId/accept';
 
+  static String joinCall(String callId) => '$_baseUrl/$_v1/calls/$callId/join';
+
   static String rejectCall(String callId) => '$_baseUrl/$_v1/calls/$callId/reject';
 
   static String endCall(String callId) => '$_baseUrl/$_v1/calls/$callId/end';
+
+  static String activeCall(int conversationId) => '$_baseUrl/$_v1/calls/active/$conversationId';
 
   // Conversation Settings endpoints
   static String conversationSettings(int conversationId) => '$_baseUrl/$_v1/conversations/$conversationId/settings';

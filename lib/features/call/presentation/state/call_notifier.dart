@@ -234,20 +234,25 @@ class CallNotifier extends _$CallNotifier {
     }
   }
 
-  Future<void> initiateCall(int calleeId, CallType callType, {String? calleeName, String? calleeAvatar}) async {
+  Future<void> initiateCall(
+    int conversationId,
+    CallType callType, {
+    String? conversationName,
+    String? conversationAvatar,
+  }) async {
     try {
-      AppLogger.call('🚀 Initiating call to user $calleeId, type: $callType');
+      AppLogger.call('🚀 Initiating call in conversation $conversationId, type: $callType');
       state = CallState.initiating(
-        calleeId: calleeId,
+        calleeId: conversationId,
         callType: callType,
-        calleeName: calleeName,
-        calleeAvatar: calleeAvatar,
+        calleeName: conversationName,
+        calleeAvatar: conversationAvatar,
       );
       AppLogger.call('📱 State changed to INITIATING');
 
       final usecase = ref.read(initiateCallUseCaseProvider);
       AppLogger.call('📞 Calling backend API to initiate call...');
-      final result = await usecase.call(calleeId: calleeId, callType: callType);
+      final result = await usecase.call(conversationId: conversationId, callType: callType);
       AppLogger.call('📡 Backend API response received');
 
       await result.fold(
@@ -279,7 +284,7 @@ class CallNotifier extends _$CallNotifier {
             AppLogger.call('✅ Joined Agora channel successfully');
 
             state = CallState.connecting(connection: connection, callType: callType, isOutgoing: true);
-            AppLogger.call('📱 State changed to CONNECTING, waiting for callee to join...');
+            AppLogger.call('📱 State changed to CONNECTING, waiting for others to join...');
           } catch (agoraError, stack) {
             AppLogger.error('Agora error during call initiation', error: agoraError, stackTrace: stack, tag: 'Call');
             final errorMessage = 'Failed to join call. Please check your connection and try again.';
@@ -324,7 +329,7 @@ class CallNotifier extends _$CallNotifier {
                 await agoraService.joinChannel(
                   token: connection.token,
                   channelId: connection.callInfo.channelId,
-                  uid: connection.callInfo.calleeId,
+                  uid: connection.callInfo.callerId,
                   isVideoCall: invitation.callType == CallType.video,
                 );
 
@@ -355,6 +360,58 @@ class CallNotifier extends _$CallNotifier {
         }
       },
     );
+  }
+
+  /// Join an ongoing call (for late joiners)
+  Future<void> joinCall(String callId, CallType callType) async {
+    try {
+      AppLogger.call('🚀 Joining ongoing call: $callId');
+      state = CallState.initiating(calleeId: 0, callType: callType, calleeName: 'Group Call', calleeAvatar: null);
+
+      final usecase = ref.read(joinCallUseCaseProvider);
+      final result = await usecase.call(callId: callId);
+
+      await result.fold(
+        (failure) {
+          final message = _getFailureMessage(failure);
+          AppLogger.error('Failed to join call: $message', tag: 'Call');
+          ref.read(toastControllerProvider).show(title: message, type: ToastType.error);
+          state = CallState.error(message: message);
+        },
+        (connection) async {
+          AppLogger.call('✅ Joined call successfully: ${connection.callInfo.id}');
+
+          try {
+            final agoraService = ref.read(agoraServiceProvider);
+            await agoraService.initialize();
+            await agoraService.joinChannel(
+              token: connection.token,
+              channelId: connection.callInfo.channelId,
+              uid: connection.callInfo.callerId,
+              isVideoCall: callType == CallType.video,
+            );
+
+            state = CallState.connecting(connection: connection, callType: callType, isOutgoing: false);
+            AppLogger.call('📱 State changed to CONNECTING');
+          } catch (agoraError, stack) {
+            AppLogger.error('Agora error during call join', error: agoraError, stackTrace: stack, tag: 'Call');
+            final errorMessage = 'Failed to join call. Please check your connection and try again.';
+            ref.read(toastControllerProvider).show(title: errorMessage, type: ToastType.error);
+            state = CallState.error(message: errorMessage);
+
+            try {
+              final endUsecase = ref.read(endCallUseCaseProvider);
+              await endUsecase.call(callId: connection.callInfo.id, reason: CallEndReason.networkError);
+            } catch (_) {}
+          }
+        },
+      );
+    } catch (e, stack) {
+      AppLogger.error('Error joining call', error: e, stackTrace: stack, tag: 'Call');
+      final errorMessage = 'Failed to join call. Please try again.';
+      ref.read(toastControllerProvider).show(title: errorMessage, type: ToastType.error);
+      state = CallState.error(message: errorMessage);
+    }
   }
 
   Future<void> rejectCall() async {

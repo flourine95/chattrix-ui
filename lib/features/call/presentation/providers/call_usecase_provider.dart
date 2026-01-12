@@ -1,6 +1,8 @@
 import 'package:chattrix_ui/features/call/domain/usecases/accept_call_usecase.dart';
 import 'package:chattrix_ui/features/call/domain/usecases/end_call_usecase.dart';
+import 'package:chattrix_ui/features/call/domain/usecases/get_active_call_usecase.dart';
 import 'package:chattrix_ui/features/call/domain/usecases/initiate_call_usecase.dart';
+import 'package:chattrix_ui/features/call/domain/usecases/join_call_usecase.dart';
 import 'package:chattrix_ui/features/call/domain/usecases/reject_call_usecase.dart';
 import 'package:chattrix_ui/features/call/presentation/providers/call_repository_provider.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -15,6 +17,11 @@ final acceptCallUseCaseProvider = Provider<AcceptCallUseCase>((ref) {
   return AcceptCallUseCase(repository);
 });
 
+final joinCallUseCaseProvider = Provider<JoinCallUseCase>((ref) {
+  final repository = ref.watch(callRepositoryProvider);
+  return JoinCallUseCase(repository);
+});
+
 final rejectCallUseCaseProvider = Provider<RejectCallUseCase>((ref) {
   final repository = ref.watch(callRepositoryProvider);
   return RejectCallUseCase(repository);
@@ -23,4 +30,9 @@ final rejectCallUseCaseProvider = Provider<RejectCallUseCase>((ref) {
 final endCallUseCaseProvider = Provider<EndCallUseCase>((ref) {
   final repository = ref.watch(callRepositoryProvider);
   return EndCallUseCase(repository);
+});
+
+final getActiveCallUseCaseProvider = Provider<GetActiveCallUseCase>((ref) {
+  final repository = ref.watch(callRepositoryProvider);
+  return GetActiveCallUseCase(repository);
 });

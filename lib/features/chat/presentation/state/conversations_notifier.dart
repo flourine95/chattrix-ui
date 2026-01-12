@@ -206,8 +206,11 @@ class ConversationsNotifier extends _$ConversationsNotifier {
                 AppLogger.error('Validation error: $code - $message', tag: 'ConversationsNotifier');
               },
               auth: (message, code, requestId) {
-                AppLogger.error('Auth error: $code - $message', tag: 'ConversationsNotifier');
-                // Auth errors will be handled in UI layer (redirect to login)
+                AppLogger.error('🛑 Auth error detected: $code - $message', tag: 'ConversationsNotifier');
+                // Stop polling on auth errors
+                _stopPolling();
+                // Clear tokens
+                _handleAuthError();
               },
               notFound: (message, code, requestId) {
                 AppLogger.error('Not found error: $code - $message', tag: 'ConversationsNotifier');
@@ -239,13 +242,28 @@ class ConversationsNotifier extends _$ConversationsNotifier {
       },
       maxAttempts: 3,
       shouldRetry: (error) {
-        // Only retry network errors (timeout, connection issues)
+        // Don't retry auth errors
         if (error is Failure) {
-          return error.maybeWhen(network: (_, _) => true, orElse: () => false);
+          return error.maybeWhen(
+            network: (_, _) => true,
+            auth: (_, _, _) => false, // Don't retry auth errors
+            orElse: () => false,
+          );
         }
         return RetryHelper.isNetworkError(error);
       },
     );
+  }
+
+  /// Handle authentication errors by clearing tokens
+  void _handleAuthError() {
+    try {
+      final tokenCache = ref.read(tokenCacheServiceProvider);
+      tokenCache.clearTokens();
+      AppLogger.info('🧹 Tokens cleared due to auth error', tag: 'ConversationsNotifier');
+    } catch (e) {
+      AppLogger.error('⚠️ Failed to clear tokens: $e', tag: 'ConversationsNotifier');
+    }
   }
 
   /// Filter and sort conversations based on pin/hide settings
