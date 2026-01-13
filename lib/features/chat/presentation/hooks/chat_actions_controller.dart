@@ -197,7 +197,7 @@ class ChatActionsController {
       // Show loading
       if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Đang upload audio...'), duration: Duration(seconds: 30)),
+        const SnackBar(content: Text('Uploading audio...'), duration: Duration(seconds: 30)),
       );
 
       await _uploadAndSendAudio(audioFile);
@@ -206,7 +206,7 @@ class ChatActionsController {
         ScaffoldMessenger.of(context).hideCurrentSnackBar();
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Audio đã được gửi'),
+            content: Text('Audio sent successfully'),
             duration: Duration(seconds: 2),
             backgroundColor: Colors.green,
           ),
@@ -219,15 +219,15 @@ class ChatActionsController {
       if (context.mounted) {
         ScaffoldMessenger.of(context).hideCurrentSnackBar();
 
-        String errorMessage = 'Không thể chọn audio';
+        String errorMessage = 'Unable to select audio';
         if (e.toString().contains('permission')) {
-          errorMessage = 'Không có quyền truy cập file. Vui lòng cấp quyền trong cài đặt.';
+          errorMessage = 'No file access permission. Please grant permission in settings.';
         } else if (e.toString().contains('upload')) {
-          errorMessage = 'Không thể upload audio. Vui lòng kiểm tra kết nối mạng.';
+          errorMessage = 'Unable to upload audio. Please check your network connection.';
         } else if (e.toString().contains('size')) {
-          errorMessage = 'File audio quá lớn. Vui lòng chọn file nhỏ hơn.';
+          errorMessage = 'Audio file is too large. Please select a smaller file.';
         } else {
-          errorMessage = 'Lỗi: ${e.toString()}';
+          errorMessage = 'Error: ${e.toString()}';
         }
 
         ScaffoldMessenger.of(context).showSnackBar(
@@ -236,7 +236,7 @@ class ChatActionsController {
             backgroundColor: Colors.red,
             duration: const Duration(seconds: 4),
             action: SnackBarAction(
-              label: 'Đóng',
+              label: 'Close',
               textColor: Colors.white,
               onPressed: () => ScaffoldMessenger.of(context).hideCurrentSnackBar(),
             ),
@@ -266,7 +266,7 @@ class ChatActionsController {
           await _uploadAndSendVoice(file, duration.inSeconds);
         } catch (e) {
           debugPrint('❌ [Voice] Error uploading: $e');
-          _showError('Không thể gửi voice message: $e');
+          _showError('Unable to send voice message: $e');
         }
       }
     } else {
@@ -276,11 +276,11 @@ class ChatActionsController {
         if (path != null) {
           isRecording.value = true;
         } else {
-          _showError('Không thể bắt đầu ghi âm. Vui lòng cấp quyền microphone.');
+          _showError('Unable to start recording. Please grant microphone permission.');
         }
       } catch (e) {
         debugPrint('❌ [Voice] Error starting: $e');
-        _showError('Lỗi khi ghi âm: $e');
+        _showError('Recording error: $e');
       }
     }
   }

@@ -537,9 +537,9 @@ class ConversationsNotifier extends _$ConversationsNotifier {
     if (typingUsers.isNotEmpty) {
       String typingText;
       if (typingUsers.length == 1) {
-        typingText = 'Đang soạn tin...';
+        typingText = 'Typing...';
       } else {
-        typingText = '${typingUsers.length} người đang soạn tin...';
+        typingText = '${typingUsers.length} people are typing...';
       }
 
       // Create a temporary message to display typing indicator

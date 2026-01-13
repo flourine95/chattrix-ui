@@ -11,6 +11,7 @@ import 'package:chattrix_ui/features/chat/presentation/providers/typing_indicato
 import 'package:chattrix_ui/features/chat/presentation/utils/conversation_utils.dart';
 import 'package:chattrix_ui/features/chat/presentation/widgets/attachment_picker.dart';
 import 'package:chattrix_ui/features/chat/services/voice_recorder_provider.dart';
+import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -33,13 +34,10 @@ void useMarkAsReadEffect(WidgetRef ref, String chatId) {
         final markAsReadUseCase = ref.read(markConversationAsReadUsecaseProvider);
         final result = await markAsReadUseCase(conversationId: conversationId);
 
-        result.fold(
-          (failure) => debugPrint('❌ Failed to mark conversation as read: ${failure.message}'),
-          (_) {
-            debugPrint('✅ Marked conversation $conversationId as read');
-            ref.read(conversationsProvider.notifier).resetUnreadCount(conversationId);
-          },
-        );
+        result.fold((failure) => debugPrint('❌ Failed to mark conversation as read: ${failure.message}'), (_) {
+          debugPrint('✅ Marked conversation $conversationId as read');
+          ref.read(conversationsProvider.notifier).resetUnreadCount(conversationId);
+        });
       } catch (e) {
         debugPrint('❌ Error marking conversation as read: $e');
       }
@@ -146,21 +144,13 @@ void useGalleryEffect(
     final ps = await PhotoManager.requestPermissionExtend();
     if (ps.isAuth) {
       await PhotoManager.clearFileCache();
-      final filter = FilterOptionGroup(
-        orders: [OrderOption(type: OrderOptionType.createDate, asc: false)],
-      );
-      final paths = await PhotoManager.getAssetPathList(
-        type: RequestType.common,
-        filterOption: filter,
-      );
+      final filter = FilterOptionGroup(orders: [OrderOption(type: OrderOptionType.createDate, asc: false)]);
+      final paths = await PhotoManager.getAssetPathList(type: RequestType.common, filterOption: filter);
 
       albums.value = paths;
       if (paths.isNotEmpty) {
         final target = currentAlbum.value ?? paths.first;
-        final validAlbum = paths.firstWhere(
-          (a) => a.id == target.id,
-          orElse: () => paths.first,
-        );
+        final validAlbum = paths.firstWhere((a) => a.id == target.id, orElse: () => paths.first);
         currentAlbum.value = validAlbum;
         assets.value = await validAlbum.getAssetListPaged(page: 0, size: 80);
       }
@@ -181,10 +171,7 @@ void useGalleryEffect(
 }
 
 /// Scroll button visibility effect
-void useScrollButtonEffect(
-  ScrollController scrollController,
-  ValueNotifier<bool> showScrollButton,
-) {
+void useScrollButtonEffect(ScrollController scrollController, ValueNotifier<bool> showScrollButton) {
   useEffect(() {
     void scrollListener() {
       if (!scrollController.hasClients) return;
@@ -214,10 +201,7 @@ void useVoiceRecordingEffect(
         recordingDuration.value = duration;
 
         if (duration.inMinutes >= 5) {
-          chatActions.handleVoiceRecording(
-            isRecording: isRecording,
-            recordingDuration: recordingDuration,
-          );
+          chatActions.handleVoiceRecording(isRecording: isRecording, recordingDuration: recordingDuration);
         }
       });
       return subscription.cancel;
@@ -253,11 +237,7 @@ void useHidePickersOnKeyboardEffect(
 
 void scrollToBottom(ScrollController scrollController) {
   if (scrollController.hasClients) {
-    scrollController.animateTo(
-      0,
-      duration: const Duration(milliseconds: 300),
-      curve: Curves.easeOut,
-    );
+    scrollController.animateTo(0, duration: const Duration(milliseconds: 300), curve: Curves.easeOut);
   }
 }
 
@@ -283,9 +263,7 @@ void toggleGallery(
 ) {
   if (kIsWeb) {
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Thư viện ảnh chưa hỗ trợ trên web. Vui lòng sử dụng nút Camera hoặc Files.'),
-      ),
+      const SnackBar(content: Text('Thư viện ảnh chưa hỗ trợ trên web. Vui lòng sử dụng nút Camera hoặc Files.')),
     );
     return;
   }
@@ -373,41 +351,22 @@ void handleAttachmentSelection(
   }
 }
 
-void onEmojiSelected(
-  String emoji,
-  ChatActionsController chatActions,
-  ValueNotifier<bool> showEmojiPicker,
-) {
+void onEmojiSelected(String emoji, ChatActionsController chatActions, ValueNotifier<bool> showEmojiPicker) {
   chatActions.sendMessage(specificContent: emoji, type: 'EMOJI');
   showEmojiPicker.value = false;
 }
 
-void onStickerSelected(
-  String stickerUrl,
-  ChatActionsController chatActions,
-  ValueNotifier<bool> showEmojiPicker,
-) {
+void onStickerSelected(String stickerUrl, ChatActionsController chatActions, ValueNotifier<bool> showEmojiPicker) {
   chatActions.sendMessage(specificContent: '', type: 'STICKER', mediaUrl: stickerUrl);
   showEmojiPicker.value = false;
 }
 
-Future<void> handlePinMessage(
-  Message message,
-  WidgetRef ref,
-  String chatId,
-  BuildContext context,
-) async {
+Future<void> handlePinMessage(Message message, WidgetRef ref, String chatId, BuildContext context) async {
   try {
     if (message.pinned) {
-      await ref.read(unpinMessageUsecaseProvider)(
-        conversationId: chatId,
-        messageId: message.id.toString(),
-      );
+      await ref.read(unpinMessageUsecaseProvider)(conversationId: chatId, messageId: message.id.toString());
     } else {
-      await ref.read(pinMessageUsecaseProvider)(
-        conversationId: chatId,
-        messageId: message.id.toString(),
-      );
+      await ref.read(pinMessageUsecaseProvider)(conversationId: chatId, messageId: message.id.toString());
     }
 
     ref.read(messagesProvider(chatId).notifier).refresh();
@@ -420,10 +379,7 @@ Future<void> handlePinMessage(
           children: [
             const Icon(Icons.check_circle, color: Colors.white, size: 20),
             const SizedBox(width: 12),
-            Text(
-              message.pinned ? 'Message unpinned' : 'Message pinned',
-              style: const TextStyle(color: Colors.white),
-            ),
+            Text(message.pinned ? 'Message unpinned' : 'Message pinned', style: const TextStyle(color: Colors.white)),
           ],
         ),
         backgroundColor: Colors.grey.shade900,
@@ -455,19 +411,11 @@ Future<void> handlePinMessage(
   }
 }
 
-void handleAudioCall(
-  BuildContext context,
-  WidgetRef ref,
-  dynamic conversation,
-  dynamic me,
-  String chatId,
-) {
+void handleAudioCall(BuildContext context, WidgetRef ref, dynamic conversation, dynamic me, String chatId) {
   if (conversation == null || me == null) return;
 
   if (conversation.type == ConversationType.group) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Group calls are not supported yet')),
-    );
+    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Group calls are not supported yet')));
     return;
   }
 
@@ -476,13 +424,13 @@ void handleAudioCall(
   final conversationId = int.tryParse(chatId);
 
   if (conversationId == null) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Invalid conversation ID')),
-    );
+    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Invalid conversation ID')));
     return;
   }
 
-  ref.read(callProvider.notifier).initiateCall(
+  ref
+      .read(callProvider.notifier)
+      .initiateCall(
         conversationId,
         CallType.audio,
         conversationName: conversationName,
@@ -490,19 +438,11 @@ void handleAudioCall(
       );
 }
 
-void handleVideoCall(
-  BuildContext context,
-  WidgetRef ref,
-  dynamic conversation,
-  dynamic me,
-  String chatId,
-) {
+void handleVideoCall(BuildContext context, WidgetRef ref, dynamic conversation, dynamic me, String chatId) {
   if (conversation == null || me == null) return;
 
   if (conversation.type == ConversationType.group) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Group calls are not supported yet')),
-    );
+    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Group calls are not supported yet')));
     return;
   }
 
@@ -511,13 +451,13 @@ void handleVideoCall(
   final conversationId = int.tryParse(chatId);
 
   if (conversationId == null) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Invalid conversation ID')),
-    );
+    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Invalid conversation ID')));
     return;
   }
 
-  ref.read(callProvider.notifier).initiateCall(
+  ref
+      .read(callProvider.notifier)
+      .initiateCall(
         conversationId,
         CallType.video,
         conversationName: conversationName,
@@ -525,41 +465,115 @@ void handleVideoCall(
       );
 }
 
-void handleConversationInfo(
-  BuildContext context,
-  dynamic conversation,
-  String chatId,
-) {
+void handleConversationInfo(BuildContext context, dynamic conversation, String chatId) {
   if (conversation == null) return;
   context.push('/chat/$chatId/info', extra: conversation);
 }
 
+/// Show reaction picker bottom sheet with search
+///
+/// Uses emoji_picker_flutter v4.4.0 with custom styling for modern UI
 void showReactionPicker(BuildContext context, Function(String) onReactionSelected) {
+  final colors = Theme.of(context).colorScheme;
+
   showModalBottomSheet(
     context: context,
+    isScrollControlled: true,
     backgroundColor: Colors.transparent,
-    builder: (c) => Container(
-      margin: const EdgeInsets.all(16),
-      padding: const EdgeInsets.all(10),
-      decoration: BoxDecoration(
-        color: Theme.of(context).cardColor,
-        borderRadius: BorderRadius.circular(30),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: ['👍', '❤️', '😂', '😮', '😢', '😡']
-            .map(
-              (e) => GestureDetector(
-                onTap: () {
-                  onReactionSelected(e);
-                  Navigator.pop(c);
-                },
-                child: Text(e, style: const TextStyle(fontSize: 28)),
+    builder: (context) {
+      return Container(
+        height: MediaQuery.of(context).size.height * 0.65,
+        decoration: BoxDecoration(
+          color: colors.surface,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+          boxShadow: [
+            BoxShadow(color: Colors.black.withValues(alpha: 0.1), blurRadius: 10, offset: const Offset(0, -2)),
+          ],
+        ),
+        child: Column(
+          children: [
+            // Handle bar
+            Container(
+              margin: const EdgeInsets.only(top: 12, bottom: 8),
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: colors.onSurfaceVariant.withValues(alpha: 0.3),
+                borderRadius: BorderRadius.circular(2),
               ),
-            )
-            .toList(),
-      ),
-    ),
+            ),
+            // Title
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: Row(
+                children: [
+                  Text(
+                    'Choose Reaction',
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
+                  ),
+                  const Spacer(),
+                  IconButton(
+                    icon: const Icon(Icons.close, size: 20),
+                    onPressed: () => Navigator.pop(context),
+                    style: IconButton.styleFrom(
+                      backgroundColor: colors.surfaceContainerHighest,
+                      padding: const EdgeInsets.all(8),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const Divider(height: 1),
+            // Emoji Picker
+            Expanded(
+              child: EmojiPicker(
+                onEmojiSelected: (category, emoji) {
+                  onReactionSelected(emoji.emoji);
+                  Navigator.pop(context);
+                },
+                config: Config(
+                  checkPlatformCompatibility: false,
+                  emojiViewConfig: EmojiViewConfig(
+                    emojiSizeMax: 32,
+                    verticalSpacing: 8,
+                    horizontalSpacing: 4,
+                    gridPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                    backgroundColor: colors.surface,
+                    columns: 8,
+                    buttonMode: ButtonMode.MATERIAL,
+                    recentsLimit: 28,
+                    replaceEmojiOnLimitExceed: true,
+                  ),
+                  skinToneConfig: const SkinToneConfig(enabled: false),
+                  categoryViewConfig: CategoryViewConfig(
+                    backgroundColor: colors.surface,
+                    indicatorColor: colors.primary,
+                    iconColorSelected: colors.primary,
+                    iconColor: colors.onSurfaceVariant.withValues(alpha: 0.6),
+                    categoryIcons: const CategoryIcons(),
+                    recentTabBehavior: RecentTabBehavior.RECENT,
+                    tabIndicatorAnimDuration: const Duration(milliseconds: 300),
+                    dividerColor: colors.outlineVariant.withValues(alpha: 0.3),
+                  ),
+                  bottomActionBarConfig: BottomActionBarConfig(
+                    enabled: true,
+                    backgroundColor: colors.surface,
+                    buttonColor: colors.surfaceContainerHighest,
+                    buttonIconColor: colors.onSurfaceVariant,
+                    showSearchViewButton: true,
+                  ),
+                  searchViewConfig: SearchViewConfig(
+                    backgroundColor: colors.surface,
+                    buttonIconColor: colors.onSurfaceVariant,
+                    hintText: 'Search emoji...',
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    },
   );
 }
 

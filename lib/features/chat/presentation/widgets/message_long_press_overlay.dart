@@ -1,9 +1,9 @@
 import 'package:chattrix_ui/features/chat/domain/entities/message.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_emoji/flutter_emoji.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 
-class MessageLongPressOverlay extends StatefulWidget {
+class MessageLongPressOverlay extends HookWidget {
   const MessageLongPressOverlay({
     super.key,
     required this.message,
@@ -29,104 +29,99 @@ class MessageLongPressOverlay extends StatefulWidget {
   final bool canEdit;
   final VoidCallback? onPin;
 
-  @override
-  State<MessageLongPressOverlay> createState() => _MessageLongPressOverlayState();
-}
-
-class _MessageLongPressOverlayState extends State<MessageLongPressOverlay> with SingleTickerProviderStateMixin {
-  late AnimationController _animationController;
-  late Animation<double> _scaleAnimation;
-  late Animation<double> _fadeAnimation;
-
   static const List<String> _quickEmojis = ['👍', '❤️', '😂', '😮', '😢', '🔥'];
 
   @override
-  void initState() {
-    super.initState();
-    _animationController = AnimationController(duration: const Duration(milliseconds: 200), vsync: this);
+  Widget build(BuildContext context) {
+    // Use hooks for animation controller
+    final animationController = useAnimationController(duration: const Duration(milliseconds: 200));
+    
+    final scaleAnimation = useMemoized(
+      () => CurvedAnimation(parent: animationController, curve: Curves.easeOutBack),
+      [animationController],
+    );
+    
+    final fadeAnimation = useMemoized(
+      () => CurvedAnimation(parent: animationController, curve: Curves.easeOut),
+      [animationController],
+    );
 
-    _scaleAnimation = CurvedAnimation(parent: _animationController, curve: Curves.easeOutBack);
+    // Auto-start animation on mount
+    useEffect(() {
+      animationController.forward();
+      return null;
+    }, []);
 
-    _fadeAnimation = CurvedAnimation(parent: _animationController, curve: Curves.easeOut);
-
-    _animationController.forward();
-  }
-
-  @override
-  void dispose() {
-    _animationController.dispose();
-    super.dispose();
-  }
-
-  void _close() {
-    FocusScope.of(context).unfocus();
-    _animationController.reverse().then((_) {
-      if (mounted) {
-        Navigator.of(context).pop();
-      }
-    });
-  }
-
-  void _handleQuickReaction(String emoji) {
-    Navigator.of(context).pop();
-    widget.onQuickReaction(emoji);
-  }
-
-  void _handleAction(VoidCallback? action) {
-    if (action != null) {
-      Navigator.of(context).pop();
-      Future.delayed(const Duration(milliseconds: 100), () {
-        action();
+    void close() {
+      FocusScope.of(context).unfocus();
+      animationController.reverse().then((_) {
+        if (context.mounted) {
+          Navigator.of(context).pop();
+        }
       });
     }
-  }
 
-  void _handleCopy() {
-    final message = widget.message;
-    String textToCopy = '';
-
-    // Determine what to copy based on message type
-    switch (message.type.toUpperCase()) {
-      case 'TEXT':
-        textToCopy = message.content;
-        break;
-      case 'EMOJI':
-        textToCopy = message.content;
-        break;
-      case 'FILE':
-      case 'DOCUMENT':
-        textToCopy = message.fileName ?? message.content;
-        break;
-      case 'LOCATION':
-        textToCopy = message.locationName ?? 'Location: ${message.latitude}, ${message.longitude}';
-        break;
-      default:
-        textToCopy = message.content;
-    }
-
-    if (textToCopy.isNotEmpty) {
-      Clipboard.setData(ClipboardData(text: textToCopy));
+    void handleQuickReaction(String emoji) {
       Navigator.of(context).pop();
-
-      // Show snackbar
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Copied'), duration: Duration(seconds: 1), behavior: SnackBarBehavior.floating),
-      );
+      onQuickReaction(emoji);
     }
-  }
 
-  void _handleMoreReactions() {
-    Navigator.of(context).pop();
-    Future.delayed(const Duration(milliseconds: 100), () {
-      if (widget.onAddReaction != null) {
-        widget.onAddReaction!();
+    void handleAction(VoidCallback? action) {
+      if (action != null) {
+        Navigator.of(context).pop();
+        Future.delayed(const Duration(milliseconds: 100), () {
+          action();
+        });
       }
-    });
-  }
+    }
 
-  @override
-  Widget build(BuildContext context) {
-    final RenderBox? renderBox = widget.messageKey.currentContext?.findRenderObject() as RenderBox?;
+    void handleCopy() {
+      String textToCopy = '';
+
+      // Determine what to copy based on message type
+      switch (message.type.toUpperCase()) {
+        case 'TEXT':
+          textToCopy = message.content;
+          break;
+        case 'EMOJI':
+          textToCopy = message.content;
+          break;
+        case 'FILE':
+        case 'DOCUMENT':
+          textToCopy = message.fileName ?? message.content;
+          break;
+        case 'LOCATION':
+          textToCopy = message.locationName ?? 'Location: ${message.latitude}, ${message.longitude}';
+          break;
+        default:
+          textToCopy = message.content;
+      }
+
+      if (textToCopy.isNotEmpty) {
+        Clipboard.setData(ClipboardData(text: textToCopy));
+        Navigator.of(context).pop();
+
+        // Show snackbar
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Copied'),
+            duration: Duration(seconds: 1),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    }
+
+    void handleMoreReactions() {
+      Navigator.of(context).pop();
+      Future.delayed(const Duration(milliseconds: 100), () {
+        if (onAddReaction != null) {
+          onAddReaction!();
+        }
+      });
+    }
+
+    final RenderBox? renderBox = messageKey.currentContext?.findRenderObject() as RenderBox?;
 
     if (renderBox == null) {
       return const SizedBox.shrink();
@@ -142,7 +137,7 @@ class _MessageLongPressOverlayState extends State<MessageLongPressOverlay> with 
     final spacing = 12.0;
 
     double emojiBarLeft;
-    if (widget.isMe) {
+    if (isMe) {
       emojiBarLeft = position.dx + size.width - emojiBarWidth;
       if (emojiBarLeft < padding) emojiBarLeft = padding;
     } else {
@@ -174,16 +169,16 @@ class _MessageLongPressOverlayState extends State<MessageLongPressOverlay> with 
       child: Stack(
         children: [
           Positioned.fill(
-            child: GestureDetector(onTap: _close, behavior: HitTestBehavior.translucent),
+            child: GestureDetector(onTap: close, behavior: HitTestBehavior.translucent),
           ),
           Positioned(
             left: emojiBarLeft,
             top: emojiBarTop,
             child: FadeTransition(
-              opacity: _fadeAnimation,
+              opacity: fadeAnimation,
               child: ScaleTransition(
-                scale: _scaleAnimation,
-                child: _EmojiBar(emojis: _quickEmojis, onEmojiTap: _handleQuickReaction),
+                scale: scaleAnimation,
+                child: _EmojiBar(emojis: _quickEmojis, onEmojiTap: handleQuickReaction),
               ),
             ),
           ),
@@ -195,14 +190,14 @@ class _MessageLongPressOverlayState extends State<MessageLongPressOverlay> with 
               position: Tween<Offset>(
                 begin: const Offset(0, 1),
                 end: Offset.zero,
-              ).animate(CurvedAnimation(parent: _animationController, curve: Curves.easeOut)),
+              ).animate(CurvedAnimation(parent: animationController, curve: Curves.easeOut)),
               child: _ActionBar(
-                onReply: widget.onReply != null ? () => _handleAction(widget.onReply) : null,
-                onCopy: _handleCopy,
-                onEdit: widget.canEdit && widget.onEdit != null ? () => _handleAction(widget.onEdit) : null,
-                onPin: widget.onPin != null ? () => _handleAction(widget.onPin) : null,
-                onDelete: widget.isMe && widget.onDelete != null ? () => _handleAction(widget.onDelete) : null,
-                onMoreReactions: widget.onAddReaction != null ? _handleMoreReactions : null,
+                onReply: onReply != null ? () => handleAction(onReply) : null,
+                onCopy: handleCopy,
+                onEdit: canEdit && onEdit != null ? () => handleAction(onEdit) : null,
+                onPin: onPin != null ? () => handleAction(onPin) : null,
+                onDelete: isMe && onDelete != null ? () => handleAction(onDelete) : null,
+                onMoreReactions: onAddReaction != null ? handleMoreReactions : null,
               ),
             ),
           ),
@@ -242,55 +237,40 @@ class _EmojiBar extends StatelessWidget {
   }
 }
 
-class _EmojiButton extends StatefulWidget {
+/// Emoji button with scale animation on tap
+class _EmojiButton extends HookWidget {
   const _EmojiButton({required this.emoji, required this.onTap});
 
   final String emoji;
   final VoidCallback onTap;
 
   @override
-  State<_EmojiButton> createState() => _EmojiButtonState();
-}
-
-class _EmojiButtonState extends State<_EmojiButton> with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-  late Animation<double> _scaleAnimation;
-  final EmojiParser emojiParser = EmojiParser();
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(duration: const Duration(milliseconds: 100), vsync: this);
-    _scaleAnimation = Tween<double>(
-      begin: 1.0,
-      end: 1.3,
-    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
+    final controller = useAnimationController(duration: const Duration(milliseconds: 100));
+    
+    final scaleAnimation = useMemoized(
+      () => Tween<double>(begin: 1.0, end: 1.3).animate(
+        CurvedAnimation(parent: controller, curve: Curves.easeInOut),
+      ),
+      [controller],
+    );
+
     return Material(
       color: Colors.transparent,
       child: InkWell(
-        onTapDown: (_) => _controller.forward(),
+        onTapDown: (_) => controller.forward(),
         onTapUp: (_) {
-          _controller.reverse();
-          widget.onTap();
+          controller.reverse();
+          onTap();
         },
-        onTapCancel: () => _controller.reverse(),
+        onTapCancel: () => controller.reverse(),
         borderRadius: BorderRadius.circular(20),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 6),
           child: ScaleTransition(
-            scale: _scaleAnimation,
+            scale: scaleAnimation,
             child: Text(
-              widget.emoji,
+              emoji,
               style: const TextStyle(
                 fontSize: 28,
                 fontFamily: 'NotoColorEmoji',

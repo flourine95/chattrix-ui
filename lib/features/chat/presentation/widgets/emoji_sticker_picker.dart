@@ -12,18 +12,15 @@ import '../../services/giphy_provider.dart';
 /// - Sticker packs from Giphy API
 /// - Search functionality
 /// - Recent emojis/stickers
+/// - Automatic theme handling (no color parameters needed)
 class EmojiStickerPicker extends HookConsumerWidget {
   final Function(String emoji) onEmojiSelected;
   final Function(String stickerUrl) onStickerSelected;
-  final Color? backgroundColor;
-  final Color? iconColor;
 
   const EmojiStickerPicker({
     super.key,
     required this.onEmojiSelected,
     required this.onStickerSelected,
-    this.backgroundColor,
-    this.iconColor,
   });
 
   @override
@@ -35,9 +32,9 @@ class EmojiStickerPicker extends HookConsumerWidget {
     final searchQuery = useState('');
 
     final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
-    final bgColor = backgroundColor ?? (isDark ? const Color(0xFF1C1C1E) : Colors.white);
-    final iconColor = this.iconColor ?? theme.colorScheme.primary;
+    final colorScheme = theme.colorScheme;
+    final bgColor = colorScheme.surface;
+    final iconColor = colorScheme.primary;
 
     return Container(
       decoration: BoxDecoration(color: bgColor),
@@ -49,7 +46,7 @@ class EmojiStickerPicker extends HookConsumerWidget {
             controller: tabController,
             indicatorColor: iconColor,
             labelColor: iconColor,
-            unselectedLabelColor: isDark ? Colors.grey[400] : Colors.grey[600],
+            unselectedLabelColor: colorScheme.onSurfaceVariant,
             tabs: const [
               Tab(text: 'Emoji', icon: Icon(Icons.emoji_emotions_outlined, size: 20)),
               Tab(text: 'Stickers', icon: Icon(Icons.sticky_note_2_outlined, size: 20)),

@@ -1,37 +1,18 @@
 import 'package:chattrix_ui/features/chat/presentation/widgets/mention_text_field.dart';
+import 'package:chattrix_ui/features/chat/presentation/widgets/input_bar_config.dart';
 import 'package:flutter/material.dart';
 
-/// Simplified InputBar with reduced parameters
+/// Simplified InputBar using config objects to reduce parameter explosion
 class ChatInputBar extends StatelessWidget {
-  final TextEditingController controller;
-  final FocusNode focusNode;
-  final VoidCallback onSend;
-  final bool showGallery;
-  final bool canSendMessage;
-  final VoidCallback onToggleGallery;
-  final bool isRecording;
-  final Duration recordingDuration;
-  final VoidCallback onVoiceRecord;
-  final VoidCallback onCancelRecording;
-  final bool showAttachmentPicker;
-  final VoidCallback onToggleAttachmentPicker;
-  final dynamic conversation;
+  final InputBarConfig config;
+  final InputBarState state;
+  final InputBarCallbacks callbacks;
 
   const ChatInputBar({
     super.key,
-    required this.controller,
-    required this.focusNode,
-    required this.onSend,
-    required this.showGallery,
-    required this.canSendMessage,
-    required this.onToggleGallery,
-    required this.isRecording,
-    required this.recordingDuration,
-    required this.onVoiceRecord,
-    required this.onCancelRecording,
-    required this.showAttachmentPicker,
-    required this.onToggleAttachmentPicker,
-    this.conversation,
+    required this.config,
+    required this.state,
+    required this.callbacks,
   });
 
   String _formatDuration(Duration duration) {
@@ -47,7 +28,7 @@ class ChatInputBar extends StatelessWidget {
     final primaryColor = theme.colorScheme.primary;
 
     // Show recording overlay when recording
-    if (isRecording) {
+    if (state.isRecording) {
       return _buildRecordingOverlay(isDark, primaryColor);
     }
 
@@ -93,7 +74,7 @@ class ChatInputBar extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    _formatDuration(recordingDuration),
+                    _formatDuration(state.recordingDuration),
                     style: TextStyle(
                       color: isDark ? Colors.white : Colors.black,
                       fontSize: 16,
@@ -112,7 +93,7 @@ class ChatInputBar extends StatelessWidget {
               ),
             ),
             TextButton(
-              onPressed: onCancelRecording,
+              onPressed: callbacks.onCancelRecording,
               style: TextButton.styleFrom(
                 foregroundColor: Colors.red,
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -123,7 +104,7 @@ class ChatInputBar extends StatelessWidget {
             ),
             const SizedBox(width: 8),
             ElevatedButton(
-              onPressed: onVoiceRecord,
+              onPressed: callbacks.onVoiceRecord,
               style: ElevatedButton.styleFrom(
                 backgroundColor: primaryColor,
                 foregroundColor: Colors.white,
@@ -173,14 +154,14 @@ class ChatInputBar extends StatelessWidget {
             // + button
             Container(
               decoration: BoxDecoration(
-                color: showAttachmentPicker
+                color: state.showAttachmentPicker
                     ? primaryColor.withValues(alpha: 0.1)
                     : Colors.transparent,
                 shape: BoxShape.circle,
               ),
               child: IconButton(
                 icon: Icon(Icons.add_circle_outline, color: primaryColor, size: 28),
-                onPressed: onToggleAttachmentPicker,
+                onPressed: callbacks.onToggleAttachmentPicker,
                 padding: EdgeInsets.zero,
                 constraints: const BoxConstraints(minWidth: 40, minHeight: 40),
               ),
@@ -188,24 +169,24 @@ class ChatInputBar extends StatelessWidget {
             // Gallery button
             Container(
               decoration: BoxDecoration(
-                color: showGallery
+                color: state.showGallery
                     ? primaryColor.withValues(alpha: 0.1)
                     : Colors.transparent,
                 shape: BoxShape.circle,
               ),
               child: IconButton(
                 icon: Icon(Icons.image_outlined, color: primaryColor, size: 26),
-                onPressed: onToggleGallery,
+                onPressed: callbacks.onToggleGallery,
                 padding: EdgeInsets.zero,
                 constraints: const BoxConstraints(minWidth: 40, minHeight: 40),
               ),
             ),
             // Mic button (when no text)
-            if (!canSendMessage)
+            if (!state.canSendMessage)
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 4),
                 child: GestureDetector(
-                  onTap: onVoiceRecord,
+                  onTap: callbacks.onVoiceRecord,
                   child: Container(
                     width: 40,
                     height: 40,
@@ -230,14 +211,14 @@ class ChatInputBar extends StatelessWidget {
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: MentionTextField(
-                  controller: controller,
-                  focusNode: focusNode,
+                  controller: config.controller,
+                  focusNode: config.focusNode,
                   maxLines: null,
                   style: TextStyle(
                     color: isDark ? Colors.white : Colors.black,
                     fontSize: 16,
                   ),
-                  users: conversation?.participants
+                  users: config.conversation?.participants
                           .map<MentionableUser>(
                             (p) => MentionableUser(
                               id: p.userId,
@@ -263,18 +244,18 @@ class ChatInputBar extends StatelessWidget {
               ),
             ),
             // Like button (when no text)
-            if (!canSendMessage)
+            if (!state.canSendMessage)
               IconButton(
                 icon: Icon(Icons.thumb_up_outlined, color: primaryColor, size: 24),
-                onPressed: onSend,
+                onPressed: callbacks.onSend,
                 padding: EdgeInsets.zero,
                 constraints: const BoxConstraints(minWidth: 40, minHeight: 40),
               ),
             // Send button (when has text)
-            if (canSendMessage)
+            if (state.canSendMessage)
               IconButton(
                 icon: Icon(Icons.send, color: primaryColor),
-                onPressed: onSend,
+                onPressed: callbacks.onSend,
                 padding: EdgeInsets.zero,
                 constraints: const BoxConstraints(minWidth: 40, minHeight: 40),
               ),

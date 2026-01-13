@@ -12,6 +12,7 @@ import 'package:chattrix_ui/features/chat/domain/entities/typing_indicator.dart'
 import 'package:chattrix_ui/features/chat/presentation/providers/chat_providers.dart';
 import 'package:chattrix_ui/features/chat/presentation/providers/pinned_messages_provider.dart';
 import 'package:chattrix_ui/features/chat/presentation/providers/typing_indicator_provider.dart';
+import 'package:chattrix_ui/features/chat/presentation/utils/chat_view_helpers.dart';
 import 'package:chattrix_ui/features/chat/presentation/utils/conversation_utils.dart';
 import 'package:chattrix_ui/features/chat/presentation/widgets/attachment_picker.dart';
 import 'package:chattrix_ui/features/chat/presentation/widgets/edit_message_bottom_sheet.dart';
@@ -1764,41 +1765,4 @@ class _InputBar extends StatelessWidget {
       ),
     );
   }
-}
-
-extension ListLookup on List<dynamic> {
-  dynamic lookup(String id) {
-    if (isEmpty) return null;
-    try {
-      return firstWhere((e) => e.id.toString() == id);
-    } catch (_) {
-      return null;
-    }
-  }
-}
-
-void showReactionPicker(BuildContext context, Function(String) onReactionSelected) {
-  showModalBottomSheet(
-    context: context,
-    backgroundColor: Colors.transparent,
-    builder: (c) => Container(
-      margin: const EdgeInsets.all(16),
-      padding: const EdgeInsets.all(10),
-      decoration: BoxDecoration(color: Theme.of(context).cardColor, borderRadius: BorderRadius.circular(30)),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: ['👍', '❤️', '😂', '😮', '😢', '😡']
-            .map(
-              (e) => GestureDetector(
-                onTap: () {
-                  onReactionSelected(e);
-                  Navigator.pop(c);
-                },
-                child: Text(e, style: const TextStyle(fontSize: 28)),
-              ),
-            )
-            .toList(),
-      ),
-    ),
-  );
 }

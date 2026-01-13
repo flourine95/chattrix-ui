@@ -1,11 +1,5 @@
 import 'package:flutter/material.dart';
 
-/// Custom filter chip widget with animated transitions
-///
-/// Features:
-/// - Animated background/text color transitions (200ms)
-/// - Rounded corners (BorderRadius.circular(20))
-/// - Tap feedback with InkWell
 class FilterChipWidget extends StatelessWidget {
   final String label;
   final bool isSelected;

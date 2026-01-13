@@ -465,6 +465,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.1.1"
+  emoji_picker_flutter:
+    dependency: "direct main"
+    description:
+      name: emoji_picker_flutter
+      sha256: "984d3e9b9cf3175df9a868ce4a2d9611491e80e5d3b8e2b1e8991a4998972885"
+      url: "https://pub.dev"
+    source: hosted
+    version: "4.4.0"
   extended_image:
     dependency: transitive
     description:
@@ -582,14 +590,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "6.0.0"
-  flutter_emoji:
-    dependency: "direct main"
-    description:
-      name: flutter_emoji
-      sha256: "3cc794d2459738e6489cee63f50e85de3732257042f425611d255c8049ce1b81"
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.5.1"
   flutter_hooks:
     dependency: "direct main"
     description:

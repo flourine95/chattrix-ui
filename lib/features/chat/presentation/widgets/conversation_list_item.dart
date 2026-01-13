@@ -3,6 +3,7 @@ import 'package:chattrix_ui/core/widgets/user_avatar.dart';
 import 'package:chattrix_ui/core/domain/enums/enums.dart';
 import 'package:chattrix_ui/features/auth/domain/entities/user.dart';
 import 'package:chattrix_ui/features/chat/domain/entities/conversation.dart';
+import 'package:chattrix_ui/features/chat/domain/entities/message.dart';
 import 'package:chattrix_ui/features/chat/presentation/utils/conversation_utils.dart';
 import 'package:chattrix_ui/features/chat/presentation/widgets/seen_status_widget.dart';
 
@@ -284,7 +285,7 @@ class ConversationListItem extends StatelessWidget {
   String _getLastMessagePreview() {
     // If typing, show typing indicator
     if (isTyping) {
-      return 'Đang soạn tin...';
+      return 'Typing...';
     }
 
     // If no last message, return empty string
@@ -349,7 +350,7 @@ class ConversationListItem extends StatelessWidget {
   }
 
   /// Get sender name for group messages
-  String? _getSenderName(dynamic lastMessage) {
+  String? _getSenderName(Message lastMessage) {
     // Check if sender is current user
     if (currentUser != null && lastMessage.senderId == currentUser!.id) {
       return 'You';

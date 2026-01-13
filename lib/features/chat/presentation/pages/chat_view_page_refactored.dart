@@ -23,6 +23,7 @@ import '../utils/chat_view_helpers.dart';
 import '../widgets/chat_app_bar.dart';
 import '../widgets/chat_gallery.dart';
 import '../widgets/chat_input_bar.dart';
+import '../widgets/input_bar_config.dart';
 
 /// Refactored ChatViewPage - Clean and maintainable
 /// 
@@ -322,32 +323,41 @@ Widget _buildBody({
               ),
 
             ChatInputBar(
-              controller: controller,
-              focusNode: focusNode,
-              onSend: () {
-                if (controller.text.trim().isNotEmpty) {
-                  chatActions.sendMessage();
-                } else {
-                  // Send like emoji
-                  chatActions.sendMessage(specificContent: '👍', type: 'TEXT');
-                }
-              },
-              showGallery: showGallery.value,
-              canSendMessage: controller.text.trim().isNotEmpty || selectedAssets.value.isNotEmpty,
-              onToggleGallery: onToggleGallery,
-              isRecording: isRecording.value,
-              recordingDuration: recordingDuration,
-              onVoiceRecord: () => chatActions.handleVoiceRecording(
-                isRecording: isRecording,
-                recordingDuration: ValueNotifier(recordingDuration),
+              config: InputBarConfig(
+                controller: controller,
+                focusNode: focusNode,
+                chatId: chatId,
+                isDark: isDark,
+                primaryColor: primaryColor,
+                conversation: conversation,
               ),
-              onCancelRecording: () => chatActions.handleCancelRecording(
-                isRecording: isRecording,
-                recordingDuration: ValueNotifier(recordingDuration),
+              state: InputBarState(
+                showGallery: showGallery.value,
+                canSendMessage: controller.text.trim().isNotEmpty || selectedAssets.value.isNotEmpty,
+                showAttachmentPicker: showAttachmentPicker.value,
+                isRecording: isRecording.value,
+                recordingDuration: recordingDuration,
               ),
-              showAttachmentPicker: showAttachmentPicker.value,
-              onToggleAttachmentPicker: onToggleAttachmentPicker,
-              conversation: conversation,
+              callbacks: InputBarCallbacks(
+                onSend: () {
+                  if (controller.text.trim().isNotEmpty) {
+                    chatActions.sendMessage();
+                  } else {
+                    // Send like emoji
+                    chatActions.sendMessage(specificContent: '👍', type: 'TEXT');
+                  }
+                },
+                onToggleGallery: onToggleGallery,
+                onToggleAttachmentPicker: onToggleAttachmentPicker,
+                onVoiceRecord: () => chatActions.handleVoiceRecording(
+                  isRecording: isRecording,
+                  recordingDuration: ValueNotifier(recordingDuration),
+                ),
+                onCancelRecording: () => chatActions.handleCancelRecording(
+                  isRecording: isRecording,
+                  recordingDuration: ValueNotifier(recordingDuration),
+                ),
+              ),
             ),
           ],
         ),

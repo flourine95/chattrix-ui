@@ -35,9 +35,7 @@ class ChatGallery extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 12),
           decoration: BoxDecoration(
             color: isDark ? Colors.black12 : Colors.grey[100],
-            border: Border(
-              bottom: BorderSide(color: Colors.grey.withValues(alpha: 0.2)),
-            ),
+            border: Border(bottom: BorderSide(color: Colors.grey.withValues(alpha: 0.2))),
           ),
           child: DropdownButtonHideUnderline(
             child: DropdownButton<AssetPathEntity>(
@@ -90,10 +88,7 @@ class ChatGallery extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Icon(Icons.camera_alt, color: Colors.white),
-                        Text(
-                          "Camera",
-                          style: TextStyle(color: Colors.white, fontSize: 12),
-                        ),
+                        Text("Camera", style: TextStyle(color: Colors.white, fontSize: 12)),
                       ],
                     ),
                   ),
@@ -118,12 +113,7 @@ class MediaGridItem extends StatelessWidget {
   final bool isSelected;
   final VoidCallback onTap;
 
-  const MediaGridItem({
-    super.key,
-    required this.asset,
-    required this.isSelected,
-    required this.onTap,
-  });
+  const MediaGridItem({super.key, required this.asset, required this.isSelected, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -146,9 +136,7 @@ class MediaGridItem extends StatelessWidget {
                 shape: BoxShape.circle,
                 border: Border.all(color: Colors.white, width: 2),
               ),
-              child: isSelected
-                  ? const Icon(Icons.check, size: 14, color: Colors.white)
-                  : null,
+              child: isSelected ? const Icon(Icons.check, size: 14, color: Colors.white) : null,
             ),
           ),
           if (asset.type == AssetType.video)
@@ -157,11 +145,7 @@ class MediaGridItem extends StatelessWidget {
               right: 4,
               child: Text(
                 _formatDuration(asset.duration),
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 12,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
               ),
             ),
         ],
@@ -192,9 +176,7 @@ class _AssetThumbnailState extends State<AssetThumbnail> {
   }
 
   Future<void> _loadThumbnail() async {
-    final bytes = await widget.asset.thumbnailDataWithSize(
-      const ThumbnailSize(200, 200),
-    );
+    final bytes = await widget.asset.thumbnailDataWithSize(const ThumbnailSize(200, 200));
     if (mounted) setState(() => _bytes = bytes);
   }
 
