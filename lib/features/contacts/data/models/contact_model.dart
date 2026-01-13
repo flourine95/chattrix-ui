@@ -16,7 +16,7 @@ abstract class ContactModel with _$ContactModel {
     String? avatarUrl,
     String? nickname,
     @Default(false) bool favorite,
-    @Default(false) bool online,
+    // ❌ REMOVED: online field (now tracked in OnlineStatusCache)
     DateTime? lastSeen,
     required DateTime createdAt,
   }) = _ContactModel;
@@ -32,7 +32,7 @@ abstract class ContactModel with _$ContactModel {
       avatarUrl: avatarUrl,
       nickname: nickname,
       favorite: favorite,
-      online: online,
+      // ❌ REMOVED: online field
       lastSeen: lastSeen,
       createdAt: createdAt,
     );

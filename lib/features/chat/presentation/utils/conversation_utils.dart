@@ -1,4 +1,5 @@
 import 'package:chattrix_ui/core/domain/enums/enums.dart';
+import 'package:chattrix_ui/core/extensions/user_online_extension.dart';
 import 'package:chattrix_ui/features/auth/domain/entities/user.dart';
 import 'package:chattrix_ui/features/chat/domain/entities/conversation.dart';
 import 'package:chattrix_ui/features/chat/domain/entities/message.dart';
@@ -228,7 +229,10 @@ class ConversationUtils {
   /// Check if user is online in DIRECT conversation
   static bool isUserOnline(Conversation conversation, User? currentUser) {
     final otherParticipant = getOtherParticipant(conversation, currentUser);
-    return otherParticipant?.online ?? false;
+    if (otherParticipant == null) return false;
+    
+    // Use extension method to check online status from cache
+    return otherParticipant.isOnlineWithFallback;
   }
 
   /// Get last seen of other user in DIRECT conversation
@@ -252,7 +256,7 @@ class ConversationUtils {
       email: otherParticipant.email ?? '', // Use participant email if available
       fullName: otherParticipant.fullName,
       avatarUrl: otherParticipant.avatarUrl, // Now available in Participant
-      online: otherParticipant.online ?? false,
+      // ❌ REMOVED: online field (now tracked in OnlineStatusCache)
       lastSeen: otherParticipant.lastSeen,
       emailVerified: false, // Not available in Participant
       createdAt: DateTime.now(), // Not available in Participant

@@ -19,7 +19,6 @@ _ParticipantModel _$ParticipantModelFromJson(Map<String, dynamic> json) =>
       email: json['email'] as String?,
       nickname: json['nickname'] as String?,
       avatarUrl: json['avatarUrl'] as String?,
-      online: json['online'] as bool?,
       lastSeen: json['lastSeen'] as String?,
     );
 
@@ -32,6 +31,5 @@ Map<String, dynamic> _$ParticipantModelToJson(_ParticipantModel instance) =>
       'email': instance.email,
       'nickname': instance.nickname,
       'avatarUrl': instance.avatarUrl,
-      'online': instance.online,
       'lastSeen': instance.lastSeen,
     };

@@ -468,14 +468,14 @@ class ConversationsNotifier extends _$ConversationsNotifier {
 
       final oldParticipant = conversation.participants[participantIndex];
       AppLogger.debug(
-        '  📝 Found user $userId in conversation ${conversation.id}: old online=${oldParticipant.online}, new online=${statusUpdate.isOnline}',
+        '  📝 Found user $userId in conversation ${conversation.id}: updating online status to ${statusUpdate.isOnline}',
         tag: 'ConversationsNotifier',
       );
 
-      // Update participant's online status and lastSeen
+      // Update participant's lastSeen (online status is now in cache)
       final updatedParticipants = List.of(conversation.participants);
       updatedParticipants[participantIndex] = updatedParticipants[participantIndex].copyWith(
-        online: statusUpdate.isOnline,
+        // ❌ REMOVED: online field (now tracked in OnlineStatusCache)
         lastSeen: statusUpdate.lastSeen != null ? DateTime.tryParse(statusUpdate.lastSeen!) : null,
       );
 

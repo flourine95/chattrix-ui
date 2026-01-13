@@ -40,6 +40,12 @@ abstract class ChatWebSocketDataSource {
   /// Stream of poll events
   Stream<Map<String, dynamic>> get pollEventStream;
 
+  /// Stream of message ID updates (temp ID → real ID sync)
+  Stream<Map<String, dynamic>> get messageIdUpdateStream;
+
+  /// Stream of heartbeat acknowledgments
+  Stream<void> get heartbeatAckStream;
+
   /// Stream of connection state
   Stream<bool> get connectionStream;
 

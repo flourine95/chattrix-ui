@@ -18,9 +18,10 @@ abstract class User with _$User {
     DateTime? dateOfBirth,
     String? location,
     ProfileVisibility? profileVisibility,
-    required bool online,
+    // ❌ REMOVED: online field (now tracked in OnlineStatusCache)
     DateTime? lastSeen,
     required DateTime createdAt,
     DateTime? updatedAt,
   }) = _User;
 }
+

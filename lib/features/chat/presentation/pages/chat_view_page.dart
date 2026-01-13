@@ -698,21 +698,23 @@ class ChatViewPage extends HookConsumerWidget {
         return;
       }
 
-      // Get the other participant's ID
-      final otherParticipant = ConversationUtils.getOtherParticipant(conversation, me);
-      if (otherParticipant == null) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Cannot find participant to call')));
+      // Get conversation info for call
+      final conversationName = ConversationUtils.getConversationTitle(conversation, me);
+      final conversationAvatar = ConversationUtils.getOtherParticipantAvatarUrl(conversation, me);
+      final conversationId = int.tryParse(chatId);
+      
+      if (conversationId == null) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Invalid conversation ID')));
         return;
       }
 
-      // Get callee name and avatar
-      final calleeName = ConversationUtils.getConversationTitle(conversation, me);
-      final calleeAvatar = ConversationUtils.getOtherParticipantAvatarUrl(conversation, me);
-
       // Initiate audio call
-      ref
-          .read(callProvider.notifier)
-          .initiateCall(otherParticipant.userId, CallType.audio, calleeName: calleeName, calleeAvatar: calleeAvatar);
+      ref.read(callProvider.notifier).initiateCall(
+            conversationId,
+            CallType.audio,
+            conversationName: conversationName,
+            conversationAvatar: conversationAvatar,
+          );
     }
 
     void handleVideoCall() {
@@ -724,21 +726,23 @@ class ChatViewPage extends HookConsumerWidget {
         return;
       }
 
-      // Get the other participant's ID
-      final otherParticipant = ConversationUtils.getOtherParticipant(conversation, me);
-      if (otherParticipant == null) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Cannot find participant to call')));
+      // Get conversation info for call
+      final conversationName = ConversationUtils.getConversationTitle(conversation, me);
+      final conversationAvatar = ConversationUtils.getOtherParticipantAvatarUrl(conversation, me);
+      final conversationId = int.tryParse(chatId);
+      
+      if (conversationId == null) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Invalid conversation ID')));
         return;
       }
 
-      // Get callee name and avatar
-      final calleeName = ConversationUtils.getConversationTitle(conversation, me);
-      final calleeAvatar = ConversationUtils.getOtherParticipantAvatarUrl(conversation, me);
-
       // Initiate video call
-      ref
-          .read(callProvider.notifier)
-          .initiateCall(otherParticipant.userId, CallType.video, calleeName: calleeName, calleeAvatar: calleeAvatar);
+      ref.read(callProvider.notifier).initiateCall(
+            conversationId,
+            CallType.video,
+            conversationName: conversationName,
+            conversationAvatar: conversationAvatar,
+          );
     }
 
     void handleConversationInfo() {

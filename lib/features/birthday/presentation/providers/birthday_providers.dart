@@ -1,3 +1,4 @@
+import 'package:chattrix_ui/features/auth/presentation/providers/auth_providers.dart';
 import 'package:chattrix_ui/features/auth/presentation/providers/auth_repository_provider.dart';
 import 'package:chattrix_ui/features/birthday/data/datasources/birthday_api_service.dart';
 import 'package:chattrix_ui/features/birthday/data/repositories/birthday_repository_impl.dart';
@@ -45,6 +46,13 @@ SendBirthdayWishesUseCase sendBirthdayWishesUseCase(Ref ref) {
 class TodayBirthdays extends _$TodayBirthdays {
   @override
   Future<List<BirthdayUserEntity>> build() async {
+    // ✅ Check if user is logged in before fetching
+    final currentUser = ref.watch(currentUserProvider);
+    if (currentUser == null) {
+      debugPrint('🎂 [TodayBirthdays] User not logged in, returning empty list');
+      return [];
+    }
+
     debugPrint('🎂 [TodayBirthdays] Fetching today\'s birthdays...');
     final useCase = ref.read(getTodayBirthdaysUseCaseProvider);
     final result = await useCase();
@@ -65,6 +73,14 @@ class TodayBirthdays extends _$TodayBirthdays {
   }
 
   Future<void> refresh() async {
+    // ✅ Check if user is logged in before refreshing
+    final currentUser = ref.read(currentUserProvider);
+    if (currentUser == null) {
+      debugPrint('🎂 [TodayBirthdays] User not logged in, skipping refresh');
+      state = const AsyncValue.data([]);
+      return;
+    }
+
     debugPrint('🔄 [TodayBirthdays] Refreshing...');
     state = const AsyncValue.loading();
     state = await AsyncValue.guard(() async {
@@ -89,6 +105,13 @@ class TodayBirthdays extends _$TodayBirthdays {
 class UpcomingBirthdays extends _$UpcomingBirthdays {
   @override
   Future<List<BirthdayUserEntity>> build({int days = 7}) async {
+    // ✅ Check if user is logged in before fetching
+    final currentUser = ref.watch(currentUserProvider);
+    if (currentUser == null) {
+      debugPrint('🎂 [UpcomingBirthdays] User not logged in, returning empty list');
+      return [];
+    }
+
     final useCase = ref.read(getUpcomingBirthdaysUseCaseProvider);
     final result = await useCase(days: days);
 
@@ -96,6 +119,14 @@ class UpcomingBirthdays extends _$UpcomingBirthdays {
   }
 
   Future<void> refresh() async {
+    // ✅ Check if user is logged in before refreshing
+    final currentUser = ref.read(currentUserProvider);
+    if (currentUser == null) {
+      debugPrint('🎂 [UpcomingBirthdays] User not logged in, skipping refresh');
+      state = const AsyncValue.data([]);
+      return;
+    }
+
     state = const AsyncValue.loading();
     state = await AsyncValue.guard(() async {
       final useCase = ref.read(getUpcomingBirthdaysUseCaseProvider);

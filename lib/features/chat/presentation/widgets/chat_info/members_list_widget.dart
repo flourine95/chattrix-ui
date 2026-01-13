@@ -1,3 +1,4 @@
+import 'package:chattrix_ui/core/extensions/user_online_extension.dart';
 import 'package:chattrix_ui/core/widgets/user_avatar.dart';
 import 'package:chattrix_ui/features/auth/presentation/providers/auth_providers.dart';
 import 'package:chattrix_ui/features/chat/domain/entities/conversation.dart';
@@ -309,7 +310,7 @@ class _MemberListItem extends StatelessWidget {
               radius: 20,
               backgroundColor: colors.primary,
             ),
-            if (member.online ?? false)
+            if (member.isOnlineWithFallback)
               Positioned(
                 right: 0,
                 bottom: 0,
@@ -358,7 +359,7 @@ class _MemberListItem extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text('@${member.username}'),
-            if (member.online ?? false)
+            if (member.isOnlineWithFallback)
               Text('Active now', style: textTheme.labelSmall?.copyWith(color: Colors.green))
             else if (member.lastSeen != null)
               Text(

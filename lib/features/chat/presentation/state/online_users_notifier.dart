@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:chattrix_ui/core/extensions/user_online_extension.dart';
+import 'package:chattrix_ui/core/services/online_status_cache.dart';
 import 'package:chattrix_ui/features/auth/domain/entities/user.dart';
 import 'package:chattrix_ui/features/contacts/presentation/providers/contact_providers.dart';
 import 'package:chattrix_ui/features/chat/presentation/providers/chat_websocket_provider_new.dart';
@@ -14,6 +16,7 @@ part 'online_users_notifier.g.dart';
 @riverpod
 class OnlineUsersNotifier extends _$OnlineUsersNotifier {
   StreamSubscription<dynamic>? _userStatusSubscription;
+  final _onlineCache = OnlineStatusCache();
 
   @override
   FutureOr<List<User>> build() async {
@@ -39,9 +42,9 @@ class OnlineUsersNotifier extends _$OnlineUsersNotifier {
     // Get all contacts
     final contactsState = ref.read(contactProvider);
 
-    // Filter online contacts and convert to User entities
+    // Filter online contacts using OnlineStatusCache and convert to User entities
     final onlineUsers = contactsState.contacts
-        .where((contact) => contact.online)
+        .where((contact) => contact.isOnlineWithFallback) // ✅ Use extension method
         .map(
           (contact) => User(
             id: contact.contactUserId,
@@ -50,7 +53,7 @@ class OnlineUsersNotifier extends _$OnlineUsersNotifier {
             emailVerified: false, // Not available in Contact entity
             fullName: contact.fullName,
             avatarUrl: contact.avatarUrl,
-            online: contact.online,
+            // ❌ REMOVED: online field
             lastSeen: contact.lastSeen,
             createdAt: contact.createdAt,
           ),
@@ -68,7 +71,7 @@ class OnlineUsersNotifier extends _$OnlineUsersNotifier {
           emailVerified: true,
           fullName: 'John Doe',
           avatarUrl: 'https://i.pravatar.cc/150?img=1',
-          online: true,
+          // ❌ REMOVED: online field
           lastSeen: DateTime.now(),
           createdAt: DateTime.now(),
         ),
@@ -79,7 +82,7 @@ class OnlineUsersNotifier extends _$OnlineUsersNotifier {
           emailVerified: true,
           fullName: 'Jane Smith',
           avatarUrl: 'https://i.pravatar.cc/150?img=2',
-          online: true,
+          // ❌ REMOVED: online field
           lastSeen: DateTime.now(),
           createdAt: DateTime.now(),
         ),
@@ -90,7 +93,7 @@ class OnlineUsersNotifier extends _$OnlineUsersNotifier {
           emailVerified: true,
           fullName: 'Bob Wilson',
           avatarUrl: 'https://i.pravatar.cc/150?img=3',
-          online: true,
+          // ❌ REMOVED: online field
           lastSeen: DateTime.now(),
           createdAt: DateTime.now(),
         ),
@@ -119,16 +122,19 @@ class OnlineUsersNotifier extends _$OnlineUsersNotifier {
     final userIdInt = int.tryParse(userId);
     if (userIdInt == null) return;
 
+    // ✅ Update OnlineStatusCache
+    _onlineCache.updateStatus(userIdInt, isOnline);
+
     if (isOnline) {
       // User came online - add to list if not already present
       if (!currentState.any((user) => user.id == userIdInt)) {
         // User not in list, need to fetch from contacts
         refresh();
       } else {
-        // User already in list, just update status
+        // User already in list, just update lastSeen
         final updatedUsers = currentState.map((user) {
           if (user.id == userIdInt) {
-            return user.copyWith(online: true, lastSeen: null);
+            return user.copyWith(lastSeen: null); // Clear lastSeen when online
           }
           return user;
         }).toList();

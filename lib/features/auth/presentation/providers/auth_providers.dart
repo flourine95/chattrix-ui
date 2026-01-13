@@ -19,6 +19,7 @@ import 'package:chattrix_ui/features/auth/domain/usecases/resend_verification_us
 import 'package:chattrix_ui/features/auth/domain/usecases/reset_password_usecase.dart';
 import 'package:chattrix_ui/features/auth/domain/usecases/verify_email_usecase.dart';
 import 'package:chattrix_ui/features/auth/presentation/providers/auth_repository_provider.dart';
+import 'package:chattrix_ui/features/birthday/presentation/providers/birthday_providers.dart';
 import 'package:chattrix_ui/features/chat/presentation/providers/chat_providers.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -348,23 +349,23 @@ class AuthNotifier extends Notifier<AuthState> {
   }
 
   Future<void> logout() async {
-    state = state.copyWith(isLoading: true);
+    // ✅ Clear user state FIRST before invalidating providers
+    state = AuthState();
+    
     await ref.read(logoutUseCaseProvider)();
 
     // Clear all app state
     await _clearAllState();
-
-    state = AuthState();
   }
 
   Future<void> logoutAll() async {
-    state = state.copyWith(isLoading: true);
+    // ✅ Clear user state FIRST before invalidating providers
+    state = AuthState();
+    
     await ref.read(logoutAllUseCaseProvider)();
 
     // Clear all app state
     await _clearAllState();
-
-    state = AuthState();
   }
 
   /// Clear all app state when logging out
@@ -380,6 +381,8 @@ class AuthNotifier extends Notifier<AuthState> {
       ref.invalidate(onlineUsersProvider);
       ref.invalidate(userStatusProvider);
       ref.invalidate(webSocketConnectionProvider);
+      ref.invalidate(todayBirthdaysProvider);
+      ref.invalidate(upcomingBirthdaysProvider);
     } catch (e) {
       // Silently handle error
     }

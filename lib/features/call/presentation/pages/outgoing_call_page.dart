@@ -6,6 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
+import '../../../auth/presentation/providers/auth_providers.dart';
+
 class OutgoingCallPage extends ConsumerWidget {
   const OutgoingCallPage({super.key});
 
@@ -22,7 +24,24 @@ class OutgoingCallPage extends ConsumerWidget {
         ringing: (_) => const SizedBox(),
         connecting: (connection, callType, isOutgoing) {
           if (isOutgoing) {
-            return _buildView(context, ref, connection.callInfo.calleeName, connection.callInfo.calleeAvatar, callType);
+            // Get remote participant info from participants
+            final currentUserId = ref.watch(currentUserProvider)?.id;
+            String? remoteName;
+            String? remoteAvatar;
+            
+            if (currentUserId != null) {
+              final remoteParticipant = connection.callInfo.participants.firstWhere(
+                (p) => p.userId != currentUserId,
+                orElse: () => connection.callInfo.participants.first,
+              );
+              remoteName = remoteParticipant.fullName;
+              remoteAvatar = remoteParticipant.avatar;
+            } else {
+              remoteName = connection.callInfo.callerName;
+              remoteAvatar = connection.callInfo.callerAvatar;
+            }
+            
+            return _buildView(context, ref, remoteName ?? "Connecting...", remoteAvatar, callType);
           }
           return const SizedBox();
         },

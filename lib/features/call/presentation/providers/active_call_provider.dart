@@ -11,7 +11,7 @@ part 'active_call_provider.g.dart';
 /// final activeCall = ref.watch(activeCallProvider(conversationId));
 /// ```
 @riverpod
-Future<CallInfo?> activeCall(ActiveCallRef ref, int conversationId) async {
+Future<CallInfo?> activeCall(Ref ref, int conversationId) async {
   final useCase = ref.watch(getActiveCallUseCaseProvider);
   final result = await useCase(conversationId: conversationId);
 

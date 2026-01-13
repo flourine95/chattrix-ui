@@ -1,3 +1,4 @@
+import 'package:chattrix_ui/features/auth/presentation/providers/auth_providers.dart';
 import 'package:chattrix_ui/features/call/presentation/providers/pip_state_provider.dart';
 import 'package:chattrix_ui/features/call/presentation/state/call_notifier.dart';
 import 'package:chattrix_ui/features/call/presentation/state/call_state.dart';
@@ -25,13 +26,29 @@ class GlobalPipOverlay extends ConsumerWidget {
             connected: (connection, callType, isOutgoing, _, _, _, _, _, _, _) {
               debugPrint('[GlobalPipOverlay] Rendering PiP overlay for call: ${connection.callInfo.id}');
 
-              final remoteName = isOutgoing ? connection.callInfo.calleeName : connection.callInfo.callerName;
-              final remoteAvatar = isOutgoing ? connection.callInfo.calleeAvatar : connection.callInfo.callerAvatar;
+              // Get remote participant info
+              final currentUser = ref.watch(currentUserProvider);
+              final currentUserId = currentUser?.id;
+              String? remoteName;
+              String? remoteAvatar;
+              
+              if (currentUserId != null) {
+                final remoteParticipant = connection.callInfo.participants.firstWhere(
+                  (p) => p.userId != currentUserId,
+                  orElse: () => connection.callInfo.participants.first,
+                );
+                remoteName = remoteParticipant.fullName;
+                remoteAvatar = remoteParticipant.avatar;
+              } else {
+                remoteName = connection.callInfo.callerName;
+                remoteAvatar = connection.callInfo.callerAvatar;
+              }
+              
               final channelId = connection.callInfo.channelId;
 
               return PipCallOverlay(
                 callType: callType,
-                remoteName: remoteName,
+                remoteName: remoteName ?? "Unknown",
                 remoteAvatar: remoteAvatar,
                 channelId: channelId,
               );

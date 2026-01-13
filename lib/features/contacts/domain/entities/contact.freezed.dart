@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 mixin _$Contact {
 
  int get id; int get contactUserId;// Changed from userId to match API spec
- String get username; String get fullName; String? get avatarUrl; String? get nickname; bool get favorite; bool get online;// Changed from isOnline to match API spec
+ String get username; String get fullName; String? get avatarUrl; String? get nickname; bool get favorite;// ❌ REMOVED: online field (now tracked in OnlineStatusCache)
  DateTime? get lastSeen; DateTime get createdAt;
 /// Create a copy of Contact
 /// with the given fields replaced by the non-null parameter values.
@@ -27,16 +27,16 @@ $ContactCopyWith<Contact> get copyWith => _$ContactCopyWithImpl<Contact>(this as
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is Contact&&(identical(other.id, id) || other.id == id)&&(identical(other.contactUserId, contactUserId) || other.contactUserId == contactUserId)&&(identical(other.username, username) || other.username == username)&&(identical(other.fullName, fullName) || other.fullName == fullName)&&(identical(other.avatarUrl, avatarUrl) || other.avatarUrl == avatarUrl)&&(identical(other.nickname, nickname) || other.nickname == nickname)&&(identical(other.favorite, favorite) || other.favorite == favorite)&&(identical(other.online, online) || other.online == online)&&(identical(other.lastSeen, lastSeen) || other.lastSeen == lastSeen)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is Contact&&(identical(other.id, id) || other.id == id)&&(identical(other.contactUserId, contactUserId) || other.contactUserId == contactUserId)&&(identical(other.username, username) || other.username == username)&&(identical(other.fullName, fullName) || other.fullName == fullName)&&(identical(other.avatarUrl, avatarUrl) || other.avatarUrl == avatarUrl)&&(identical(other.nickname, nickname) || other.nickname == nickname)&&(identical(other.favorite, favorite) || other.favorite == favorite)&&(identical(other.lastSeen, lastSeen) || other.lastSeen == lastSeen)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,id,contactUserId,username,fullName,avatarUrl,nickname,favorite,online,lastSeen,createdAt);
+int get hashCode => Object.hash(runtimeType,id,contactUserId,username,fullName,avatarUrl,nickname,favorite,lastSeen,createdAt);
 
 @override
 String toString() {
-  return 'Contact(id: $id, contactUserId: $contactUserId, username: $username, fullName: $fullName, avatarUrl: $avatarUrl, nickname: $nickname, favorite: $favorite, online: $online, lastSeen: $lastSeen, createdAt: $createdAt)';
+  return 'Contact(id: $id, contactUserId: $contactUserId, username: $username, fullName: $fullName, avatarUrl: $avatarUrl, nickname: $nickname, favorite: $favorite, lastSeen: $lastSeen, createdAt: $createdAt)';
 }
 
 
@@ -47,7 +47,7 @@ abstract mixin class $ContactCopyWith<$Res>  {
   factory $ContactCopyWith(Contact value, $Res Function(Contact) _then) = _$ContactCopyWithImpl;
 @useResult
 $Res call({
- int id, int contactUserId, String username, String fullName, String? avatarUrl, String? nickname, bool favorite, bool online, DateTime? lastSeen, DateTime createdAt
+ int id, int contactUserId, String username, String fullName, String? avatarUrl, String? nickname, bool favorite, DateTime? lastSeen, DateTime createdAt
 });
 
 
@@ -64,7 +64,7 @@ class _$ContactCopyWithImpl<$Res>
 
 /// Create a copy of Contact
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? contactUserId = null,Object? username = null,Object? fullName = null,Object? avatarUrl = freezed,Object? nickname = freezed,Object? favorite = null,Object? online = null,Object? lastSeen = freezed,Object? createdAt = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? contactUserId = null,Object? username = null,Object? fullName = null,Object? avatarUrl = freezed,Object? nickname = freezed,Object? favorite = null,Object? lastSeen = freezed,Object? createdAt = null,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as int,contactUserId: null == contactUserId ? _self.contactUserId : contactUserId // ignore: cast_nullable_to_non_nullable
@@ -73,7 +73,6 @@ as String,fullName: null == fullName ? _self.fullName : fullName // ignore: cast
 as String,avatarUrl: freezed == avatarUrl ? _self.avatarUrl : avatarUrl // ignore: cast_nullable_to_non_nullable
 as String?,nickname: freezed == nickname ? _self.nickname : nickname // ignore: cast_nullable_to_non_nullable
 as String?,favorite: null == favorite ? _self.favorite : favorite // ignore: cast_nullable_to_non_nullable
-as bool,online: null == online ? _self.online : online // ignore: cast_nullable_to_non_nullable
 as bool,lastSeen: freezed == lastSeen ? _self.lastSeen : lastSeen // ignore: cast_nullable_to_non_nullable
 as DateTime?,createdAt: null == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
 as DateTime,
@@ -161,10 +160,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int id,  int contactUserId,  String username,  String fullName,  String? avatarUrl,  String? nickname,  bool favorite,  bool online,  DateTime? lastSeen,  DateTime createdAt)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int id,  int contactUserId,  String username,  String fullName,  String? avatarUrl,  String? nickname,  bool favorite,  DateTime? lastSeen,  DateTime createdAt)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Contact() when $default != null:
-return $default(_that.id,_that.contactUserId,_that.username,_that.fullName,_that.avatarUrl,_that.nickname,_that.favorite,_that.online,_that.lastSeen,_that.createdAt);case _:
+return $default(_that.id,_that.contactUserId,_that.username,_that.fullName,_that.avatarUrl,_that.nickname,_that.favorite,_that.lastSeen,_that.createdAt);case _:
   return orElse();
 
 }
@@ -182,10 +181,10 @@ return $default(_that.id,_that.contactUserId,_that.username,_that.fullName,_that
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int id,  int contactUserId,  String username,  String fullName,  String? avatarUrl,  String? nickname,  bool favorite,  bool online,  DateTime? lastSeen,  DateTime createdAt)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int id,  int contactUserId,  String username,  String fullName,  String? avatarUrl,  String? nickname,  bool favorite,  DateTime? lastSeen,  DateTime createdAt)  $default,) {final _that = this;
 switch (_that) {
 case _Contact():
-return $default(_that.id,_that.contactUserId,_that.username,_that.fullName,_that.avatarUrl,_that.nickname,_that.favorite,_that.online,_that.lastSeen,_that.createdAt);case _:
+return $default(_that.id,_that.contactUserId,_that.username,_that.fullName,_that.avatarUrl,_that.nickname,_that.favorite,_that.lastSeen,_that.createdAt);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -202,10 +201,10 @@ return $default(_that.id,_that.contactUserId,_that.username,_that.fullName,_that
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int id,  int contactUserId,  String username,  String fullName,  String? avatarUrl,  String? nickname,  bool favorite,  bool online,  DateTime? lastSeen,  DateTime createdAt)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int id,  int contactUserId,  String username,  String fullName,  String? avatarUrl,  String? nickname,  bool favorite,  DateTime? lastSeen,  DateTime createdAt)?  $default,) {final _that = this;
 switch (_that) {
 case _Contact() when $default != null:
-return $default(_that.id,_that.contactUserId,_that.username,_that.fullName,_that.avatarUrl,_that.nickname,_that.favorite,_that.online,_that.lastSeen,_that.createdAt);case _:
+return $default(_that.id,_that.contactUserId,_that.username,_that.fullName,_that.avatarUrl,_that.nickname,_that.favorite,_that.lastSeen,_that.createdAt);case _:
   return null;
 
 }
@@ -217,7 +216,7 @@ return $default(_that.id,_that.contactUserId,_that.username,_that.fullName,_that
 
 
 class _Contact implements Contact {
-  const _Contact({required this.id, required this.contactUserId, required this.username, required this.fullName, this.avatarUrl, this.nickname, this.favorite = false, required this.online, this.lastSeen, required this.createdAt});
+  const _Contact({required this.id, required this.contactUserId, required this.username, required this.fullName, this.avatarUrl, this.nickname, this.favorite = false, this.lastSeen, required this.createdAt});
   
 
 @override final  int id;
@@ -228,8 +227,7 @@ class _Contact implements Contact {
 @override final  String? avatarUrl;
 @override final  String? nickname;
 @override@JsonKey() final  bool favorite;
-@override final  bool online;
-// Changed from isOnline to match API spec
+// ❌ REMOVED: online field (now tracked in OnlineStatusCache)
 @override final  DateTime? lastSeen;
 @override final  DateTime createdAt;
 
@@ -243,16 +241,16 @@ _$ContactCopyWith<_Contact> get copyWith => __$ContactCopyWithImpl<_Contact>(thi
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Contact&&(identical(other.id, id) || other.id == id)&&(identical(other.contactUserId, contactUserId) || other.contactUserId == contactUserId)&&(identical(other.username, username) || other.username == username)&&(identical(other.fullName, fullName) || other.fullName == fullName)&&(identical(other.avatarUrl, avatarUrl) || other.avatarUrl == avatarUrl)&&(identical(other.nickname, nickname) || other.nickname == nickname)&&(identical(other.favorite, favorite) || other.favorite == favorite)&&(identical(other.online, online) || other.online == online)&&(identical(other.lastSeen, lastSeen) || other.lastSeen == lastSeen)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Contact&&(identical(other.id, id) || other.id == id)&&(identical(other.contactUserId, contactUserId) || other.contactUserId == contactUserId)&&(identical(other.username, username) || other.username == username)&&(identical(other.fullName, fullName) || other.fullName == fullName)&&(identical(other.avatarUrl, avatarUrl) || other.avatarUrl == avatarUrl)&&(identical(other.nickname, nickname) || other.nickname == nickname)&&(identical(other.favorite, favorite) || other.favorite == favorite)&&(identical(other.lastSeen, lastSeen) || other.lastSeen == lastSeen)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,id,contactUserId,username,fullName,avatarUrl,nickname,favorite,online,lastSeen,createdAt);
+int get hashCode => Object.hash(runtimeType,id,contactUserId,username,fullName,avatarUrl,nickname,favorite,lastSeen,createdAt);
 
 @override
 String toString() {
-  return 'Contact(id: $id, contactUserId: $contactUserId, username: $username, fullName: $fullName, avatarUrl: $avatarUrl, nickname: $nickname, favorite: $favorite, online: $online, lastSeen: $lastSeen, createdAt: $createdAt)';
+  return 'Contact(id: $id, contactUserId: $contactUserId, username: $username, fullName: $fullName, avatarUrl: $avatarUrl, nickname: $nickname, favorite: $favorite, lastSeen: $lastSeen, createdAt: $createdAt)';
 }
 
 
@@ -263,7 +261,7 @@ abstract mixin class _$ContactCopyWith<$Res> implements $ContactCopyWith<$Res> {
   factory _$ContactCopyWith(_Contact value, $Res Function(_Contact) _then) = __$ContactCopyWithImpl;
 @override @useResult
 $Res call({
- int id, int contactUserId, String username, String fullName, String? avatarUrl, String? nickname, bool favorite, bool online, DateTime? lastSeen, DateTime createdAt
+ int id, int contactUserId, String username, String fullName, String? avatarUrl, String? nickname, bool favorite, DateTime? lastSeen, DateTime createdAt
 });
 
 
@@ -280,7 +278,7 @@ class __$ContactCopyWithImpl<$Res>
 
 /// Create a copy of Contact
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? contactUserId = null,Object? username = null,Object? fullName = null,Object? avatarUrl = freezed,Object? nickname = freezed,Object? favorite = null,Object? online = null,Object? lastSeen = freezed,Object? createdAt = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? contactUserId = null,Object? username = null,Object? fullName = null,Object? avatarUrl = freezed,Object? nickname = freezed,Object? favorite = null,Object? lastSeen = freezed,Object? createdAt = null,}) {
   return _then(_Contact(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as int,contactUserId: null == contactUserId ? _self.contactUserId : contactUserId // ignore: cast_nullable_to_non_nullable
@@ -289,7 +287,6 @@ as String,fullName: null == fullName ? _self.fullName : fullName // ignore: cast
 as String,avatarUrl: freezed == avatarUrl ? _self.avatarUrl : avatarUrl // ignore: cast_nullable_to_non_nullable
 as String?,nickname: freezed == nickname ? _self.nickname : nickname // ignore: cast_nullable_to_non_nullable
 as String?,favorite: null == favorite ? _self.favorite : favorite // ignore: cast_nullable_to_non_nullable
-as bool,online: null == online ? _self.online : online // ignore: cast_nullable_to_non_nullable
 as bool,lastSeen: freezed == lastSeen ? _self.lastSeen : lastSeen // ignore: cast_nullable_to_non_nullable
 as DateTime?,createdAt: null == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
 as DateTime,

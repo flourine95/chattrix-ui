@@ -15,7 +15,8 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$ParticipantModel {
 
- int get userId; String get username; String get fullName; String get role; String? get email; String? get nickname; String? get avatarUrl; bool? get online; String? get lastSeen;
+ int get userId; String get username; String get fullName; String get role; String? get email; String? get nickname; String? get avatarUrl;// ❌ REMOVED: online field (now tracked in OnlineStatusCache)
+ String? get lastSeen;
 /// Create a copy of ParticipantModel
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -28,16 +29,16 @@ $ParticipantModelCopyWith<ParticipantModel> get copyWith => _$ParticipantModelCo
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ParticipantModel&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.username, username) || other.username == username)&&(identical(other.fullName, fullName) || other.fullName == fullName)&&(identical(other.role, role) || other.role == role)&&(identical(other.email, email) || other.email == email)&&(identical(other.nickname, nickname) || other.nickname == nickname)&&(identical(other.avatarUrl, avatarUrl) || other.avatarUrl == avatarUrl)&&(identical(other.online, online) || other.online == online)&&(identical(other.lastSeen, lastSeen) || other.lastSeen == lastSeen));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ParticipantModel&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.username, username) || other.username == username)&&(identical(other.fullName, fullName) || other.fullName == fullName)&&(identical(other.role, role) || other.role == role)&&(identical(other.email, email) || other.email == email)&&(identical(other.nickname, nickname) || other.nickname == nickname)&&(identical(other.avatarUrl, avatarUrl) || other.avatarUrl == avatarUrl)&&(identical(other.lastSeen, lastSeen) || other.lastSeen == lastSeen));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,userId,username,fullName,role,email,nickname,avatarUrl,online,lastSeen);
+int get hashCode => Object.hash(runtimeType,userId,username,fullName,role,email,nickname,avatarUrl,lastSeen);
 
 @override
 String toString() {
-  return 'ParticipantModel(userId: $userId, username: $username, fullName: $fullName, role: $role, email: $email, nickname: $nickname, avatarUrl: $avatarUrl, online: $online, lastSeen: $lastSeen)';
+  return 'ParticipantModel(userId: $userId, username: $username, fullName: $fullName, role: $role, email: $email, nickname: $nickname, avatarUrl: $avatarUrl, lastSeen: $lastSeen)';
 }
 
 
@@ -48,7 +49,7 @@ abstract mixin class $ParticipantModelCopyWith<$Res>  {
   factory $ParticipantModelCopyWith(ParticipantModel value, $Res Function(ParticipantModel) _then) = _$ParticipantModelCopyWithImpl;
 @useResult
 $Res call({
- int userId, String username, String fullName, String role, String? email, String? nickname, String? avatarUrl, bool? online, String? lastSeen
+ int userId, String username, String fullName, String role, String? email, String? nickname, String? avatarUrl, String? lastSeen
 });
 
 
@@ -65,7 +66,7 @@ class _$ParticipantModelCopyWithImpl<$Res>
 
 /// Create a copy of ParticipantModel
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? userId = null,Object? username = null,Object? fullName = null,Object? role = null,Object? email = freezed,Object? nickname = freezed,Object? avatarUrl = freezed,Object? online = freezed,Object? lastSeen = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? userId = null,Object? username = null,Object? fullName = null,Object? role = null,Object? email = freezed,Object? nickname = freezed,Object? avatarUrl = freezed,Object? lastSeen = freezed,}) {
   return _then(_self.copyWith(
 userId: null == userId ? _self.userId : userId // ignore: cast_nullable_to_non_nullable
 as int,username: null == username ? _self.username : username // ignore: cast_nullable_to_non_nullable
@@ -74,8 +75,7 @@ as String,role: null == role ? _self.role : role // ignore: cast_nullable_to_non
 as String,email: freezed == email ? _self.email : email // ignore: cast_nullable_to_non_nullable
 as String?,nickname: freezed == nickname ? _self.nickname : nickname // ignore: cast_nullable_to_non_nullable
 as String?,avatarUrl: freezed == avatarUrl ? _self.avatarUrl : avatarUrl // ignore: cast_nullable_to_non_nullable
-as String?,online: freezed == online ? _self.online : online // ignore: cast_nullable_to_non_nullable
-as bool?,lastSeen: freezed == lastSeen ? _self.lastSeen : lastSeen // ignore: cast_nullable_to_non_nullable
+as String?,lastSeen: freezed == lastSeen ? _self.lastSeen : lastSeen // ignore: cast_nullable_to_non_nullable
 as String?,
   ));
 }
@@ -161,10 +161,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int userId,  String username,  String fullName,  String role,  String? email,  String? nickname,  String? avatarUrl,  bool? online,  String? lastSeen)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int userId,  String username,  String fullName,  String role,  String? email,  String? nickname,  String? avatarUrl,  String? lastSeen)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _ParticipantModel() when $default != null:
-return $default(_that.userId,_that.username,_that.fullName,_that.role,_that.email,_that.nickname,_that.avatarUrl,_that.online,_that.lastSeen);case _:
+return $default(_that.userId,_that.username,_that.fullName,_that.role,_that.email,_that.nickname,_that.avatarUrl,_that.lastSeen);case _:
   return orElse();
 
 }
@@ -182,10 +182,10 @@ return $default(_that.userId,_that.username,_that.fullName,_that.role,_that.emai
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int userId,  String username,  String fullName,  String role,  String? email,  String? nickname,  String? avatarUrl,  bool? online,  String? lastSeen)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int userId,  String username,  String fullName,  String role,  String? email,  String? nickname,  String? avatarUrl,  String? lastSeen)  $default,) {final _that = this;
 switch (_that) {
 case _ParticipantModel():
-return $default(_that.userId,_that.username,_that.fullName,_that.role,_that.email,_that.nickname,_that.avatarUrl,_that.online,_that.lastSeen);case _:
+return $default(_that.userId,_that.username,_that.fullName,_that.role,_that.email,_that.nickname,_that.avatarUrl,_that.lastSeen);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -202,10 +202,10 @@ return $default(_that.userId,_that.username,_that.fullName,_that.role,_that.emai
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int userId,  String username,  String fullName,  String role,  String? email,  String? nickname,  String? avatarUrl,  bool? online,  String? lastSeen)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int userId,  String username,  String fullName,  String role,  String? email,  String? nickname,  String? avatarUrl,  String? lastSeen)?  $default,) {final _that = this;
 switch (_that) {
 case _ParticipantModel() when $default != null:
-return $default(_that.userId,_that.username,_that.fullName,_that.role,_that.email,_that.nickname,_that.avatarUrl,_that.online,_that.lastSeen);case _:
+return $default(_that.userId,_that.username,_that.fullName,_that.role,_that.email,_that.nickname,_that.avatarUrl,_that.lastSeen);case _:
   return null;
 
 }
@@ -217,7 +217,7 @@ return $default(_that.userId,_that.username,_that.fullName,_that.role,_that.emai
 @JsonSerializable()
 
 class _ParticipantModel extends ParticipantModel {
-  const _ParticipantModel({required this.userId, required this.username, required this.fullName, required this.role, this.email, this.nickname, this.avatarUrl, this.online, this.lastSeen}): super._();
+  const _ParticipantModel({required this.userId, required this.username, required this.fullName, required this.role, this.email, this.nickname, this.avatarUrl, this.lastSeen}): super._();
   factory _ParticipantModel.fromJson(Map<String, dynamic> json) => _$ParticipantModelFromJson(json);
 
 @override final  int userId;
@@ -227,7 +227,7 @@ class _ParticipantModel extends ParticipantModel {
 @override final  String? email;
 @override final  String? nickname;
 @override final  String? avatarUrl;
-@override final  bool? online;
+// ❌ REMOVED: online field (now tracked in OnlineStatusCache)
 @override final  String? lastSeen;
 
 /// Create a copy of ParticipantModel
@@ -243,16 +243,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ParticipantModel&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.username, username) || other.username == username)&&(identical(other.fullName, fullName) || other.fullName == fullName)&&(identical(other.role, role) || other.role == role)&&(identical(other.email, email) || other.email == email)&&(identical(other.nickname, nickname) || other.nickname == nickname)&&(identical(other.avatarUrl, avatarUrl) || other.avatarUrl == avatarUrl)&&(identical(other.online, online) || other.online == online)&&(identical(other.lastSeen, lastSeen) || other.lastSeen == lastSeen));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ParticipantModel&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.username, username) || other.username == username)&&(identical(other.fullName, fullName) || other.fullName == fullName)&&(identical(other.role, role) || other.role == role)&&(identical(other.email, email) || other.email == email)&&(identical(other.nickname, nickname) || other.nickname == nickname)&&(identical(other.avatarUrl, avatarUrl) || other.avatarUrl == avatarUrl)&&(identical(other.lastSeen, lastSeen) || other.lastSeen == lastSeen));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,userId,username,fullName,role,email,nickname,avatarUrl,online,lastSeen);
+int get hashCode => Object.hash(runtimeType,userId,username,fullName,role,email,nickname,avatarUrl,lastSeen);
 
 @override
 String toString() {
-  return 'ParticipantModel(userId: $userId, username: $username, fullName: $fullName, role: $role, email: $email, nickname: $nickname, avatarUrl: $avatarUrl, online: $online, lastSeen: $lastSeen)';
+  return 'ParticipantModel(userId: $userId, username: $username, fullName: $fullName, role: $role, email: $email, nickname: $nickname, avatarUrl: $avatarUrl, lastSeen: $lastSeen)';
 }
 
 
@@ -263,7 +263,7 @@ abstract mixin class _$ParticipantModelCopyWith<$Res> implements $ParticipantMod
   factory _$ParticipantModelCopyWith(_ParticipantModel value, $Res Function(_ParticipantModel) _then) = __$ParticipantModelCopyWithImpl;
 @override @useResult
 $Res call({
- int userId, String username, String fullName, String role, String? email, String? nickname, String? avatarUrl, bool? online, String? lastSeen
+ int userId, String username, String fullName, String role, String? email, String? nickname, String? avatarUrl, String? lastSeen
 });
 
 
@@ -280,7 +280,7 @@ class __$ParticipantModelCopyWithImpl<$Res>
 
 /// Create a copy of ParticipantModel
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? userId = null,Object? username = null,Object? fullName = null,Object? role = null,Object? email = freezed,Object? nickname = freezed,Object? avatarUrl = freezed,Object? online = freezed,Object? lastSeen = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? userId = null,Object? username = null,Object? fullName = null,Object? role = null,Object? email = freezed,Object? nickname = freezed,Object? avatarUrl = freezed,Object? lastSeen = freezed,}) {
   return _then(_ParticipantModel(
 userId: null == userId ? _self.userId : userId // ignore: cast_nullable_to_non_nullable
 as int,username: null == username ? _self.username : username // ignore: cast_nullable_to_non_nullable
@@ -289,8 +289,7 @@ as String,role: null == role ? _self.role : role // ignore: cast_nullable_to_non
 as String,email: freezed == email ? _self.email : email // ignore: cast_nullable_to_non_nullable
 as String?,nickname: freezed == nickname ? _self.nickname : nickname // ignore: cast_nullable_to_non_nullable
 as String?,avatarUrl: freezed == avatarUrl ? _self.avatarUrl : avatarUrl // ignore: cast_nullable_to_non_nullable
-as String?,online: freezed == online ? _self.online : online // ignore: cast_nullable_to_non_nullable
-as bool?,lastSeen: freezed == lastSeen ? _self.lastSeen : lastSeen // ignore: cast_nullable_to_non_nullable
+as String?,lastSeen: freezed == lastSeen ? _self.lastSeen : lastSeen // ignore: cast_nullable_to_non_nullable
 as String?,
   ));
 }

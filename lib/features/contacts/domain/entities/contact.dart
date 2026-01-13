@@ -12,7 +12,7 @@ abstract class Contact with _$Contact {
     String? avatarUrl,
     String? nickname,
     @Default(false) bool favorite,
-    required bool online, // Changed from isOnline to match API spec
+    // ❌ REMOVED: online field (now tracked in OnlineStatusCache)
     DateTime? lastSeen,
     required DateTime createdAt,
   }) = _Contact;

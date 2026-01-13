@@ -12,7 +12,7 @@ abstract class Participant with _$Participant {
     String? email,
     String? nickname,
     String? avatarUrl,
-    bool? online,
+    // ❌ REMOVED: online field (now tracked in OnlineStatusCache)
     DateTime? lastSeen,
   }) = _Participant;
 }

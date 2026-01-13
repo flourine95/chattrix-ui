@@ -86,7 +86,7 @@ final class ActiveCallProvider
   }
 }
 
-String _$activeCallHash() => r'ae80263aa0f5078cb406dadc979994b9a9da6e68';
+String _$activeCallHash() => r'e023151f0c03c1b471b9cf87e1bd9d5dbce6c2c8';
 
 /// Provider to check if there's an active call in a conversation
 ///

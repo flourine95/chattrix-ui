@@ -143,7 +143,17 @@ class ContactRemoteDataSourceImpl implements ContactRemoteDataSource {
   }
 
   Exception _handleError(dynamic error) {
+    // ✅ Re-throw ApiException from interceptor (don't convert to ServerException)
+    if (error is ApiException) {
+      throw error;
+    }
+    
     if (error is DioException) {
+      // ✅ Check if DioException wraps an ApiException
+      if (error.error is ApiException) {
+        throw error.error as ApiException;
+      }
+      
       if (error.response != null) {
         final statusCode = error.response!.statusCode ?? 500;
         final message = error.response!.data?['message'] ?? 'An error occurred';

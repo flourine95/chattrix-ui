@@ -11,7 +11,6 @@ extension ParticipantModelMapper on ParticipantModel {
       email: email,
       nickname: nickname,
       avatarUrl: avatarUrl,
-      online: online,
       lastSeen: lastSeen != null ? DateTime.parse(lastSeen!) : null,
     );
   }

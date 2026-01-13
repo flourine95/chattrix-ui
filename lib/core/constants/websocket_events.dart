@@ -1,7 +1,7 @@
-/// WebSocket event type constants
 class WebSocketEvents {
   // Message Events
   static const String chatMessage = 'chat.message';
+  static const String messageIdUpdate = 'message.id.update';
   static const String messageUpdated = 'message.updated';
   static const String messageDeleted = 'message.deleted';
   static const String messageReaction = 'message.reaction';
@@ -12,6 +12,10 @@ class WebSocketEvents {
 
   // User Events
   static const String userStatus = 'user.status';
+
+  // Heartbeat Events
+  static const String heartbeat = 'heartbeat';
+  static const String heartbeatAck = 'heartbeat.ack';
 
   // Friend Request Events
   static const String friendRequestReceived = 'friend.request.received';

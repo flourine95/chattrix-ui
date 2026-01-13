@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:chattrix_ui/core/network/websocket_service.dart';
+import 'package:chattrix_ui/core/services/online_status_cache.dart';
 import 'package:chattrix_ui/core/utils/app_logger.dart';
 import 'package:chattrix_ui/features/chat/data/models/chat_message_request.dart';
 import 'package:chattrix_ui/features/chat/data/models/message_model.dart';
@@ -26,6 +27,7 @@ class _ChatWebSocketEvent {
 /// WebSocket event types received from server
 class _ChatWebSocketResponse {
   static const String chatMessage = 'chat.message';
+  static const String messageIdUpdate = 'message.id.update'; // ✅ NEW
   static const String typingIndicator = 'typing.indicator';
   static const String userStatus = 'user.status';
   static const String conversationUpdate = 'conversation.update';
@@ -34,6 +36,7 @@ class _ChatWebSocketResponse {
   static const String messageReaction = 'message.reaction';
   static const String pollEvent = 'poll.event';
   static const String eventEvent = 'event.event';
+  static const String heartbeatAck = 'heartbeat.ack'; // ✅ NEW
 }
 
 /// Implementation of ChatWebSocketDataSource
@@ -43,6 +46,7 @@ class ChatWebSocketDataSourceImpl implements ChatWebSocketDataSource {
 
   // Stream controllers for different message types
   final _messageController = StreamController<Message>.broadcast();
+  final _messageIdUpdateController = StreamController<Map<String, dynamic>>.broadcast(); // ✅ NEW
   final _typingController = StreamController<TypingIndicator>.broadcast();
   final _userStatusController = StreamController<UserStatusUpdate>.broadcast();
   final _conversationUpdateController = StreamController<ConversationUpdate>.broadcast();
@@ -50,6 +54,7 @@ class ChatWebSocketDataSourceImpl implements ChatWebSocketDataSource {
   final _scheduledMessageFailedController = StreamController<ScheduledMessageFailedDto>.broadcast();
   final _pollEventController = StreamController<Map<String, dynamic>>.broadcast();
   final _eventEventController = StreamController<Map<String, dynamic>>.broadcast();
+  final _heartbeatAckController = StreamController<void>.broadcast(); // ✅ NEW
 
   ChatWebSocketDataSourceImpl({required WebSocketService webSocketService}) : _webSocketService = webSocketService {
     _startListening();
@@ -59,6 +64,7 @@ class ChatWebSocketDataSourceImpl implements ChatWebSocketDataSource {
     // Listen to chat-related messages only
     final chatMessageTypes = [
       _ChatWebSocketResponse.chatMessage,
+      _ChatWebSocketResponse.messageIdUpdate, // ✅ NEW
       _ChatWebSocketResponse.typingIndicator,
       _ChatWebSocketResponse.userStatus,
       _ChatWebSocketResponse.conversationUpdate,
@@ -67,6 +73,7 @@ class ChatWebSocketDataSourceImpl implements ChatWebSocketDataSource {
       _ChatWebSocketResponse.messageReaction,
       _ChatWebSocketResponse.pollEvent,
       _ChatWebSocketResponse.eventEvent,
+      _ChatWebSocketResponse.heartbeatAck, // ✅ NEW
     ];
 
     _subscription = _webSocketService.messageRouter
@@ -108,7 +115,17 @@ class ChatWebSocketDataSourceImpl implements ChatWebSocketDataSource {
       switch (type) {
         case _ChatWebSocketResponse.chatMessage:
           try {
+            debugPrint('🟡 [DEBUG] ===== RAW MESSAGE FROM BACKEND =====');
+            debugPrint('🟡 [DEBUG] Payload: $payload');
+            
             final messageEntity = MessageModel.fromApi(payload as Map<String, dynamic>).toEntity();
+            
+            debugPrint('🟡 [DEBUG] ===== PARSED MESSAGE =====');
+            debugPrint('🟡 [DEBUG] Message ID: ${messageEntity.id}');
+            debugPrint('🟡 [DEBUG] Content: ${messageEntity.content}');
+            debugPrint('🟡 [DEBUG] Sender ID: ${messageEntity.sender?.id}');
+            debugPrint('🟡 [DEBUG] Sender username: ${messageEntity.sender?.username}');
+            debugPrint('🟡 [DEBUG] Conversation ID: ${messageEntity.conversationId}');
 
             // Debug: Check if replyToMessage is present
             if (messageEntity.replyToMessageId != null) {
@@ -122,9 +139,38 @@ class ChatWebSocketDataSourceImpl implements ChatWebSocketDataSource {
             }
 
             _messageController.add(messageEntity);
+            debugPrint('🟡 [DEBUG] ✅ Message added to stream controller');
             AppLogger.debug('Successfully processed chat message', tag: 'ChatWebSocketDataSource');
           } catch (e, st) {
+            debugPrint('❌ [DEBUG] Error parsing chat message: $e');
             AppLogger.error('Failed to parse chat message', error: e, stackTrace: st, tag: 'ChatWebSocketDataSource');
+          }
+          break;
+
+        case _ChatWebSocketResponse.messageIdUpdate:
+          // ✅ NEW: Handle temp ID → real ID sync
+          try {
+            final tempId = payload['tempId'] as int;
+            final realId = payload['realId'] as int;
+            final conversationId = payload['conversationId'] as int;
+
+            AppLogger.debug(
+              '🔄 Message ID update: $tempId → $realId (conversation: $conversationId)',
+              tag: 'ChatWebSocketDataSource',
+            );
+
+            _messageIdUpdateController.add({
+              'tempId': tempId,
+              'realId': realId,
+              'conversationId': conversationId,
+            });
+          } catch (e, st) {
+            AppLogger.error(
+              'Failed to parse message ID update',
+              error: e,
+              stackTrace: st,
+              tag: 'ChatWebSocketDataSource',
+            );
           }
           break;
 
@@ -149,8 +195,20 @@ class ChatWebSocketDataSourceImpl implements ChatWebSocketDataSource {
         case _ChatWebSocketResponse.userStatus:
           try {
             final statusEntity = UserStatusUpdateModel.fromJson(payload as Map<String, dynamic>).toEntity();
+            
+            // ✅ Update OnlineStatusCache
+            final cache = OnlineStatusCache();
+            final userId = int.tryParse(statusEntity.userId);
+            if (userId != null) {
+              final lastSeen = statusEntity.lastSeen != null ? DateTime.tryParse(statusEntity.lastSeen!) : null;
+              cache.updateStatus(userId, statusEntity.isOnline, lastSeen: lastSeen);
+            }
+            
             _userStatusController.add(statusEntity);
-            AppLogger.debug('User status update: userId=${statusEntity.userId}', tag: 'ChatWebSocketDataSource');
+            AppLogger.debug(
+              'User status update: userId=${statusEntity.userId}, online=${statusEntity.isOnline}',
+              tag: 'ChatWebSocketDataSource',
+            );
           } catch (e, st) {
             AppLogger.error(
               'Failed to parse user status update',
@@ -245,6 +303,12 @@ class ChatWebSocketDataSourceImpl implements ChatWebSocketDataSource {
           }
           break;
 
+        case _ChatWebSocketResponse.heartbeatAck:
+          // ✅ NEW: Handle heartbeat acknowledgment
+          _heartbeatAckController.add(null);
+          AppLogger.debug('💓 Heartbeat ACK received', tag: 'ChatWebSocketDataSource');
+          break;
+
         default:
           AppLogger.warning('Unknown message type: $type', tag: 'ChatWebSocketDataSource');
       }
@@ -333,6 +397,14 @@ class ChatWebSocketDataSourceImpl implements ChatWebSocketDataSource {
   /// Stream for event events
   Stream<Map<String, dynamic>> get eventEventStream => _eventEventController.stream;
 
+  /// Stream for message ID updates (temp ID → real ID)
+  @override
+  Stream<Map<String, dynamic>> get messageIdUpdateStream => _messageIdUpdateController.stream;
+
+  /// Stream for heartbeat acknowledgments
+  @override
+  Stream<void> get heartbeatAckStream => _heartbeatAckController.stream;
+
   @override
   Stream<bool> get connectionStream => _webSocketService.connectionStream;
 
@@ -346,6 +418,7 @@ class ChatWebSocketDataSourceImpl implements ChatWebSocketDataSource {
   void dispose() {
     _subscription?.cancel();
     _messageController.close();
+    _messageIdUpdateController.close();
     _typingController.close();
     _userStatusController.close();
     _conversationUpdateController.close();
@@ -353,5 +426,6 @@ class ChatWebSocketDataSourceImpl implements ChatWebSocketDataSource {
     _scheduledMessageFailedController.close();
     _pollEventController.close();
     _eventEventController.close();
+    _heartbeatAckController.close();
   }
 }

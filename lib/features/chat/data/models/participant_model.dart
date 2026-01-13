@@ -16,15 +16,13 @@ abstract class ParticipantModel with _$ParticipantModel {
     String? email,
     String? nickname,
     String? avatarUrl,
-    bool? online,
+    // ❌ REMOVED: online field (now tracked in OnlineStatusCache)
     String? lastSeen,
   }) = _ParticipantModel;
 
   factory ParticipantModel.fromJson(Map<String, dynamic> json) => _$ParticipantModelFromJson(json);
 
   factory ParticipantModel.fromApi(Map<String, dynamic> json) {
-    final online = json['online'] as bool? ?? json['isOnline'] as bool?;
-
     final lastSeen = json['lastSeen']?.toString();
 
     return ParticipantModel(
@@ -37,7 +35,7 @@ abstract class ParticipantModel with _$ParticipantModel {
       email: json['email']?.toString(),
       nickname: json['nickname']?.toString(),
       avatarUrl: json['avatarUrl']?.toString() ?? json['avatar_url']?.toString(),
-      online: online,
+      // ❌ REMOVED: online field
       lastSeen: lastSeen,
     );
   }
@@ -51,7 +49,7 @@ abstract class ParticipantModel with _$ParticipantModel {
       email: email,
       nickname: nickname,
       avatarUrl: avatarUrl,
-      online: online,
+      // ❌ REMOVED: online field
       lastSeen: lastSeen != null ? DateTime.parse(lastSeen!) : null,
     );
   }

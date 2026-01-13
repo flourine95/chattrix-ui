@@ -12,6 +12,7 @@ import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
+import '../../../auth/presentation/providers/auth_providers.dart';
 import '../widgets/call_controls_panel.dart';
 
 class CallPage extends ConsumerWidget {
@@ -32,12 +33,28 @@ class CallPage extends ConsumerWidget {
             ringing: (_) => const Center(child: CircularProgressIndicator()),
             connecting: (_) => const Center(child: CircularProgressIndicator()),
             connected: (state) {
-              final remoteName = state.isOutgoing
-                  ? state.connection.callInfo.calleeName
-                  : state.connection.callInfo.callerName;
-              final remoteAvatar = state.isOutgoing
-                  ? state.connection.callInfo.calleeAvatar
-                  : state.connection.callInfo.callerAvatar;
+              // Get remote participant info
+              // If outgoing: remote is the callee (not the caller)
+              // If incoming: remote is the caller
+              final callInfo = state.connection.callInfo;
+              final currentUserId = ref.watch(currentUserProvider)?.id;
+              
+              String? remoteName;
+              String? remoteAvatar;
+              
+              if (currentUserId != null) {
+                // Find the other participant (not current user)
+                final remoteParticipant = callInfo.participants.firstWhere(
+                  (p) => p.userId != currentUserId,
+                  orElse: () => callInfo.participants.first,
+                );
+                remoteName = remoteParticipant.fullName;
+                remoteAvatar = remoteParticipant.avatar;
+              } else {
+                // Fallback: use caller info
+                remoteName = callInfo.callerName;
+                remoteAvatar = callInfo.callerAvatar;
+              }
 
               // Key này giữ widget stable khi state fields thay đổi
               return _ConnectedCallView(

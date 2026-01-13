@@ -1,3 +1,4 @@
+import 'package:chattrix_ui/core/extensions/user_online_extension.dart';
 import 'package:chattrix_ui/features/auth/presentation/providers/auth_providers.dart';
 import 'package:chattrix_ui/features/profile/presentation/providers/profile_providers.dart';
 import 'package:flutter/material.dart';
@@ -178,7 +179,7 @@ class ProfilePage extends ConsumerWidget {
                               width: 24,
                               height: 24,
                               decoration: BoxDecoration(
-                                color: profile.online ? Colors.green : colors.outlineVariant,
+                                color: profile.isOnlineWithFallback ? Colors.green : colors.outlineVariant,
                                 shape: BoxShape.circle,
                                 border: Border.all(color: colors.surface, width: 3),
                               ),

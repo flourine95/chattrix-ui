@@ -18,7 +18,7 @@ abstract class UserDto with _$UserDto {
     String? dateOfBirth,
     String? location,
     String? profileVisibility,
-    required bool online,
+    // ❌ REMOVED: online field (now tracked in OnlineStatusCache)
     String? lastSeen,
     required String createdAt,
     String? updatedAt,
@@ -26,3 +26,4 @@ abstract class UserDto with _$UserDto {
 
   factory UserDto.fromJson(Map<String, dynamic> json) => _$UserDtoFromJson(json);
 }
+
