@@ -1,0 +1,576 @@
+import 'dart:async';
+
+import 'package:chattrix_ui/core/domain/enums/enums.dart';
+import 'package:chattrix_ui/features/call/domain/entities/call_type.dart';
+import 'package:chattrix_ui/features/call/presentation/state/call_notifier.dart';
+import 'package:chattrix_ui/features/chat/domain/entities/message.dart';
+import 'package:chattrix_ui/features/chat/presentation/hooks/chat_actions_controller.dart';
+import 'package:chattrix_ui/features/chat/presentation/providers/chat_providers.dart';
+import 'package:chattrix_ui/features/chat/presentation/providers/pinned_messages_provider.dart';
+import 'package:chattrix_ui/features/chat/presentation/providers/typing_indicator_provider.dart';
+import 'package:chattrix_ui/features/chat/presentation/utils/conversation_utils.dart';
+import 'package:chattrix_ui/features/chat/presentation/widgets/attachment_picker.dart';
+import 'package:chattrix_ui/features/chat/services/voice_recorder_provider.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:go_router/go_router.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:photo_manager/photo_manager.dart';
+
+// ============================================================================
+// EFFECTS (Custom Hooks)
+// ============================================================================
+
+/// Mark conversation as read when opening
+void useMarkAsReadEffect(WidgetRef ref, String chatId) {
+  useEffect(() {
+    Future.microtask(() async {
+      final conversationId = int.tryParse(chatId);
+      if (conversationId == null) return;
+
+      try {
+        final markAsReadUseCase = ref.read(markConversationAsReadUsecaseProvider);
+        final result = await markAsReadUseCase(conversationId: conversationId);
+
+        result.fold(
+          (failure) => debugPrint('❌ Failed to mark conversation as read: ${failure.message}'),
+          (_) {
+            debugPrint('✅ Marked conversation $conversationId as read');
+            ref.read(conversationsProvider.notifier).resetUnreadCount(conversationId);
+          },
+        );
+      } catch (e) {
+        debugPrint('❌ Error marking conversation as read: $e');
+      }
+    });
+    return null;
+  }, [chatId]);
+}
+
+/// Scroll to highlighted message
+void useScrollToHighlightEffect(
+  ValueNotifier<int?> highlightedMessageId,
+  AsyncValue<List<Message>> messagesAsync,
+  ScrollController scrollController,
+  String chatId,
+) {
+  useEffect(() {
+    if (highlightedMessageId.value != null && messagesAsync.hasValue) {
+      final messages = messagesAsync.value!;
+      final messageIndex = messages.indexWhere((m) => m.id == highlightedMessageId.value);
+
+      debugPrint('🔍 [ChatView] Scroll to message ${highlightedMessageId.value}');
+      debugPrint('🔍 [ChatView] Message index: $messageIndex / ${messages.length}');
+
+      if (messageIndex != -1) {
+        Future.delayed(const Duration(milliseconds: 500), () {
+          if (scrollController.hasClients) {
+            final reversedIndex = messages.length - messageIndex;
+            final targetPosition = reversedIndex * 100.0;
+
+            debugPrint('🔍 [ChatView] Scrolling to position: $targetPosition');
+
+            scrollController.animateTo(
+              targetPosition,
+              duration: const Duration(milliseconds: 600),
+              curve: Curves.easeInOut,
+            );
+
+            Future.delayed(const Duration(seconds: 2), () {
+              highlightedMessageId.value = null;
+            });
+          }
+        });
+      }
+    }
+    return null;
+  }, [highlightedMessageId.value, messagesAsync]);
+}
+
+/// Typing indicator logic
+void useTypingIndicatorEffect(
+  TextEditingController controller,
+  ValueNotifier<bool> isTyping,
+  WidgetRef ref,
+  String chatId,
+) {
+  useEffect(() {
+    Timer? debounceTimer;
+
+    void onTextChanged() {
+      final text = controller.text.trim();
+
+      if (text.isNotEmpty && !isTyping.value) {
+        debugPrint('⌨️ [Chat] User started typing in conversation: $chatId');
+        isTyping.value = true;
+        ref.read(typingIndicatorProvider(chatId).notifier).startTyping();
+      }
+
+      debounceTimer?.cancel();
+      debounceTimer = Timer(const Duration(seconds: 2), () {
+        if (isTyping.value) {
+          debugPrint('⌨️ [Chat] User stopped typing (debounce) in conversation: $chatId');
+          isTyping.value = false;
+          ref.read(typingIndicatorProvider(chatId).notifier).stopTyping();
+        }
+      });
+    }
+
+    controller.addListener(onTextChanged);
+
+    return () {
+      controller.removeListener(onTextChanged);
+      debounceTimer?.cancel();
+      if (isTyping.value) {
+        debugPrint('⌨️ [Chat] User left screen, stopping typing for conversation: $chatId');
+        ref.read(typingIndicatorProvider(chatId).notifier).stopTyping();
+      }
+    };
+  }, [controller, chatId]);
+}
+
+/// Gallery loading effect
+void useGalleryEffect(
+  ValueNotifier<List<AssetPathEntity>> albums,
+  ValueNotifier<AssetPathEntity?> currentAlbum,
+  ValueNotifier<List<AssetEntity>> assets,
+  AppLifecycleState? appLifecycleState,
+) {
+  Future<void> loadImages() async {
+    if (kIsWeb) {
+      debugPrint('⚠️ Photo gallery not supported on web platform');
+      return;
+    }
+
+    final ps = await PhotoManager.requestPermissionExtend();
+    if (ps.isAuth) {
+      await PhotoManager.clearFileCache();
+      final filter = FilterOptionGroup(
+        orders: [OrderOption(type: OrderOptionType.createDate, asc: false)],
+      );
+      final paths = await PhotoManager.getAssetPathList(
+        type: RequestType.common,
+        filterOption: filter,
+      );
+
+      albums.value = paths;
+      if (paths.isNotEmpty) {
+        final target = currentAlbum.value ?? paths.first;
+        final validAlbum = paths.firstWhere(
+          (a) => a.id == target.id,
+          orElse: () => paths.first,
+        );
+        currentAlbum.value = validAlbum;
+        assets.value = await validAlbum.getAssetListPaged(page: 0, size: 80);
+      }
+    }
+  }
+
+  useEffect(() {
+    if (!kIsWeb) loadImages();
+    return null;
+  }, []);
+
+  useEffect(() {
+    if (!kIsWeb && appLifecycleState == AppLifecycleState.resumed) {
+      loadImages();
+    }
+    return null;
+  }, [appLifecycleState]);
+}
+
+/// Scroll button visibility effect
+void useScrollButtonEffect(
+  ScrollController scrollController,
+  ValueNotifier<bool> showScrollButton,
+) {
+  useEffect(() {
+    void scrollListener() {
+      if (!scrollController.hasClients) return;
+      if (scrollController.offset > 500) {
+        if (!showScrollButton.value) showScrollButton.value = true;
+      } else {
+        if (showScrollButton.value) showScrollButton.value = false;
+      }
+    }
+
+    scrollController.addListener(scrollListener);
+    return () => scrollController.removeListener(scrollListener);
+  }, [scrollController]);
+}
+
+/// Voice recording duration listener
+void useVoiceRecordingEffect(
+  ValueNotifier<bool> isRecording,
+  ValueNotifier<Duration> recordingDuration,
+  WidgetRef ref,
+  ChatActionsController chatActions,
+) {
+  useEffect(() {
+    if (isRecording.value) {
+      final voiceRecorder = ref.read(voiceRecorderServiceProvider);
+      final subscription = voiceRecorder.durationStream.listen((duration) {
+        recordingDuration.value = duration;
+
+        if (duration.inMinutes >= 5) {
+          chatActions.handleVoiceRecording(
+            isRecording: isRecording,
+            recordingDuration: recordingDuration,
+          );
+        }
+      });
+      return subscription.cancel;
+    }
+    return null;
+  }, [isRecording.value]);
+}
+
+/// Hide pickers when keyboard shows
+void useHidePickersOnKeyboardEffect(
+  FocusNode focusNode,
+  ValueNotifier<bool> showEmojiPicker,
+  ValueNotifier<bool> showStickerPicker,
+  ValueNotifier<bool> showAttachmentPicker,
+) {
+  useEffect(() {
+    void onFocusChange() {
+      if (focusNode.hasFocus) {
+        if (showEmojiPicker.value) showEmojiPicker.value = false;
+        if (showStickerPicker.value) showStickerPicker.value = false;
+        if (showAttachmentPicker.value) showAttachmentPicker.value = false;
+      }
+    }
+
+    focusNode.addListener(onFocusChange);
+    return () => focusNode.removeListener(onFocusChange);
+  }, [focusNode]);
+}
+
+// ============================================================================
+// HELPER FUNCTIONS
+// ============================================================================
+
+void scrollToBottom(ScrollController scrollController) {
+  if (scrollController.hasClients) {
+    scrollController.animateTo(
+      0,
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeOut,
+    );
+  }
+}
+
+Future<void> changeAlbum(
+  AssetPathEntity album,
+  ValueNotifier<AssetPathEntity?> currentAlbum,
+  ValueNotifier<List<AssetEntity>> assets,
+) async {
+  currentAlbum.value = album;
+  assets.value = await album.getAssetListPaged(page: 0, size: 80);
+}
+
+void toggleGallery(
+  ValueNotifier<bool> showGallery,
+  FocusNode focusNode,
+  ValueNotifier<bool> showEmojiPicker,
+  ValueNotifier<bool> showStickerPicker,
+  ValueNotifier<bool> showAttachmentPicker,
+  ValueNotifier<List<AssetPathEntity>> albums,
+  ValueNotifier<AssetPathEntity?> currentAlbum,
+  ValueNotifier<List<AssetEntity>> assets,
+  BuildContext context,
+) {
+  if (kIsWeb) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Thư viện ảnh chưa hỗ trợ trên web. Vui lòng sử dụng nút Camera hoặc Files.'),
+      ),
+    );
+    return;
+  }
+
+  if (showGallery.value) {
+    showGallery.value = false;
+    focusNode.requestFocus();
+  } else {
+    focusNode.unfocus();
+    showEmojiPicker.value = false;
+    showStickerPicker.value = false;
+    showAttachmentPicker.value = false;
+    Future.delayed(const Duration(milliseconds: 100), () {
+      showGallery.value = true;
+    });
+  }
+}
+
+void toggleAttachmentPicker(
+  ValueNotifier<bool> showAttachmentPicker,
+  FocusNode focusNode,
+  ValueNotifier<bool> showGallery,
+  ValueNotifier<bool> showEmojiPicker,
+  ValueNotifier<bool> showStickerPicker,
+) {
+  if (showAttachmentPicker.value) {
+    showAttachmentPicker.value = false;
+    focusNode.requestFocus();
+  } else {
+    focusNode.unfocus();
+    showGallery.value = false;
+    showEmojiPicker.value = false;
+    showStickerPicker.value = false;
+    showAttachmentPicker.value = true;
+  }
+}
+
+void handleAttachmentSelection(
+  AttachmentType type,
+  ValueNotifier<bool> showAttachmentPicker,
+  ValueNotifier<bool> showEmojiPicker,
+  ValueNotifier<bool> showStickerPicker,
+  ChatActionsController chatActions,
+  BuildContext context,
+  String chatId,
+) {
+  switch (type) {
+    case AttachmentType.camera:
+      showAttachmentPicker.value = false;
+      chatActions.handleCamera();
+      break;
+    case AttachmentType.gallery:
+      showAttachmentPicker.value = false;
+      chatActions.handleGallery();
+      break;
+    case AttachmentType.video:
+      showAttachmentPicker.value = false;
+      chatActions.handleVideo();
+      break;
+    case AttachmentType.document:
+      showAttachmentPicker.value = false;
+      chatActions.handleFilePicker();
+      break;
+    case AttachmentType.emoji:
+      showAttachmentPicker.value = false;
+      showStickerPicker.value = false;
+      showEmojiPicker.value = true;
+      break;
+    case AttachmentType.sticker:
+      showAttachmentPicker.value = false;
+      showEmojiPicker.value = false;
+      showStickerPicker.value = true;
+      break;
+    case AttachmentType.poll:
+      showAttachmentPicker.value = false;
+      context.push('/chat/$chatId/create-poll');
+      break;
+    case AttachmentType.schedule:
+      showAttachmentPicker.value = false;
+      final conversationId = int.tryParse(chatId);
+      if (conversationId != null) {
+        context.push('/chat/$conversationId/schedule-message');
+      }
+      break;
+  }
+}
+
+void onEmojiSelected(
+  String emoji,
+  ChatActionsController chatActions,
+  ValueNotifier<bool> showEmojiPicker,
+) {
+  chatActions.sendMessage(specificContent: emoji, type: 'EMOJI');
+  showEmojiPicker.value = false;
+}
+
+void onStickerSelected(
+  String stickerUrl,
+  ChatActionsController chatActions,
+  ValueNotifier<bool> showEmojiPicker,
+) {
+  chatActions.sendMessage(specificContent: '', type: 'STICKER', mediaUrl: stickerUrl);
+  showEmojiPicker.value = false;
+}
+
+Future<void> handlePinMessage(
+  Message message,
+  WidgetRef ref,
+  String chatId,
+  BuildContext context,
+) async {
+  try {
+    if (message.pinned) {
+      await ref.read(unpinMessageUsecaseProvider)(
+        conversationId: chatId,
+        messageId: message.id.toString(),
+      );
+    } else {
+      await ref.read(pinMessageUsecaseProvider)(
+        conversationId: chatId,
+        messageId: message.id.toString(),
+      );
+    }
+
+    ref.read(messagesProvider(chatId).notifier).refresh();
+    ref.invalidate(pinnedMessagesProvider(chatId));
+
+    if (!context.mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            const Icon(Icons.check_circle, color: Colors.white, size: 20),
+            const SizedBox(width: 12),
+            Text(
+              message.pinned ? 'Message unpinned' : 'Message pinned',
+              style: const TextStyle(color: Colors.white),
+            ),
+          ],
+        ),
+        backgroundColor: Colors.grey.shade900,
+        behavior: SnackBarBehavior.floating,
+        margin: const EdgeInsets.all(16),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        duration: const Duration(seconds: 2),
+      ),
+    );
+  } catch (e) {
+    if (!context.mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            const Icon(Icons.error_outline, color: Colors.white, size: 20),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text('Failed: $e', style: const TextStyle(color: Colors.white)),
+            ),
+          ],
+        ),
+        backgroundColor: Colors.grey.shade900,
+        behavior: SnackBarBehavior.floating,
+        margin: const EdgeInsets.all(16),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+      ),
+    );
+  }
+}
+
+void handleAudioCall(
+  BuildContext context,
+  WidgetRef ref,
+  dynamic conversation,
+  dynamic me,
+  String chatId,
+) {
+  if (conversation == null || me == null) return;
+
+  if (conversation.type == ConversationType.group) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Group calls are not supported yet')),
+    );
+    return;
+  }
+
+  final conversationName = ConversationUtils.getConversationTitle(conversation, me);
+  final conversationAvatar = ConversationUtils.getOtherParticipantAvatarUrl(conversation, me);
+  final conversationId = int.tryParse(chatId);
+
+  if (conversationId == null) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Invalid conversation ID')),
+    );
+    return;
+  }
+
+  ref.read(callProvider.notifier).initiateCall(
+        conversationId,
+        CallType.audio,
+        conversationName: conversationName,
+        conversationAvatar: conversationAvatar,
+      );
+}
+
+void handleVideoCall(
+  BuildContext context,
+  WidgetRef ref,
+  dynamic conversation,
+  dynamic me,
+  String chatId,
+) {
+  if (conversation == null || me == null) return;
+
+  if (conversation.type == ConversationType.group) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Group calls are not supported yet')),
+    );
+    return;
+  }
+
+  final conversationName = ConversationUtils.getConversationTitle(conversation, me);
+  final conversationAvatar = ConversationUtils.getOtherParticipantAvatarUrl(conversation, me);
+  final conversationId = int.tryParse(chatId);
+
+  if (conversationId == null) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Invalid conversation ID')),
+    );
+    return;
+  }
+
+  ref.read(callProvider.notifier).initiateCall(
+        conversationId,
+        CallType.video,
+        conversationName: conversationName,
+        conversationAvatar: conversationAvatar,
+      );
+}
+
+void handleConversationInfo(
+  BuildContext context,
+  dynamic conversation,
+  String chatId,
+) {
+  if (conversation == null) return;
+  context.push('/chat/$chatId/info', extra: conversation);
+}
+
+void showReactionPicker(BuildContext context, Function(String) onReactionSelected) {
+  showModalBottomSheet(
+    context: context,
+    backgroundColor: Colors.transparent,
+    builder: (c) => Container(
+      margin: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(10),
+      decoration: BoxDecoration(
+        color: Theme.of(context).cardColor,
+        borderRadius: BorderRadius.circular(30),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: ['👍', '❤️', '😂', '😮', '😢', '😡']
+            .map(
+              (e) => GestureDetector(
+                onTap: () {
+                  onReactionSelected(e);
+                  Navigator.pop(c);
+                },
+                child: Text(e, style: const TextStyle(fontSize: 28)),
+              ),
+            )
+            .toList(),
+      ),
+    ),
+  );
+}
+
+// Extension for list lookup
+extension ListLookup on List<dynamic> {
+  dynamic lookup(String id) {
+    if (isEmpty) return null;
+    try {
+      return firstWhere((e) => e.id.toString() == id);
+    } catch (_) {
+      return null;
+    }
+  }
+}

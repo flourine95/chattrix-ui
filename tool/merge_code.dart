@@ -1,7 +1,7 @@
 import 'dart:developer' as developer;
 import 'dart:io';
 
-const List<String> defaultSourceFolders = ['lib'];
+const List<String> defaultSourceFolders = ['lib/features/chat/services/'];
 const int maxCharsPerFile = 2000000;
 const List<String> extensions = ['.dart', '.yaml', '.json', '.gradle', '.xml', '.sql', '.prisma'];
 const List<String> ignorePatterns = ['.g.dart', '.freezed.dart', '.gen.dart', 'generated_plugin_registrant.dart'];

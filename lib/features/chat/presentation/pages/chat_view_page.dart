@@ -10,7 +10,6 @@ import 'package:chattrix_ui/features/chat/data/models/chat_message_request.dart'
 import 'package:chattrix_ui/features/chat/domain/entities/message.dart';
 import 'package:chattrix_ui/features/chat/domain/entities/typing_indicator.dart';
 import 'package:chattrix_ui/features/chat/presentation/providers/chat_providers.dart';
-import 'package:chattrix_ui/features/chat/presentation/providers/chat_usecase_provider.dart';
 import 'package:chattrix_ui/features/chat/presentation/providers/pinned_messages_provider.dart';
 import 'package:chattrix_ui/features/chat/presentation/providers/typing_indicator_provider.dart';
 import 'package:chattrix_ui/features/chat/presentation/utils/conversation_utils.dart';
@@ -300,7 +299,7 @@ class ChatViewPage extends HookConsumerWidget {
       debugPrint('🔵 [SendMessage] ===== SENDING MESSAGE =====');
       debugPrint('🔵 [SendMessage] Type: $type');
       debugPrint('🔵 [SendMessage] ReplyToMessageId: ${replyToMessage.value?.id}');
-      
+
       if (selectedAssets.value.isNotEmpty && mediaUrl == null) {
         final cloudinary = ref.read(cloudinaryServiceProvider);
         for (var asset in selectedAssets.value) {
@@ -371,7 +370,7 @@ class ChatViewPage extends HookConsumerWidget {
         await usecase(conversationId: chatId, request: request);
         ref.read(messagesProvider(chatId).notifier).refresh();
       }
-      
+
       debugPrint('🔵 [SendMessage] ===== MESSAGE SENT =====');
     }
 
@@ -716,14 +715,16 @@ class ChatViewPage extends HookConsumerWidget {
       final conversationName = ConversationUtils.getConversationTitle(conversation, me);
       final conversationAvatar = ConversationUtils.getOtherParticipantAvatarUrl(conversation, me);
       final conversationId = int.tryParse(chatId);
-      
+
       if (conversationId == null) {
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Invalid conversation ID')));
         return;
       }
 
       // Initiate audio call
-      ref.read(callProvider.notifier).initiateCall(
+      ref
+          .read(callProvider.notifier)
+          .initiateCall(
             conversationId,
             CallType.audio,
             conversationName: conversationName,
@@ -744,14 +745,16 @@ class ChatViewPage extends HookConsumerWidget {
       final conversationName = ConversationUtils.getConversationTitle(conversation, me);
       final conversationAvatar = ConversationUtils.getOtherParticipantAvatarUrl(conversation, me);
       final conversationId = int.tryParse(chatId);
-      
+
       if (conversationId == null) {
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Invalid conversation ID')));
         return;
       }
 
       // Initiate video call
-      ref.read(callProvider.notifier).initiateCall(
+      ref
+          .read(callProvider.notifier)
+          .initiateCall(
             conversationId,
             CallType.video,
             conversationName: conversationName,
@@ -1264,7 +1267,8 @@ class _MessageList extends HookConsumerWidget {
                     ),
                   // Message bubble with highlight border
                   Padding(
-                    padding: EdgeInsets.only(left: isMe || isSystemMessage ? 0 : 36), // No space for system messages
+                    padding: EdgeInsets.only(left: isMe || isSystemMessage ? 0 : 36),
+                    // No space for system messages
                     child: Align(
                       alignment: isMe
                           ? Alignment.centerRight
