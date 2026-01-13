@@ -14,6 +14,8 @@ class AppLogger {
     ),
   );
   static const bool enableWebSocketDebugLogs = false;
+  static const bool enableChatDebugLogs = false; // ← TẮT chat debug logs
+  static const bool enableConversationDebugLogs = false; // ← TẮT conversation debug logs
 
   static const String _debugEmoji = '🔍';
   static const String _infoEmoji = 'ℹ️';
@@ -22,7 +24,8 @@ class AppLogger {
   static const String _successEmoji = '✅';
 
   static void debug(String message, {String? tag}) {
-    if (kDebugMode) {
+    // TẮT hầu hết debug logs để giảm noise
+    if (kDebugMode && enableWebSocketDebugLogs) {
       _logger.d('$_debugEmoji [${tag ?? 'App'}] $message');
     }
   }
@@ -62,7 +65,7 @@ class AppLogger {
   static void chat(String message, {bool isError = false}) {
     if (isError) {
       error(message, tag: 'Chat');
-    } else {
+    } else if (enableChatDebugLogs) {
       debug(message, tag: 'Chat');
     }
   }

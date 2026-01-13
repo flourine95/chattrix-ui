@@ -9,6 +9,8 @@ class WebSocketEvents {
   // Conversation Events
   static const String conversationUpdate = 'conversation.update';
   static const String typingIndicator = 'typing.indicator';
+  static const String typingStart = 'typing.start';
+  static const String typingStop = 'typing.stop';
 
   // User Events
   static const String userStatus = 'user.status';
@@ -16,6 +18,16 @@ class WebSocketEvents {
   // Heartbeat Events
   static const String heartbeat = 'heartbeat';
   static const String heartbeatAck = 'heartbeat.ack';
+
+  // Scheduled Message Events
+  static const String scheduledMessageSent = 'scheduled.message.sent';
+  static const String scheduledMessageFailed = 'scheduled.message.failed';
+
+  // Poll Events
+  static const String pollEvent = 'poll.event';
+
+  // Event Events (Calendar)
+  static const String eventEvent = 'event.event';
 
   // Friend Request Events
   static const String friendRequestReceived = 'friend.request.received';

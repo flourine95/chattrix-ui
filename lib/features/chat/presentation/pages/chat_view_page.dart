@@ -297,7 +297,10 @@ class ChatViewPage extends HookConsumerWidget {
     }
 
     Future<void> sendMessage({String? specificContent, String type = 'TEXT', String? mediaUrl, int? duration}) async {
-      debugPrint('🔵 [SendMessage] Sending message - type: $type, replyToMessageId: ${replyToMessage.value?.id}');
+      debugPrint('🔵 [SendMessage] ===== SENDING MESSAGE =====');
+      debugPrint('🔵 [SendMessage] Type: $type');
+      debugPrint('🔵 [SendMessage] ReplyToMessageId: ${replyToMessage.value?.id}');
+      
       if (selectedAssets.value.isNotEmpty && mediaUrl == null) {
         final cloudinary = ref.read(cloudinaryServiceProvider);
         for (var asset in selectedAssets.value) {
@@ -324,6 +327,11 @@ class ChatViewPage extends HookConsumerWidget {
       final content = specificContent ?? controller.text.trim();
       if (content.isEmpty && mediaUrl == null) return;
 
+      debugPrint('🔵 [SendMessage] Content: "$content"');
+      debugPrint('🔵 [SendMessage] MediaUrl: $mediaUrl');
+      debugPrint('🔵 [SendMessage] Conversation ID: $chatId');
+      debugPrint('🔵 [SendMessage] Current user: ${ref.read(currentUserProvider)?.username}');
+
       final replyId = replyToMessage.value?.id;
       if (specificContent == null) controller.clear();
       replyToMessage.value = null;
@@ -345,7 +353,10 @@ class ChatViewPage extends HookConsumerWidget {
         duration: duration,
       );
 
+      debugPrint('🔵 [SendMessage] Request created: ${request.toJson()}');
+
       if (wsConnection.isConnected) {
+        debugPrint('🔵 [SendMessage] ✅ WebSocket connected, sending via WebSocket');
         wsDataSource.sendMessage(chatId, request);
         // Wait a moment for the message to be processed, then refresh to get complete data
         Future.delayed(const Duration(milliseconds: 500), () {
@@ -355,10 +366,13 @@ class ChatViewPage extends HookConsumerWidget {
           }
         });
       } else {
+        debugPrint('🔵 [SendMessage] ❌ WebSocket NOT connected, sending via API');
         final usecase = ref.read(sendMessageUsecaseProvider);
         await usecase(conversationId: chatId, request: request);
         ref.read(messagesProvider(chatId).notifier).refresh();
       }
+      
+      debugPrint('🔵 [SendMessage] ===== MESSAGE SENT =====');
     }
 
     void toggleAttachmentPicker() {

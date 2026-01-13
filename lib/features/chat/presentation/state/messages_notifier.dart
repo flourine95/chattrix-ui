@@ -26,12 +26,37 @@ class MessagesNotifier extends _$MessagesNotifier {
     final wsDataSource = ref.watch(chatWebSocketDataSourceProvider) as ChatWebSocketDataSourceImpl;
 
     final messageSubscription = wsDataSource.messageStream.listen((message) {
+      debugPrint('🔴 [DEBUG] ===== MESSAGE RECEIVED FROM WEBSOCKET =====');
+      debugPrint('🔴 [DEBUG] Message ID: ${message.id}');
+      debugPrint('🔴 [DEBUG] Message content: ${message.content}');
+      debugPrint('🔴 [DEBUG] Sender ID: ${message.senderId}');
+      debugPrint('🔴 [DEBUG] Sender username: ${message.senderUsername}');
+      debugPrint('🔴 [DEBUG] Conversation ID (message): ${message.conversationId}');
+      debugPrint('🔴 [DEBUG] Conversation ID (current): $conversationId');
+      debugPrint('🔴 [DEBUG] Match: ${message.conversationId.toString() == conversationId}');
+      
       if (message.conversationId.toString() == conversationId) {
-        refresh();
+        debugPrint('🔴 [DEBUG] ✅ Message belongs to current conversation');
+        
+        // ✅ Optimistic update: Add message immediately to UI
+        state.whenData((messages) {
+          // Check if message already exists (avoid duplicates)
+          final exists = messages.any((m) => m.id == message.id);
+          if (!exists) {
+            debugPrint('🔴 [DEBUG] ➕ Adding new message to state (optimistic)');
+            // Add to beginning since messages are sorted DESC
+            state = AsyncValue.data([message, ...messages]);
+          } else {
+            debugPrint('🔴 [DEBUG] ⚠️ Message already exists, skipping');
+          }
+        });
 
+        // Still refresh for reply messages to get full replyToMessage data
         if (message.replyToMessageId != null) {
           Future.delayed(const Duration(milliseconds: 800), () => refresh());
         }
+      } else {
+        debugPrint('🔴 [DEBUG] ❌ Message NOT for current conversation, skipping');
       }
     });
 
@@ -41,6 +66,35 @@ class MessagesNotifier extends _$MessagesNotifier {
 
     final eventEventSubscription = wsDataSource.eventEventStream.listen((event) {
       _handleEventEvent(event);
+    });
+
+    // ✅ Listen to message ID updates (temp ID → real ID)
+    final messageIdUpdateSubscription = wsDataSource.messageIdUpdateStream.listen((update) {
+      final tempId = update['tempId'] as int;
+      final realId = update['realId'] as int;
+      final updateConversationId = update['conversationId'] as int;
+      
+      if (updateConversationId.toString() == conversationId) {
+        debugPrint('🔄 [Messages] Updating message ID: $tempId → $realId');
+        
+        state.whenData((messages) {
+          final updatedMessages = messages.map((msg) {
+            if (msg.id == tempId) {
+              debugPrint('🔄 [Messages] ✅ Found and updated message $tempId → $realId');
+              return msg.copyWith(id: realId);
+            }
+            return msg;
+          }).toList();
+          
+          // Check if we actually found and updated the message
+          final wasUpdated = messages.any((m) => m.id == tempId);
+          if (wasUpdated) {
+            state = AsyncValue.data(updatedMessages);
+          } else {
+            debugPrint('🔄 [Messages] ⚠️ Message with temp ID $tempId not found in state');
+          }
+        });
+      }
     });
 
     _connectionSubscription = wsDataSource.connectionStream.listen((isConnected) {
@@ -53,6 +107,7 @@ class MessagesNotifier extends _$MessagesNotifier {
       messageSubscription.cancel();
       pollEventSubscription.cancel();
       eventEventSubscription.cancel();
+      messageIdUpdateSubscription.cancel();
       _connectionSubscription?.cancel();
       _stopPolling();
     });
@@ -71,13 +126,31 @@ class MessagesNotifier extends _$MessagesNotifier {
   }
 
   Future<List<Message>> _fetchMessages(String conversationId) async {
+    debugPrint('🟢 [DEBUG] ===== FETCHING MESSAGES FROM API =====');
+    debugPrint('🟢 [DEBUG] Conversation ID: $conversationId');
+    
     final result = await _getMessagesUsecase(conversationId: conversationId, sort: 'DESC');
 
-    return result.fold((failure) => throw Exception(failure.message), (messages) => messages);
+    return result.fold(
+      (failure) {
+        debugPrint('❌ [DEBUG] Failed to fetch messages: ${failure.message}');
+        throw Exception(failure.message);
+      },
+      (messages) {
+        debugPrint('🟢 [DEBUG] ✅ Fetched ${messages.length} messages from API');
+        if (messages.isNotEmpty) {
+          debugPrint('🟢 [DEBUG] First message: ID=${messages.first.id}, content="${messages.first.content}"');
+          debugPrint('🟢 [DEBUG] Last message: ID=${messages.last.id}, content="${messages.last.content}"');
+        }
+        return messages;
+      },
+    );
   }
 
   Future<void> refresh() async {
+    debugPrint('🔵 [DEBUG] ===== REFRESH CALLED =====');
     state = await AsyncValue.guard(() => _fetchMessages(conversationId));
+    debugPrint('🔵 [DEBUG] ✅ State updated after refresh');
   }
 
   void _handlePollEvent(Map<String, dynamic> event) {

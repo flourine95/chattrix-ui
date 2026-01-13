@@ -41,11 +41,11 @@ class ConversationListItem extends StatelessWidget {
     final isDark = theme.brightness == Brightness.dark;
 
     // Debug: Log settings
-    if (conversation.settings != null) {
-      debugPrint(
-        '🔍 [ConversationListItem] ${conversation.name ?? conversation.id}: pinned=${conversation.settings?.pinned}, muted=${conversation.settings?.muted}, hidden=${conversation.settings?.hidden}',
-      );
-    }
+    // if (conversation.settings != null) {
+    //   debugPrint(
+    //     '🔍 [ConversationListItem] ${conversation.name ?? conversation.id}: pinned=${conversation.settings?.pinned}, muted=${conversation.settings?.muted}, hidden=${conversation.settings?.hidden}',
+    //   );
+    // }
 
     // Get conversation title
     final title = ConversationUtils.getConversationTitle(conversation, currentUser);

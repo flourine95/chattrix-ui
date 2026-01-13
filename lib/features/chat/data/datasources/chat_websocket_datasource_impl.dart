@@ -1,15 +1,16 @@
 import 'dart:async';
 
+import 'package:chattrix_ui/core/constants/websocket_events.dart';
 import 'package:chattrix_ui/core/network/websocket_service.dart';
 import 'package:chattrix_ui/core/services/online_status_cache.dart';
 import 'package:chattrix_ui/core/utils/app_logger.dart';
 import 'package:chattrix_ui/features/chat/data/models/chat_message_request.dart';
-import 'package:chattrix_ui/features/chat/data/models/message_model.dart';
 import 'package:chattrix_ui/features/chat/data/models/conversation_update_model.dart';
+import 'package:chattrix_ui/features/chat/data/models/message_model.dart';
 import 'package:chattrix_ui/features/chat/data/models/typing_indicator_model.dart';
 import 'package:chattrix_ui/features/chat/data/models/user_status_update_model.dart';
-import 'package:chattrix_ui/features/chat/data/models/websocket/scheduled_message_sent_dto.dart';
 import 'package:chattrix_ui/features/chat/data/models/websocket/scheduled_message_failed_dto.dart';
+import 'package:chattrix_ui/features/chat/data/models/websocket/scheduled_message_sent_dto.dart';
 import 'package:chattrix_ui/features/chat/domain/datasources/chat_websocket_datasource.dart';
 import 'package:chattrix_ui/features/chat/domain/entities/conversation_update.dart';
 import 'package:chattrix_ui/features/chat/domain/entities/message.dart';
@@ -18,25 +19,27 @@ import 'package:chattrix_ui/features/chat/domain/entities/user_status_update.dar
 import 'package:flutter/foundation.dart';
 
 /// WebSocket event types sent from client to server
+/// Uses WebSocketEvents as source of truth
 class _ChatWebSocketEvent {
-  static const String chatMessage = 'chat.message';
-  static const String typingStart = 'typing.start';
-  static const String typingStop = 'typing.stop';
+  static const String chatMessage = WebSocketEvents.chatMessage;
+  static const String typingStart = WebSocketEvents.typingStart;
+  static const String typingStop = WebSocketEvents.typingStop;
 }
 
 /// WebSocket event types received from server
+/// Uses WebSocketEvents as source of truth
 class _ChatWebSocketResponse {
-  static const String chatMessage = 'chat.message';
-  static const String messageIdUpdate = 'message.id.update'; // ✅ NEW
-  static const String typingIndicator = 'typing.indicator';
-  static const String userStatus = 'user.status';
-  static const String conversationUpdate = 'conversation.update';
-  static const String scheduledMessageSent = 'scheduled.message.sent';
-  static const String scheduledMessageFailed = 'scheduled.message.failed';
-  static const String messageReaction = 'message.reaction';
-  static const String pollEvent = 'poll.event';
-  static const String eventEvent = 'event.event';
-  static const String heartbeatAck = 'heartbeat.ack'; // ✅ NEW
+  static const String chatMessage = WebSocketEvents.chatMessage;
+  static const String messageIdUpdate = WebSocketEvents.messageIdUpdate;
+  static const String typingIndicator = WebSocketEvents.typingIndicator;
+  static const String userStatus = WebSocketEvents.userStatus;
+  static const String conversationUpdate = WebSocketEvents.conversationUpdate;
+  static const String scheduledMessageSent = WebSocketEvents.scheduledMessageSent;
+  static const String scheduledMessageFailed = WebSocketEvents.scheduledMessageFailed;
+  static const String messageReaction = WebSocketEvents.messageReaction;
+  static const String pollEvent = WebSocketEvents.pollEvent;
+  static const String eventEvent = WebSocketEvents.eventEvent;
+  static const String heartbeatAck = WebSocketEvents.heartbeatAck;
 }
 
 /// Implementation of ChatWebSocketDataSource
@@ -117,14 +120,14 @@ class ChatWebSocketDataSourceImpl implements ChatWebSocketDataSource {
           try {
             debugPrint('🟡 [DEBUG] ===== RAW MESSAGE FROM BACKEND =====');
             debugPrint('🟡 [DEBUG] Payload: $payload');
-            
+
             final messageEntity = MessageModel.fromApi(payload as Map<String, dynamic>).toEntity();
-            
+
             debugPrint('🟡 [DEBUG] ===== PARSED MESSAGE =====');
             debugPrint('🟡 [DEBUG] Message ID: ${messageEntity.id}');
             debugPrint('🟡 [DEBUG] Content: ${messageEntity.content}');
-            debugPrint('🟡 [DEBUG] Sender ID: ${messageEntity.sender?.id}');
-            debugPrint('🟡 [DEBUG] Sender username: ${messageEntity.sender?.username}');
+            debugPrint('🟡 [DEBUG] Sender ID: ${messageEntity.senderId}');
+            debugPrint('🟡 [DEBUG] Sender username: ${messageEntity.senderUsername}');
             debugPrint('🟡 [DEBUG] Conversation ID: ${messageEntity.conversationId}');
 
             // Debug: Check if replyToMessage is present
@@ -159,11 +162,7 @@ class ChatWebSocketDataSourceImpl implements ChatWebSocketDataSource {
               tag: 'ChatWebSocketDataSource',
             );
 
-            _messageIdUpdateController.add({
-              'tempId': tempId,
-              'realId': realId,
-              'conversationId': conversationId,
-            });
+            _messageIdUpdateController.add({'tempId': tempId, 'realId': realId, 'conversationId': conversationId});
           } catch (e, st) {
             AppLogger.error(
               'Failed to parse message ID update',
@@ -195,7 +194,7 @@ class ChatWebSocketDataSourceImpl implements ChatWebSocketDataSource {
         case _ChatWebSocketResponse.userStatus:
           try {
             final statusEntity = UserStatusUpdateModel.fromJson(payload as Map<String, dynamic>).toEntity();
-            
+
             // ✅ Update OnlineStatusCache
             final cache = OnlineStatusCache();
             final userId = int.tryParse(statusEntity.userId);
@@ -203,7 +202,7 @@ class ChatWebSocketDataSourceImpl implements ChatWebSocketDataSource {
               final lastSeen = statusEntity.lastSeen != null ? DateTime.tryParse(statusEntity.lastSeen!) : null;
               cache.updateStatus(userId, statusEntity.isOnline, lastSeen: lastSeen);
             }
-            
+
             _userStatusController.add(statusEntity);
             AppLogger.debug(
               'User status update: userId=${statusEntity.userId}, online=${statusEntity.isOnline}',

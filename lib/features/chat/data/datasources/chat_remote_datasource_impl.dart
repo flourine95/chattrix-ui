@@ -78,14 +78,14 @@ class ChatRemoteDatasourceImpl implements ChatRemoteDatasource {
         AppLogger.info('✅ Successfully fetched ${conversationsData.length} conversations', tag: 'ChatRemoteDataSource');
 
         // Debug: Log first conversation to check settings field
-        if (conversationsData.isNotEmpty) {
-          final firstConv = conversationsData.first as Map<String, dynamic>;
-          debugPrint('🔍 [API Response] First conversation keys: ${firstConv.keys.toList()}');
-          debugPrint('🔍 [API Response] Has settings field: ${firstConv.containsKey('settings')}');
-          if (firstConv.containsKey('settings')) {
-            debugPrint('🔍 [API Response] Settings value: ${firstConv['settings']}');
-          }
-        }
+        // if (conversationsData.isNotEmpty) {
+        //   final firstConv = conversationsData.first as Map<String, dynamic>;
+        //   debugPrint('🔍 [API Response] First conversation keys: ${firstConv.keys.toList()}');
+        //   debugPrint('🔍 [API Response] Has settings field: ${firstConv.containsKey('settings')}');
+        //   if (firstConv.containsKey('settings')) {
+        //     debugPrint('🔍 [API Response] Settings value: ${firstConv['settings']}');
+        //   }
+        // }
 
         return conversationsData
             .whereType<Map<String, dynamic>>()
