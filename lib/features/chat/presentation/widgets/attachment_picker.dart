@@ -3,16 +3,14 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class AttachmentPicker extends StatelessWidget {
   final Function(AttachmentType) onAttachmentSelected;
-  final Color? backgroundColor;
-  final Color? iconColor;
 
-  const AttachmentPicker({super.key, required this.onAttachmentSelected, this.backgroundColor, this.iconColor});
+  const AttachmentPicker({super.key, required this.onAttachmentSelected});
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
-    final bgColor = backgroundColor ?? (isDark ? const Color(0xFF1C1C1E) : Colors.white);
+    final colorScheme = theme.colorScheme;
+    final bgColor = colorScheme.surface;
 
     return Container(
       decoration: BoxDecoration(color: bgColor),
@@ -27,7 +25,7 @@ class AttachmentPicker extends StatelessWidget {
                 'Send Attachment',
                 style: theme.textTheme.titleMedium?.copyWith(
                   fontWeight: FontWeight.w600,
-                  color: isDark ? Colors.grey[200] : Colors.grey[800],
+                  color: theme.colorScheme.onSurface,
                 ),
               ),
             ),

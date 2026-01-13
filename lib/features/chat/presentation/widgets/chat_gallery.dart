@@ -12,7 +12,6 @@ class ChatGallery extends StatelessWidget {
   final VoidCallback onCameraTap;
   final Function(AssetPathEntity) onAlbumChanged;
   final Function(AssetEntity) onAssetSelect;
-  final bool isDark;
 
   const ChatGallery({
     super.key,
@@ -23,11 +22,12 @@ class ChatGallery extends StatelessWidget {
     required this.onCameraTap,
     required this.onAlbumChanged,
     required this.onAssetSelect,
-    required this.isDark,
   });
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
     return Column(
       children: [
         Container(

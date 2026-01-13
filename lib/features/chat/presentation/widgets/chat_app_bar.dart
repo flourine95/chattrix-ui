@@ -1,14 +1,14 @@
 import 'package:chattrix_ui/core/domain/enums/enums.dart';
 import 'package:chattrix_ui/core/widgets/user_avatar.dart';
+import 'package:chattrix_ui/features/auth/domain/entities/user.dart';
+import 'package:chattrix_ui/features/chat/domain/entities/conversation.dart';
 import 'package:chattrix_ui/features/chat/presentation/utils/conversation_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-/// AppBar for chat view
 class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
-  final dynamic conversation;
-  final dynamic me;
-  final bool isDark;
+  final Conversation? conversation;
+  final User? me;
   final VoidCallback onAudioCall;
   final VoidCallback onVideoCall;
   final VoidCallback onInfo;
@@ -17,7 +17,6 @@ class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
     super.key,
     required this.conversation,
     required this.me,
-    required this.isDark,
     required this.onAudioCall,
     required this.onVideoCall,
     required this.onInfo,
@@ -28,38 +27,35 @@ class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = isDark ? Colors.white : Colors.black;
-    final appBarColor = isDark ? const Color(0xFF1E1E1E) : Colors.white;
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
 
     if (conversation == null) {
-      return AppBar(
-        elevation: 0,
-        backgroundColor: appBarColor,
-        surfaceTintColor: Colors.transparent,
-      );
+      return AppBar(elevation: 0, backgroundColor: theme.scaffoldBackgroundColor, surfaceTintColor: Colors.transparent);
     }
 
-    final title = ConversationUtils.getConversationTitle(conversation, me);
-    final bool isGroup = conversation.type == ConversationType.group;
+    final safeConversation = conversation!;
 
-    String? avatarUrl;
-    if (isGroup) {
-      avatarUrl = conversation.avatarUrl;
-    } else {
-      avatarUrl = ConversationUtils.getOtherParticipantAvatarUrl(conversation, me);
-    }
+    final title = ConversationUtils.getConversationTitle(safeConversation, me);
+    final bool isGroup = safeConversation.type == ConversationType.group;
 
-    final bool isOnline = isGroup ? false : ConversationUtils.isUserOnline(conversation, me);
+    final String? avatarUrl = isGroup
+        ? safeConversation.avatarUrl
+        : ConversationUtils.getOtherParticipantAvatarUrl(safeConversation, me);
+
+    final bool isOnline = isGroup ? false : ConversationUtils.isUserOnline(safeConversation, me);
+
+    final contentColor = colorScheme.onSurface;
 
     return AppBar(
-      backgroundColor: appBarColor,
+      backgroundColor: theme.appBarTheme.backgroundColor ?? theme.scaffoldBackgroundColor,
       surfaceTintColor: Colors.transparent,
       elevation: 0,
-      shadowColor: Colors.black.withValues(alpha: 0.1),
-      scrolledUnderElevation: 2,
+      shadowColor: Colors.black.withValues(alpha: 0.05),
+      scrolledUnderElevation: 1,
       leadingWidth: 40,
       leading: BackButton(
-        color: color,
+        color: contentColor,
         onPressed: () {
           if (context.canPop()) {
             context.pop();
@@ -79,25 +75,17 @@ class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
               children: [
                 Text(
                   title,
-                  style: TextStyle(
-                    color: color,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                  ),
+                  style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600, color: contentColor),
                   overflow: TextOverflow.ellipsis,
                   maxLines: 1,
                 ),
                 if (!isGroup) ...[
                   const SizedBox(height: 2),
                   Text(
-                    ConversationUtils.formatLastSeen(
-                      isOnline,
-                      ConversationUtils.getLastSeen(conversation, me),
-                    ),
-                    style: TextStyle(
+                    ConversationUtils.formatLastSeen(isOnline, ConversationUtils.getLastSeen(safeConversation, me)),
+                    style: theme.textTheme.bodySmall?.copyWith(
                       color: isOnline ? Colors.green : Colors.grey,
                       fontSize: 12,
-                      fontWeight: FontWeight.w400,
                     ),
                   ),
                 ],
@@ -108,19 +96,25 @@ class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
       ),
       actions: [
         IconButton(
-          icon: Icon(Icons.call_outlined, color: color, size: 24),
+          icon: const Icon(Icons.call_outlined),
+          color: contentColor,
+          iconSize: 24,
           onPressed: onAudioCall,
-          tooltip: 'Audio call',
+          tooltip: 'Audio Call',
         ),
         IconButton(
-          icon: Icon(Icons.videocam_outlined, color: color, size: 26),
+          icon: const Icon(Icons.videocam_outlined),
+          color: contentColor,
+          iconSize: 26,
           onPressed: onVideoCall,
-          tooltip: 'Video call',
+          tooltip: 'Video Call',
         ),
         IconButton(
-          icon: Icon(Icons.info_outline, color: color, size: 24),
+          icon: const Icon(Icons.info_outline),
+          color: contentColor,
+          iconSize: 24,
           onPressed: onInfo,
-          tooltip: 'Thông tin',
+          tooltip: 'Conversation Info',
         ),
       ],
     );

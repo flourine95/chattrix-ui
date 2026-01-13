@@ -65,7 +65,6 @@ class EmojiStickerPicker extends HookConsumerWidget {
                 _EmojiTab(
                   selectedCategory: selectedEmojiCategory,
                   onEmojiSelected: onEmojiSelected,
-                  isDark: isDark,
                   iconColor: iconColor,
                 ),
                 _StickerTab(
@@ -73,7 +72,6 @@ class EmojiStickerPicker extends HookConsumerWidget {
                   searchController: searchController,
                   searchQuery: searchQuery,
                   onStickerSelected: onStickerSelected,
-                  isDark: isDark,
                   iconColor: iconColor,
                 ),
               ],
@@ -88,26 +86,26 @@ class EmojiStickerPicker extends HookConsumerWidget {
 /// Emoji Only Picker Widget (No tabs)
 class EmojiOnlyPicker extends HookConsumerWidget {
   final Function(String emoji) onEmojiSelected;
-  final Color? backgroundColor;
-  final Color? iconColor;
 
-  const EmojiOnlyPicker({super.key, required this.onEmojiSelected, this.backgroundColor, this.iconColor});
+  const EmojiOnlyPicker({
+    super.key,
+    required this.onEmojiSelected,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final selectedEmojiCategory = useState(0);
 
     final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
-    final bgColor = backgroundColor ?? (isDark ? const Color(0xFF1C1C1E) : Colors.white);
-    final iconColor = this.iconColor ?? theme.colorScheme.primary;
+    final colorScheme = theme.colorScheme;
+    final bgColor = colorScheme.surface;
+    final iconColor = colorScheme.primary;
 
     return Container(
       decoration: BoxDecoration(color: bgColor),
       child: _EmojiTab(
         selectedCategory: selectedEmojiCategory,
         onEmojiSelected: onEmojiSelected,
-        isDark: isDark,
         iconColor: iconColor,
       ),
     );
@@ -117,10 +115,11 @@ class EmojiOnlyPicker extends HookConsumerWidget {
 /// Sticker Only Picker Widget (No tabs)
 class StickerOnlyPicker extends HookConsumerWidget {
   final Function(String stickerUrl) onStickerSelected;
-  final Color? backgroundColor;
-  final Color? iconColor;
 
-  const StickerOnlyPicker({super.key, required this.onStickerSelected, this.backgroundColor, this.iconColor});
+  const StickerOnlyPicker({
+    super.key,
+    required this.onStickerSelected,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -129,9 +128,9 @@ class StickerOnlyPicker extends HookConsumerWidget {
     final searchQuery = useState('');
 
     final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
-    final bgColor = backgroundColor ?? (isDark ? const Color(0xFF1C1C1E) : Colors.white);
-    final iconColor = this.iconColor ?? theme.colorScheme.primary;
+    final colorScheme = theme.colorScheme;
+    final bgColor = colorScheme.surface;
+    final iconColor = colorScheme.primary;
 
     return Container(
       decoration: BoxDecoration(color: bgColor),
@@ -140,7 +139,6 @@ class StickerOnlyPicker extends HookConsumerWidget {
         searchController: searchController,
         searchQuery: searchQuery,
         onStickerSelected: onStickerSelected,
-        isDark: isDark,
         iconColor: iconColor,
       ),
     );
@@ -153,13 +151,11 @@ class StickerOnlyPicker extends HookConsumerWidget {
 class _EmojiTab extends StatelessWidget {
   final ValueNotifier<int> selectedCategory;
   final Function(String) onEmojiSelected;
-  final bool isDark;
   final Color iconColor;
 
   const _EmojiTab({
     required this.selectedCategory,
     required this.onEmojiSelected,
-    required this.isDark,
     required this.iconColor,
   });
 
@@ -175,6 +171,9 @@ class _EmojiTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    
     return Column(
       children: [
         // Category selector
@@ -197,13 +196,13 @@ class _EmojiTab extends StatelessWidget {
                       decoration: BoxDecoration(
                         color: isSelected
                             ? iconColor.withValues(alpha: 0.1)
-                            : (isDark ? Colors.grey[800] : Colors.grey[200]),
+                            : colorScheme.surfaceContainerHighest,
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Text(
                         _emojiCategories[index],
                         style: TextStyle(
-                          color: isSelected ? iconColor : (isDark ? Colors.grey[400] : Colors.grey[700]),
+                          color: isSelected ? iconColor : colorScheme.onSurfaceVariant,
                           fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
                           fontSize: 13,
                         ),
@@ -758,7 +757,6 @@ class _StickerTab extends HookConsumerWidget {
   final TextEditingController searchController;
   final ValueNotifier<String> searchQuery;
   final Function(String) onStickerSelected;
-  final bool isDark;
   final Color iconColor;
 
   const _StickerTab({
@@ -766,7 +764,6 @@ class _StickerTab extends HookConsumerWidget {
     required this.searchController,
     required this.searchQuery,
     required this.onStickerSelected,
-    required this.isDark,
     required this.iconColor,
   });
 
@@ -781,6 +778,9 @@ class _StickerTab extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    
     // Debounce search
     useEffect(() {
       Future.delayed(const Duration(milliseconds: 500), () {
@@ -816,7 +816,7 @@ class _StickerTab extends HookConsumerWidget {
                     )
                   : null,
               filled: true,
-              fillColor: isDark ? Colors.grey[800] : Colors.grey[200],
+              fillColor: colorScheme.surfaceContainerHighest,
               border: OutlineInputBorder(borderRadius: BorderRadius.circular(25), borderSide: BorderSide.none),
               contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             ),
@@ -845,13 +845,13 @@ class _StickerTab extends HookConsumerWidget {
                         decoration: BoxDecoration(
                           color: isSelected
                               ? iconColor.withValues(alpha: 0.1)
-                              : (isDark ? Colors.grey[800] : Colors.grey[200]),
+                              : colorScheme.surfaceContainerHighest,
                           borderRadius: BorderRadius.circular(20),
                         ),
                         child: Text(
                           category['label']!,
                           style: TextStyle(
-                            color: isSelected ? iconColor : (isDark ? Colors.grey[400] : Colors.grey[700]),
+                            color: isSelected ? iconColor : colorScheme.onSurfaceVariant,
                             fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
                             fontSize: 13,
                           ),
@@ -875,7 +875,10 @@ class _StickerTab extends HookConsumerWidget {
                     children: [
                       Icon(Icons.search_off, size: 48, color: Colors.grey[400]),
                       const SizedBox(height: 16),
-                      Text('No stickers found', style: TextStyle(color: isDark ? Colors.grey[400] : Colors.grey[600])),
+                      Text(
+                        'No stickers found',
+                        style: TextStyle(color: colorScheme.onSurfaceVariant),
+                      ),
                     ],
                   ),
                 );
@@ -904,13 +907,16 @@ class _StickerTab extends HookConsumerWidget {
                           child: Center(
                             child: CircularProgressIndicator(
                               strokeWidth: 2,
-                              color: isDark ? Colors.grey[600] : Colors.grey[400],
+                              color: colorScheme.onSurfaceVariant,
                             ),
                           ),
                         ),
                         errorWidget: (context, url, error) => Container(
                           color: Colors.transparent,
-                          child: Icon(Icons.error_outline, color: isDark ? Colors.grey[600] : Colors.grey[400]),
+                          child: Icon(
+                            Icons.error_outline,
+                            color: colorScheme.onSurfaceVariant,
+                          ),
                         ),
                       ),
                     ),
@@ -927,12 +933,15 @@ class _StickerTab extends HookConsumerWidget {
                   const SizedBox(height: 16),
                   Text(
                     'Failed to load stickers',
-                    style: TextStyle(color: isDark ? Colors.grey[400] : Colors.grey[600]),
+                    style: TextStyle(color: colorScheme.onSurfaceVariant),
                   ),
                   const SizedBox(height: 8),
                   Text(
                     'Check your API key',
-                    style: TextStyle(color: isDark ? Colors.grey[500] : Colors.grey[500], fontSize: 12),
+                    style: TextStyle(
+                      color: colorScheme.onSurfaceVariant,
+                      fontSize: 12,
+                    ),
                   ),
                 ],
               ),
@@ -946,7 +955,7 @@ class _StickerTab extends HookConsumerWidget {
           child: Text(
             'Powered by GIPHY',
             style: TextStyle(
-              color: isDark ? Colors.grey[500] : Colors.grey[500],
+              color: colorScheme.onSurfaceVariant,
               fontSize: 10,
               fontStyle: FontStyle.italic,
             ),

@@ -111,7 +111,6 @@ class ChatViewPage extends HookConsumerWidget {
         appBar: ChatAppBar(
           conversation: conversation,
           me: me,
-          isDark: isDark,
           onAudioCall: () => handleAudioCall(context, ref, conversation, me, chatId),
           onVideoCall: () => handleVideoCall(context, ref, conversation, me, chatId),
           onInfo: () => handleConversationInfo(context, conversation, chatId),
@@ -123,8 +122,6 @@ class ChatViewPage extends HookConsumerWidget {
           controller: controller,
           focusNode: focusNode,
           scrollController: scrollController,
-          isDark: isDark,
-          primaryColor: primaryColor,
           me: me,
           conversation: conversation,
           messagesAsync: messagesAsync,
@@ -169,8 +166,6 @@ Widget _buildBody({
   required TextEditingController controller,
   required FocusNode focusNode,
   required ScrollController scrollController,
-  required bool isDark,
-  required Color primaryColor,
   required dynamic me,
   required dynamic conversation,
   required AsyncValue<List<Message>> messagesAsync,
@@ -198,6 +193,9 @@ Widget _buildBody({
   required Function(String) onStickerSelected,
   required Function(Message) onPinMessage,
 }) {
+  final theme = Theme.of(context);
+  final isDark = theme.brightness == Brightness.dark;
+  final primaryColor = theme.colorScheme.primary;
   return GestureDetector(
     onTap: () {
       if (showGallery.value) showGallery.value = false;
@@ -334,8 +332,6 @@ Widget _buildBody({
                   chatActions.sendMessage(specificContent: '👍', type: 'TEXT');
                 }
               },
-              isDark: isDark,
-              primaryColor: primaryColor,
               showGallery: showGallery.value,
               canSendMessage: controller.text.trim().isNotEmpty || selectedAssets.value.isNotEmpty,
               onToggleGallery: onToggleGallery,
@@ -380,7 +376,6 @@ Widget _buildBody({
                       list.contains(asset) ? list.remove(asset) : list.add(asset);
                       selectedAssets.value = list;
                     },
-                    isDark: isDark,
                   )
                 : const SizedBox.shrink(),
           ),
@@ -404,20 +399,14 @@ Widget _buildBody({
                       AttachmentPicker(
                         key: const ValueKey('attachment_picker'),
                         onAttachmentSelected: onAttachmentSelection,
-                        backgroundColor: isDark ? const Color(0xFF1C1C1E) : Colors.white,
-                        iconColor: primaryColor,
                       ),
                       EmojiOnlyPicker(
                         key: const ValueKey('emoji_only_picker'),
                         onEmojiSelected: onEmojiSelected,
-                        backgroundColor: isDark ? const Color(0xFF1C1C1E) : Colors.white,
-                        iconColor: primaryColor,
                       ),
                       StickerOnlyPicker(
                         key: const ValueKey('sticker_only_picker'),
                         onStickerSelected: onStickerSelected,
-                        backgroundColor: isDark ? const Color(0xFF1C1C1E) : Colors.white,
-                        iconColor: primaryColor,
                       ),
                     ],
                   )

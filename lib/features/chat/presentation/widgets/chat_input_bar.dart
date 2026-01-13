@@ -6,8 +6,6 @@ class ChatInputBar extends StatelessWidget {
   final TextEditingController controller;
   final FocusNode focusNode;
   final VoidCallback onSend;
-  final bool isDark;
-  final Color primaryColor;
   final bool showGallery;
   final bool canSendMessage;
   final VoidCallback onToggleGallery;
@@ -24,8 +22,6 @@ class ChatInputBar extends StatelessWidget {
     required this.controller,
     required this.focusNode,
     required this.onSend,
-    required this.isDark,
-    required this.primaryColor,
     required this.showGallery,
     required this.canSendMessage,
     required this.onToggleGallery,
@@ -46,15 +42,19 @@ class ChatInputBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final primaryColor = theme.colorScheme.primary;
+
     // Show recording overlay when recording
     if (isRecording) {
-      return _buildRecordingOverlay();
+      return _buildRecordingOverlay(isDark, primaryColor);
     }
 
-    return _buildNormalInputBar();
+    return _buildNormalInputBar(isDark, primaryColor);
   }
 
-  Widget _buildRecordingOverlay() {
+  Widget _buildRecordingOverlay(bool isDark, Color primaryColor) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
@@ -145,7 +145,7 @@ class ChatInputBar extends StatelessWidget {
     );
   }
 
-  Widget _buildNormalInputBar() {
+  Widget _buildNormalInputBar(bool isDark, Color primaryColor) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 14),

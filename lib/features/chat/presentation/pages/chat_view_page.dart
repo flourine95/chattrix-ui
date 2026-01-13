@@ -1026,22 +1026,16 @@ class ChatViewPage extends HookConsumerWidget {
                             AttachmentPicker(
                               key: const ValueKey('attachment_picker'),
                               onAttachmentSelected: handleAttachmentSelection,
-                              backgroundColor: isDark ? const Color(0xFF1C1C1E) : Colors.white,
-                              iconColor: primaryColor,
                             ),
                             // Emoji Only Picker
                             EmojiOnlyPicker(
                               key: const ValueKey('emoji_only_picker'),
                               onEmojiSelected: onEmojiSelected,
-                              backgroundColor: isDark ? const Color(0xFF1C1C1E) : Colors.white,
-                              iconColor: primaryColor,
                             ),
                             // Sticker Only Picker
                             StickerOnlyPicker(
                               key: const ValueKey('sticker_only_picker'),
                               onStickerSelected: onStickerSelected,
-                              backgroundColor: isDark ? const Color(0xFF1C1C1E) : Colors.white,
-                              iconColor: primaryColor,
                             ),
                           ],
                         )
