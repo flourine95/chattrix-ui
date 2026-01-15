@@ -57,7 +57,7 @@ class NewChatPage extends HookConsumerWidget {
     );
 
     final createUsecase = ref.read(createConversationUsecaseProvider);
-    final result = await createUsecase(type: 'DIRECT', participantIds: [currentUser.id.toString(), user.id.toString()]);
+    final result = await createUsecase(type: 'DIRECT', participantIds: [currentUser.id, user.id]);
 
     // Close loading dialog
     if (context.mounted) {

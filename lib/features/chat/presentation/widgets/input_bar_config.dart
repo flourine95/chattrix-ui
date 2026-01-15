@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 class InputBarConfig {
   final TextEditingController controller;
   final FocusNode focusNode;
-  final String chatId;
+  final int chatId;
   final bool isDark;
   final Color primaryColor;
   final dynamic conversation;

@@ -11,15 +11,14 @@ enum PollFilter { all, active, expired }
 
 class PollsPage extends HookConsumerWidget {
   const PollsPage({super.key, required this.conversationId});
-  final String conversationId;
+  final int conversationId;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
 
-    // Parse conversationId to int
-    final convId = int.tryParse(conversationId) ?? 0;
+    final convId = conversationId;
 
     // Watch polls data
     final pollsAsync = ref.watch(pollsListProvider(convId));

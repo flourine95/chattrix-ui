@@ -44,7 +44,7 @@ class ActiveCallBanner extends StatelessWidget {
                 Text(
                   '$participantsCount người đang tham gia',
                   style: theme.textTheme.bodySmall?.copyWith(
-                    color: theme.colorScheme.onPrimaryContainer.withOpacity(0.7),
+                    color: theme.colorScheme.onPrimaryContainer.withValues(alpha: 0.7),
                   ),
                 ),
               ],

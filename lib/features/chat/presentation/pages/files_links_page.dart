@@ -10,7 +10,7 @@ import 'package:url_launcher/url_launcher.dart';
 class FilesLinksPage extends ConsumerStatefulWidget {
   const FilesLinksPage({super.key, required this.conversationId});
 
-  final String conversationId;
+  final int conversationId;
 
   @override
   ConsumerState<FilesLinksPage> createState() => _FilesLinksPageState();
@@ -174,7 +174,7 @@ class _FilesLinksPageState extends ConsumerState<FilesLinksPage> with SingleTick
     // Fetch media from API with date filter
     final mediaAsync = ref.watch(
       conversationMediaProvider(
-        int.parse(widget.conversationId),
+        widget.conversationId,
         limit: 100,
         types: types,
         startDate: startDate,

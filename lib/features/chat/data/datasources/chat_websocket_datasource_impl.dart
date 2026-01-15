@@ -261,7 +261,7 @@ class ChatWebSocketDataSourceImpl implements ChatWebSocketDataSource {
         case _ChatWebSocketResponse.messageReaction:
           // Handle message reaction updates
           // This will be processed by the messages provider to update reactions in real-time
-          AppLogger.debug('Message reaction received: ${payload}', tag: 'ChatWebSocketDataSource');
+          AppLogger.debug('Message reaction received: $payload', tag: 'ChatWebSocketDataSource');
           // TODO: Implement reaction update logic if needed
           // For now, just log it - reactions are already handled via API polling
           break;
@@ -322,7 +322,7 @@ class ChatWebSocketDataSourceImpl implements ChatWebSocketDataSource {
   }
 
   @override
-  void sendMessage(String conversationId, ChatMessageRequest request) {
+  void sendMessage(int conversationId, ChatMessageRequest request) {
     final messageData = request.toJson();
 
     messageData['conversationId'] = conversationId;
@@ -333,7 +333,7 @@ class ChatWebSocketDataSourceImpl implements ChatWebSocketDataSource {
   }
 
   @override
-  void sendTypingStart(String conversationId) {
+  void sendTypingStart(int conversationId) {
     final payload = {
       'type': _ChatWebSocketEvent.typingStart,
       'payload': {'conversationId': conversationId},
@@ -343,7 +343,7 @@ class ChatWebSocketDataSourceImpl implements ChatWebSocketDataSource {
   }
 
   @override
-  void sendTypingStop(String conversationId) {
+  void sendTypingStop(int conversationId) {
     final payload = {
       'type': _ChatWebSocketEvent.typingStop,
       'payload': {'conversationId': conversationId},

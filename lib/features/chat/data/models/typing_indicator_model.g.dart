@@ -13,7 +13,7 @@ part of 'typing_indicator_model.dart';
 _TypingIndicatorModel _$TypingIndicatorModelFromJson(
   Map<String, dynamic> json,
 ) => _TypingIndicatorModel(
-  conversationId: _conversationIdFromJson(json['conversationId']),
+  conversationId: (json['conversationId'] as num).toInt(),
   typingUsers: (json['typingUsers'] as List<dynamic>)
       .map((e) => TypingUserModel.fromJson(e as Map<String, dynamic>))
       .toList(),
@@ -28,7 +28,7 @@ Map<String, dynamic> _$TypingIndicatorModelToJson(
 
 _TypingUserModel _$TypingUserModelFromJson(Map<String, dynamic> json) =>
     _TypingUserModel(
-      id: _userIdFromJson(json['userId']),
+      id: (json['userId'] as num).toInt(),
       username: json['username'] as String,
       fullName: json['fullName'] as String,
     );

@@ -42,7 +42,7 @@ class ChatInfoPage extends HookConsumerWidget {
     final textTheme = Theme.of(context).textTheme;
     final colors = Theme.of(context).colorScheme;
     final me = ref.watch(currentUserProvider);
-    final messagesAsync = ref.watch(messagesProvider(conversation.id.toString()));
+    final messagesAsync = ref.watch(messagesProvider(conversation.id));
 
     final isGroup = conversation.type == ConversationType.group;
     final displayName = isGroup
@@ -483,7 +483,7 @@ class ChatInfoPage extends HookConsumerWidget {
               onTap: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => AddMembersPage(conversationId: conversation.id.toString())),
+                  MaterialPageRoute(builder: (context) => AddMembersPage(conversationId: conversation.id)),
                 );
               },
             )
@@ -578,7 +578,7 @@ class ChatInfoPage extends HookConsumerWidget {
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => FilesLinksPage(conversationId: conversation.id.toString())),
+                    MaterialPageRoute(builder: (context) => FilesLinksPage(conversationId: conversation.id)),
                   );
                 },
                 child: const Text('See All'),
@@ -627,7 +627,7 @@ class ChatInfoPage extends HookConsumerWidget {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => FilesLinksPage(conversationId: conversation.id.toString()),
+                          builder: (context) => FilesLinksPage(conversationId: conversation.id),
                         ),
                       );
                     },
@@ -748,7 +748,7 @@ class ChatInfoPage extends HookConsumerWidget {
       onTap: () {
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => GroupPermissionsPage(conversationId: conversation.id.toString())),
+          MaterialPageRoute(builder: (context) => GroupPermissionsPage(conversationId: conversation.id)),
         );
       },
       colors: colors,
@@ -1144,7 +1144,7 @@ class ChatInfoPage extends HookConsumerWidget {
   void _showSearchDialog(BuildContext context, ColorScheme colors, TextTheme textTheme) {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => SearchMessagesPage(conversationId: conversation.id.toString())),
+      MaterialPageRoute(builder: (context) => SearchMessagesPage(conversationId: conversation.id)),
     );
   }
 
@@ -1328,7 +1328,7 @@ class ChatInfoPage extends HookConsumerWidget {
   /// Build events section for group chats
   Widget _buildEventsSection(BuildContext context, WidgetRef ref, ColorScheme colors, TextTheme textTheme) {
     final convId = conversation.id;
-    final eventsAsync = ref.watch(eventsListProvider(convId.toString()));
+    final eventsAsync = ref.watch(eventsListProvider(convId));
 
     return switch (eventsAsync) {
       AsyncData(:final value) => _buildRoundedSection(
@@ -1341,7 +1341,7 @@ class ChatInfoPage extends HookConsumerWidget {
           colors: colors,
           textTheme: textTheme,
           onTap: () =>
-              Navigator.push(context, MaterialPageRoute(builder: (_) => EventsPage(conversationId: convId.toString()))),
+              Navigator.push(context, MaterialPageRoute(builder: (_) => EventsPage(conversationId: convId))),
         ),
       ),
       AsyncLoading() => _buildRoundedSection(
@@ -1356,7 +1356,7 @@ class ChatInfoPage extends HookConsumerWidget {
           onTap: null,
         ),
       ),
-      AsyncError(:final error) => _buildRoundedSection(
+      AsyncError() => _buildRoundedSection(
         context,
         colors,
         child: _buildActionTile(
@@ -1366,7 +1366,7 @@ class ChatInfoPage extends HookConsumerWidget {
           colors: colors,
           textTheme: textTheme,
           onTap: () =>
-              Navigator.push(context, MaterialPageRoute(builder: (_) => EventsPage(conversationId: convId.toString()))),
+              Navigator.push(context, MaterialPageRoute(builder: (_) => EventsPage(conversationId: convId))),
         ),
       ),
     };
@@ -1390,7 +1390,7 @@ class ChatInfoPage extends HookConsumerWidget {
           colors: colors,
           textTheme: textTheme,
           onTap: () =>
-              Navigator.push(context, MaterialPageRoute(builder: (_) => PollsPage(conversationId: convId.toString()))),
+              Navigator.push(context, MaterialPageRoute(builder: (_) => PollsPage(conversationId: convId))),
         ),
       ),
       AsyncLoading() => _buildRoundedSection(
@@ -1411,11 +1411,11 @@ class ChatInfoPage extends HookConsumerWidget {
         child: _buildActionTile(
           icon: Icons.poll,
           title: 'Polls',
-          subtitle: 'Error: ${error.toString()}',
+          subtitle: 'Error: $error',
           colors: colors,
           textTheme: textTheme,
           onTap: () =>
-              Navigator.push(context, MaterialPageRoute(builder: (_) => PollsPage(conversationId: convId.toString()))),
+              Navigator.push(context, MaterialPageRoute(builder: (_) => PollsPage(conversationId: convId))),
         ),
       ),
     };

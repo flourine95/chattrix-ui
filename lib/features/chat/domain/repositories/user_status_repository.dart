@@ -4,12 +4,9 @@ import 'package:chattrix_ui/features/chat/domain/entities/user_status.dart';
 import 'package:fpdart/fpdart.dart';
 
 abstract class UserStatusRepository {
-  /// Get all online users
   Future<Either<Failure, List<User>>> getOnlineUsers();
 
-  /// Get online users in a conversation
-  Future<Either<Failure, List<User>>> getOnlineUsersInConversation(String conversationId);
+  Future<Either<Failure, List<User>>> getOnlineUsersInConversation(int conversationId);
 
-  /// Get user status
-  Future<Either<Failure, UserStatus>> getUserStatus(String userId);
+  Future<Either<Failure, UserStatus>> getUserStatus(int userId);
 }

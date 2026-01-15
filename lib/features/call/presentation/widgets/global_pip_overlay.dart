@@ -48,7 +48,7 @@ class GlobalPipOverlay extends ConsumerWidget {
 
               return PipCallOverlay(
                 callType: callType,
-                remoteName: remoteName ?? "Unknown",
+                remoteName: remoteName,
                 remoteAvatar: remoteAvatar,
                 channelId: channelId,
               );

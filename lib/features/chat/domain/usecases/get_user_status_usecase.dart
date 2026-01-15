@@ -8,7 +8,7 @@ class GetUserStatusUsecase {
 
   GetUserStatusUsecase(this.repository);
 
-  Future<Either<Failure, UserStatus>> call(String userId) {
+  Future<Either<Failure, UserStatus>> call(int userId) {
     return repository.getUserStatus(userId);
   }
 }

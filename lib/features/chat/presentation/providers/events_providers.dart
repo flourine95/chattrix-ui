@@ -1,14 +1,14 @@
-import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'dart:async';
+
+import 'package:chattrix_ui/features/chat/data/datasources/chat_websocket_datasource_impl.dart';
+import 'package:chattrix_ui/features/chat/data/mappers/event_mapper.dart';
+import 'package:chattrix_ui/features/chat/data/models/event_dto.dart';
+import 'package:chattrix_ui/features/chat/data/repositories/events_repository_impl.dart';
 import 'package:chattrix_ui/features/chat/domain/entities/event_entity.dart';
 import 'package:chattrix_ui/features/chat/domain/repositories/events_repository.dart';
-import 'package:chattrix_ui/features/chat/data/repositories/events_repository_impl.dart';
 import 'package:chattrix_ui/features/chat/presentation/providers/chat_providers.dart';
-import 'package:chattrix_ui/features/chat/data/datasources/chat_websocket_datasource_impl.dart';
-import 'package:chattrix_ui/features/chat/presentation/providers/chat_websocket_provider_new.dart';
-import 'package:chattrix_ui/features/chat/data/models/event_dto.dart';
-import 'package:chattrix_ui/features/chat/data/mappers/event_mapper.dart';
 import 'package:flutter/foundation.dart';
-import 'dart:async';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'events_providers.g.dart';
 
@@ -31,14 +31,11 @@ class EventsList extends _$EventsList {
   StreamSubscription<Map<String, dynamic>>? _eventEventSubscription;
 
   @override
-  Future<List<EventEntity>> build(String conversationId) async {
-    debugPrint('📅 EventsList.build() called for conversationId: $conversationId');
-
+  Future<List<EventEntity>> build(int conversationId) async {
     // Listen to WebSocket event events
     _listenToEventEvents();
 
     final repository = ref.watch(eventsRepositoryProvider);
-    debugPrint('📅 Fetching events from API...');
     final result = await repository.getEvents(conversationId: conversationId);
 
     return result.fold(
@@ -66,7 +63,7 @@ class EventsList extends _$EventsList {
         final eventEntity = EventDto.fromJson(eventData).toEntity();
 
         // Only update if this event belongs to our conversation
-        if (eventEntity.conversationId.toString() != conversationId) return;
+        if (eventEntity.conversationId == conversationId) return;
 
         final currentState = state.value;
         if (currentState == null) return;

@@ -20,13 +20,13 @@ class MessagesNotifier extends _$MessagesNotifier {
   StreamSubscription<bool>? _connectionSubscription;
 
   @override
-  FutureOr<List<Message>> build(String conversationId) async {
+  FutureOr<List<Message>> build(int conversationId) async {
     ref.keepAlive();
 
     final wsDataSource = ref.watch(chatWebSocketDataSourceProvider) as ChatWebSocketDataSourceImpl;
 
     final messageSubscription = wsDataSource.messageStream.listen((message) {
-      if (message.conversationId.toString() == conversationId) {
+      if (message.conversationId == conversationId) {
         // ✅ Optimistic update: Add message immediately to UI
         state.whenData((messages) {
           // Check if message already exists (avoid duplicates)
@@ -53,7 +53,7 @@ class MessagesNotifier extends _$MessagesNotifier {
       final realId = update['realId'] as int;
       final updateConversationId = update['conversationId'] as int;
       
-      if (updateConversationId.toString() == conversationId) {
+      if (updateConversationId == conversationId) {
         state.whenData((messages) {
           final updatedMessages = messages.map((msg) {
             if (msg.id == tempId) {
@@ -99,7 +99,7 @@ class MessagesNotifier extends _$MessagesNotifier {
     _pollingTimer = null;
   }
 
-  Future<List<Message>> _fetchMessages(String conversationId) async {
+  Future<List<Message>> _fetchMessages(int conversationId) async {
     final result = await _getMessagesUsecase(conversationId: conversationId, sort: 'DESC');
 
     return result.fold(
@@ -152,7 +152,7 @@ class MessagesNotifier extends _$MessagesNotifier {
 
       final pollEntity = PollDto.fromJson(pollData).toEntity();
 
-      if (pollEntity.conversationId.toString() != conversationId) return;
+      if (pollEntity.conversationId == conversationId) return;
 
       switch (eventType) {
         case 'POLL_CREATED':
@@ -210,7 +210,7 @@ class MessagesNotifier extends _$MessagesNotifier {
 
       final eventEntity = EventDto.fromJson(eventData).toEntity();
 
-      if (eventEntity.conversationId.toString() != conversationId) return;
+      if (eventEntity.conversationId == conversationId) return;
 
       switch (eventType) {
         case 'EVENT_CREATED':

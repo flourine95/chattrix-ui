@@ -9,7 +9,7 @@ class GetConversationMembersUseCase {
   GetConversationMembersUseCase(this._repository);
 
   Future<Either<Failure, List<SearchUser>>> call({
-    required String conversationId,
+    required int conversationId,
     String? cursor,
     int limit = 20,
   }) async {

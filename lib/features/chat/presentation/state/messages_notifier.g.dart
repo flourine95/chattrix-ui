@@ -20,7 +20,7 @@ final class MessagesNotifierProvider
     extends $AsyncNotifierProvider<MessagesNotifier, List<Message>> {
   MessagesNotifierProvider._({
     required MessagesNotifierFamily super.from,
-    required String super.argument,
+    required int super.argument,
   }) : super(
          retry: null,
          name: r'messagesProvider',
@@ -54,7 +54,7 @@ final class MessagesNotifierProvider
   }
 }
 
-String _$messagesNotifierHash() => r'2a4f4bd375cf99b030721c9cdfcd0cf69720a8dd';
+String _$messagesNotifierHash() => r'17b39c47f9e7f9ec73f2c26549fa7959090b94e4';
 
 final class MessagesNotifierFamily extends $Family
     with
@@ -63,7 +63,7 @@ final class MessagesNotifierFamily extends $Family
           AsyncValue<List<Message>>,
           List<Message>,
           FutureOr<List<Message>>,
-          String
+          int
         > {
   MessagesNotifierFamily._()
     : super(
@@ -74,7 +74,7 @@ final class MessagesNotifierFamily extends $Family
         isAutoDispose: true,
       );
 
-  MessagesNotifierProvider call(String conversationId) =>
+  MessagesNotifierProvider call(int conversationId) =>
       MessagesNotifierProvider._(argument: conversationId, from: this);
 
   @override
@@ -82,10 +82,10 @@ final class MessagesNotifierFamily extends $Family
 }
 
 abstract class _$MessagesNotifier extends $AsyncNotifier<List<Message>> {
-  late final _$args = ref.$arg as String;
-  String get conversationId => _$args;
+  late final _$args = ref.$arg as int;
+  int get conversationId => _$args;
 
-  FutureOr<List<Message>> build(String conversationId);
+  FutureOr<List<Message>> build(int conversationId);
   @$mustCallSuper
   @override
   void runBuild() {

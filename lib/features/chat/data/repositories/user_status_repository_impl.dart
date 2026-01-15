@@ -21,7 +21,7 @@ class UserStatusRepositoryImpl extends BaseRepository implements UserStatusRepos
   }
 
   @override
-  Future<Either<Failure, List<User>>> getOnlineUsersInConversation(String conversationId) async {
+  Future<Either<Failure, List<User>>> getOnlineUsersInConversation(int conversationId) async {
     return executeApiCall(() async {
       final models = await remoteDatasource.getOnlineUsersInConversation(conversationId);
       return models.map((model) => model.toEntity()).toList();
@@ -29,7 +29,7 @@ class UserStatusRepositoryImpl extends BaseRepository implements UserStatusRepos
   }
 
   @override
-  Future<Either<Failure, UserStatus>> getUserStatus(String userId) async {
+  Future<Either<Failure, UserStatus>> getUserStatus(int userId) async {
     return executeApiCall(() async {
       final model = await remoteDatasource.getUserStatus(userId);
       return model.toEntity();

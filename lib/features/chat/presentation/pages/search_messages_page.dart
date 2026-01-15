@@ -9,7 +9,7 @@ import '../providers/search_messages_provider.dart';
 class SearchMessagesPage extends HookConsumerWidget {
   const SearchMessagesPage({super.key, required this.conversationId});
 
-  final String conversationId;
+  final int conversationId;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

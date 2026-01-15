@@ -10,7 +10,7 @@ final onlineUsersProvider = FutureProvider((ref) async {
   return result.fold((failure) => throw Exception(failure.message), (users) => users);
 });
 
-final userStatusProvider = FutureProvider.family<UserStatus, String>((ref, userId) async {
+final userStatusProvider = FutureProvider.family<UserStatus, int>((ref, userId) async {
   final usecase = ref.watch(getUserStatusUsecaseProvider);
   final result = await usecase(userId);
 
@@ -30,19 +30,19 @@ final searchUsersProvider = FutureProvider.family<List<SearchUser>, String>((ref
 
 /// Global map to store message ID to scroll to
 /// Used when navigating from search results to chat view
-final _scrollToMessageMap = <String, int?>{};
+final _scrollToMessageMap = <int, int?>{};
 
 /// Get message ID to scroll to for a conversation
-int? getScrollToMessage(String conversationId) {
+int? getScrollToMessage(int conversationId) {
   return _scrollToMessageMap[conversationId];
 }
 
 /// Set message ID to scroll to for a conversation
-void setScrollToMessage(String conversationId, int? messageId) {
+void setScrollToMessage(int conversationId, int? messageId) {
   _scrollToMessageMap[conversationId] = messageId;
 }
 
 /// Clear message ID to scroll to for a conversation
-void clearScrollToMessage(String conversationId) {
+void clearScrollToMessage(int conversationId) {
   _scrollToMessageMap.remove(conversationId);
 }

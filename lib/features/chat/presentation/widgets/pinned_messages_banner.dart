@@ -5,7 +5,7 @@ import 'package:go_router/go_router.dart';
 /// Banner hiển thị tin nhắn đã ghim ở dưới header
 class PinnedMessagesBanner extends StatelessWidget {
   final List<Message> pinnedMessages;
-  final String conversationId;
+  final int conversationId;
 
   const PinnedMessagesBanner({super.key, required this.pinnedMessages, required this.conversationId});
 

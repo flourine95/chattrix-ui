@@ -14,7 +14,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 class AddMembersPage extends HookConsumerWidget {
   const AddMembersPage({super.key, required this.conversationId});
 
-  final String conversationId;
+  final int conversationId;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -42,7 +42,7 @@ class AddMembersPage extends HookConsumerWidget {
       try {
         final dio = ref.read(dioProvider);
         final response = await dio.post(
-          ApiConstants.conversationMembers(int.parse(conversationId)),
+          ApiConstants.conversationMembers(conversationId),
           data: {'userIds': selectedUsers.value.toList()},
         );
 

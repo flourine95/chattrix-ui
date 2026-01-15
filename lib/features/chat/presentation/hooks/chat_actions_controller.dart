@@ -18,7 +18,7 @@ import 'package:photo_manager/photo_manager.dart';
 /// This separates business logic from UI
 class ChatActionsController {
   final WidgetRef ref;
-  final String chatId;
+  final int chatId;
   final BuildContext context;
   final TextEditingController textController;
   final ValueNotifier<Message?> replyToMessage;
@@ -386,7 +386,7 @@ class ChatActionsController {
 /// Hook to create ChatActionsController
 ChatActionsController useChatActions({
   required WidgetRef ref,
-  required String chatId,
+  required int chatId,
   required BuildContext context,
   required TextEditingController textController,
   required ValueNotifier<Message?> replyToMessage,
@@ -412,7 +412,7 @@ ChatActionsController useChatActions({
 
 class _ChatActionsControllerHook extends Hook<ChatActionsController> {
   final WidgetRef ref;
-  final String chatId;
+  final int chatId;
   final BuildContext context;
   final TextEditingController textController;
   final ValueNotifier<Message?> replyToMessage;

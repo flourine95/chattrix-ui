@@ -92,7 +92,7 @@ class BirthdayWishesBottomSheet extends HookConsumerWidget {
         final usecase = ref.read(sendMessageUsecaseProvider);
         final request = ChatMessageRequest(content: message, type: 'TEXT');
 
-        await usecase(conversationId: directConversation.id.toString(), request: request);
+        await usecase(conversationId: directConversation.id, request: request);
 
         // Navigate to conversation
         if (!context.mounted) return;

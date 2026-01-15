@@ -9,7 +9,7 @@ class SendMessageUsecase {
 
   SendMessageUsecase(this.repository);
 
-  Future<Either<Failure, Message>> call({required String conversationId, required ChatMessageRequest request}) {
+  Future<Either<Failure, Message>> call({required int conversationId, required ChatMessageRequest request}) {
     return repository.sendMessage(conversationId, request);
   }
 }

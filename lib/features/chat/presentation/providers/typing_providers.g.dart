@@ -17,7 +17,7 @@ part of 'typing_providers.dart';
 final typingProvider = TypingNotifierProvider._();
 
 final class TypingNotifierProvider
-    extends $NotifierProvider<TypingNotifier, Map<String, List<TypingUser>>> {
+    extends $NotifierProvider<TypingNotifier, Map<int, List<TypingUser>>> {
   TypingNotifierProvider._()
     : super(
         from: null,
@@ -37,38 +37,32 @@ final class TypingNotifierProvider
   TypingNotifier create() => TypingNotifier();
 
   /// {@macro riverpod.override_with_value}
-  Override overrideWithValue(Map<String, List<TypingUser>> value) {
+  Override overrideWithValue(Map<int, List<TypingUser>> value) {
     return $ProviderOverride(
       origin: this,
-      providerOverride: $SyncValueProvider<Map<String, List<TypingUser>>>(
-        value,
-      ),
+      providerOverride: $SyncValueProvider<Map<int, List<TypingUser>>>(value),
     );
   }
 }
 
-String _$typingNotifierHash() => r'57c751eee2a4e426914f0160f47079250d5b399a';
+String _$typingNotifierHash() => r'bc3d917bfb3775e7cd02370848bba534cef0053f';
 
-abstract class _$TypingNotifier
-    extends $Notifier<Map<String, List<TypingUser>>> {
-  Map<String, List<TypingUser>> build();
+abstract class _$TypingNotifier extends $Notifier<Map<int, List<TypingUser>>> {
+  Map<int, List<TypingUser>> build();
   @$mustCallSuper
   @override
   void runBuild() {
     final ref =
         this.ref
-            as $Ref<
-              Map<String, List<TypingUser>>,
-              Map<String, List<TypingUser>>
-            >;
+            as $Ref<Map<int, List<TypingUser>>, Map<int, List<TypingUser>>>;
     final element =
         ref.element
             as $ClassProviderElement<
               AnyNotifier<
-                Map<String, List<TypingUser>>,
-                Map<String, List<TypingUser>>
+                Map<int, List<TypingUser>>,
+                Map<int, List<TypingUser>>
               >,
-              Map<String, List<TypingUser>>,
+              Map<int, List<TypingUser>>,
               Object?,
               Object?
             >;
@@ -94,7 +88,7 @@ final class ConversationTypingUsersProvider
   /// Convenience provider to get typing users for a specific conversation
   ConversationTypingUsersProvider._({
     required ConversationTypingUsersFamily super.from,
-    required String super.argument,
+    required int super.argument,
   }) : super(
          retry: null,
          name: r'conversationTypingUsersProvider',
@@ -120,7 +114,7 @@ final class ConversationTypingUsersProvider
 
   @override
   List<TypingUser> create(Ref ref) {
-    final argument = this.argument as String;
+    final argument = this.argument as int;
     return conversationTypingUsers(ref, argument);
   }
 
@@ -145,12 +139,12 @@ final class ConversationTypingUsersProvider
 }
 
 String _$conversationTypingUsersHash() =>
-    r'7f013bfab34f8151f3b6cccc790da79b8b495e65';
+    r'ecfc25eb685a48c4967826573b7b535b4ea12c66';
 
 /// Convenience provider to get typing users for a specific conversation
 
 final class ConversationTypingUsersFamily extends $Family
-    with $FunctionalFamilyOverride<List<TypingUser>, String> {
+    with $FunctionalFamilyOverride<List<TypingUser>, int> {
   ConversationTypingUsersFamily._()
     : super(
         retry: null,
@@ -162,7 +156,7 @@ final class ConversationTypingUsersFamily extends $Family
 
   /// Convenience provider to get typing users for a specific conversation
 
-  ConversationTypingUsersProvider call(String conversationId) =>
+  ConversationTypingUsersProvider call(int conversationId) =>
       ConversationTypingUsersProvider._(argument: conversationId, from: this);
 
   @override

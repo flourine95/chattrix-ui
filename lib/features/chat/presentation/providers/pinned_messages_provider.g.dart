@@ -23,7 +23,7 @@ final class PinnedMessagesProvider
   /// Provider for pinned messages in a conversation
   PinnedMessagesProvider._({
     required PinnedMessagesFamily super.from,
-    required String super.argument,
+    required int super.argument,
   }) : super(
          retry: null,
          name: r'pinnedMessagesProvider',
@@ -57,7 +57,7 @@ final class PinnedMessagesProvider
   }
 }
 
-String _$pinnedMessagesHash() => r'd1b6762eeb095d402aefc2b23397602fb01df1ca';
+String _$pinnedMessagesHash() => r'32fd8e30bfe49563e0f161b5b028007dd6ff944a';
 
 /// Provider for pinned messages in a conversation
 
@@ -68,7 +68,7 @@ final class PinnedMessagesFamily extends $Family
           AsyncValue<List<Message>>,
           List<Message>,
           FutureOr<List<Message>>,
-          String
+          int
         > {
   PinnedMessagesFamily._()
     : super(
@@ -81,7 +81,7 @@ final class PinnedMessagesFamily extends $Family
 
   /// Provider for pinned messages in a conversation
 
-  PinnedMessagesProvider call(String conversationId) =>
+  PinnedMessagesProvider call(int conversationId) =>
       PinnedMessagesProvider._(argument: conversationId, from: this);
 
   @override
@@ -91,10 +91,10 @@ final class PinnedMessagesFamily extends $Family
 /// Provider for pinned messages in a conversation
 
 abstract class _$PinnedMessages extends $AsyncNotifier<List<Message>> {
-  late final _$args = ref.$arg as String;
-  String get conversationId => _$args;
+  late final _$args = ref.$arg as int;
+  int get conversationId => _$args;
 
-  FutureOr<List<Message>> build(String conversationId);
+  FutureOr<List<Message>> build(int conversationId);
   @$mustCallSuper
   @override
   void runBuild() {

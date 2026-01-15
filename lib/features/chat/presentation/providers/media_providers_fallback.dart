@@ -12,7 +12,7 @@ Future<List<MediaItem>> conversationMediaFallback(Ref ref, int conversationId, {
     debugPrint('🔄 Fallback: Extracting media from messages for conversation $conversationId');
 
     // Get messages from conversation
-    final messagesAsync = await ref.watch(messagesProvider(conversationId.toString()).future);
+    final messagesAsync = await ref.watch(messagesProvider(conversationId).future);
 
     // Extract messages with media
     final mediaMessages = messagesAsync.where((msg) => msg.mediaUrl != null && msg.mediaUrl!.isNotEmpty).toList();

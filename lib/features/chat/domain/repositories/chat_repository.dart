@@ -7,113 +7,61 @@ import 'package:chattrix_ui/features/chat/domain/entities/search_user.dart';
 import 'package:fpdart/fpdart.dart';
 
 abstract class ChatRepository {
-  /// Create a new conversation
   Future<Either<Failure, Conversation>> createConversation({
     String? name,
     required String type,
-    required List<String> participantIds,
+    required List<int> participantIds,
   });
 
-  /// Get all conversations
   Future<Either<Failure, List<Conversation>>> getConversations({ConversationFilter filter = ConversationFilter.all});
 
-  /// Get conversation by ID
-  Future<Either<Failure, Conversation>> getConversation(String conversationId);
+  Future<Either<Failure, Conversation>> getConversation(int conversationId);
 
-  /// Get members in a conversation with cursor-based pagination
   Future<Either<Failure, List<SearchUser>>> getConversationMembers({
-    required String conversationId,
+    required int conversationId,
     String? cursor,
     int limit = 20,
   });
 
-  /// Get messages in a conversation
-  /// [sort] can be 'ASC' (oldest first) or 'DESC' (newest first, default)
   Future<Either<Failure, List<Message>>> getMessages({
-    required String conversationId,
+    required int conversationId,
     int page = 0,
     int size = 50,
     String sort = 'DESC',
   });
 
-  /// Send a message to a conversation
-  Future<Either<Failure, Message>> sendMessage(String conversationId, ChatMessageRequest request);
+  Future<Either<Failure, Message>> sendMessage(int conversationId, ChatMessageRequest request);
 
-  /// Search users by query
   Future<Either<Failure, List<SearchUser>>> searchUsers({required String query, int limit = 20});
 
-  /// Search conversations by query (name or last message content)
   Future<Either<Failure, List<Conversation>>> searchConversations({required String query});
 
-  /// Toggle reaction on a message
-  Future<Either<Failure, Map<String, dynamic>>> toggleReaction({required String messageId, required String emoji});
+  Future<Either<Failure, Map<String, dynamic>>> toggleReaction({required int messageId, required String emoji});
 
-  /// Get reactions for a message
-  Future<Either<Failure, Map<String, dynamic>>> getReactions(String messageId);
+  Future<Either<Failure, Map<String, dynamic>>> getReactions(int messageId);
 
-  /// Edit a message
   Future<Either<Failure, Message>> editMessage({
-    required String conversationId,
-    required String messageId,
+    required int conversationId,
+    required int messageId,
     required String content,
   });
 
-  /// Delete a message
-  Future<Either<Failure, void>> deleteMessage({required String conversationId, required String messageId});
+  Future<Either<Failure, void>> deleteMessage({required int conversationId, required int messageId});
 
-  /// Mark conversation as read
-  ///
-  /// Marks all unread messages in a conversation as read.
-  /// Creates read receipts and resets unread count.
-  ///
-  /// **Parameters:**
-  /// - [conversationId]: ID of the conversation
-  /// - [lastMessageId]: Optional - ID of last message to mark as read
-  ///
-  /// **API:** `POST /v1/read-receipts/conversations/{conversationId}`
   Future<Either<Failure, void>> markConversationAsRead({required int conversationId, int? lastMessageId});
 
-  /// Mark conversation as unread
-  ///
-  /// Sets unreadCount to 1 if currently 0 (creates unread notification effect)
-  ///
-  /// **Parameters:**
-  /// - [conversationId]: ID of the conversation
-  ///
-  /// **API:** `POST /v1/read-receipts/conversations/{conversationId}/unread`
   Future<Either<Failure, void>> markConversationAsUnread({required int conversationId});
 
-  /// Search messages in a conversation
-  ///
-  /// **Parameters:**
-  /// - [conversationId]: ID of the conversation
-  /// - [query]: Search query string
-  /// - [cursor]: Optional cursor for pagination
-  /// - [limit]: Number of results per page (default 20)
-  ///
-  /// **API:** `GET /v1/conversations/{conversationId}/search/messages`
   Future<Either<Failure, List<Message>>> searchMessages({
-    required String conversationId,
+    required int conversationId,
     required String query,
     String? cursor,
     int limit = 20,
   });
 
-  /// Forward message to multiple conversations
-  ///
-  /// **Parameters:**
-  /// - [conversationId]: ID of the conversation containing the original message
-  /// - [messageId]: ID of the message to forward
-  /// - [targetConversationIds]: List of conversation IDs to forward to
-  ///
-  /// **API:** `POST /v1/conversations/{conversationId}/messages/{messageId}/forward`
-  /// **Errors:**
-  /// - 400: Cannot forward deleted message / Validation failed
-  /// - 403: No permission to access conversation
-  /// - 404: Message not found
   Future<Either<Failure, List<Message>>> forwardMessage({
-    required String conversationId,
-    required String messageId,
+    required int conversationId,
+    required int messageId,
     required List<int> targetConversationIds,
   });
 }

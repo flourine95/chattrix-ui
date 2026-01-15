@@ -11,7 +11,7 @@ class CreateConversationUsecase {
   Future<Either<Failure, Conversation>> call({
     String? name,
     required String type,
-    required List<String> participantIds,
+    required List<int> participantIds,
   }) async {
     // Validate conversation type
     final normalizedType = type.toUpperCase();

@@ -24,19 +24,16 @@ import 'package:photo_manager/photo_manager.dart';
 // ============================================================================
 
 /// Mark conversation as read when opening
-void useMarkAsReadEffect(WidgetRef ref, String chatId) {
+void useMarkAsReadEffect(WidgetRef ref, int chatId) {
   useEffect(() {
     Future.microtask(() async {
-      final conversationId = int.tryParse(chatId);
-      if (conversationId == null) return;
-
       try {
         final markAsReadUseCase = ref.read(markConversationAsReadUsecaseProvider);
-        final result = await markAsReadUseCase(conversationId: conversationId);
+        final result = await markAsReadUseCase(conversationId: chatId);
 
         result.fold((failure) => debugPrint('❌ Failed to mark conversation as read: ${failure.message}'), (_) {
-          debugPrint('✅ Marked conversation $conversationId as read');
-          ref.read(conversationsProvider.notifier).resetUnreadCount(conversationId);
+          debugPrint('✅ Marked conversation $chatId as read');
+          ref.read(conversationsProvider.notifier).resetUnreadCount(chatId);
         });
       } catch (e) {
         debugPrint('❌ Error marking conversation as read: $e');
@@ -51,7 +48,7 @@ void useScrollToHighlightEffect(
   ValueNotifier<int?> highlightedMessageId,
   AsyncValue<List<Message>> messagesAsync,
   ScrollController scrollController,
-  String chatId,
+  int chatId,
 ) {
   useEffect(() {
     if (highlightedMessageId.value != null && messagesAsync.hasValue) {
@@ -91,7 +88,7 @@ void useTypingIndicatorEffect(
   TextEditingController controller,
   ValueNotifier<bool> isTyping,
   WidgetRef ref,
-  String chatId,
+  int chatId,
 ) {
   useEffect(() {
     Timer? debounceTimer;
@@ -308,8 +305,8 @@ void handleAttachmentSelection(
   ValueNotifier<bool> showStickerPicker,
   ChatActionsController chatActions,
   BuildContext context,
-  String chatId,
-  TextEditingController textController,  // ← Add this parameter
+  int chatId,
+  TextEditingController textController, // ← Add this parameter
 ) {
   switch (type) {
     case AttachmentType.camera:
@@ -344,10 +341,7 @@ void handleAttachmentSelection(
       break;
     case AttachmentType.schedule:
       showAttachmentPicker.value = false;
-      final conversationId = int.tryParse(chatId);
-      if (conversationId != null) {
-        context.push('/chat/$conversationId/schedule-message');
-      }
+      context.push('/chat/$chatId/schedule-message');
       break;
   }
 }
@@ -362,12 +356,12 @@ void onStickerSelected(String stickerUrl, ChatActionsController chatActions, Val
   showEmojiPicker.value = false;
 }
 
-Future<void> handlePinMessage(Message message, WidgetRef ref, String chatId, BuildContext context) async {
+Future<void> handlePinMessage(Message message, WidgetRef ref, int chatId, BuildContext context) async {
   try {
     if (message.pinned) {
-      await ref.read(unpinMessageUsecaseProvider)(conversationId: chatId, messageId: message.id.toString());
+      await ref.read(unpinMessageUsecaseProvider)(conversationId: chatId, messageId: message.id);
     } else {
-      await ref.read(pinMessageUsecaseProvider)(conversationId: chatId, messageId: message.id.toString());
+      await ref.read(pinMessageUsecaseProvider)(conversationId: chatId, messageId: message.id);
     }
 
     ref.read(messagesProvider(chatId).notifier).refresh();
@@ -412,7 +406,7 @@ Future<void> handlePinMessage(Message message, WidgetRef ref, String chatId, Bui
   }
 }
 
-void handleAudioCall(BuildContext context, WidgetRef ref, dynamic conversation, dynamic me, String chatId) {
+void handleAudioCall(BuildContext context, WidgetRef ref, dynamic conversation, dynamic me, int chatId) {
   if (conversation == null || me == null) return;
 
   if (conversation.type == ConversationType.group) {
@@ -422,24 +416,14 @@ void handleAudioCall(BuildContext context, WidgetRef ref, dynamic conversation, 
 
   final conversationName = ConversationUtils.getConversationTitle(conversation, me);
   final conversationAvatar = ConversationUtils.getOtherParticipantAvatarUrl(conversation, me);
-  final conversationId = int.tryParse(chatId);
-
-  if (conversationId == null) {
-    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Invalid conversation ID')));
-    return;
-  }
+  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Invalid conversation ID')));
 
   ref
       .read(callProvider.notifier)
-      .initiateCall(
-        conversationId,
-        CallType.audio,
-        conversationName: conversationName,
-        conversationAvatar: conversationAvatar,
-      );
+      .initiateCall(chatId, CallType.audio, conversationName: conversationName, conversationAvatar: conversationAvatar);
 }
 
-void handleVideoCall(BuildContext context, WidgetRef ref, dynamic conversation, dynamic me, String chatId) {
+void handleVideoCall(BuildContext context, WidgetRef ref, dynamic conversation, dynamic me, int chatId) {
   if (conversation == null || me == null) return;
 
   if (conversation.type == ConversationType.group) {
@@ -449,24 +433,14 @@ void handleVideoCall(BuildContext context, WidgetRef ref, dynamic conversation, 
 
   final conversationName = ConversationUtils.getConversationTitle(conversation, me);
   final conversationAvatar = ConversationUtils.getOtherParticipantAvatarUrl(conversation, me);
-  final conversationId = int.tryParse(chatId);
-
-  if (conversationId == null) {
-    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Invalid conversation ID')));
-    return;
-  }
+  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Invalid conversation ID')));
 
   ref
       .read(callProvider.notifier)
-      .initiateCall(
-        conversationId,
-        CallType.video,
-        conversationName: conversationName,
-        conversationAvatar: conversationAvatar,
-      );
+      .initiateCall(chatId, CallType.video, conversationName: conversationName, conversationAvatar: conversationAvatar);
 }
 
-void handleConversationInfo(BuildContext context, dynamic conversation, String chatId) {
+void handleConversationInfo(BuildContext context, dynamic conversation, int chatId) {
   if (conversation == null) return;
   context.push('/chat/$chatId/info', extra: conversation);
 }
@@ -580,10 +554,15 @@ void showReactionPicker(BuildContext context, Function(String) onReactionSelecte
 
 // Extension for list lookup
 extension ListLookup on List<dynamic> {
-  dynamic lookup(String id) {
+  dynamic lookup(dynamic id) {
     if (isEmpty) return null;
     try {
-      return firstWhere((e) => e.id.toString() == id);
+      // Support both int and String
+      if (id is int) {
+        return firstWhere((e) => e.id == id);
+      } else {
+        return firstWhere((e) => e.id.toString() == id.toString());
+      }
     } catch (_) {
       return null;
     }

@@ -10,7 +10,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 class MessageSearchWidget extends HookConsumerWidget {
   const MessageSearchWidget({super.key, required this.conversationId});
 
-  final String conversationId;
+  final int conversationId;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

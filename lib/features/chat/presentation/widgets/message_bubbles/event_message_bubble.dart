@@ -179,7 +179,7 @@ class EventMessageBubble extends HookConsumerWidget {
 
   Future<void> _handleRsvp(BuildContext context, WidgetRef ref, int eventId, String status) async {
     try {
-      final notifier = ref.read(eventsListProvider(message.conversationId.toString()).notifier);
+      final notifier = ref.read(eventsListProvider(message.conversationId).notifier);
       await notifier.rsvpEvent(eventId: eventId, status: status);
 
       if (!context.mounted) return;
@@ -406,7 +406,7 @@ class _EventDetailsBottomSheet extends HookConsumerWidget {
 
   Future<void> _handleRsvp(BuildContext context, WidgetRef ref, int eventId, String status) async {
     try {
-      final notifier = ref.read(eventsListProvider(message.conversationId.toString()).notifier);
+      final notifier = ref.read(eventsListProvider(message.conversationId).notifier);
       await notifier.rsvpEvent(eventId: eventId, status: status);
 
       if (!context.mounted) return;
@@ -470,7 +470,7 @@ class _EventDetailsBottomSheet extends HookConsumerWidget {
     if (confirmed != true || !context.mounted) return;
 
     try {
-      final notifier = ref.read(eventsListProvider(message.conversationId.toString()).notifier);
+      final notifier = ref.read(eventsListProvider(message.conversationId).notifier);
       await notifier.deleteEvent(event.id);
 
       if (!context.mounted) return;

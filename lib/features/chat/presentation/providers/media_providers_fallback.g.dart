@@ -74,7 +74,7 @@ final class ConversationMediaFallbackProvider
 }
 
 String _$conversationMediaFallbackHash() =>
-    r'ad29560d893c67a4b79289a80a5062c6b98e86ce';
+    r'4f5d442c574d83b6cc05290af299e8f0ddbcd5a8';
 
 /// Fallback provider that extracts media from messages if API doesn't work
 

@@ -69,7 +69,7 @@ class NewGroupChatPage extends HookConsumerWidget {
     );
 
     // Prepare participant IDs (current user + selected users)
-    final participantIds = [currentUser.id.toString(), ...selectedUsers.map((u) => u.id.toString())];
+    final participantIds = [currentUser.id, ...selectedUsers.map((u) => u.id)];
 
     final createUsecase = ref.read(createConversationUsecaseProvider);
     final result = await createUsecase(name: groupName.trim(), type: 'GROUP', participantIds: participantIds);

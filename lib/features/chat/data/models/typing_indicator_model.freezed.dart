@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$TypingIndicatorModel {
 
-@JsonKey(fromJson: _conversationIdFromJson) String get conversationId; List<TypingUserModel> get typingUsers;
+ int get conversationId; List<TypingUserModel> get typingUsers;
 /// Create a copy of TypingIndicatorModel
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -48,7 +48,7 @@ abstract mixin class $TypingIndicatorModelCopyWith<$Res>  {
   factory $TypingIndicatorModelCopyWith(TypingIndicatorModel value, $Res Function(TypingIndicatorModel) _then) = _$TypingIndicatorModelCopyWithImpl;
 @useResult
 $Res call({
-@JsonKey(fromJson: _conversationIdFromJson) String conversationId, List<TypingUserModel> typingUsers
+ int conversationId, List<TypingUserModel> typingUsers
 });
 
 
@@ -68,7 +68,7 @@ class _$TypingIndicatorModelCopyWithImpl<$Res>
 @pragma('vm:prefer-inline') @override $Res call({Object? conversationId = null,Object? typingUsers = null,}) {
   return _then(_self.copyWith(
 conversationId: null == conversationId ? _self.conversationId : conversationId // ignore: cast_nullable_to_non_nullable
-as String,typingUsers: null == typingUsers ? _self.typingUsers : typingUsers // ignore: cast_nullable_to_non_nullable
+as int,typingUsers: null == typingUsers ? _self.typingUsers : typingUsers // ignore: cast_nullable_to_non_nullable
 as List<TypingUserModel>,
   ));
 }
@@ -154,7 +154,7 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function(@JsonKey(fromJson: _conversationIdFromJson)  String conversationId,  List<TypingUserModel> typingUsers)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int conversationId,  List<TypingUserModel> typingUsers)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _TypingIndicatorModel() when $default != null:
 return $default(_that.conversationId,_that.typingUsers);case _:
@@ -175,7 +175,7 @@ return $default(_that.conversationId,_that.typingUsers);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function(@JsonKey(fromJson: _conversationIdFromJson)  String conversationId,  List<TypingUserModel> typingUsers)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int conversationId,  List<TypingUserModel> typingUsers)  $default,) {final _that = this;
 switch (_that) {
 case _TypingIndicatorModel():
 return $default(_that.conversationId,_that.typingUsers);case _:
@@ -195,7 +195,7 @@ return $default(_that.conversationId,_that.typingUsers);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function(@JsonKey(fromJson: _conversationIdFromJson)  String conversationId,  List<TypingUserModel> typingUsers)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int conversationId,  List<TypingUserModel> typingUsers)?  $default,) {final _that = this;
 switch (_that) {
 case _TypingIndicatorModel() when $default != null:
 return $default(_that.conversationId,_that.typingUsers);case _:
@@ -210,10 +210,10 @@ return $default(_that.conversationId,_that.typingUsers);case _:
 @JsonSerializable()
 
 class _TypingIndicatorModel extends TypingIndicatorModel {
-  const _TypingIndicatorModel({@JsonKey(fromJson: _conversationIdFromJson) required this.conversationId, required final  List<TypingUserModel> typingUsers}): _typingUsers = typingUsers,super._();
+  const _TypingIndicatorModel({required this.conversationId, required final  List<TypingUserModel> typingUsers}): _typingUsers = typingUsers,super._();
   factory _TypingIndicatorModel.fromJson(Map<String, dynamic> json) => _$TypingIndicatorModelFromJson(json);
 
-@override@JsonKey(fromJson: _conversationIdFromJson) final  String conversationId;
+@override final  int conversationId;
  final  List<TypingUserModel> _typingUsers;
 @override List<TypingUserModel> get typingUsers {
   if (_typingUsers is EqualUnmodifiableListView) return _typingUsers;
@@ -255,7 +255,7 @@ abstract mixin class _$TypingIndicatorModelCopyWith<$Res> implements $TypingIndi
   factory _$TypingIndicatorModelCopyWith(_TypingIndicatorModel value, $Res Function(_TypingIndicatorModel) _then) = __$TypingIndicatorModelCopyWithImpl;
 @override @useResult
 $Res call({
-@JsonKey(fromJson: _conversationIdFromJson) String conversationId, List<TypingUserModel> typingUsers
+ int conversationId, List<TypingUserModel> typingUsers
 });
 
 
@@ -275,7 +275,7 @@ class __$TypingIndicatorModelCopyWithImpl<$Res>
 @override @pragma('vm:prefer-inline') $Res call({Object? conversationId = null,Object? typingUsers = null,}) {
   return _then(_TypingIndicatorModel(
 conversationId: null == conversationId ? _self.conversationId : conversationId // ignore: cast_nullable_to_non_nullable
-as String,typingUsers: null == typingUsers ? _self._typingUsers : typingUsers // ignore: cast_nullable_to_non_nullable
+as int,typingUsers: null == typingUsers ? _self._typingUsers : typingUsers // ignore: cast_nullable_to_non_nullable
 as List<TypingUserModel>,
   ));
 }
@@ -287,7 +287,7 @@ as List<TypingUserModel>,
 /// @nodoc
 mixin _$TypingUserModel {
 
-@JsonKey(name: 'userId', fromJson: _userIdFromJson) String get id; String get username; String get fullName;
+@JsonKey(name: 'userId') int get id; String get username; String get fullName;
 /// Create a copy of TypingUserModel
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -320,7 +320,7 @@ abstract mixin class $TypingUserModelCopyWith<$Res>  {
   factory $TypingUserModelCopyWith(TypingUserModel value, $Res Function(TypingUserModel) _then) = _$TypingUserModelCopyWithImpl;
 @useResult
 $Res call({
-@JsonKey(name: 'userId', fromJson: _userIdFromJson) String id, String username, String fullName
+@JsonKey(name: 'userId') int id, String username, String fullName
 });
 
 
@@ -340,7 +340,7 @@ class _$TypingUserModelCopyWithImpl<$Res>
 @pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? username = null,Object? fullName = null,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
-as String,username: null == username ? _self.username : username // ignore: cast_nullable_to_non_nullable
+as int,username: null == username ? _self.username : username // ignore: cast_nullable_to_non_nullable
 as String,fullName: null == fullName ? _self.fullName : fullName // ignore: cast_nullable_to_non_nullable
 as String,
   ));
@@ -427,7 +427,7 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function(@JsonKey(name: 'userId', fromJson: _userIdFromJson)  String id,  String username,  String fullName)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function(@JsonKey(name: 'userId')  int id,  String username,  String fullName)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _TypingUserModel() when $default != null:
 return $default(_that.id,_that.username,_that.fullName);case _:
@@ -448,7 +448,7 @@ return $default(_that.id,_that.username,_that.fullName);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function(@JsonKey(name: 'userId', fromJson: _userIdFromJson)  String id,  String username,  String fullName)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function(@JsonKey(name: 'userId')  int id,  String username,  String fullName)  $default,) {final _that = this;
 switch (_that) {
 case _TypingUserModel():
 return $default(_that.id,_that.username,_that.fullName);case _:
@@ -468,7 +468,7 @@ return $default(_that.id,_that.username,_that.fullName);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function(@JsonKey(name: 'userId', fromJson: _userIdFromJson)  String id,  String username,  String fullName)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function(@JsonKey(name: 'userId')  int id,  String username,  String fullName)?  $default,) {final _that = this;
 switch (_that) {
 case _TypingUserModel() when $default != null:
 return $default(_that.id,_that.username,_that.fullName);case _:
@@ -483,10 +483,10 @@ return $default(_that.id,_that.username,_that.fullName);case _:
 @JsonSerializable()
 
 class _TypingUserModel extends TypingUserModel {
-  const _TypingUserModel({@JsonKey(name: 'userId', fromJson: _userIdFromJson) required this.id, required this.username, required this.fullName}): super._();
+  const _TypingUserModel({@JsonKey(name: 'userId') required this.id, required this.username, required this.fullName}): super._();
   factory _TypingUserModel.fromJson(Map<String, dynamic> json) => _$TypingUserModelFromJson(json);
 
-@override@JsonKey(name: 'userId', fromJson: _userIdFromJson) final  String id;
+@override@JsonKey(name: 'userId') final  int id;
 @override final  String username;
 @override final  String fullName;
 
@@ -523,7 +523,7 @@ abstract mixin class _$TypingUserModelCopyWith<$Res> implements $TypingUserModel
   factory _$TypingUserModelCopyWith(_TypingUserModel value, $Res Function(_TypingUserModel) _then) = __$TypingUserModelCopyWithImpl;
 @override @useResult
 $Res call({
-@JsonKey(name: 'userId', fromJson: _userIdFromJson) String id, String username, String fullName
+@JsonKey(name: 'userId') int id, String username, String fullName
 });
 
 
@@ -543,7 +543,7 @@ class __$TypingUserModelCopyWithImpl<$Res>
 @override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? username = null,Object? fullName = null,}) {
   return _then(_TypingUserModel(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
-as String,username: null == username ? _self.username : username // ignore: cast_nullable_to_non_nullable
+as int,username: null == username ? _self.username : username // ignore: cast_nullable_to_non_nullable
 as String,fullName: null == fullName ? _self.fullName : fullName // ignore: cast_nullable_to_non_nullable
 as String,
   ));

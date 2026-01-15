@@ -466,8 +466,8 @@ class _BaseBubbleContainerState extends State<BaseBubbleContainer> with Automati
                             padding: const EdgeInsets.fromLTRB(12, 8, 12, 0),
                             child: QuotedMessageWidget(
                               replyToMessage: widget.replyToMessage!,
-                              onTap: widget.onScrollToMessage != null && widget.replyToMessage!.id != null
-                                  ? () => widget.onScrollToMessage!(widget.replyToMessage!.id!)
+                              onTap: widget.onScrollToMessage != null
+                                  ? () => widget.onScrollToMessage!(widget.replyToMessage!.id)
                                   : null,
                             ),
                           ),

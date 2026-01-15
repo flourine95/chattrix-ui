@@ -66,7 +66,7 @@ final class EventsListProvider
     extends $AsyncNotifierProvider<EventsList, List<EventEntity>> {
   EventsListProvider._({
     required EventsListFamily super.from,
-    required String super.argument,
+    required int super.argument,
   }) : super(
          retry: null,
          name: r'eventsListProvider',
@@ -100,7 +100,7 @@ final class EventsListProvider
   }
 }
 
-String _$eventsListHash() => r'7c4197d2f90a761a5f66ad70821821c120810119';
+String _$eventsListHash() => r'177ab265c0aac5650c6ce5d8a504ac3bd04b9bcd';
 
 final class EventsListFamily extends $Family
     with
@@ -109,7 +109,7 @@ final class EventsListFamily extends $Family
           AsyncValue<List<EventEntity>>,
           List<EventEntity>,
           FutureOr<List<EventEntity>>,
-          String
+          int
         > {
   EventsListFamily._()
     : super(
@@ -120,7 +120,7 @@ final class EventsListFamily extends $Family
         isAutoDispose: true,
       );
 
-  EventsListProvider call(String conversationId) =>
+  EventsListProvider call(int conversationId) =>
       EventsListProvider._(argument: conversationId, from: this);
 
   @override
@@ -128,10 +128,10 @@ final class EventsListFamily extends $Family
 }
 
 abstract class _$EventsList extends $AsyncNotifier<List<EventEntity>> {
-  late final _$args = ref.$arg as String;
-  String get conversationId => _$args;
+  late final _$args = ref.$arg as int;
+  int get conversationId => _$args;
 
-  FutureOr<List<EventEntity>> build(String conversationId);
+  FutureOr<List<EventEntity>> build(int conversationId);
   @$mustCallSuper
   @override
   void runBuild() {

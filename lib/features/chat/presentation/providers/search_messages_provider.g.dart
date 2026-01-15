@@ -29,7 +29,7 @@ final class SearchMessagesProvider
   /// **State**: AsyncValue<List<Message>>
   SearchMessagesProvider._({
     required SearchMessagesFamily super.from,
-    required (String, String) super.argument,
+    required (int, String) super.argument,
   }) : super(
          retry: null,
          name: r'searchMessagesProvider',
@@ -63,7 +63,7 @@ final class SearchMessagesProvider
   }
 }
 
-String _$searchMessagesHash() => r'56c173c0730204460bd4c620d2b12c95b2d577cf';
+String _$searchMessagesHash() => r'3685a67acd3ff50d7b8d277611cac603ef321c0e';
 
 /// Provider for searching messages in a conversation
 ///
@@ -76,7 +76,7 @@ final class SearchMessagesFamily extends $Family
           AsyncValue<List<Message>>,
           List<Message>,
           FutureOr<List<Message>>,
-          (String, String)
+          (int, String)
         > {
   SearchMessagesFamily._()
     : super(
@@ -91,7 +91,7 @@ final class SearchMessagesFamily extends $Family
   ///
   /// **State**: AsyncValue<List<Message>>
 
-  SearchMessagesProvider call(String conversationId, String query) =>
+  SearchMessagesProvider call(int conversationId, String query) =>
       SearchMessagesProvider._(argument: (conversationId, query), from: this);
 
   @override
@@ -103,11 +103,11 @@ final class SearchMessagesFamily extends $Family
 /// **State**: AsyncValue<List<Message>>
 
 abstract class _$SearchMessages extends $AsyncNotifier<List<Message>> {
-  late final _$args = ref.$arg as (String, String);
-  String get conversationId => _$args.$1;
+  late final _$args = ref.$arg as (int, String);
+  int get conversationId => _$args.$1;
   String get query => _$args.$2;
 
-  FutureOr<List<Message>> build(String conversationId, String query);
+  FutureOr<List<Message>> build(int conversationId, String query);
   @$mustCallSuper
   @override
   void runBuild() {

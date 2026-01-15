@@ -8,7 +8,7 @@ part 'pinned_messages_provider.g.dart';
 @riverpod
 class PinnedMessages extends _$PinnedMessages {
   @override
-  Future<List<Message>> build(String conversationId) async {
+  Future<List<Message>> build(int conversationId) async {
     final usecase = ref.read(getPinnedMessagesUsecaseProvider);
     return await usecase(conversationId);
   }

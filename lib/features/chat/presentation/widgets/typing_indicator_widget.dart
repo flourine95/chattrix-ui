@@ -28,7 +28,7 @@ class _TypingIndicatorWidgetState extends State<TypingIndicatorWidget> with Sing
 
   String _getTypingText() {
     final typingUsers = widget.typingIndicator.typingUsers
-        .where((user) => user.id != widget.currentUserId?.toString())
+        .where((user) => user.id != widget.currentUserId)
         .toList();
 
     if (typingUsers.isEmpty) return '';
@@ -45,7 +45,7 @@ class _TypingIndicatorWidgetState extends State<TypingIndicatorWidget> with Sing
   @override
   Widget build(BuildContext context) {
     final typingUsers = widget.typingIndicator.typingUsers
-        .where((user) => user.id != widget.currentUserId?.toString())
+        .where((user) => user.id != widget.currentUserId)
         .toList();
 
     if (typingUsers.isEmpty) {

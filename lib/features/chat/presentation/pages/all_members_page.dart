@@ -84,7 +84,7 @@ class _AllMembersPageState extends ConsumerState<AllMembersPage> {
                 final result = await Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => AddMembersPage(conversationId: _currentConversation.id.toString()),
+                    builder: (context) => AddMembersPage(conversationId: _currentConversation.id),
                   ),
                 );
                 // Refresh conversation data after adding members

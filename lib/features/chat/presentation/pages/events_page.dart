@@ -7,7 +7,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl/intl.dart';
 
 class EventsPage extends HookConsumerWidget {
-  final String conversationId;
+  final int conversationId;
 
   const EventsPage({super.key, required this.conversationId});
 
@@ -115,7 +115,7 @@ class EventsPage extends HookConsumerWidget {
 
 class _EventCard extends HookConsumerWidget {
   final EventEntity event;
-  final String conversationId;
+  final int conversationId;
   final VoidCallback onTap;
 
   const _EventCard({required this.event, required this.conversationId, required this.onTap});
@@ -403,7 +403,7 @@ class _RsvpChip extends StatelessWidget {
 }
 
 class _CreateEventDialog extends HookConsumerWidget {
-  final String conversationId;
+  final int conversationId;
 
   const _CreateEventDialog({required this.conversationId});
 

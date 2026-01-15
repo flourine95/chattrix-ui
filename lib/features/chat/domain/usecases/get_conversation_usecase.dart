@@ -8,7 +8,7 @@ class GetConversationUsecase {
 
   GetConversationUsecase(this.repository);
 
-  Future<Either<Failure, Conversation>> call(String conversationId) {
+  Future<Either<Failure, Conversation>> call(int conversationId) {
     return repository.getConversation(conversationId);
   }
 }

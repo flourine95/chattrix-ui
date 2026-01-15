@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 class GroupPermissionsPage extends StatefulWidget {
   const GroupPermissionsPage({super.key, required this.conversationId});
 
-  final String conversationId;
+  final int conversationId;
 
   @override
   State<GroupPermissionsPage> createState() => _GroupPermissionsPageState();
@@ -184,8 +184,7 @@ class _GroupPermissionsPageState extends State<GroupPermissionsPage> {
     // POST /api/conversations/{conversationId}/permissions
     // Body: { "permission": "send_messages", "value": "ALL" | "ADMIN_ONLY" }
     final apiValue = value ? "ALL" : "ADMIN_ONLY";
-    print('Update $permission to $apiValue');
-    
+
     // Show feedback
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(

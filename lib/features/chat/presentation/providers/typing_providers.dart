@@ -13,7 +13,7 @@ class TypingNotifier extends _$TypingNotifier {
   StreamSubscription<TypingIndicator>? _subscription;
 
   @override
-  Map<String, List<TypingUser>> build() {
+  Map<int, List<TypingUser>> build() {
     _listenToTypingStream();
 
     ref.onDispose(() {
@@ -33,7 +33,7 @@ class TypingNotifier extends _$TypingNotifier {
           if (indicator.typingUsers.isEmpty) {
             Future.delayed(const Duration(milliseconds: 500), () {
               if (state[indicator.conversationId]?.isEmpty ?? false) {
-                final newState = Map<String, List<TypingUser>>.from(state);
+                final newState = Map<int, List<TypingUser>>.from(state);
                 newState.remove(indicator.conversationId);
                 state = newState;
               }
@@ -51,7 +51,7 @@ class TypingNotifier extends _$TypingNotifier {
   }
 
   /// Send typing start event
-  void sendTypingStart(String conversationId) {
+  void sendTypingStart(int conversationId) {
     try {
       final dataSource = ref.read(chatWebSocketDataSourceProvider);
       dataSource.sendTypingStart(conversationId);
@@ -62,7 +62,7 @@ class TypingNotifier extends _$TypingNotifier {
   }
 
   /// Send typing stop event
-  void sendTypingStop(String conversationId) {
+  void sendTypingStop(int conversationId) {
     try {
       final dataSource = ref.read(chatWebSocketDataSourceProvider);
       dataSource.sendTypingStop(conversationId);
@@ -73,7 +73,7 @@ class TypingNotifier extends _$TypingNotifier {
   }
 
   /// Get typing users for a specific conversation (excluding current user)
-  List<TypingUser> getTypingUsers(String conversationId, {String? excludeUserId}) {
+  List<TypingUser> getTypingUsers(int conversationId, {int? excludeUserId}) {
     final users = state[conversationId] ?? [];
     if (excludeUserId != null) {
       return users.where((user) => user.id != excludeUserId).toList();
@@ -84,7 +84,7 @@ class TypingNotifier extends _$TypingNotifier {
 
 /// Convenience provider to get typing users for a specific conversation
 @riverpod
-List<TypingUser> conversationTypingUsers(Ref ref, String conversationId) {
+List<TypingUser> conversationTypingUsers(Ref ref, int conversationId) {
   final currentUser = ref.watch(currentUserProvider);
   final typingUsers = ref.watch(typingProvider);
 
@@ -96,7 +96,7 @@ List<TypingUser> conversationTypingUsers(Ref ref, String conversationId) {
 
   // Exclude current user
   if (currentUser != null) {
-    final filtered = users.where((user) => user.id != currentUser.id.toString()).toList();
+    final filtered = users.where((user) => user.id != currentUser.id).toList();
     debugPrint('⌨️ [conversationTypingUsersProvider] After filtering: ${filtered.length} users');
     if (filtered.isNotEmpty) {
       debugPrint(

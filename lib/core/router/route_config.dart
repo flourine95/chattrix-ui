@@ -14,23 +14,23 @@ import 'package:chattrix_ui/features/chat/presentation/pages/chat_info_page.dart
 import 'package:chattrix_ui/features/chat/presentation/pages/chat_list_page.dart';
 import 'package:chattrix_ui/features/chat/presentation/pages/chat_view_page.dart';
 import 'package:chattrix_ui/features/chat/presentation/pages/forward_message_page.dart';
+import 'package:chattrix_ui/features/chat/presentation/pages/hidden_conversations_page.dart';
 import 'package:chattrix_ui/features/chat/presentation/pages/new_chat_page.dart';
 import 'package:chattrix_ui/features/chat/presentation/pages/new_group_chat_page.dart';
 import 'package:chattrix_ui/features/chat/presentation/pages/pinned_messages_page.dart';
 import 'package:chattrix_ui/features/chat/presentation/pages/qr_scanner_page.dart';
-import 'package:chattrix_ui/features/chat/presentation/pages/search_conversations_page.dart';
 import 'package:chattrix_ui/features/chat/presentation/pages/schedule_message_page.dart';
 import 'package:chattrix_ui/features/chat/presentation/pages/scheduled_messages_page.dart';
-import 'package:chattrix_ui/features/contacts/presentation/pages/contacts_page.dart';
+import 'package:chattrix_ui/features/chat/presentation/pages/search_conversations_page.dart';
 import 'package:chattrix_ui/features/contacts/presentation/pages/contacts_demo_page.dart';
+import 'package:chattrix_ui/features/contacts/presentation/pages/contacts_page.dart';
+import 'package:chattrix_ui/features/invite_links/presentation/pages/invite_link_info_page.dart';
+import 'package:chattrix_ui/features/invite_links/presentation/pages/invite_links_page.dart';
+import 'package:chattrix_ui/features/poll/presentation/pages/create_poll_page.dart';
+import 'package:chattrix_ui/features/poll/presentation/pages/poll_detail_page.dart';
 import 'package:chattrix_ui/features/profile/presentation/pages/edit_profile_page.dart';
 import 'package:chattrix_ui/features/profile/presentation/pages/profile_page.dart';
 import 'package:chattrix_ui/features/profile/presentation/pages/settings_page.dart';
-import 'package:chattrix_ui/features/chat/presentation/pages/hidden_conversations_page.dart';
-import 'package:chattrix_ui/features/poll/presentation/pages/create_poll_page.dart';
-import 'package:chattrix_ui/features/poll/presentation/pages/poll_detail_page.dart';
-import 'package:chattrix_ui/features/invite_links/presentation/pages/invite_links_page.dart';
-import 'package:chattrix_ui/features/invite_links/presentation/pages/invite_link_info_page.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -107,7 +107,7 @@ class RouteConfig {
       path: RoutePaths.pinnedMessages,
       name: 'pinned-messages',
       builder: (context, state) {
-        final conversationId = state.pathParameters['id']!;
+        final conversationId = int.parse(state.pathParameters['id']!);
         return RouterSetup(child: PinnedMessagesPage(conversationId: conversationId));
       },
     ),
@@ -204,7 +204,7 @@ class RouteConfig {
   }
 
   static Widget _buildChatViewPage(GoRouterState state) {
-    final id = state.pathParameters['id']!;
+    final id = int.parse(state.pathParameters['id']!);
     int? highlightMessageId;
 
     if (state.extra is Map) {

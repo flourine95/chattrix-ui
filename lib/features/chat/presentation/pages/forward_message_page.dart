@@ -2,7 +2,6 @@ import 'package:chattrix_ui/core/widgets/user_avatar.dart';
 import 'package:chattrix_ui/features/auth/presentation/providers/auth_providers.dart';
 import 'package:chattrix_ui/features/chat/domain/entities/message.dart';
 import 'package:chattrix_ui/features/chat/presentation/providers/chat_providers.dart';
-import 'package:chattrix_ui/features/chat/presentation/providers/chat_usecase_provider.dart';
 import 'package:chattrix_ui/features/chat/presentation/utils/conversation_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -10,10 +9,7 @@ import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 class ForwardMessagePage extends HookConsumerWidget {
-  const ForwardMessagePage({
-    super.key,
-    required this.message,
-  });
+  const ForwardMessagePage({super.key, required this.message});
 
   final Message message;
 
@@ -33,15 +29,15 @@ class ForwardMessagePage extends HookConsumerWidget {
         // Forward message using forward API
         final usecase = ref.read(forwardMessageUsecaseProvider);
         final result = await usecase(
-          conversationId: message.conversationId.toString(),
-          messageId: message.id.toString(),
+          conversationId: message.conversationId,
+          messageId: message.id,
           targetConversationIds: selectedConversations.value.toList(),
         );
 
         result.fold(
           (failure) {
             if (!context.mounted) return;
-            
+
             // Show error
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
@@ -50,10 +46,7 @@ class ForwardMessagePage extends HookConsumerWidget {
                     const Icon(Icons.error_outline, color: Colors.white, size: 20),
                     const SizedBox(width: 12),
                     Expanded(
-                      child: Text(
-                        'Failed to forward: ${failure.message}',
-                        style: const TextStyle(color: Colors.white),
-                      ),
+                      child: Text('Failed to forward: ${failure.message}', style: const TextStyle(color: Colors.white)),
                     ),
                   ],
                 ),
@@ -103,10 +96,7 @@ class ForwardMessagePage extends HookConsumerWidget {
                 const Icon(Icons.error_outline, color: Colors.white, size: 20),
                 const SizedBox(width: 12),
                 Expanded(
-                  child: Text(
-                    'Failed to forward: $e',
-                    style: const TextStyle(color: Colors.white),
-                  ),
+                  child: Text('Failed to forward: $e', style: const TextStyle(color: Colors.white)),
                 ),
               ],
             ),
@@ -134,11 +124,7 @@ class ForwardMessagePage extends HookConsumerWidget {
           if (isForwarding.value)
             const Padding(
               padding: EdgeInsets.all(16.0),
-              child: SizedBox(
-                width: 20,
-                height: 20,
-                child: CircularProgressIndicator(strokeWidth: 2),
-              ),
+              child: SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2)),
             ),
         ],
       ),
@@ -151,10 +137,7 @@ class ForwardMessagePage extends HookConsumerWidget {
                 children: [
                   Icon(Icons.chat_bubble_outline, size: 64, color: Colors.grey),
                   SizedBox(height: 16),
-                  Text(
-                    'No conversations available',
-                    style: TextStyle(fontSize: 16, color: Colors.grey),
-                  ),
+                  Text('No conversations available', style: TextStyle(fontSize: 16, color: Colors.grey)),
                 ],
               ),
             );
@@ -174,20 +157,12 @@ class ForwardMessagePage extends HookConsumerWidget {
                     ? null
                     : (selected) {
                         if (selected == true) {
-                          selectedConversations.value = {
-                            ...selectedConversations.value,
-                            conversation.id,
-                          };
+                          selectedConversations.value = {...selectedConversations.value, conversation.id};
                         } else {
-                          selectedConversations.value = {
-                            ...selectedConversations.value,
-                          }..remove(conversation.id);
+                          selectedConversations.value = {...selectedConversations.value}..remove(conversation.id);
                         }
                       },
-                title: Text(
-                  conversationName,
-                  style: const TextStyle(fontWeight: FontWeight.w500),
-                ),
+                title: Text(conversationName, style: const TextStyle(fontWeight: FontWeight.w500)),
                 subtitle: conversation.lastMessage != null
                     ? Text(
                         conversation.lastMessage!.content.isNotEmpty
@@ -197,11 +172,7 @@ class ForwardMessagePage extends HookConsumerWidget {
                         overflow: TextOverflow.ellipsis,
                       )
                     : null,
-                secondary: UserAvatar(
-                  avatarUrl: avatarUrl,
-                  displayName: conversationName,
-                  radius: 24,
-                ),
+                secondary: UserAvatar(avatarUrl: avatarUrl, displayName: conversationName, radius: 24),
                 controlAffinity: ListTileControlAffinity.trailing,
               );
             },
@@ -214,10 +185,7 @@ class ForwardMessagePage extends HookConsumerWidget {
             children: [
               const Icon(Icons.error_outline, size: 64, color: Colors.red),
               const SizedBox(height: 16),
-              Text(
-                'Error loading conversations',
-                style: TextStyle(fontSize: 16, color: Colors.grey.shade700),
-              ),
+              Text('Error loading conversations', style: TextStyle(fontSize: 16, color: Colors.grey.shade700)),
               const SizedBox(height: 8),
               Text(
                 error.toString(),

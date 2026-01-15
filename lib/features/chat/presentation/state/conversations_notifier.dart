@@ -361,13 +361,10 @@ class ConversationsNotifier extends _$ConversationsNotifier {
     final currentUser = ref.read(currentUserProvider);
     if (currentUser == null) return;
 
-    final conversationId = int.tryParse(typingIndicator.conversationId);
-    if (conversationId == null) {
-      return;
-    }
+    final conversationId = typingIndicator.conversationId;
 
     // Update typing state
-    final typingUsers = typingIndicator.typingUsers.where((user) => user.id != currentUser.id.toString()).toList();
+    final typingUsers = typingIndicator.typingUsers.where((user) => user.id != currentUser.id).toList();
 
     if (typingUsers.isEmpty) {
       _typingStates.remove(conversationId);

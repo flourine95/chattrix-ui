@@ -19,7 +19,7 @@ class ChatRepositoryImpl extends BaseRepository implements ChatRepository {
   Future<Either<Failure, Conversation>> createConversation({
     String? name,
     required String type,
-    required List<String> participantIds,
+    required List<int> participantIds,
   }) async {
     return executeApiCall(() async {
       final model = await remoteDatasource.createConversation(name: name, type: type, participantIds: participantIds);
@@ -38,7 +38,7 @@ class ChatRepositoryImpl extends BaseRepository implements ChatRepository {
   }
 
   @override
-  Future<Either<Failure, Conversation>> getConversation(String conversationId) async {
+  Future<Either<Failure, Conversation>> getConversation(int conversationId) async {
     return executeApiCall(() async {
       final model = await remoteDatasource.getConversation(conversationId);
       return model.toEntity();
@@ -47,7 +47,7 @@ class ChatRepositoryImpl extends BaseRepository implements ChatRepository {
 
   @override
   Future<Either<Failure, List<SearchUser>>> getConversationMembers({
-    required String conversationId,
+    required int conversationId,
     String? cursor,
     int limit = 20,
   }) async {
@@ -69,7 +69,7 @@ class ChatRepositoryImpl extends BaseRepository implements ChatRepository {
               lastSeen: DateTime.now(),
               isContact: false,
               hasConversation: true,
-              conversationId: int.tryParse(conversationId),
+              conversationId: conversationId,
             ),
           )
           .toList();
@@ -78,7 +78,7 @@ class ChatRepositoryImpl extends BaseRepository implements ChatRepository {
 
   @override
   Future<Either<Failure, List<Message>>> getMessages({
-    required String conversationId,
+    required int conversationId,
     int page = 0,
     int size = 50,
     String sort = 'DESC',
@@ -95,9 +95,9 @@ class ChatRepositoryImpl extends BaseRepository implements ChatRepository {
   }
 
   @override
-  Future<Either<Failure, Message>> sendMessage(String conversationId, ChatMessageRequest request) async {
+  Future<Either<Failure, Message>> sendMessage(int conversationId, ChatMessageRequest request) async {
     final messageModel = await remoteDatasource.sendMessage(conversationId, request);
-    return Right(messageModel.toEntity());
+    return right(messageModel.toEntity());
   }
 
   @override
@@ -118,7 +118,7 @@ class ChatRepositoryImpl extends BaseRepository implements ChatRepository {
 
   @override
   Future<Either<Failure, Map<String, dynamic>>> toggleReaction({
-    required String messageId,
+    required int messageId,
     required String emoji,
   }) async {
     return executeApiCall(() async {
@@ -127,7 +127,7 @@ class ChatRepositoryImpl extends BaseRepository implements ChatRepository {
   }
 
   @override
-  Future<Either<Failure, Map<String, dynamic>>> getReactions(String messageId) async {
+  Future<Either<Failure, Map<String, dynamic>>> getReactions(int messageId) async {
     return executeApiCall(() async {
       return await remoteDatasource.getReactions(messageId);
     });
@@ -135,8 +135,8 @@ class ChatRepositoryImpl extends BaseRepository implements ChatRepository {
 
   @override
   Future<Either<Failure, Message>> editMessage({
-    required String conversationId,
-    required String messageId,
+    required int conversationId,
+    required int messageId,
     required String content,
   }) async {
     return executeApiCall(() async {
@@ -150,9 +150,12 @@ class ChatRepositoryImpl extends BaseRepository implements ChatRepository {
   }
 
   @override
-  Future<Either<Failure, void>> deleteMessage({required String conversationId, required String messageId}) async {
+  Future<Either<Failure, void>> deleteMessage({required int conversationId, required int messageId}) async {
     return executeApiCall(() async {
-      await remoteDatasource.deleteMessage(conversationId: conversationId, messageId: messageId);
+      await remoteDatasource.deleteMessage(
+        conversationId: conversationId,
+        messageId: messageId,
+      );
     });
   }
 
@@ -172,7 +175,7 @@ class ChatRepositoryImpl extends BaseRepository implements ChatRepository {
 
   @override
   Future<Either<Failure, List<Message>>> searchMessages({
-    required String conversationId,
+    required int conversationId,
     required String query,
     String? cursor,
     int limit = 20,
@@ -194,8 +197,8 @@ class ChatRepositoryImpl extends BaseRepository implements ChatRepository {
 
   @override
   Future<Either<Failure, List<Message>>> forwardMessage({
-    required String conversationId,
-    required String messageId,
+    required int conversationId,
+    required int messageId,
     required List<int> targetConversationIds,
   }) async {
     return executeApiCall(() async {

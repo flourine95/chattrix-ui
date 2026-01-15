@@ -1,5 +1,4 @@
 import 'package:chattrix_ui/features/auth/presentation/providers/auth_providers.dart';
-import 'package:chattrix_ui/features/auth/presentation/providers/auth_repository_provider.dart';
 import 'package:chattrix_ui/features/birthday/data/datasources/birthday_api_service.dart';
 import 'package:chattrix_ui/features/birthday/data/repositories/birthday_repository_impl.dart';
 import 'package:chattrix_ui/features/birthday/domain/entities/birthday_user_entity.dart';

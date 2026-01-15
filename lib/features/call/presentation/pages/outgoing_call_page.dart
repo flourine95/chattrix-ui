@@ -41,7 +41,7 @@ class OutgoingCallPage extends ConsumerWidget {
               remoteAvatar = connection.callInfo.callerAvatar;
             }
             
-            return _buildView(context, ref, remoteName ?? "Connecting...", remoteAvatar, callType);
+            return _buildView(context, ref, remoteName, remoteAvatar, callType);
           }
           return const SizedBox();
         },

@@ -13,7 +13,7 @@ class EventsRepositoryImpl extends BaseRepository implements EventsRepository {
   EventsRepositoryImpl(this._remoteDatasource);
 
   @override
-  Future<Either<Failure, List<EventEntity>>> getEvents({required String conversationId}) async {
+  Future<Either<Failure, List<EventEntity>>> getEvents({required int conversationId}) async {
     return executeApiCall(() async {
       final response = await _remoteDatasource.getEvents(conversationId: conversationId);
 
@@ -25,7 +25,7 @@ class EventsRepositoryImpl extends BaseRepository implements EventsRepository {
 
   @override
   Future<Either<Failure, EventEntity>> createEvent({
-    required String conversationId,
+    required int conversationId,
     required String title,
     String? description,
     required DateTime startTime,
@@ -48,7 +48,7 @@ class EventsRepositoryImpl extends BaseRepository implements EventsRepository {
 
   @override
   Future<Either<Failure, EventEntity>> updateEvent({
-    required String conversationId,
+    required int conversationId,
     required int eventId,
     String? title,
     String? description,
@@ -73,7 +73,7 @@ class EventsRepositoryImpl extends BaseRepository implements EventsRepository {
 
   @override
   Future<Either<Failure, EventEntity>> rsvpEvent({
-    required String conversationId,
+    required int conversationId,
     required int eventId,
     required String status,
   }) async {
@@ -89,7 +89,7 @@ class EventsRepositoryImpl extends BaseRepository implements EventsRepository {
   }
 
   @override
-  Future<Either<Failure, void>> deleteEvent({required String conversationId, required int eventId}) async {
+  Future<Either<Failure, void>> deleteEvent({required int conversationId, required int eventId}) async {
     return executeApiCall(() async {
       await _remoteDatasource.deleteEvent(conversationId: conversationId, eventId: eventId);
     });

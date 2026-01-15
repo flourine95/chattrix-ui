@@ -14,7 +14,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$TypingIndicator {
 
- String get conversationId; List<TypingUser> get typingUsers;
+ int get conversationId; List<TypingUser> get typingUsers;
 /// Create a copy of TypingIndicator
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -45,7 +45,7 @@ abstract mixin class $TypingIndicatorCopyWith<$Res>  {
   factory $TypingIndicatorCopyWith(TypingIndicator value, $Res Function(TypingIndicator) _then) = _$TypingIndicatorCopyWithImpl;
 @useResult
 $Res call({
- String conversationId, List<TypingUser> typingUsers
+ int conversationId, List<TypingUser> typingUsers
 });
 
 
@@ -65,7 +65,7 @@ class _$TypingIndicatorCopyWithImpl<$Res>
 @pragma('vm:prefer-inline') @override $Res call({Object? conversationId = null,Object? typingUsers = null,}) {
   return _then(_self.copyWith(
 conversationId: null == conversationId ? _self.conversationId : conversationId // ignore: cast_nullable_to_non_nullable
-as String,typingUsers: null == typingUsers ? _self.typingUsers : typingUsers // ignore: cast_nullable_to_non_nullable
+as int,typingUsers: null == typingUsers ? _self.typingUsers : typingUsers // ignore: cast_nullable_to_non_nullable
 as List<TypingUser>,
   ));
 }
@@ -151,7 +151,7 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String conversationId,  List<TypingUser> typingUsers)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int conversationId,  List<TypingUser> typingUsers)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _TypingIndicator() when $default != null:
 return $default(_that.conversationId,_that.typingUsers);case _:
@@ -172,7 +172,7 @@ return $default(_that.conversationId,_that.typingUsers);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String conversationId,  List<TypingUser> typingUsers)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int conversationId,  List<TypingUser> typingUsers)  $default,) {final _that = this;
 switch (_that) {
 case _TypingIndicator():
 return $default(_that.conversationId,_that.typingUsers);case _:
@@ -192,7 +192,7 @@ return $default(_that.conversationId,_that.typingUsers);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String conversationId,  List<TypingUser> typingUsers)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int conversationId,  List<TypingUser> typingUsers)?  $default,) {final _that = this;
 switch (_that) {
 case _TypingIndicator() when $default != null:
 return $default(_that.conversationId,_that.typingUsers);case _:
@@ -210,7 +210,7 @@ class _TypingIndicator extends TypingIndicator {
   const _TypingIndicator({required this.conversationId, required final  List<TypingUser> typingUsers}): _typingUsers = typingUsers,super._();
   
 
-@override final  String conversationId;
+@override final  int conversationId;
  final  List<TypingUser> _typingUsers;
 @override List<TypingUser> get typingUsers {
   if (_typingUsers is EqualUnmodifiableListView) return _typingUsers;
@@ -249,7 +249,7 @@ abstract mixin class _$TypingIndicatorCopyWith<$Res> implements $TypingIndicator
   factory _$TypingIndicatorCopyWith(_TypingIndicator value, $Res Function(_TypingIndicator) _then) = __$TypingIndicatorCopyWithImpl;
 @override @useResult
 $Res call({
- String conversationId, List<TypingUser> typingUsers
+ int conversationId, List<TypingUser> typingUsers
 });
 
 
@@ -269,7 +269,7 @@ class __$TypingIndicatorCopyWithImpl<$Res>
 @override @pragma('vm:prefer-inline') $Res call({Object? conversationId = null,Object? typingUsers = null,}) {
   return _then(_TypingIndicator(
 conversationId: null == conversationId ? _self.conversationId : conversationId // ignore: cast_nullable_to_non_nullable
-as String,typingUsers: null == typingUsers ? _self._typingUsers : typingUsers // ignore: cast_nullable_to_non_nullable
+as int,typingUsers: null == typingUsers ? _self._typingUsers : typingUsers // ignore: cast_nullable_to_non_nullable
 as List<TypingUser>,
   ));
 }
@@ -280,7 +280,7 @@ as List<TypingUser>,
 /// @nodoc
 mixin _$TypingUser {
 
- String get id; String get username; String get fullName;
+ int get id; String get username; String get fullName;
 /// Create a copy of TypingUser
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -311,7 +311,7 @@ abstract mixin class $TypingUserCopyWith<$Res>  {
   factory $TypingUserCopyWith(TypingUser value, $Res Function(TypingUser) _then) = _$TypingUserCopyWithImpl;
 @useResult
 $Res call({
- String id, String username, String fullName
+ int id, String username, String fullName
 });
 
 
@@ -331,7 +331,7 @@ class _$TypingUserCopyWithImpl<$Res>
 @pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? username = null,Object? fullName = null,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
-as String,username: null == username ? _self.username : username // ignore: cast_nullable_to_non_nullable
+as int,username: null == username ? _self.username : username // ignore: cast_nullable_to_non_nullable
 as String,fullName: null == fullName ? _self.fullName : fullName // ignore: cast_nullable_to_non_nullable
 as String,
   ));
@@ -418,7 +418,7 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String username,  String fullName)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int id,  String username,  String fullName)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _TypingUser() when $default != null:
 return $default(_that.id,_that.username,_that.fullName);case _:
@@ -439,7 +439,7 @@ return $default(_that.id,_that.username,_that.fullName);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String username,  String fullName)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int id,  String username,  String fullName)  $default,) {final _that = this;
 switch (_that) {
 case _TypingUser():
 return $default(_that.id,_that.username,_that.fullName);case _:
@@ -459,7 +459,7 @@ return $default(_that.id,_that.username,_that.fullName);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String username,  String fullName)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int id,  String username,  String fullName)?  $default,) {final _that = this;
 switch (_that) {
 case _TypingUser() when $default != null:
 return $default(_that.id,_that.username,_that.fullName);case _:
@@ -477,7 +477,7 @@ class _TypingUser extends TypingUser {
   const _TypingUser({required this.id, required this.username, required this.fullName}): super._();
   
 
-@override final  String id;
+@override final  int id;
 @override final  String username;
 @override final  String fullName;
 
@@ -511,7 +511,7 @@ abstract mixin class _$TypingUserCopyWith<$Res> implements $TypingUserCopyWith<$
   factory _$TypingUserCopyWith(_TypingUser value, $Res Function(_TypingUser) _then) = __$TypingUserCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String username, String fullName
+ int id, String username, String fullName
 });
 
 
@@ -531,7 +531,7 @@ class __$TypingUserCopyWithImpl<$Res>
 @override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? username = null,Object? fullName = null,}) {
   return _then(_TypingUser(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
-as String,username: null == username ? _self.username : username // ignore: cast_nullable_to_non_nullable
+as int,username: null == username ? _self.username : username // ignore: cast_nullable_to_non_nullable
 as String,fullName: null == fullName ? _self.fullName : fullName // ignore: cast_nullable_to_non_nullable
 as String,
   ));

@@ -23,7 +23,7 @@ final class TypingIndicatorNotifierProvider
   /// Provider for typing indicator state in a specific conversation
   TypingIndicatorNotifierProvider._({
     required TypingIndicatorNotifierFamily super.from,
-    required String super.argument,
+    required int super.argument,
   }) : super(
          retry: null,
          name: r'typingIndicatorProvider',
@@ -67,7 +67,7 @@ final class TypingIndicatorNotifierProvider
 }
 
 String _$typingIndicatorNotifierHash() =>
-    r'20b3fcad431bf1ab45d62657eb97828ff8ae0d52';
+    r'38c95d6b39f720d48da8682501cdd44a51a570a7';
 
 /// Provider for typing indicator state in a specific conversation
 
@@ -78,7 +78,7 @@ final class TypingIndicatorNotifierFamily extends $Family
           TypingIndicator,
           TypingIndicator,
           TypingIndicator,
-          String
+          int
         > {
   TypingIndicatorNotifierFamily._()
     : super(
@@ -91,7 +91,7 @@ final class TypingIndicatorNotifierFamily extends $Family
 
   /// Provider for typing indicator state in a specific conversation
 
-  TypingIndicatorNotifierProvider call(String conversationId) =>
+  TypingIndicatorNotifierProvider call(int conversationId) =>
       TypingIndicatorNotifierProvider._(argument: conversationId, from: this);
 
   @override
@@ -101,10 +101,10 @@ final class TypingIndicatorNotifierFamily extends $Family
 /// Provider for typing indicator state in a specific conversation
 
 abstract class _$TypingIndicatorNotifier extends $Notifier<TypingIndicator> {
-  late final _$args = ref.$arg as String;
-  String get conversationId => _$args;
+  late final _$args = ref.$arg as int;
+  int get conversationId => _$args;
 
-  TypingIndicator build(String conversationId);
+  TypingIndicator build(int conversationId);
   @$mustCallSuper
   @override
   void runBuild() {

@@ -7,7 +7,7 @@ class ToggleReactionUsecase {
 
   ToggleReactionUsecase(this.repository);
 
-  Future<Either<Failure, Map<String, dynamic>>> call({required String messageId, required String emoji}) {
+  Future<Either<Failure, Map<String, dynamic>>> call({required int messageId, required String emoji}) {
     return repository.toggleReaction(messageId: messageId, emoji: emoji);
   }
 }

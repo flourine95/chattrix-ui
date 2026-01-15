@@ -9,7 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 class PinnedMessagesPage extends HookConsumerWidget {
-  final String conversationId;
+  final int conversationId;
 
   const PinnedMessagesPage({super.key, required this.conversationId});
 
@@ -70,7 +70,7 @@ class PinnedMessagesPage extends HookConsumerWidget {
                     try {
                       await ref.read(unpinMessageUsecaseProvider)(
                         conversationId: conversationId,
-                        messageId: message.id.toString(),
+                        messageId: message.id,
                       );
 
                       // Refresh pinned messages
@@ -144,7 +144,7 @@ class PinnedMessagesPage extends HookConsumerWidget {
 class _PinnedMessageCard extends StatelessWidget {
   final Message message;
   final bool isMe;
-  final String conversationId;
+  final int conversationId;
   final VoidCallback onUnpin;
 
   const _PinnedMessageCard({
