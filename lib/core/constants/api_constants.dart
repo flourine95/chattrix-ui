@@ -266,33 +266,36 @@ class ApiConstants {
 
   static String searchMedia(int conversationId) => '$_baseUrl/$_v1/conversations/$conversationId/search/media';
 
-  // Poll endpoints
+  // Poll endpoints (NEW API - returns Message with metadata.poll)
+  static String createPoll(int conversationId) => '$_baseUrl/$_v1/conversations/$conversationId/messages/poll';
+
+  static String votePoll(int conversationId, int messageId) =>
+      '$_baseUrl/$_v1/conversations/$conversationId/messages/$messageId/poll/vote';
+
+  // Event endpoints (NEW API - returns Message with metadata.event)
+  static String createEvent(int conversationId) => '$_baseUrl/$_v1/conversations/$conversationId/messages/event';
+
+  static String rsvpEvent(int conversationId, int messageId) =>
+      '$_baseUrl/$_v1/conversations/$conversationId/messages/$messageId/event/rsvp';
+
+  // Legacy poll/event endpoints (DEPRECATED - kept for backward compatibility)
   static String polls(int conversationId) => '$_baseUrl/$_v1/conversations/$conversationId/polls';
 
   static String pollById(int conversationId, int pollId) =>
       '$_baseUrl/$_v1/conversations/$conversationId/polls/$pollId';
 
-  static String votePoll(int conversationId, int pollId) =>
-      '$_baseUrl/$_v1/conversations/$conversationId/polls/$pollId/vote';
-
   static String closePoll(int conversationId, int pollId) =>
       '$_baseUrl/$_v1/conversations/$conversationId/polls/$pollId/close';
 
-  // Event endpoints
   static String events(int conversationId) => '$_baseUrl/$_v1/conversations/$conversationId/events';
 
   static String event(int conversationId, int eventId) =>
       '$_baseUrl/$_v1/conversations/$conversationId/events/$eventId';
 
-  static String eventRsvp(int conversationId, int eventId) =>
-      '$_baseUrl/$_v1/conversations/$conversationId/events/$eventId/rsvp';
-
   // Legacy event endpoint names (for backward compatibility)
   static String eventById(int conversationId, int eventId) =>
       '$_baseUrl/$_v1/conversations/$conversationId/events/$eventId';
 
-  static String rsvpEvent(int conversationId, int eventId) =>
-      '$_baseUrl/$_v1/conversations/$conversationId/events/$eventId/rsvp';
 
   // Invite Link endpoints
   static String inviteLinks(int conversationId) => '$_baseUrl/$_v1/conversations/$conversationId/invite-links';

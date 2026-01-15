@@ -6,6 +6,8 @@ import 'package:chattrix_ui/features/chat/domain/repositories/events_repository.
 import 'package:chattrix_ui/features/chat/domain/datasources/chat_remote_datasource.dart';
 import 'package:chattrix_ui/features/chat/data/models/event_dto.dart';
 import 'package:chattrix_ui/features/chat/data/mappers/event_mapper.dart';
+import 'package:chattrix_ui/features/auth/domain/entities/user.dart';
+import 'package:chattrix_ui/core/domain/enums/profile_visibility.dart';
 
 class EventsRepositoryImpl extends BaseRepository implements EventsRepository {
   final ChatRemoteDatasource _remoteDatasource;
@@ -42,7 +44,8 @@ class EventsRepositoryImpl extends BaseRepository implements EventsRepository {
         location: location,
       );
 
-      return EventDto.fromJson(response as Map<String, dynamic>).toEntity();
+      // Response is a simplified event structure, convert to entity
+      return _parseSimpleEventResponse(response as Map<String, dynamic>);
     });
   }
 
@@ -67,7 +70,7 @@ class EventsRepositoryImpl extends BaseRepository implements EventsRepository {
         location: location,
       );
 
-      return EventDto.fromJson(response as Map<String, dynamic>).toEntity();
+      return _parseSimpleEventResponse(response as Map<String, dynamic>);
     });
   }
 
@@ -84,8 +87,52 @@ class EventsRepositoryImpl extends BaseRepository implements EventsRepository {
         status: status,
       );
 
-      return EventDto.fromJson(response as Map<String, dynamic>).toEntity();
+      return _parseSimpleEventResponse(response as Map<String, dynamic>);
     });
+  }
+
+  /// Parse simplified event response from datasource to EventEntity
+  EventEntity _parseSimpleEventResponse(Map<String, dynamic> json) {
+    final going = (json['going'] as List?)?.cast<int>() ?? [];
+    final maybe = (json['maybe'] as List?)?.cast<int>() ?? [];
+    final notGoing = (json['notGoing'] as List?)?.cast<int>() ?? [];
+    
+    // Create minimal User for creator
+    final creatorId = json['createdBy'] as int? ?? 0;
+    final creator = User(
+      id: creatorId,
+      username: 'user$creatorId',
+      email: '',
+      emailVerified: false,
+      fullName: 'User $creatorId',
+      avatarUrl: null,
+      bio: null,
+      gender: null,
+      dateOfBirth: null,
+      location: null,
+      profileVisibility: ProfileVisibility.public,
+      lastSeen: null,
+      createdAt: DateTime.now(),
+      updatedAt: DateTime.now(),
+    );
+    
+    return EventEntity(
+      id: json['id'] as int,
+      conversationId: json['conversationId'] as int,
+      creator: creator,
+      title: json['title'] as String,
+      description: json['description'] as String?,
+      startTime: DateTime.parse(json['startTime'] as String),
+      endTime: DateTime.parse(json['endTime'] as String),
+      location: json['location'] as String?,
+      createdAt: DateTime.parse(json['createdAt'] as String),
+      updatedAt: DateTime.parse(json['createdAt'] as String),
+      goingCount: going.length,
+      maybeCount: maybe.length,
+      notGoingCount: notGoing.length,
+      currentUserRsvpStatus: null,
+      rsvps: [],
+    );
   }
 
   @override

@@ -38,7 +38,7 @@ final class ConversationsNotifierProvider
 }
 
 String _$conversationsNotifierHash() =>
-    r'2a2f036bdbd751467ecc1b34f8f6bb2d7d016b4f';
+    r'04aa0a1cb2350dc41a73f8d0d41824770a8b8d06';
 
 abstract class _$ConversationsNotifier
     extends $AsyncNotifier<List<Conversation>> {

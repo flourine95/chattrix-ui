@@ -4,8 +4,10 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:intl/intl.dart';
 import '../providers/poll_providers.dart';
 import '../../domain/entities/poll.dart';
-import 'poll_form_page.dart';
+import '../../../poll/presentation/pages/create_poll_page.dart';
 import '../../../poll/presentation/pages/poll_detail_page.dart';
+import '../../../poll/domain/entities/poll_entity.dart';
+import '../../../poll/domain/entities/poll_option_entity.dart';
 
 enum PollFilter { all, active, expired }
 
@@ -22,9 +24,28 @@ class PollsPage extends HookConsumerWidget {
 
     // Watch polls data
     final pollsAsync = ref.watch(pollsListProvider(convId));
+    final pollsNotifier = ref.watch(pollsListProvider(convId).notifier);
 
     // Filter state
     final selectedFilter = useState(PollFilter.all);
+
+    // Map filter to API status parameter
+    String getStatusParam(PollFilter filter) {
+      switch (filter) {
+        case PollFilter.all:
+          return 'all';
+        case PollFilter.active:
+          return 'active';
+        case PollFilter.expired:
+          return 'closed';
+      }
+    }
+
+    // Handle filter change
+    void handleFilterChange(PollFilter newFilter) {
+      selectedFilter.value = newFilter;
+      pollsNotifier.filterByStatus(getStatusParam(newFilter));
+    }
 
     return Scaffold(
       backgroundColor: isDark ? Colors.grey.shade900 : Colors.grey.shade50,
@@ -36,7 +57,10 @@ class PollsPage extends HookConsumerWidget {
           IconButton(
             icon: const Icon(Icons.add_circle_outline),
             onPressed: () {
-              Navigator.push(context, MaterialPageRoute(builder: (context) => PollFormPage(conversationId: convId)));
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => CreatePollPage(conversationId: convId)),
+              );
             },
           ),
         ],
@@ -61,21 +85,21 @@ class PollsPage extends HookConsumerWidget {
                   label: 'All',
                   icon: Icons.poll_rounded,
                   isSelected: selectedFilter.value == PollFilter.all,
-                  onTap: () => selectedFilter.value = PollFilter.all,
+                  onTap: () => handleFilterChange(PollFilter.all),
                 ),
                 _buildFilterChip(
                   context,
                   label: 'Active',
                   icon: Icons.check_circle_outline,
                   isSelected: selectedFilter.value == PollFilter.active,
-                  onTap: () => selectedFilter.value = PollFilter.active,
+                  onTap: () => handleFilterChange(PollFilter.active),
                 ),
                 _buildFilterChip(
                   context,
                   label: 'Expired',
                   icon: Icons.lock_clock,
                   isSelected: selectedFilter.value == PollFilter.expired,
-                  onTap: () => selectedFilter.value = PollFilter.expired,
+                  onTap: () => handleFilterChange(PollFilter.expired),
                 ),
               ],
             ),
@@ -84,19 +108,7 @@ class PollsPage extends HookConsumerWidget {
           Expanded(
             child: pollsAsync.when(
               data: (polls) {
-                // Filter polls based on selected filter
-                final filteredPolls = polls.where((poll) {
-                  switch (selectedFilter.value) {
-                    case PollFilter.active:
-                      return poll.active && !poll.closed && !poll.expired;
-                    case PollFilter.expired:
-                      return !poll.active || poll.closed || poll.expired;
-                    case PollFilter.all:
-                      return true;
-                  }
-                }).toList();
-
-                if (filteredPolls.isEmpty) {
+                if (polls.isEmpty) {
                   return Center(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -119,39 +131,42 @@ class PollsPage extends HookConsumerWidget {
                         const SizedBox(height: 8),
                         Text(
                           selectedFilter.value == PollFilter.all
-                              ? 'Create your first poll to get started'
+                              ? 'Create your first poll using the button above'
                               : 'Try selecting a different filter',
                           style: const TextStyle(fontSize: 14, color: Colors.grey),
                         ),
-                        if (selectedFilter.value == PollFilter.all) ...[
-                          const SizedBox(height: 24),
-                          ElevatedButton.icon(
-                            onPressed: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(builder: (context) => PollFormPage(conversationId: convId)),
-                              );
-                            },
-                            icon: const Icon(Icons.add),
-                            label: const Text('Create Poll'),
-                            style: ElevatedButton.styleFrom(
-                              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                            ),
-                          ),
-                        ],
                       ],
                     ),
                   );
                 }
 
-                return ListView.builder(
-                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-                  itemCount: filteredPolls.length,
-                  itemBuilder: (context, index) {
-                    final poll = filteredPolls[index];
-                    return _buildPollCard(context, ref, poll, theme, isDark);
-                  },
+                return Column(
+                  children: [
+                    Expanded(
+                      child: ListView.builder(
+                        padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                        itemCount: polls.length,
+                        itemBuilder: (context, index) {
+                          final poll = polls[index];
+                          return _buildPollCard(context, ref, poll, theme, isDark);
+                        },
+                      ),
+                    ),
+                    // Load More button
+                    if (pollsNotifier.hasNextPage)
+                      Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: ElevatedButton.icon(
+                          onPressed: () => pollsNotifier.loadMore(status: getStatusParam(selectedFilter.value)),
+                          icon: const Icon(Icons.refresh),
+                          label: const Text('Load More'),
+                          style: ElevatedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          ),
+                        ),
+                      ),
+                  ],
                 );
               },
               loading: () => const Center(child: CircularProgressIndicator()),
@@ -254,7 +269,11 @@ class PollsPage extends HookConsumerWidget {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => PollDetailPage(conversationId: poll.conversationId, pollId: poll.id),
+                builder: (context) => PollDetailPage(
+                  conversationId: poll.conversationId,
+                  pollId: poll.id,
+                  initialPoll: _convertPollToPollEntity(poll), // Convert and pass cached data
+                ),
               ),
             );
           },
@@ -373,26 +392,6 @@ class PollsPage extends HookConsumerWidget {
                     ],
                   ),
                 ],
-
-                // View details button
-                const SizedBox(height: 12),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    TextButton.icon(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => PollDetailPage(conversationId: poll.conversationId, pollId: poll.id),
-                          ),
-                        );
-                      },
-                      icon: Icon(Icons.arrow_forward, size: 16, color: theme.colorScheme.primary),
-                      label: Text('View Details', style: TextStyle(color: theme.colorScheme.primary)),
-                    ),
-                  ],
-                ),
               ],
             ),
           ),
@@ -451,5 +450,31 @@ class PollsPage extends HookConsumerWidget {
     } else {
       return 'Just now';
     }
+  }
+
+  /// Convert Poll (chat feature) to PollEntity (poll feature)
+  PollEntity _convertPollToPollEntity(Poll poll) {
+    return PollEntity(
+      id: poll.id,
+      question: poll.question,
+      conversationId: poll.conversationId,
+      creator: poll.creator,
+      allowMultipleVotes: poll.allowMultipleVotes,
+      expiresAt: poll.expiresAt,
+      isClosed: poll.closed,
+      isExpired: poll.expired,
+      isActive: poll.active,
+      createdAt: poll.createdAt,
+      totalVoters: poll.totalVoters,
+      options: poll.options.map((opt) => PollOptionEntity(
+        id: opt.id,
+        optionText: opt.optionText,
+        optionOrder: opt.optionOrder,
+        voteCount: opt.voteCount,
+        percentage: opt.percentage,
+        voters: opt.voters,
+      )).toList(),
+      currentUserVotedOptionIds: poll.currentUserVotedOptionIds,
+    );
   }
 }

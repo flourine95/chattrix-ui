@@ -42,7 +42,7 @@ class DateTimePickerBottomSheet extends HookWidget {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               child: Text(
-                'Chọn thời gian kết thúc',
+                'Select End Time',
                 style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
               ),
             ),
@@ -114,7 +114,7 @@ class DateTimePickerBottomSheet extends HookWidget {
                         padding: const EdgeInsets.symmetric(vertical: 14),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                       ),
-                      child: const Text('Hủy'),
+                      child: const Text('Cancel'),
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -125,7 +125,7 @@ class DateTimePickerBottomSheet extends HookWidget {
                         padding: const EdgeInsets.symmetric(vertical: 14),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                       ),
-                      child: const Text('Xác nhận', style: TextStyle(fontWeight: FontWeight.bold)),
+                      child: const Text('Confirm', style: TextStyle(fontWeight: FontWeight.bold)),
                     ),
                   ),
                 ],

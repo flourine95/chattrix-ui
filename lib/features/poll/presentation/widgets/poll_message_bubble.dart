@@ -1,4 +1,5 @@
 import 'package:chattrix_ui/features/chat/domain/entities/message.dart';
+import 'package:chattrix_ui/features/chat/presentation/state/messages_notifier.dart';
 import 'package:chattrix_ui/features/poll/presentation/providers/poll_actions_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -45,6 +46,8 @@ class PollMessageBubble extends HookConsumerWidget {
             poll: poll,
             currentUserId: currentUserId,
             onVote: (optionIds) async {
+              debugPrint('🗳️ [PollVote] Starting vote for poll ${poll.id}, options: $optionIds');
+              
               final notifier = ref.read(pollActionsProvider.notifier);
               final result = await notifier.vote(
                 conversationId: message.conversationId,
@@ -52,13 +55,26 @@ class PollMessageBubble extends HookConsumerWidget {
                 optionIds: optionIds,
               );
 
+              debugPrint('🗳️ [PollVote] Vote result: ${result != null ? 'SUCCESS' : 'FAILED'}');
+              
               if (result != null) {
+                debugPrint('🗳️ [PollVote] Updating poll data in messages...');
+                
+                // ✅ Manually set currentUserVotedOptionIds after vote
+                final updatedPoll = result.copyWith(
+                  currentUserVotedOptionIds: optionIds,
+                );
+                
+                // Update poll data in messages immediately
+                ref.read(messagesProvider(message.conversationId).notifier).updatePollData(updatedPoll);
+                
                 if (context.mounted) {
                   ScaffoldMessenger.of(
                     context,
                   ).showSnackBar(const SnackBar(content: Text('Voted successfully'), duration: Duration(seconds: 1)));
                 }
               } else {
+                debugPrint('🗳️ [PollVote] Vote failed!');
                 if (context.mounted) {
                   ScaffoldMessenger.of(
                     context,

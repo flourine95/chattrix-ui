@@ -59,8 +59,9 @@ class ChatInfoPage extends HookConsumerWidget {
             pinned: true,
             floating: false,
             elevation: 0,
-            scrolledUnderElevation: 4,
-            shadowColor: colors.shadow.withValues(alpha: 0.3),
+            scrolledUnderElevation: 1,
+            shadowColor: Colors.black.withValues(alpha: 0.15),
+            surfaceTintColor: Colors.transparent,
             backgroundColor: colors.surface,
           ),
           SliverToBoxAdapter(
@@ -214,7 +215,71 @@ class ChatInfoPage extends HookConsumerWidget {
         const SizedBox(height: 8),
 
         // Members
-        _buildViewMembersSection(context, colors, textTheme),
+        _buildRoundedSection(
+          context,
+          colors,
+          child: _buildActionTile(
+            icon: Icons.people,
+            title: 'View Members',
+            subtitle: '${conversation.participants.length} members',
+            colors: colors,
+            textTheme: textTheme,
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => AllMembersPage(conversation: conversation)),
+              );
+            },
+          ),
+        ),
+
+        const SizedBox(height: 8),
+
+        // Invite Links
+        _buildRoundedSection(
+          context,
+          colors,
+          child: _buildActionTile(
+            icon: Icons.link,
+            title: 'Invite Links',
+            subtitle: 'Manage group invite links',
+            colors: colors,
+            textTheme: textTheme,
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => InviteLinksPage(conversationId: conversation.id)),
+              );
+            },
+          ),
+        ),
+
+        const SizedBox(height: 8),
+
+        // Admin Permissions (only if user is admin)
+        if (_isUserAdmin(ref))
+          _buildRoundedSection(
+            context,
+            colors,
+            child: _buildActionTile(
+              icon: Icons.admin_panel_settings,
+              title: 'Group Permissions',
+              subtitle: 'Manage who can perform actions',
+              colors: colors,
+              textTheme: textTheme,
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => GroupPermissionsPage(conversationId: conversation.id)),
+                );
+              },
+            ),
+          ),
+
+        if (_isUserAdmin(ref)) const SizedBox(height: 8),
+
+        // Polls
+        _buildPollsSection(context, ref, colors, textTheme),
 
         const SizedBox(height: 8),
 
@@ -223,28 +288,18 @@ class ChatInfoPage extends HookConsumerWidget {
 
         const SizedBox(height: 8),
 
-        // Polls
-        _buildPollsSection(context, ref, colors, textTheme),
-
-        const SizedBox(height: 8),
-
         // Birthdays
         _buildBirthdaysSection(context, ref, colors, textTheme),
 
         const SizedBox(height: 8),
 
-        // Community Link
-        _buildCommunityLinkSection(context, colors, textTheme),
+        // Pin Conversation
+        _buildRoundedSection(context, colors, child: _buildPinConversationTile(context, ref, colors, textTheme)),
 
         const SizedBox(height: 8),
 
-        // Admin Permissions (only if user is admin)
-        if (_isUserAdmin(ref)) _buildAdminPermissionsSection(context, colors, textTheme),
-
-        if (_isUserAdmin(ref)) const SizedBox(height: 8),
-
-        // Pin Conversation
-        _buildRoundedSection(context, colors, child: _buildPinConversationTile(context, ref, colors, textTheme)),
+        // Hide Conversation
+        _buildRoundedSection(context, colors, child: _buildHideConversationTile(context, ref, colors, textTheme)),
 
         const SizedBox(height: 8),
 
@@ -282,9 +337,6 @@ class ChatInfoPage extends HookConsumerWidget {
         ),
 
         const SizedBox(height: 8),
-
-        // Hide Conversation
-        _buildRoundedSection(context, colors, child: _buildHideConversationTile(context, ref, colors, textTheme)),
       ],
     );
   }

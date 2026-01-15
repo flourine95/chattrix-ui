@@ -100,7 +100,7 @@ final class EventsListProvider
   }
 }
 
-String _$eventsListHash() => r'177ab265c0aac5650c6ce5d8a504ac3bd04b9bcd';
+String _$eventsListHash() => r'8c5d5e0be257a4289b55b2484097830e8f7ab638';
 
 final class EventsListFamily extends $Family
     with

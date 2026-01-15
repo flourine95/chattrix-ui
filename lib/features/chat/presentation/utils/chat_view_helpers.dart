@@ -306,7 +306,8 @@ void handleAttachmentSelection(
   ChatActionsController chatActions,
   BuildContext context,
   int chatId,
-  TextEditingController textController, // ← Add this parameter
+  TextEditingController textController,
+  dynamic conversation, // ← Add conversation parameter
 ) {
   switch (type) {
     case AttachmentType.camera:
@@ -337,7 +338,53 @@ void handleAttachmentSelection(
       break;
     case AttachmentType.poll:
       showAttachmentPicker.value = false;
+      
+      // ✅ Check if conversation is direct chat
+      if (conversation?.type == 'DIRECT') {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                const Icon(Icons.info_outline, color: Colors.white),
+                const SizedBox(width: 12),
+                const Expanded(
+                  child: Text('Polls are only available in group conversations'),
+                ),
+              ],
+            ),
+            backgroundColor: Colors.orange.shade900,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+        return;
+      }
+      
       context.push('/chat/$chatId/create-poll');
+      break;
+    case AttachmentType.event:
+      showAttachmentPicker.value = false;
+      
+      // ✅ Check if conversation is direct chat
+      if (conversation?.type == 'DIRECT') {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                const Icon(Icons.info_outline, color: Colors.white),
+                const SizedBox(width: 12),
+                const Expanded(
+                  child: Text('Events are only available in group conversations'),
+                ),
+              ],
+            ),
+            backgroundColor: Colors.orange.shade900,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+        return;
+      }
+      
+      context.push('/chat/$chatId/create-event');
       break;
     case AttachmentType.schedule:
       showAttachmentPicker.value = false;

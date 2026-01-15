@@ -12,14 +12,29 @@ class PollDatasourceImpl implements PollDatasource {
   @override
   Future<PollModel> createPoll({required int conversationId, required CreatePollRequest request}) async {
     try {
-      final response = await dio.post('/v1/conversations/$conversationId/polls', data: request.toJson());
+      // NEW API: POST /v1/conversations/{id}/messages/poll
+      // Returns Message with metadata.poll
+      final response = await dio.post(
+        '/v1/conversations/$conversationId/messages/poll',
+        data: request.toJson(),
+      );
 
       if (response.statusCode == 200 || response.statusCode == 201) {
-        return PollModel.fromJson(response.data['data'] as Map<String, dynamic>);
+        final data = response.data['data'] as Map<String, dynamic>;
+        
+        // Extract poll from metadata
+        final metadata = data['metadata'] as Map<String, dynamic>?;
+        if (metadata != null && metadata['poll'] != null) {
+          final pollJson = metadata['poll'] as Map<String, dynamic>;
+          return PollModel.fromJson(pollJson);
+        }
+        
+        throw ServerException(message: 'Poll data not found in response');
       }
 
       throw ServerException(message: 'Failed to create poll');
     } on DioException catch (e) {
+      debugPrint('❌ Create poll error: ${e.response?.statusCode} - ${e.response?.data}');
       throw ServerException(message: e.response?.data['message'] ?? 'Failed to create poll');
     }
   }

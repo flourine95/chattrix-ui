@@ -1,6 +1,6 @@
 import 'package:chattrix_ui/core/network/api_response.dart';
+import 'package:chattrix_ui/features/chat/data/models/message_model.dart';
 import 'package:chattrix_ui/features/poll/data/models/create_poll_request_dto.dart';
-import 'package:chattrix_ui/features/poll/data/models/poll_dto.dart';
 import 'package:chattrix_ui/features/poll/data/models/vote_request_dto.dart';
 import 'package:dio/dio.dart';
 
@@ -9,67 +9,124 @@ class PollApiService {
 
   PollApiService(this._dio);
 
-  Future<ApiResponse<PollDto>> createPoll({required int conversationId, required CreatePollRequestDto request}) async {
-    final response = await _dio.post('/v1/conversations/$conversationId/polls', data: request.toJson());
+  /// Create poll - NEW API returns Message with metadata.poll
+  Future<ApiResponse<MessageModel>> createPoll({
+    required int conversationId,
+    required CreatePollRequestDto request,
+  }) async {
+    final response = await _dio.post(
+      '/v1/conversations/$conversationId/messages/poll',
+      data: request.toJson(),
+    );
 
-    return ApiResponse<PollDto>.fromJson(response.data, (json) => PollDto.fromJson(json as Map<String, dynamic>));
+    return ApiResponse<MessageModel>.fromJson(
+      response.data,
+      (json) => MessageModel.fromApi(json as Map<String, dynamic>),
+    );
   }
 
-  Future<ApiResponse<PollDto>> votePoll({
+  /// Vote poll - NEW API returns Message with updated metadata.poll
+  Future<ApiResponse<MessageModel>> votePoll({
     required int conversationId,
-    required int pollId,
+    required int messageId,
     required VoteRequestDto request,
   }) async {
-    final response = await _dio.post('/v1/conversations/$conversationId/polls/$pollId/vote', data: request.toJson());
+    final response = await _dio.post(
+      '/v1/conversations/$conversationId/messages/$messageId/poll/vote',
+      data: request.toJson(),
+    );
 
-    return ApiResponse<PollDto>.fromJson(response.data, (json) => PollDto.fromJson(json as Map<String, dynamic>));
+    return ApiResponse<MessageModel>.fromJson(
+      response.data,
+      (json) => MessageModel.fromApi(json as Map<String, dynamic>),
+    );
   }
 
-  Future<ApiResponse<PollDto>> removeVote({required int conversationId, required int pollId}) async {
-    final response = await _dio.delete('/v1/conversations/$conversationId/polls/$pollId/vote');
-
-    return ApiResponse<PollDto>.fromJson(response.data, (json) => PollDto.fromJson(json as Map<String, dynamic>));
-  }
-
-  Future<ApiResponse<PollDto>> getPollById({required int conversationId, required int pollId}) async {
-    final response = await _dio.get('/v1/conversations/$conversationId/polls/$pollId');
-
-    return ApiResponse<PollDto>.fromJson(response.data, (json) => PollDto.fromJson(json as Map<String, dynamic>));
-  }
-
-  Future<ApiResponse<List<PollDto>>> getConversationPolls({
+  /// List polls with filters and pagination
+  /// 
+  /// **Endpoint**: GET /v1/conversations/{id}/polls
+  /// 
+  /// **Query Parameters:**
+  /// - status: 'all' | 'active' | 'closed' (default: 'all')
+  /// - cursor: pagination cursor (optional)
+  /// - limit: items per page (default: 20)
+  /// 
+  /// **Response includes calculated fields:**
+  /// - voteCount: number of votes per option
+  /// - percentage: percentage of votes per option
+  /// - hasVoted: whether current user has voted
+  /// - isClosed: whether poll is closed
+  /// - totalVotes: total number of votes
+  Future<Map<String, dynamic>> listPolls({
     required int conversationId,
-    int page = 0,
-    int size = 20,
+    String status = 'all',
+    String? cursor,
+    int limit = 20,
   }) async {
     final response = await _dio.get(
       '/v1/conversations/$conversationId/polls',
-      queryParameters: {'page': page, 'size': size},
+      queryParameters: {
+        'status': status,
+        if (cursor != null) 'cursor': cursor,
+        'limit': limit,
+      },
     );
 
-    final paginatedData = response.data['data'];
-    final pollsData = paginatedData['items'] as List;
+    return response.data['data'] as Map<String, dynamic>;
+  }
 
-    return ApiResponse<List<PollDto>>(
-      success: response.data['success'],
-      message: response.data['message'],
-      data: pollsData.map((json) => PollDto.fromJson(json)).toList(),
+  /// Get poll detail
+  Future<ApiResponse<MessageModel>> getPollDetail({
+    required int conversationId,
+    required int messageId,
+  }) async {
+    final response = await _dio.get(
+      '/v1/conversations/$conversationId/polls/$messageId',
+    );
+
+    return ApiResponse<MessageModel>.fromJson(
+      response.data,
+      (json) => MessageModel.fromApi(json as Map<String, dynamic>),
     );
   }
 
-  Future<ApiResponse<PollDto>> closePoll({required int conversationId, required int pollId}) async {
-    final response = await _dio.post('/v1/conversations/$conversationId/polls/$pollId/close');
+  /// Close poll manually
+  Future<ApiResponse<MessageModel>> closePoll({
+    required int conversationId,
+    required int messageId,
+  }) async {
+    final response = await _dio.post(
+      '/v1/conversations/$conversationId/polls/$messageId/close',
+    );
 
-    return ApiResponse<PollDto>.fromJson(response.data, (json) => PollDto.fromJson(json as Map<String, dynamic>));
+    return ApiResponse<MessageModel>.fromJson(
+      response.data,
+      (json) => MessageModel.fromApi(json as Map<String, dynamic>),
+    );
   }
 
-  Future<ApiResponse<String>> deletePoll({required int conversationId, required int pollId}) async {
-    final response = await _dio.delete('/v1/conversations/$conversationId/polls/$pollId');
+  /// Delete poll
+  Future<void> deletePoll({
+    required int conversationId,
+    required int messageId,
+  }) async {
+    await _dio.delete(
+      '/v1/conversations/$conversationId/polls/$messageId',
+    );
+  }
 
-    return ApiResponse<String>(
-      success: response.data['success'],
-      message: response.data['message'],
-      data: response.data['data'] as String,
+  // Legacy methods kept for backward compatibility (if needed)
+  Future<ApiResponse<MessageModel>> removeVote({
+    required int conversationId,
+    required int messageId,
+  }) async {
+    final response = await _dio.delete(
+      '/v1/conversations/$conversationId/messages/$messageId/poll/vote',
+    );
+
+    return ApiResponse<MessageModel>.fromJson(
+      response.data,
+      (json) => MessageModel.fromApi(json as Map<String, dynamic>),
     );
   }
 }

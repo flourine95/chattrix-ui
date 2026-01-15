@@ -7,3 +7,9 @@ final chatRemoteDatasourceProvider = Provider<ChatRemoteDatasource>((ref) {
   final dio = ref.watch(dioProvider);
   return ChatRemoteDatasourceImpl(dio: dio);
 });
+
+// Provider for implementation (needed for new list methods not in interface)
+final chatRemoteDatasourceImplProvider = Provider<ChatRemoteDatasourceImpl>((ref) {
+  final dio = ref.watch(dioProvider);
+  return ChatRemoteDatasourceImpl(dio: dio);
+});

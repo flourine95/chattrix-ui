@@ -909,6 +909,118 @@ class ChatRemoteDatasourceImpl implements ChatRemoteDatasource {
   // EVENTS
   // ============================================================================
 
+  /// List events with filters and pagination
+  /// 
+  /// **Endpoint**: GET /v1/conversations/{id}/events
+  /// 
+  /// **Query Parameters:**
+  /// - status: 'all' | 'upcoming' | 'past' (default: 'all')
+  /// - cursor: pagination cursor (optional)
+  /// - limit: items per page (default: 20)
+  /// 
+  /// **Response includes calculated fields:**
+  /// - goingCount: number of users going
+  /// - maybeCount: number of users maybe going
+  /// - notGoingCount: number of users not going
+  /// - currentUserStatus: current user's RSVP status
+  /// - isPast: whether event has passed
+  @override
+  Future<Map<String, dynamic>> listEvents({
+    required int conversationId,
+    String status = 'all',
+    String? cursor,
+    int limit = 20,
+  }) async {
+    try {
+      AppLogger.debug(
+        '📡 Listing events for conversation $conversationId with status: $status',
+        tag: 'ChatRemoteDataSource',
+      );
+
+      final response = await dio.get(
+        '/v1/conversations/$conversationId/events',
+        queryParameters: {
+          'status': status,
+          if (cursor != null) 'cursor': cursor,
+          'limit': limit,
+        },
+      );
+
+      AppLogger.debug('📥 List events response - Status: ${response.statusCode}', tag: 'ChatRemoteDataSource');
+
+      if (response.statusCode == 200) {
+        final data = response.data['data'] as Map<String, dynamic>;
+        final items = data['items'] as List<dynamic>;
+        AppLogger.info('✅ Successfully retrieved ${items.length} events', tag: 'ChatRemoteDataSource');
+        return data;
+      }
+
+      throw ServerException(message: 'Failed to list events');
+    } on DioException catch (e) {
+      AppLogger.error('❌ Failed to list events: ${e.message}', tag: 'ChatRemoteDataSource');
+      throw ServerException(message: e.response?.data['message'] ?? 'Failed to list events');
+    }
+  }
+
+  /// Get event detail
+  @override
+  Future<dynamic> getEventDetail({
+    required int conversationId,
+    required int messageId,
+  }) async {
+    try {
+      AppLogger.debug('📡 Getting event detail for message $messageId', tag: 'ChatRemoteDataSource');
+
+      final response = await dio.get('/v1/conversations/$conversationId/events/$messageId');
+
+      AppLogger.debug('📥 Get event detail response - Status: ${response.statusCode}', tag: 'ChatRemoteDataSource');
+
+      if (response.statusCode == 200) {
+        AppLogger.info('✅ Successfully retrieved event detail', tag: 'ChatRemoteDataSource');
+        return response.data['data'];
+      }
+
+      throw ServerException(message: 'Failed to get event detail');
+    } on DioException catch (e) {
+      AppLogger.error('❌ Failed to get event detail: ${e.message}', tag: 'ChatRemoteDataSource');
+      throw ServerException(message: e.response?.data['message'] ?? 'Failed to get event detail');
+    }
+  }
+
+  /// Get event RSVPs
+  @override
+  Future<Map<String, dynamic>> getEventRsvps({
+    required int conversationId,
+    required int messageId,
+    String? cursor,
+    int limit = 20,
+  }) async {
+    try {
+      AppLogger.debug('📡 Getting RSVPs for event $messageId', tag: 'ChatRemoteDataSource');
+
+      final response = await dio.get(
+        '/v1/conversations/$conversationId/events/$messageId/rsvps',
+        queryParameters: {
+          if (cursor != null) 'cursor': cursor,
+          'limit': limit,
+        },
+      );
+
+      AppLogger.debug('📥 Get event RSVPs response - Status: ${response.statusCode}', tag: 'ChatRemoteDataSource');
+
+      if (response.statusCode == 200) {
+        final data = response.data['data'] as Map<String, dynamic>;
+        AppLogger.info('✅ Successfully retrieved event RSVPs', tag: 'ChatRemoteDataSource');
+        return data;
+      }
+
+      throw ServerException(message: 'Failed to get event RSVPs');
+    } on DioException catch (e) {
+      AppLogger.error('❌ Failed to get event RSVPs: ${e.message}', tag: 'ChatRemoteDataSource');
+      throw ServerException(message: e.response?.data['message'] ?? 'Failed to get event RSVPs');
+    }
+  }
+
   @override
   Future<List<dynamic>> getEvents({required int conversationId}) async {
     try {
@@ -955,33 +1067,82 @@ class ChatRemoteDatasourceImpl implements ChatRemoteDatasource {
     String? location,
   }) async {
     try {
+      // Convert to UTC and format as ISO 8601 with 'Z' suffix
+      final startTimeUtc = startTime.toUtc().toIso8601String();
+      final endTimeUtc = endTime.toUtc().toIso8601String();
+      
       final requestData = {
         'title': title,
         if (description != null) 'description': description,
-        'startTime': startTime.millisecondsSinceEpoch,
-        'endTime': endTime.millisecondsSinceEpoch,
+        'startTime': startTimeUtc,
+        'endTime': endTimeUtc,
         if (location != null) 'location': location,
       };
 
       AppLogger.debug('📡 Creating event in conversation $conversationId', tag: 'ChatRemoteDataSource');
       AppLogger.debug('📤 Request data: $requestData', tag: 'ChatRemoteDataSource');
 
-      final response = await dio.post(ApiConstants.events(conversationId), data: requestData);
+      // NEW API: POST /v1/conversations/{conversationId}/messages/event
+      final response = await dio.post(
+        ApiConstants.createEvent(conversationId),
+        data: requestData,
+      );
 
       AppLogger.debug('📥 Create event response - Status: ${response.statusCode}', tag: 'ChatRemoteDataSource');
       AppLogger.debug('📥 Create event response data: ${response.data}', tag: 'ChatRemoteDataSource');
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         AppLogger.info('✅ Successfully created event', tag: 'ChatRemoteDataSource');
-        return response.data['data'];
+        
+        // NEW API returns Message with metadata.event
+        final messageData = response.data['data'] as Map<String, dynamic>;
+        final metadata = messageData['metadata'] as Map<String, dynamic>?;
+        
+        if (metadata != null && metadata['event'] != null) {
+          final eventJson = metadata['event'] as Map<String, dynamic>;
+          
+          // Parse event data from metadata
+          final going = (eventJson['going'] as List?)?.cast<int>() ?? [];
+          final maybe = (eventJson['maybe'] as List?)?.cast<int>() ?? [];
+          final notGoing = (eventJson['notGoing'] as List?)?.cast<int>() ?? [];
+          
+          // Get createdBy from sender (may be null in some responses)
+          final sender = messageData['sender'] as Map<String, dynamic>?;
+          final createdBy = sender?['id'] ?? 0;
+          
+          return {
+            'id': messageData['id'],
+            'conversationId': messageData['conversationId'],
+            'title': eventJson['title'],
+            'description': eventJson['description'],
+            'startTime': eventJson['startTime'],
+            'endTime': eventJson['endTime'],
+            'location': eventJson['location'],
+            'going': going,
+            'maybe': maybe,
+            'notGoing': notGoing,
+            'createdBy': createdBy,
+            'createdAt': messageData['createdAt'],
+          };
+        }
+        
+        throw ServerException(message: 'Event data not found in response metadata');
       }
 
       throw ServerException(message: 'Failed to create event - Status: ${response.statusCode}');
     } on DioException catch (e) {
-      AppLogger.error('❌ Failed to create event: ${e.message}', tag: 'ChatRemoteDataSource');
+      AppLogger.error('❌ DioException creating event: ${e.type}', tag: 'ChatRemoteDataSource');
+      AppLogger.error('❌ Error message: ${e.message}', tag: 'ChatRemoteDataSource');
       AppLogger.error('❌ Response status: ${e.response?.statusCode}', tag: 'ChatRemoteDataSource');
       AppLogger.error('❌ Response data: ${e.response?.data}', tag: 'ChatRemoteDataSource');
-      throw ServerException(message: e.response?.data['message'] ?? 'Failed to create event');
+      AppLogger.error('❌ Request URL: ${e.requestOptions.uri}', tag: 'ChatRemoteDataSource');
+      AppLogger.error('❌ Request data: ${e.requestOptions.data}', tag: 'ChatRemoteDataSource');
+      
+      if (e.response?.data is Map && e.response?.data['message'] != null) {
+        throw ServerException(message: e.response!.data['message']);
+      } else {
+        throw ServerException(message: 'Failed to create event: ${e.message ?? "Unknown error"}');
+      }
     } catch (e) {
       AppLogger.error('❌ Unexpected error creating event: $e', tag: 'ChatRemoteDataSource');
       throw ServerException(message: 'Failed to create event: $e');
@@ -1001,13 +1162,15 @@ class ChatRemoteDatasourceImpl implements ChatRemoteDatasource {
     try {
       AppLogger.debug('📡 Updating event $eventId', tag: 'ChatRemoteDataSource');
 
+      // NOTE: Update event endpoint not yet exposed in new API
+      // Keep using old endpoint for now
       final response = await dio.put(
         ApiConstants.event(conversationId, eventId),
         data: {
           if (title != null) 'title': title,
           if (description != null) 'description': description,
-          if (startTime != null) 'startTime': startTime.millisecondsSinceEpoch,
-          if (endTime != null) 'endTime': endTime.millisecondsSinceEpoch,
+          if (startTime != null) 'startTime': startTime.toIso8601String(),
+          if (endTime != null) 'endTime': endTime.toIso8601String(),
           if (location != null) 'location': location,
         },
       );
@@ -1027,12 +1190,17 @@ class ChatRemoteDatasourceImpl implements ChatRemoteDatasource {
   }
 
   @override
-  Future<dynamic> rsvpEvent({required int conversationId, required int eventId, required String status}) async {
+  Future<dynamic> rsvpEvent({
+    required int conversationId,
+    required int eventId,
+    required String status,
+  }) async {
     try {
       AppLogger.debug('📡 RSVP to event $eventId with status $status', tag: 'ChatRemoteDataSource');
 
+      // NEW API: POST /v1/conversations/{conversationId}/messages/{messageId}/event/rsvp
       final response = await dio.post(
-        ApiConstants.eventRsvp(conversationId, eventId),
+        ApiConstants.rsvpEvent(conversationId, eventId),
         data: {'status': status},
       );
 
@@ -1040,7 +1208,40 @@ class ChatRemoteDatasourceImpl implements ChatRemoteDatasource {
 
       if (response.statusCode == 200) {
         AppLogger.info('✅ Successfully RSVP to event', tag: 'ChatRemoteDataSource');
-        return response.data['data'];
+        
+        // NEW API returns Message with updated metadata.event
+        final messageData = response.data['data'] as Map<String, dynamic>;
+        final metadata = messageData['metadata'] as Map<String, dynamic>?;
+        
+        if (metadata != null && metadata['event'] != null) {
+          final eventJson = metadata['event'] as Map<String, dynamic>;
+          
+          // Parse event data from metadata
+          final going = (eventJson['going'] as List?)?.cast<int>() ?? [];
+          final maybe = (eventJson['maybe'] as List?)?.cast<int>() ?? [];
+          final notGoing = (eventJson['notGoing'] as List?)?.cast<int>() ?? [];
+          
+          // Get createdBy from sender (may be null in some responses)
+          final sender = messageData['sender'] as Map<String, dynamic>?;
+          final createdBy = sender?['id'] ?? 0;
+          
+          return {
+            'id': messageData['id'],
+            'conversationId': messageData['conversationId'],
+            'title': eventJson['title'],
+            'description': eventJson['description'],
+            'startTime': eventJson['startTime'],
+            'endTime': eventJson['endTime'],
+            'location': eventJson['location'],
+            'going': going,
+            'maybe': maybe,
+            'notGoing': notGoing,
+            'createdBy': createdBy,
+            'createdAt': messageData['createdAt'],
+          };
+        }
+        
+        throw ServerException(message: 'Event data not found in RSVP response metadata');
       }
 
       throw ServerException(message: 'Failed to RSVP to event');

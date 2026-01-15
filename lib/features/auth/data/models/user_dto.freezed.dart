@@ -15,8 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$UserDto {
 
- int get id; String get username; String get email; bool get emailVerified; String? get phone; String get fullName; String? get avatarUrl; String? get bio; String? get gender; String? get dateOfBirth; String? get location; String? get profileVisibility;// ❌ REMOVED: online field (now tracked in OnlineStatusCache)
- String? get lastSeen; String get createdAt; String? get updatedAt;
+ int get id; String get username; String get email; bool get emailVerified; String? get phone; String get fullName; String? get avatarUrl; String? get bio; String? get gender; String? get dateOfBirth; String? get location; String? get profileVisibility; String? get lastSeen; String get createdAt; String? get updatedAt;
 /// Create a copy of UserDto
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -239,7 +238,6 @@ class _UserDto implements UserDto {
 @override final  String? dateOfBirth;
 @override final  String? location;
 @override final  String? profileVisibility;
-// ❌ REMOVED: online field (now tracked in OnlineStatusCache)
 @override final  String? lastSeen;
 @override final  String createdAt;
 @override final  String? updatedAt;

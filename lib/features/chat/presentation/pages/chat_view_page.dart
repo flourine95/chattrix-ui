@@ -145,7 +145,7 @@ class ChatViewPage extends HookConsumerWidget {
           onChangeAlbum: (album) => changeAlbum(album, currentAlbum, assets),
           onToggleGallery: () => toggleGallery(showGallery, focusNode, showEmojiPicker, showStickerPicker, showAttachmentPicker, albums, currentAlbum, assets, context),
           onToggleAttachmentPicker: () => toggleAttachmentPicker(showAttachmentPicker, focusNode, showGallery, showEmojiPicker, showStickerPicker),
-          onAttachmentSelection: (type) => handleAttachmentSelection(type, showAttachmentPicker, showEmojiPicker, showStickerPicker, chatActions, context, chatId, controller),
+          onAttachmentSelection: (type) => handleAttachmentSelection(type, showAttachmentPicker, showEmojiPicker, showStickerPicker, chatActions, context, chatId, controller, conversation),
           onEmojiSelected: (emoji) => onEmojiSelected(emoji, chatActions, showEmojiPicker),
           onStickerSelected: (sticker) => onStickerSelected(sticker, chatActions, showEmojiPicker),
           onPinMessage: (message) => handlePinMessage(message, ref, chatId, context),

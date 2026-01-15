@@ -28,6 +28,7 @@ import 'package:chattrix_ui/features/invite_links/presentation/pages/invite_link
 import 'package:chattrix_ui/features/invite_links/presentation/pages/invite_links_page.dart';
 import 'package:chattrix_ui/features/poll/presentation/pages/create_poll_page.dart';
 import 'package:chattrix_ui/features/poll/presentation/pages/poll_detail_page.dart';
+import 'package:chattrix_ui/features/chat/presentation/pages/create_event_page.dart';
 import 'package:chattrix_ui/features/profile/presentation/pages/edit_profile_page.dart';
 import 'package:chattrix_ui/features/profile/presentation/pages/profile_page.dart';
 import 'package:chattrix_ui/features/profile/presentation/pages/settings_page.dart';
@@ -153,6 +154,11 @@ class RouteConfig {
       name: 'poll-detail',
       builder: (context, state) => RouterSetup(child: _buildPollDetailPage(state)),
     ),
+    GoRoute(
+      path: RoutePaths.createEvent,
+      name: 'create-event',
+      builder: (context, state) => RouterSetup(child: _buildCreateEventPage(state)),
+    ),
   ];
 
   static List<RouteBase> get inviteLinkRoutes => [
@@ -236,6 +242,12 @@ class RouteConfig {
     final id = state.pathParameters['id']!;
     final conversationId = int.parse(id);
     return CreatePollPage(conversationId: conversationId);
+  }
+
+  static Widget _buildCreateEventPage(GoRouterState state) {
+    final id = state.pathParameters['id']!;
+    final conversationId = int.parse(id);
+    return CreateEventPage(conversationId: conversationId);
   }
 
   static Widget _buildPollDetailPage(GoRouterState state) {

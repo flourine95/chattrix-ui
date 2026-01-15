@@ -6,6 +6,8 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl/intl.dart';
 
+enum EventFilter { all, upcoming, past }
+
 class EventsPage extends HookConsumerWidget {
   final int conversationId;
 
@@ -14,70 +16,229 @@ class EventsPage extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final eventsAsync = ref.watch(eventsListProvider(conversationId));
+    final eventsNotifier = ref.watch(eventsListProvider(conversationId).notifier);
     final colors = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    // Filter state
+    final selectedFilter = useState(EventFilter.all);
+
+    // Map filter to API status parameter
+    String getStatusParam(EventFilter filter) {
+      switch (filter) {
+        case EventFilter.all:
+          return 'all';
+        case EventFilter.upcoming:
+          return 'upcoming';
+        case EventFilter.past:
+          return 'past';
+      }
+    }
+
+    // Handle filter change
+    void handleFilterChange(EventFilter newFilter) {
+      selectedFilter.value = newFilter;
+      eventsNotifier.filterByStatus(getStatusParam(newFilter));
+    }
 
     return Scaffold(
+      backgroundColor: isDark ? Colors.grey.shade900 : Colors.grey.shade50,
       appBar: AppBar(
-        title: const Text('Events'),
+        elevation: 0,
+        backgroundColor: Colors.transparent,
+        title: const Text('Events', style: TextStyle(fontWeight: FontWeight.w600)),
         actions: [
           IconButton(
-            icon: const Icon(Icons.add),
+            icon: const Icon(Icons.add_circle_outline),
             onPressed: () => _showCreateEventDialog(context, ref),
             tooltip: 'Create Event',
           ),
         ],
       ),
-      body: eventsAsync.when(
-        data: (events) {
-          if (events.isEmpty) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.event_busy, size: 64, color: colors.onSurface.withValues(alpha: 0.3)),
-                  const SizedBox(height: 16),
-                  Text(
-                    'No events yet',
-                    style: textTheme.titleMedium?.copyWith(color: colors.onSurface.withValues(alpha: 0.6)),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Create an event to get started',
-                    style: textTheme.bodyMedium?.copyWith(color: colors.onSurface.withValues(alpha: 0.5)),
-                  ),
-                ],
-              ),
-            );
-          }
+      body: Column(
+        children: [
+          // Filter tabs
+          Container(
+            margin: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(4),
+            decoration: BoxDecoration(
+              color: isDark ? Colors.grey.shade800 : Colors.white,
+              borderRadius: BorderRadius.circular(12),
+              boxShadow: [
+                BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 10, offset: const Offset(0, 2)),
+              ],
+            ),
+            child: Row(
+              children: [
+                _buildFilterChip(
+                  context,
+                  label: 'All',
+                  icon: Icons.event,
+                  isSelected: selectedFilter.value == EventFilter.all,
+                  onTap: () => handleFilterChange(EventFilter.all),
+                ),
+                _buildFilterChip(
+                  context,
+                  label: 'Upcoming',
+                  icon: Icons.upcoming,
+                  isSelected: selectedFilter.value == EventFilter.upcoming,
+                  onTap: () => handleFilterChange(EventFilter.upcoming),
+                ),
+                _buildFilterChip(
+                  context,
+                  label: 'Past',
+                  icon: Icons.history,
+                  isSelected: selectedFilter.value == EventFilter.past,
+                  onTap: () => handleFilterChange(EventFilter.past),
+                ),
+              ],
+            ),
+          ),
+          // Content
+          Expanded(
+            child: eventsAsync.when(
+              data: (events) {
+                if (events.isEmpty) {
+                  return Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(32),
+                          decoration: BoxDecoration(
+                            color: colors.primary.withValues(alpha: 0.1),
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(Icons.event, size: 64, color: colors.primary),
+                        ),
+                        const SizedBox(height: 24),
+                        Text(
+                          selectedFilter.value == EventFilter.all
+                              ? 'No events yet'
+                              : 'No ${selectedFilter.value.name} events',
+                          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          selectedFilter.value == EventFilter.all
+                              ? 'Create an event using the button above'
+                              : 'Try selecting a different filter',
+                          style: const TextStyle(fontSize: 14, color: Colors.grey),
+                        ),
+                      ],
+                    ),
+                  );
+                }
 
-          return ListView.builder(
-            padding: const EdgeInsets.all(16),
-            itemCount: events.length,
-            itemBuilder: (context, index) {
-              final event = events[index];
-              return _EventCard(
-                event: event,
-                conversationId: conversationId,
-                onTap: () => _showEventDetails(context, ref, event),
-              );
-            },
-          );
-        },
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (error, stack) => Center(
-          child: Column(
+                return Column(
+                  children: [
+                    Expanded(
+                      child: ListView.builder(
+                        padding: const EdgeInsets.all(16),
+                        itemCount: events.length,
+                        itemBuilder: (context, index) {
+                          final event = events[index];
+                          return _EventCard(
+                            event: event,
+                            conversationId: conversationId,
+                            onTap: () => _showEventDetails(context, ref, event),
+                          );
+                        },
+                      ),
+                    ),
+                    // Load More button
+                    if (eventsNotifier.hasNextPage)
+                      Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: ElevatedButton.icon(
+                          onPressed: () => eventsNotifier.loadMore(status: getStatusParam(selectedFilter.value)),
+                          icon: const Icon(Icons.refresh),
+                          label: const Text('Load More'),
+                          style: ElevatedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          ),
+                        ),
+                      ),
+                  ],
+                );
+              },
+              loading: () => const Center(child: CircularProgressIndicator()),
+              error: (error, stack) => Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(24),
+                      decoration: BoxDecoration(color: Colors.red.withValues(alpha: 0.1), shape: BoxShape.circle),
+                      child: const Icon(Icons.error_outline, size: 64, color: Colors.red),
+                    ),
+                    const SizedBox(height: 24),
+                    const Text('Error loading events', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                    const SizedBox(height: 8),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 32),
+                      child: Text(
+                        error.toString(),
+                        style: const TextStyle(fontSize: 14, color: Colors.grey),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                    ElevatedButton.icon(
+                      onPressed: () => ref.refresh(eventsListProvider(conversationId)),
+                      icon: const Icon(Icons.refresh),
+                      label: const Text('Retry'),
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFilterChip(
+    BuildContext context, {
+    required String label,
+    required IconData icon,
+    required bool isSelected,
+    required VoidCallback onTap,
+  }) {
+    final theme = Theme.of(context);
+    return Expanded(
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(8),
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 10),
+          decoration: BoxDecoration(
+            color: isSelected ? theme.colorScheme.primary : Colors.transparent,
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.error_outline, size: 64, color: colors.error),
-              const SizedBox(height: 16),
-              Text('Failed to load events', style: textTheme.titleMedium),
-              const SizedBox(height: 8),
-              Text(error.toString(), style: textTheme.bodySmall),
-              const SizedBox(height: 16),
-              ElevatedButton(
-                onPressed: () => ref.refresh(eventsListProvider(conversationId)),
-                child: const Text('Retry'),
+              Icon(
+                icon,
+                size: 18,
+                color: isSelected ? Colors.white : theme.textTheme.bodyMedium?.color?.withValues(alpha: 0.6),
+              ),
+              const SizedBox(width: 6),
+              Text(
+                label,
+                style: TextStyle(
+                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                  fontSize: 14,
+                  color: isSelected ? Colors.white : theme.textTheme.bodyMedium?.color?.withValues(alpha: 0.6),
+                ),
               ),
             ],
           ),

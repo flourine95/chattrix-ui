@@ -4,16 +4,22 @@ import 'package:chattrix_ui/core/repositories/base_repository.dart';
 import 'package:chattrix_ui/features/chat/data/models/chat_message_request.dart';
 import 'package:chattrix_ui/features/chat/data/models/message_model.dart';
 import 'package:chattrix_ui/features/chat/domain/datasources/chat_remote_datasource.dart';
+import 'package:chattrix_ui/features/chat/domain/datasources/chat_websocket_datasource.dart';
 import 'package:chattrix_ui/features/chat/domain/entities/conversation.dart';
 import 'package:chattrix_ui/features/chat/domain/entities/message.dart';
 import 'package:chattrix_ui/features/chat/domain/entities/search_user.dart';
 import 'package:chattrix_ui/features/chat/domain/repositories/chat_repository.dart';
+import 'package:flutter/foundation.dart';
 import 'package:fpdart/fpdart.dart';
 
 class ChatRepositoryImpl extends BaseRepository implements ChatRepository {
   final ChatRemoteDatasource remoteDatasource;
+  final ChatWebSocketDataSource? webSocketDatasource;
 
-  ChatRepositoryImpl({required this.remoteDatasource});
+  ChatRepositoryImpl({
+    required this.remoteDatasource,
+    this.webSocketDatasource,
+  });
 
   @override
   Future<Either<Failure, Conversation>> createConversation({
@@ -96,6 +102,28 @@ class ChatRepositoryImpl extends BaseRepository implements ChatRepository {
 
   @override
   Future<Either<Failure, Message>> sendMessage(int conversationId, ChatMessageRequest request) async {
+    // ✅ Try WebSocket first if connected
+    if (webSocketDatasource != null && webSocketDatasource!.isConnected) {
+      debugPrint('📤 [SendMessage] Sending via WebSocket');
+      webSocketDatasource!.sendMessage(conversationId, request);
+      
+      // Return a temporary message (will be replaced by real message from WS)
+      // This is optimistic update - UI shows message immediately
+      return right(Message(
+        id: DateTime.now().millisecondsSinceEpoch, // Temporary ID
+        conversationId: conversationId,
+        senderId: 0, // Will be replaced
+        content: request.content,
+        type: request.type,
+        createdAt: DateTime.now(),
+        mediaUrl: request.mediaUrl,
+        duration: request.duration,
+        replyToMessageId: request.replyToMessageId,
+      ));
+    }
+    
+    // ❌ Fallback to API if WebSocket disconnected
+    debugPrint('📤 [SendMessage] WebSocket disconnected, falling back to API');
     final messageModel = await remoteDatasource.sendMessage(conversationId, request);
     return right(messageModel.toEntity());
   }

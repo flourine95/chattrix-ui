@@ -12,15 +12,12 @@ part of 'typing_indicator_provider.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
-/// Provider for typing indicator state in a specific conversation
 
 @ProviderFor(TypingIndicatorNotifier)
 final typingIndicatorProvider = TypingIndicatorNotifierFamily._();
 
-/// Provider for typing indicator state in a specific conversation
 final class TypingIndicatorNotifierProvider
     extends $NotifierProvider<TypingIndicatorNotifier, TypingIndicator> {
-  /// Provider for typing indicator state in a specific conversation
   TypingIndicatorNotifierProvider._({
     required TypingIndicatorNotifierFamily super.from,
     required int super.argument,
@@ -69,8 +66,6 @@ final class TypingIndicatorNotifierProvider
 String _$typingIndicatorNotifierHash() =>
     r'38c95d6b39f720d48da8682501cdd44a51a570a7';
 
-/// Provider for typing indicator state in a specific conversation
-
 final class TypingIndicatorNotifierFamily extends $Family
     with
         $ClassFamilyOverride<
@@ -89,16 +84,12 @@ final class TypingIndicatorNotifierFamily extends $Family
         isAutoDispose: true,
       );
 
-  /// Provider for typing indicator state in a specific conversation
-
   TypingIndicatorNotifierProvider call(int conversationId) =>
       TypingIndicatorNotifierProvider._(argument: conversationId, from: this);
 
   @override
   String toString() => r'typingIndicatorProvider';
 }
-
-/// Provider for typing indicator state in a specific conversation
 
 abstract class _$TypingIndicatorNotifier extends $Notifier<TypingIndicator> {
   late final _$args = ref.$arg as int;

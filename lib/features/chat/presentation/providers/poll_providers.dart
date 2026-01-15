@@ -1,21 +1,27 @@
-import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
+
 import '../../../../features/auth/presentation/providers/auth_repository_provider.dart';
+import '../../../chat/data/datasources/chat_websocket_datasource_impl.dart';
+import '../../../chat/presentation/providers/chat_websocket_provider_new.dart';
+import '../../../chat/presentation/providers/conversation_members_provider.dart';
+import '../../../poll/data/datasources/poll_api_service.dart';
+import '../../../poll/data/mappers/poll_list_mapper.dart';
+import '../../../poll/data/models/poll_list_item_dto.dart';
 import '../../data/datasources/poll_datasource_impl.dart';
-import '../../data/repositories/poll_repository_impl.dart';
-import '../../data/models/poll_model.dart';
 import '../../data/mappers/poll_mapper.dart';
+import '../../data/models/poll_model.dart';
+import '../../data/repositories/poll_repository_impl.dart';
 import '../../domain/datasources/poll_datasource.dart';
 import '../../domain/entities/poll.dart';
 import '../../domain/repositories/poll_repository.dart';
-import '../../domain/usecases/poll/create_poll_usecase.dart';
-import '../../domain/usecases/poll/vote_poll_usecase.dart';
 import '../../domain/usecases/poll/close_poll_usecase.dart';
+import '../../domain/usecases/poll/create_poll_usecase.dart';
 import '../../domain/usecases/poll/delete_poll_usecase.dart';
 import '../../domain/usecases/poll/get_all_polls_usecase.dart';
-import '../../../chat/data/datasources/chat_websocket_datasource_impl.dart';
-import '../../../chat/presentation/providers/chat_websocket_provider_new.dart';
-import 'dart:async';
+import '../../domain/usecases/poll/vote_poll_usecase.dart';
 
 part 'poll_providers.g.dart';
 
@@ -64,10 +70,12 @@ GetAllPollsUseCase getAllPollsUseCase(Ref ref) {
   return GetAllPollsUseCase(repository);
 }
 
-// Data Provider - Fetch all polls for a conversation with WebSocket updates
+// Data Provider - Fetch polls with filters and pagination using new API
 @riverpod
 class PollsList extends _$PollsList {
   StreamSubscription<Map<String, dynamic>>? _pollEventSubscription;
+  String? _nextCursor;
+  bool _hasNextPage = false;
 
   @override
   Future<List<Poll>> build(int conversationId) async {
@@ -76,21 +84,77 @@ class PollsList extends _$PollsList {
     // Listen to WebSocket poll events
     _listenToPollEvents();
 
-    // Fetch initial polls
-    final useCase = ref.watch(getAllPollsUseCaseProvider);
-    debugPrint('🗳️ Fetching polls from API...');
-    final result = await useCase(conversationId: conversationId);
+    // Fetch initial polls using new list API
+    return _fetchPolls(status: 'all');
+  }
 
-    return result.fold(
-      (failure) {
-        debugPrint('❌ Failed to fetch polls: ${failure.message}');
-        throw Exception(failure.message);
-      },
-      (polls) {
-        debugPrint('✅ Successfully fetched ${polls.length} polls');
-        return polls;
-      },
-    );
+  /// Fetch polls from new list API
+  Future<List<Poll>> _fetchPolls({required String status, String? cursor}) async {
+    debugPrint('🗳️ Fetching polls with status: $status, cursor: $cursor');
+
+    final apiService = ref.watch(pollApiServiceProvider);
+
+    try {
+      final response = await apiService.listPolls(conversationId: conversationId, status: status, cursor: cursor);
+
+      // Parse response: { items: [...], meta: { nextCursor, hasNextPage, itemsPerPage } }
+      final items = response['items'] as List<dynamic>;
+      final meta = response['meta'] as Map<String, dynamic>;
+
+      _nextCursor = meta['nextCursor'] as String?;
+      _hasNextPage = meta['hasNextPage'] as bool? ?? false;
+
+      debugPrint('🗳️ Fetched ${items.length} polls, hasNextPage: $_hasNextPage');
+
+      // Get members cache to enrich user info
+      List<dynamic> members = [];
+      try {
+        final membersAsync = await ref.read(conversationMembersProvider(conversationId).future);
+        members = membersAsync;
+      } catch (e) {
+        debugPrint('⚠️ Failed to load members cache: $e');
+      }
+      
+      final membersMap = {for (var m in members) m.id: m};
+      
+      debugPrint('👥 Members cache: ${membersMap.length} members');
+      debugPrint('👥 Member IDs: ${membersMap.keys.toList()}');
+
+      // Parse polls using PollListItemDto
+      final polls = items.map((item) {
+        final itemMap = item as Map<String, dynamic>;
+        var dto = PollListItemDto.fromJson(itemMap);
+        
+        debugPrint('🗳️ Poll creator ID: ${dto.createdBy}, username: ${dto.createdByUsername}');
+        debugPrint('🗳️ Before enrich - fullName: ${dto.createdByFullName}, avatarUrl: ${dto.createdByAvatarUrl}');
+        
+        // Enrich with member info from cache if available
+        final creatorId = dto.createdBy;
+        final member = membersMap[creatorId];
+        if (member != null) {
+          debugPrint('✅ Found member in cache: ${member.fullName}, avatar: ${member.avatarUrl}');
+          dto = dto.copyWith(
+            createdByFullName: member.fullName,
+            createdByAvatarUrl: member.avatarUrl,
+          );
+          debugPrint('✅ After enrich - fullName: ${dto.createdByFullName}, avatarUrl: ${dto.createdByAvatarUrl}');
+        } else {
+          debugPrint('⚠️ Creator $creatorId not found in members cache');
+        }
+        
+        final pollModel = dto.toPollModel(conversationId);
+        debugPrint('🗳️ PollModel creator: ${pollModel.creator.fullName}, avatar: ${pollModel.creator.avatarUrl}');
+        
+        return pollModel.toEntity();
+      }).toList();
+
+      debugPrint('🗳️ Successfully parsed ${polls.length} polls');
+      return polls;
+    } catch (e, stackTrace) {
+      debugPrint('❌ Failed to fetch polls: $e');
+      debugPrint('❌ Stack trace: $stackTrace');
+      throw Exception('Failed to fetch polls: $e');
+    }
   }
 
   void _listenToPollEvents() {
@@ -145,10 +209,41 @@ class PollsList extends _$PollsList {
   /// Manually refresh polls
   Future<void> refresh() async {
     state = const AsyncValue.loading();
-    state = await AsyncValue.guard(() async {
-      final useCase = ref.read(getAllPollsUseCaseProvider);
-      final result = await useCase(conversationId: conversationId);
-      return result.fold((failure) => throw Exception(failure.message), (polls) => polls);
-    });
+    state = await AsyncValue.guard(() => _fetchPolls(status: 'all'));
   }
+
+  /// Load more polls (pagination)
+  Future<void> loadMore({required String status}) async {
+    if (!_hasNextPage || _nextCursor == null) {
+      debugPrint('🗳️ No more polls to load');
+      return;
+    }
+
+    final currentState = state.value;
+    if (currentState == null) return;
+
+    try {
+      final morePolls = await _fetchPolls(status: status, cursor: _nextCursor);
+      state = AsyncValue.data([...currentState, ...morePolls]);
+    } catch (e) {
+      debugPrint('❌ Failed to load more polls: $e');
+      // Keep current state on error
+    }
+  }
+
+  /// Filter polls by status
+  Future<void> filterByStatus(String status) async {
+    state = const AsyncValue.loading();
+    state = await AsyncValue.guard(() => _fetchPolls(status: status));
+  }
+
+  /// Check if more polls can be loaded
+  bool get hasNextPage => _hasNextPage;
+}
+
+// Provider for PollApiService
+@riverpod
+PollApiService pollApiService(Ref ref) {
+  final dio = ref.watch(dioProvider);
+  return PollApiService(dio);
 }

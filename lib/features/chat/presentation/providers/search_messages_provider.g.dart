@@ -12,21 +12,12 @@ part of 'search_messages_provider.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
-/// Provider for searching messages in a conversation
-///
-/// **State**: AsyncValue<List<Message>>
 
 @ProviderFor(SearchMessages)
 final searchMessagesProvider = SearchMessagesFamily._();
 
-/// Provider for searching messages in a conversation
-///
-/// **State**: AsyncValue<List<Message>>
 final class SearchMessagesProvider
     extends $AsyncNotifierProvider<SearchMessages, List<Message>> {
-  /// Provider for searching messages in a conversation
-  ///
-  /// **State**: AsyncValue<List<Message>>
   SearchMessagesProvider._({
     required SearchMessagesFamily super.from,
     required (int, String) super.argument,
@@ -65,10 +56,6 @@ final class SearchMessagesProvider
 
 String _$searchMessagesHash() => r'3685a67acd3ff50d7b8d277611cac603ef321c0e';
 
-/// Provider for searching messages in a conversation
-///
-/// **State**: AsyncValue<List<Message>>
-
 final class SearchMessagesFamily extends $Family
     with
         $ClassFamilyOverride<
@@ -87,20 +74,12 @@ final class SearchMessagesFamily extends $Family
         isAutoDispose: true,
       );
 
-  /// Provider for searching messages in a conversation
-  ///
-  /// **State**: AsyncValue<List<Message>>
-
   SearchMessagesProvider call(int conversationId, String query) =>
       SearchMessagesProvider._(argument: (conversationId, query), from: this);
 
   @override
   String toString() => r'searchMessagesProvider';
 }
-
-/// Provider for searching messages in a conversation
-///
-/// **State**: AsyncValue<List<Message>>
 
 abstract class _$SearchMessages extends $AsyncNotifier<List<Message>> {
   late final _$args = ref.$arg as (int, String);

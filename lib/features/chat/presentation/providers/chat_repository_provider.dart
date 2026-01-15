@@ -3,11 +3,16 @@ import 'package:chattrix_ui/features/chat/data/repositories/user_status_reposito
 import 'package:chattrix_ui/features/chat/domain/repositories/chat_repository.dart';
 import 'package:chattrix_ui/features/chat/domain/repositories/user_status_repository.dart';
 import 'package:chattrix_ui/features/chat/presentation/providers/chat_datasource_provider.dart';
+import 'package:chattrix_ui/features/chat/presentation/providers/chat_websocket_provider_new.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 final chatRepositoryProvider = Provider<ChatRepository>((ref) {
   final remoteDatasource = ref.watch(chatRemoteDatasourceProvider);
-  return ChatRepositoryImpl(remoteDatasource: remoteDatasource);
+  final webSocketDatasource = ref.watch(chatWebSocketDataSourceProvider);
+  return ChatRepositoryImpl(
+    remoteDatasource: remoteDatasource,
+    webSocketDatasource: webSocketDatasource,
+  );
 });
 
 final userStatusRepositoryProvider = Provider<UserStatusRepository>((ref) {

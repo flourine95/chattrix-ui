@@ -16,13 +16,31 @@ class PollRepositoryImpl extends BaseRepository implements PollRepository {
   @override
   Future<Either<Failure, PollEntity>> createPoll({required CreatePollParams params}) async {
     return executeApiCall(() async {
-      final response = await _apiService.createPoll(conversationId: params.conversationId, request: params.toDto());
+      final response = await _apiService.createPoll(
+        conversationId: params.conversationId,
+        request: params.toDto(),
+      );
 
       if (response.success && response.data != null) {
-        return response.data!.toEntity();
+        final message = response.data!.toEntity();
+        
+        // Extract poll data from message metadata
+        if (message.pollData != null) {
+          return message.pollData!;
+        }
+
+        throw ApiException(
+          message: 'Poll data not found in message metadata',
+          code: 'INVALID_RESPONSE',
+          statusCode: 500,
+        );
       }
 
-      throw ApiException(message: response.message, code: 'CREATE_POLL_FAILED', statusCode: 500);
+      throw ApiException(
+        message: response.message,
+        code: 'CREATE_POLL_FAILED',
+        statusCode: 500,
+      );
     });
   }
 
@@ -35,42 +53,78 @@ class PollRepositoryImpl extends BaseRepository implements PollRepository {
     return executeApiCall(() async {
       final response = await _apiService.votePoll(
         conversationId: conversationId,
-        pollId: pollId,
+        messageId: pollId, // pollId is now messageId
         request: optionIds.toDto(),
       );
 
       if (response.success && response.data != null) {
-        return response.data!.toEntity();
+        final message = response.data!.toEntity();
+        
+        // Extract poll data from message metadata
+        if (message.pollData != null) {
+          return message.pollData!;
+        }
+
+        throw ApiException(
+          message: 'Poll data not found in message metadata',
+          code: 'INVALID_RESPONSE',
+          statusCode: 500,
+        );
       }
 
-      throw ApiException(message: response.message, code: 'VOTE_FAILED', statusCode: 500);
+      throw ApiException(
+        message: response.message,
+        code: 'VOTE_FAILED',
+        statusCode: 500,
+      );
     });
   }
 
   @override
-  Future<Either<Failure, PollEntity>> removeVote({required int conversationId, required int pollId}) async {
+  Future<Either<Failure, PollEntity>> removeVote({
+    required int conversationId,
+    required int pollId,
+  }) async {
     return executeApiCall(() async {
-      final response = await _apiService.removeVote(conversationId: conversationId, pollId: pollId);
+      final response = await _apiService.removeVote(
+        conversationId: conversationId,
+        messageId: pollId, // pollId is now messageId
+      );
 
       if (response.success && response.data != null) {
-        return response.data!.toEntity();
+        final message = response.data!.toEntity();
+        
+        // Extract poll data from message metadata
+        if (message.pollData != null) {
+          return message.pollData!;
+        }
+
+        throw ApiException(
+          message: 'Poll data not found in message metadata',
+          code: 'INVALID_RESPONSE',
+          statusCode: 500,
+        );
       }
 
-      throw ApiException(message: response.message, code: 'REMOVE_VOTE_FAILED', statusCode: 500);
+      throw ApiException(
+        message: response.message,
+        code: 'REMOVE_VOTE_FAILED',
+        statusCode: 500,
+      );
     });
   }
 
   @override
-  Future<Either<Failure, PollEntity>> getPollById({required int conversationId, required int pollId}) async {
-    return executeApiCall(() async {
-      final response = await _apiService.getPollById(conversationId: conversationId, pollId: pollId);
-
-      if (response.success && response.data != null) {
-        return response.data!.toEntity();
-      }
-
-      throw ApiException(message: response.message, code: 'GET_POLL_FAILED', statusCode: 500);
-    });
+  Future<Either<Failure, PollEntity>> getPollById({
+    required int conversationId,
+    required int pollId,
+  }) async {
+    // This method is no longer supported in new API
+    // Polls are fetched as part of messages
+    return left(ServerFailure(
+      message: 'getPollById is deprecated. Use getMessages with type=POLL filter',
+      code: 'DEPRECATED',
+    ));
   }
 
   @override
@@ -79,40 +133,36 @@ class PollRepositoryImpl extends BaseRepository implements PollRepository {
     int page = 0,
     int size = 20,
   }) async {
-    return executeApiCall(() async {
-      final response = await _apiService.getConversationPolls(conversationId: conversationId, page: page, size: size);
-
-      if (response.success && response.data != null) {
-        return response.data!.map((dto) => dto.toEntity()).toList();
-      }
-
-      throw ApiException(message: response.message, code: 'GET_POLLS_FAILED', statusCode: 500);
-    });
+    // This method is no longer supported in new API
+    // Polls are fetched as part of messages
+    return left(ServerFailure(
+      message: 'getConversationPolls is deprecated. Use getMessages with type=POLL filter',
+      code: 'DEPRECATED',
+    ));
   }
 
   @override
-  Future<Either<Failure, PollEntity>> closePoll({required int conversationId, required int pollId}) async {
-    return executeApiCall(() async {
-      final response = await _apiService.closePoll(conversationId: conversationId, pollId: pollId);
-
-      if (response.success && response.data != null) {
-        return response.data!.toEntity();
-      }
-
-      throw ApiException(message: response.message, code: 'CLOSE_POLL_FAILED', statusCode: 500);
-    });
+  Future<Either<Failure, PollEntity>> closePoll({
+    required int conversationId,
+    required int pollId,
+  }) async {
+    // This method is no longer supported in new API
+    return left(ServerFailure(
+      message: 'closePoll is not supported in new API',
+      code: 'NOT_SUPPORTED',
+    ));
   }
 
   @override
-  Future<Either<Failure, String>> deletePoll({required int conversationId, required int pollId}) async {
-    return executeApiCall(() async {
-      final response = await _apiService.deletePoll(conversationId: conversationId, pollId: pollId);
-
-      if (response.success && response.data != null) {
-        return response.data!;
-      }
-
-      throw ApiException(message: response.message, code: 'DELETE_POLL_FAILED', statusCode: 500);
-    });
+  Future<Either<Failure, String>> deletePoll({
+    required int conversationId,
+    required int pollId,
+  }) async {
+    // This method is no longer supported in new API
+    // Delete message instead
+    return left(ServerFailure(
+      message: 'deletePoll is deprecated. Use deleteMessage instead',
+      code: 'DEPRECATED',
+    ));
   }
 }

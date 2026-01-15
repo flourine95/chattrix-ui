@@ -18,7 +18,7 @@ class SystemMessageFormatter {
     } catch (e) {
       debugPrint('⚠️ Failed to parse system message JSON: $e');
     }
-    debugPrint('jsonData: $jsonData');
+    // debugPrint('jsonData: $jsonData'); // ← Removed spam log
     switch (type.toUpperCase()) {
       case 'USER_JOINED':
         final userName = jsonData?['userName'] ?? actorName ?? 'Someone';

@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import '../../domain/entities/create_poll_params.dart';
 import '../providers/create_poll_provider.dart';
 import '../widgets/date_time_picker_bottom_sheet.dart';
+import '../../../chat/presentation/providers/poll_providers.dart';
 
 /// Full screen page for creating a poll
 class CreatePollPage extends HookConsumerWidget {
@@ -105,6 +106,9 @@ class CreatePollPage extends HookConsumerWidget {
         await notifier.execute(params: params);
 
         if (!context.mounted) return;
+
+        // Invalidate polls list to refresh
+        ref.invalidate(pollsListProvider(conversationId));
 
         // Success - navigate back
         ScaffoldMessenger.of(context).showSnackBar(

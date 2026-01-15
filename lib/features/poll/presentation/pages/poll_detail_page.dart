@@ -9,14 +9,24 @@ import '../../../auth/domain/entities/user.dart';
 class PollDetailPage extends HookConsumerWidget {
   final int conversationId;
   final int pollId;
+  final PollEntity? initialPoll; // Cache from list
 
-  const PollDetailPage({super.key, required this.conversationId, required this.pollId});
+  const PollDetailPage({
+    super.key,
+    required this.conversationId,
+    required this.pollId,
+    this.initialPoll,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
-    final asyncState = ref.watch(pollDetailProvider(conversationId, pollId));
+    
+    // Use cache if available, otherwise fetch from API
+    final asyncState = initialPoll != null
+        ? AsyncValue.data(initialPoll!)
+        : ref.watch(pollDetailProvider(conversationId, pollId));
 
     return Scaffold(
       backgroundColor: isDark ? Colors.grey.shade900 : Colors.grey.shade50,
@@ -28,7 +38,8 @@ class PollDetailPage extends HookConsumerWidget {
           IconButton(
             icon: const Icon(Icons.refresh_rounded),
             onPressed: () {
-              ref.read(pollDetailProvider(conversationId, pollId).notifier).refresh();
+              // Invalidate to force refetch from API
+              ref.invalidate(pollDetailProvider(conversationId, pollId));
             },
           ),
         ],

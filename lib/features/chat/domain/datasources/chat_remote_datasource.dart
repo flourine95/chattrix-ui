@@ -111,6 +111,24 @@ abstract class ChatRemoteDatasource {
 
   Future<Map<String, dynamic>> searchMedia({required int conversationId, String? type, String? cursor, int limit = 20});
 
+  // Events - List with filters and pagination
+  Future<Map<String, dynamic>> listEvents({
+    required int conversationId,
+    String status = 'all',
+    String? cursor,
+    int limit = 20,
+  });
+
+  Future<dynamic> getEventDetail({required int conversationId, required int messageId});
+
+  Future<Map<String, dynamic>> getEventRsvps({
+    required int conversationId,
+    required int messageId,
+    String? cursor,
+    int limit = 20,
+  });
+
+  // Events - Legacy methods
   Future<List<dynamic>> getEvents({required int conversationId});
 
   Future<dynamic> createEvent({

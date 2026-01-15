@@ -18,7 +18,6 @@ abstract class UserDto with _$UserDto {
     String? dateOfBirth,
     String? location,
     String? profileVisibility,
-    // ❌ REMOVED: online field (now tracked in OnlineStatusCache)
     String? lastSeen,
     required String createdAt,
     String? updatedAt,

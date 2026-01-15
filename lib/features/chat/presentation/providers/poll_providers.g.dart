@@ -366,7 +366,7 @@ final class PollsListProvider
   }
 }
 
-String _$pollsListHash() => r'5423985fda667e20f9b4647f9c78742aa79d7609';
+String _$pollsListHash() => r'2a64bf37925b75d9580bb5f2d8182120d0071475';
 
 final class PollsListFamily extends $Family
     with
@@ -413,3 +413,44 @@ abstract class _$PollsList extends $AsyncNotifier<List<Poll>> {
     element.handleCreate(ref, () => build(_$args));
   }
 }
+
+@ProviderFor(pollApiService)
+final pollApiServiceProvider = PollApiServiceProvider._();
+
+final class PollApiServiceProvider
+    extends $FunctionalProvider<PollApiService, PollApiService, PollApiService>
+    with $Provider<PollApiService> {
+  PollApiServiceProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'pollApiServiceProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$pollApiServiceHash();
+
+  @$internal
+  @override
+  $ProviderElement<PollApiService> $createElement($ProviderPointer pointer) =>
+      $ProviderElement(pointer);
+
+  @override
+  PollApiService create(Ref ref) {
+    return pollApiService(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(PollApiService value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<PollApiService>(value),
+    );
+  }
+}
+
+String _$pollApiServiceHash() => r'570d3049567019ee9b760b4df6df8ea40de1c317';

@@ -104,8 +104,8 @@ class _FilesLinksPageState extends ConsumerState<FilesLinksPage> with SingleTick
         backgroundColor: colors.surface,
         surfaceTintColor: Colors.transparent,
         elevation: 0,
-        shadowColor: Colors.black.withValues(alpha: 0.1),
-        scrolledUnderElevation: 2,
+        shadowColor: Colors.black.withValues(alpha: 0.15),
+        scrolledUnderElevation: 1,
         leading: IconButton(
           icon: Icon(Icons.arrow_back, color: colors.onSurface),
           onPressed: () => context.pop(),

@@ -86,11 +86,18 @@ class EventMessageBubble extends HookConsumerWidget {
                 children: [
                   Icon(Icons.calendar_today, size: 14, color: colors.onSurface.withValues(alpha: 0.6)),
                   const SizedBox(width: 6),
-                  Text(
-                    dateFormat.format(event.startTime),
-                    style: textTheme.bodySmall?.copyWith(color: colors.onSurface.withValues(alpha: 0.8)),
+                  Expanded(
+                    child: Text(
+                      dateFormat.format(event.startTime),
+                      style: textTheme.bodySmall?.copyWith(color: colors.onSurface.withValues(alpha: 0.8)),
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
-                  const SizedBox(width: 12),
+                ],
+              ),
+              const SizedBox(height: 8),
+              Row(
+                children: [
                   Icon(Icons.access_time, size: 14, color: colors.onSurface.withValues(alpha: 0.6)),
                   const SizedBox(width: 6),
                   Expanded(
@@ -213,7 +220,9 @@ class EventMessageBubble extends HookConsumerWidget {
             children: [
               const Icon(Icons.error_outline, color: Colors.white),
               const SizedBox(width: 8),
-              Text('Failed to update RSVP: $e'),
+              Expanded(
+                child: Text('Failed to update RSVP: $e'),
+              ),
             ],
           ),
           backgroundColor: Colors.red.shade900,
@@ -499,7 +508,9 @@ class _EventDetailsBottomSheet extends HookConsumerWidget {
             children: [
               const Icon(Icons.error_outline, color: Colors.white),
               const SizedBox(width: 8),
-              Text('Failed to delete event: $e'),
+              Expanded(
+                child: Text('Failed to delete event: $e'),
+              ),
             ],
           ),
           backgroundColor: Colors.red.shade900,
