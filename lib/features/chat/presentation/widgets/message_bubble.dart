@@ -66,11 +66,6 @@ class MessageBubble extends StatelessWidget {
     // Determine message type and render appropriate bubble
     var messageType = message.type.toUpperCase();
     
-    // Debug log for message type
-    if (messageType == 'LINK') {
-      debugPrint('🔗 [MessageBubble] Rendering LINK message: ${message.id} - ${message.content}');
-    }
-    
     // 🔧 FIX: Backend sometimes returns wrong type for media messages
     // If message has mediaUrl and duration, it's likely an audio/voice message
     if (messageType == 'TEXT' && message.mediaUrl != null && message.duration != null) {

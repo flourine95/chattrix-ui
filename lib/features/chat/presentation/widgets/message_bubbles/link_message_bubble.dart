@@ -8,11 +8,8 @@ import 'package:flutter/material.dart';
 import 'package:html/parser.dart' as html_parser;
 import 'package:url_launcher/url_launcher.dart';
 
-// Global cache for link previews to avoid re-fetching
 final Map<String, Map<String, dynamic>> _previewCache = {};
 
-/// Link message bubble - displays link preview with custom implementation
-/// Shows text + preview card with image and metadata (Messenger style)
 class LinkMessageBubble extends StatefulWidget {
   const LinkMessageBubble({
     super.key,
@@ -65,28 +62,23 @@ class _LinkMessageBubbleState extends State<LinkMessageBubble> {
       final urlMatch = urlRegex.firstMatch(widget.message.content);
       if (urlMatch != null) {
         final extractedUrl = urlMatch.group(0)!;
-        debugPrint('🔗 [LinkBubble] initState for URL: $extractedUrl');
         
         // Check cache first
         if (_previewCache.containsKey(extractedUrl)) {
           final cachedData = _previewCache[extractedUrl];
-          debugPrint('📦 Using cached preview for: $extractedUrl');
           
           // Check if cache contains failure marker
           if (cachedData?['failed'] == true) {
             _previewData = null;
             _isLoading = false;
             _hasFailed = true;
-            debugPrint('❌ Cache shows previous failure for: $extractedUrl');
           } else {
             _previewData = cachedData;
             _isLoading = false;
             _hasFailed = false;
-            debugPrint('✅ Loaded from cache: ${cachedData?['title']}');
           }
         } else {
           // Start loading immediately
-          debugPrint('🔄 Starting fetch for: $extractedUrl');
           _isLoading = true;
           _hasFailed = false;
           
@@ -95,20 +87,16 @@ class _LinkMessageBubbleState extends State<LinkMessageBubble> {
         }
       } else {
         // No URL found, mark as failed
-        debugPrint('❌ No URL found in content: ${widget.message.content}');
         _isLoading = false;
         _hasFailed = true;
       }
     } catch (e) {
-      debugPrint('❌ Error in initState: $e');
       _isLoading = false;
       _hasFailed = true;
     }
   }
 
   Future<void> _fetchPreview(String linkUrl) async {
-    debugPrint('🌐 [LinkBubble] Starting fetch for: $linkUrl');
-    
     // Set loading state if widget is still mounted
     if (mounted) {
       setState(() => _isLoading = true);
@@ -122,8 +110,6 @@ class _LinkMessageBubbleState extends State<LinkMessageBubble> {
           domain.contains('instagram.com') ||
           domain.contains('twitter.com') ||
           domain.contains('x.com')) {
-        debugPrint('⚠️ Skipping preview for $domain (known to block scraping)');
-        
         // Cache the failure BEFORE checking mounted
         _previewCache[linkUrl] = {'failed': true};
         
@@ -135,8 +121,6 @@ class _LinkMessageBubbleState extends State<LinkMessageBubble> {
         }
         return;
       }
-
-      debugPrint('📡 [LinkBubble] Fetching HTML for: $linkUrl');
       final dio = Dio();
       final response = await dio.get(
         linkUrl,
@@ -153,7 +137,6 @@ class _LinkMessageBubbleState extends State<LinkMessageBubble> {
         ),
       );
 
-      debugPrint('✅ [LinkBubble] Got response, parsing HTML...');
       final document = html_parser.parse(response.data);
 
       // Extract Open Graph tags
@@ -174,8 +157,6 @@ class _LinkMessageBubbleState extends State<LinkMessageBubble> {
 
       final domainName = _extractDomain(linkUrl);
 
-      debugPrint('📝 [LinkBubble] Extracted - Title: $title, Image: ${image != null ? "Yes" : "No"}');
-
       // Check if we got valid data (not a login page)
       if (title != null && 
           title.isNotEmpty &&
@@ -194,7 +175,6 @@ class _LinkMessageBubbleState extends State<LinkMessageBubble> {
         // Cache the preview data BEFORE checking mounted
         // This ensures cache persists even if widget is disposed
         _previewCache[linkUrl] = previewData;
-        debugPrint('✅ Preview fetched and cached: $title');
         
         // Update widget state only if still mounted
         if (mounted) {
@@ -203,16 +183,11 @@ class _LinkMessageBubbleState extends State<LinkMessageBubble> {
             _isLoading = false;
             _hasFailed = false;
           });
-          debugPrint('🎨 [LinkBubble] Updated widget state with preview');
-        } else {
-          debugPrint('⚠️ [LinkBubble] Widget disposed, but cache updated');
         }
       } else {
         throw Exception('Invalid preview data (login page detected)');
       }
     } catch (e) {
-      debugPrint('❌ Error fetching preview for $linkUrl: $e');
-      
       // Cache the failure BEFORE checking mounted
       _previewCache[linkUrl] = {'failed': true};
       

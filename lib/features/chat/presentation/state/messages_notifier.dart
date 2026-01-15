@@ -26,29 +26,16 @@ class MessagesNotifier extends _$MessagesNotifier {
     final wsDataSource = ref.watch(chatWebSocketDataSourceProvider) as ChatWebSocketDataSourceImpl;
 
     final messageSubscription = wsDataSource.messageStream.listen((message) {
-      debugPrint('🔴 [MessagesNotifier] MESSAGE RECEIVED FROM STREAM');
-      debugPrint('🔴 [MessagesNotifier] Message ID: ${message.id}');
-      debugPrint('🔴 [MessagesNotifier] Content: ${message.content}');
-      debugPrint('🔴 [MessagesNotifier] ConversationId: ${message.conversationId}');
-      debugPrint('🔴 [MessagesNotifier] Current conversationId: $conversationId');
-      debugPrint('🔴 [MessagesNotifier] Match: ${message.conversationId.toString() == conversationId}');
-      
       if (message.conversationId.toString() == conversationId) {
-        debugPrint('🔴 [MessagesNotifier] ✅ Adding message to state');
         // ✅ Optimistic update: Add message immediately to UI
         state.whenData((messages) {
           // Check if message already exists (avoid duplicates)
           final exists = messages.any((m) => m.id == message.id);
           if (!exists) {
-            debugPrint('🔴 [MessagesNotifier] ➕ Message added (total: ${messages.length + 1})');
             // Add to beginning since messages are sorted DESC
             state = AsyncValue.data([message, ...messages]);
-          } else {
-            debugPrint('🔴 [MessagesNotifier] ⚠️ Message already exists, skipping');
           }
         });
-      } else {
-        debugPrint('🔴 [MessagesNotifier] ❌ Message NOT for this conversation');
       }
     });
 
@@ -67,12 +54,9 @@ class MessagesNotifier extends _$MessagesNotifier {
       final updateConversationId = update['conversationId'] as int;
       
       if (updateConversationId.toString() == conversationId) {
-        debugPrint('🔄 [Messages] Updating message ID: $tempId → $realId');
-        
         state.whenData((messages) {
           final updatedMessages = messages.map((msg) {
             if (msg.id == tempId) {
-              debugPrint('🔄 [Messages] ✅ Found and updated message $tempId → $realId');
               return msg.copyWith(id: realId);
             }
             return msg;
@@ -82,8 +66,6 @@ class MessagesNotifier extends _$MessagesNotifier {
           final wasUpdated = messages.any((m) => m.id == tempId);
           if (wasUpdated) {
             state = AsyncValue.data(updatedMessages);
-          } else {
-            debugPrint('🔄 [Messages] ⚠️ Message with temp ID $tempId not found in state');
           }
         });
       }
@@ -129,7 +111,28 @@ class MessagesNotifier extends _$MessagesNotifier {
   }
 
   Future<void> refresh() async {
-    state = await AsyncValue.guard(() => _fetchMessages(conversationId));
+    final newMessages = await _fetchMessages(conversationId);
+    
+    state.whenData((currentMessages) {
+      // Merge new messages with current messages, avoiding duplicates
+      final messageMap = <int, Message>{};
+      
+      // Add current messages first
+      for (final msg in currentMessages) {
+        messageMap[msg.id] = msg;
+      }
+      
+      // Add/update with new messages
+      for (final msg in newMessages) {
+        messageMap[msg.id] = msg;
+      }
+      
+      // Convert back to list and sort by ID descending
+      final mergedMessages = messageMap.values.toList()
+        ..sort((a, b) => b.id.compareTo(a.id));
+      
+      state = AsyncValue.data(mergedMessages);
+    });
   }
 
   void _handlePollEvent(Map<String, dynamic> event) {
