@@ -19,7 +19,7 @@ dependencies:
   flutter_secure_storage: ^10.0.0-beta.4
   freezed_annotation: ^3.0.0
   json_annotation: ^4.9.0
-  dartz: ^0.10.1
+  fpdart: ^1.2.0
   dio: ^5.9.0
   web_socket_channel: ^3.0.1
   image_picker: ^1.2.1
@@ -45,7 +45,6 @@ dependencies:
   bottom_picker: ^4.1.1
   wechat_assets_picker: ^10.0.0
   flutter_svg: ^2.2.3
-  fpdart: ^1.2.0
   wechat_camera_picker: ^4.4.0
   flutter_link_previewer: ^4.2.0
   flutter_chat_core: ^2.9.0
@@ -66,10 +65,10 @@ dev_dependencies:
 
   flutter_lints: ^6.0.0
   riverpod_generator: ^4.0.0+1
-  build_runner: ^2.7.1
+  build_runner: ^2.10.5
   custom_lint: ^0.8.1
   freezed: ^3.2.3
-  json_serializable: ^6.7.1
+  json_serializable: ^6.11.0
   riverpod_lint: ^3.1.0
 
 flutter:

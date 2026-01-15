@@ -16,14 +16,14 @@ part of 'auth_state_provider.dart';
 /// Manages authentication state with automatic loading/error handling
 
 @ProviderFor(Auth)
-const authProvider = AuthProvider._();
+final authProvider = AuthProvider._();
 
 /// Main auth state notifier using AsyncNotifier
 /// Manages authentication state with automatic loading/error handling
 final class AuthProvider extends $AsyncNotifierProvider<Auth, AuthState> {
   /// Main auth state notifier using AsyncNotifier
   /// Manages authentication state with automatic loading/error handling
-  const AuthProvider._()
+  AuthProvider._()
     : super(
         from: null,
         argument: null,
@@ -52,7 +52,6 @@ abstract class _$Auth extends $AsyncNotifier<AuthState> {
   @$mustCallSuper
   @override
   void runBuild() {
-    final created = build();
     final ref = this.ref as $Ref<AsyncValue<AuthState>, AuthState>;
     final element =
         ref.element
@@ -62,7 +61,7 @@ abstract class _$Auth extends $AsyncNotifier<AuthState> {
               Object?,
               Object?
             >;
-    element.handleValue(ref, created);
+    element.handleCreate(ref, build);
   }
 }
 
@@ -70,7 +69,7 @@ abstract class _$Auth extends $AsyncNotifier<AuthState> {
 /// Get current user (null if not logged in)
 
 @ProviderFor(currentUser)
-const currentUserProvider = CurrentUserProvider._();
+final currentUserProvider = CurrentUserProvider._();
 
 /// Helper providers for common use cases
 /// Get current user (null if not logged in)
@@ -80,7 +79,7 @@ final class CurrentUserProvider
     with $Provider<entities.User?> {
   /// Helper providers for common use cases
   /// Get current user (null if not logged in)
-  const CurrentUserProvider._()
+  CurrentUserProvider._()
     : super(
         from: null,
         argument: null,
@@ -118,7 +117,7 @@ String _$currentUserHash() => r'57119b963d31c0453da05cf27a079825d612a20d';
 /// Check if user is authenticated
 
 @ProviderFor(isAuthenticated)
-const isAuthenticatedProvider = IsAuthenticatedProvider._();
+final isAuthenticatedProvider = IsAuthenticatedProvider._();
 
 /// Check if user is authenticated
 
@@ -126,7 +125,7 @@ final class IsAuthenticatedProvider
     extends $FunctionalProvider<bool, bool, bool>
     with $Provider<bool> {
   /// Check if user is authenticated
-  const IsAuthenticatedProvider._()
+  IsAuthenticatedProvider._()
     : super(
         from: null,
         argument: null,
@@ -164,14 +163,14 @@ String _$isAuthenticatedHash() => r'7cd3204c51efda797bb06ab15b3b86cd098fc7b9';
 /// Check if user is logged in (authenticated + has user data)
 
 @ProviderFor(isLoggedIn)
-const isLoggedInProvider = IsLoggedInProvider._();
+final isLoggedInProvider = IsLoggedInProvider._();
 
 /// Check if user is logged in (authenticated + has user data)
 
 final class IsLoggedInProvider extends $FunctionalProvider<bool, bool, bool>
     with $Provider<bool> {
   /// Check if user is logged in (authenticated + has user data)
-  const IsLoggedInProvider._()
+  IsLoggedInProvider._()
     : super(
         from: null,
         argument: null,

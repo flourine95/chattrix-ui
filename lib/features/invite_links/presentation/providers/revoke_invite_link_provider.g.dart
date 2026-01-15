@@ -14,11 +14,11 @@ part of 'revoke_invite_link_provider.dart';
 // ignore_for_file: type=lint, type=warning
 
 @ProviderFor(RevokeInviteLink)
-const revokeInviteLinkProvider = RevokeInviteLinkProvider._();
+final revokeInviteLinkProvider = RevokeInviteLinkProvider._();
 
 final class RevokeInviteLinkProvider
     extends $AsyncNotifierProvider<RevokeInviteLink, InviteLinkEntity?> {
-  const RevokeInviteLinkProvider._()
+  RevokeInviteLinkProvider._()
     : super(
         from: null,
         argument: null,
@@ -44,7 +44,6 @@ abstract class _$RevokeInviteLink extends $AsyncNotifier<InviteLinkEntity?> {
   @$mustCallSuper
   @override
   void runBuild() {
-    final created = build();
     final ref =
         this.ref as $Ref<AsyncValue<InviteLinkEntity?>, InviteLinkEntity?>;
     final element =
@@ -55,6 +54,6 @@ abstract class _$RevokeInviteLink extends $AsyncNotifier<InviteLinkEntity?> {
               Object?,
               Object?
             >;
-    element.handleValue(ref, created);
+    element.handleCreate(ref, build);
   }
 }

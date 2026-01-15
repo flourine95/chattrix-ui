@@ -15,7 +15,7 @@ part of 'giphy_provider.dart';
 /// Giphy Service Provider
 
 @ProviderFor(giphyService)
-const giphyServiceProvider = GiphyServiceProvider._();
+final giphyServiceProvider = GiphyServiceProvider._();
 
 /// Giphy Service Provider
 
@@ -23,7 +23,7 @@ final class GiphyServiceProvider
     extends $FunctionalProvider<GiphyService, GiphyService, GiphyService>
     with $Provider<GiphyService> {
   /// Giphy Service Provider
-  const GiphyServiceProvider._()
+  GiphyServiceProvider._()
     : super(
         from: null,
         argument: null,
@@ -61,7 +61,7 @@ String _$giphyServiceHash() => r'c38878392d5b1b762e9c2b8d00897dd29a0c62a0';
 /// Trending Stickers Provider
 
 @ProviderFor(trendingStickers)
-const trendingStickersProvider = TrendingStickersProvider._();
+final trendingStickersProvider = TrendingStickersProvider._();
 
 /// Trending Stickers Provider
 
@@ -76,7 +76,7 @@ final class TrendingStickersProvider
         $FutureModifier<List<GiphySticker>>,
         $FutureProvider<List<GiphySticker>> {
   /// Trending Stickers Provider
-  const TrendingStickersProvider._()
+  TrendingStickersProvider._()
     : super(
         from: null,
         argument: null,
@@ -107,7 +107,7 @@ String _$trendingStickersHash() => r'7d13d186002043e56754cdf4e500cf823a7fc581';
 /// Search Stickers Provider
 
 @ProviderFor(searchStickers)
-const searchStickersProvider = SearchStickersFamily._();
+final searchStickersProvider = SearchStickersFamily._();
 
 /// Search Stickers Provider
 
@@ -122,7 +122,7 @@ final class SearchStickersProvider
         $FutureModifier<List<GiphySticker>>,
         $FutureProvider<List<GiphySticker>> {
   /// Search Stickers Provider
-  const SearchStickersProvider._({
+  SearchStickersProvider._({
     required SearchStickersFamily super.from,
     required String super.argument,
   }) : super(
@@ -172,7 +172,7 @@ String _$searchStickersHash() => r'eb25f4d07bdad91a4f3dae12df350eb48f131947';
 
 final class SearchStickersFamily extends $Family
     with $FunctionalFamilyOverride<FutureOr<List<GiphySticker>>, String> {
-  const SearchStickersFamily._()
+  SearchStickersFamily._()
     : super(
         retry: null,
         name: r'searchStickersProvider',
@@ -193,7 +193,7 @@ final class SearchStickersFamily extends $Family
 /// Category Stickers Provider
 
 @ProviderFor(categoryStickers)
-const categoryStickersProvider = CategoryStickersFamily._();
+final categoryStickersProvider = CategoryStickersFamily._();
 
 /// Category Stickers Provider
 
@@ -208,7 +208,7 @@ final class CategoryStickersProvider
         $FutureModifier<List<GiphySticker>>,
         $FutureProvider<List<GiphySticker>> {
   /// Category Stickers Provider
-  const CategoryStickersProvider._({
+  CategoryStickersProvider._({
     required CategoryStickersFamily super.from,
     required String super.argument,
   }) : super(
@@ -258,7 +258,7 @@ String _$categoryStickersHash() => r'fc09ef3d9689a657f2bdd967f812a82cc48f323f';
 
 final class CategoryStickersFamily extends $Family
     with $FunctionalFamilyOverride<FutureOr<List<GiphySticker>>, String> {
-  const CategoryStickersFamily._()
+  CategoryStickersFamily._()
     : super(
         retry: null,
         name: r'categoryStickersProvider',

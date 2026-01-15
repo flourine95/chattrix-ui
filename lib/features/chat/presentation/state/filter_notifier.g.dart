@@ -14,11 +14,11 @@ part of 'filter_notifier.dart';
 // ignore_for_file: type=lint, type=warning
 
 @ProviderFor(FilterNotifier)
-const filterProvider = FilterNotifierProvider._();
+final filterProvider = FilterNotifierProvider._();
 
 final class FilterNotifierProvider
     extends $NotifierProvider<FilterNotifier, ConversationFilter> {
-  const FilterNotifierProvider._()
+  FilterNotifierProvider._()
     : super(
         from: null,
         argument: null,
@@ -52,7 +52,6 @@ abstract class _$FilterNotifier extends $Notifier<ConversationFilter> {
   @$mustCallSuper
   @override
   void runBuild() {
-    final created = build();
     final ref = this.ref as $Ref<ConversationFilter, ConversationFilter>;
     final element =
         ref.element
@@ -62,6 +61,6 @@ abstract class _$FilterNotifier extends $Notifier<ConversationFilter> {
               Object?,
               Object?
             >;
-    element.handleValue(ref, created);
+    element.handleCreate(ref, build);
   }
 }

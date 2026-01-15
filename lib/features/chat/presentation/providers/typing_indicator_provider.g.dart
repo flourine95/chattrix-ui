@@ -15,13 +15,13 @@ part of 'typing_indicator_provider.dart';
 /// Provider for typing indicator state in a specific conversation
 
 @ProviderFor(TypingIndicatorNotifier)
-const typingIndicatorProvider = TypingIndicatorNotifierFamily._();
+final typingIndicatorProvider = TypingIndicatorNotifierFamily._();
 
 /// Provider for typing indicator state in a specific conversation
 final class TypingIndicatorNotifierProvider
     extends $NotifierProvider<TypingIndicatorNotifier, TypingIndicator> {
   /// Provider for typing indicator state in a specific conversation
-  const TypingIndicatorNotifierProvider._({
+  TypingIndicatorNotifierProvider._({
     required TypingIndicatorNotifierFamily super.from,
     required String super.argument,
   }) : super(
@@ -80,7 +80,7 @@ final class TypingIndicatorNotifierFamily extends $Family
           TypingIndicator,
           String
         > {
-  const TypingIndicatorNotifierFamily._()
+  TypingIndicatorNotifierFamily._()
     : super(
         retry: null,
         name: r'typingIndicatorProvider',
@@ -108,7 +108,6 @@ abstract class _$TypingIndicatorNotifier extends $Notifier<TypingIndicator> {
   @$mustCallSuper
   @override
   void runBuild() {
-    final created = build(_$args);
     final ref = this.ref as $Ref<TypingIndicator, TypingIndicator>;
     final element =
         ref.element
@@ -118,6 +117,6 @@ abstract class _$TypingIndicatorNotifier extends $Notifier<TypingIndicator> {
               Object?,
               Object?
             >;
-    element.handleValue(ref, created);
+    element.handleCreate(ref, () => build(_$args));
   }
 }

@@ -14,7 +14,7 @@ part of 'events_providers.dart';
 // ignore_for_file: type=lint, type=warning
 
 @ProviderFor(eventsRepository)
-const eventsRepositoryProvider = EventsRepositoryProvider._();
+final eventsRepositoryProvider = EventsRepositoryProvider._();
 
 final class EventsRepositoryProvider
     extends
@@ -24,7 +24,7 @@ final class EventsRepositoryProvider
           EventsRepository
         >
     with $Provider<EventsRepository> {
-  const EventsRepositoryProvider._()
+  EventsRepositoryProvider._()
     : super(
         from: null,
         argument: null,
@@ -60,11 +60,11 @@ final class EventsRepositoryProvider
 String _$eventsRepositoryHash() => r'5b0ac7421c6ece34ebc04822741c11a0881a0362';
 
 @ProviderFor(EventsList)
-const eventsListProvider = EventsListFamily._();
+final eventsListProvider = EventsListFamily._();
 
 final class EventsListProvider
     extends $AsyncNotifierProvider<EventsList, List<EventEntity>> {
-  const EventsListProvider._({
+  EventsListProvider._({
     required EventsListFamily super.from,
     required String super.argument,
   }) : super(
@@ -111,7 +111,7 @@ final class EventsListFamily extends $Family
           FutureOr<List<EventEntity>>,
           String
         > {
-  const EventsListFamily._()
+  EventsListFamily._()
     : super(
         retry: null,
         name: r'eventsListProvider',
@@ -135,7 +135,6 @@ abstract class _$EventsList extends $AsyncNotifier<List<EventEntity>> {
   @$mustCallSuper
   @override
   void runBuild() {
-    final created = build(_$args);
     final ref =
         this.ref as $Ref<AsyncValue<List<EventEntity>>, List<EventEntity>>;
     final element =
@@ -146,6 +145,6 @@ abstract class _$EventsList extends $AsyncNotifier<List<EventEntity>> {
               Object?,
               Object?
             >;
-    element.handleValue(ref, created);
+    element.handleCreate(ref, () => build(_$args));
   }
 }

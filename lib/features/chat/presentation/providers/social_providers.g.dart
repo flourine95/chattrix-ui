@@ -14,7 +14,7 @@ part of 'social_providers.dart';
 // ignore_for_file: type=lint, type=warning
 
 @ProviderFor(socialDatasource)
-const socialDatasourceProvider = SocialDatasourceProvider._();
+final socialDatasourceProvider = SocialDatasourceProvider._();
 
 final class SocialDatasourceProvider
     extends
@@ -24,7 +24,7 @@ final class SocialDatasourceProvider
           SocialDatasource
         >
     with $Provider<SocialDatasource> {
-  const SocialDatasourceProvider._()
+  SocialDatasourceProvider._()
     : super(
         from: null,
         argument: null,
@@ -60,7 +60,7 @@ final class SocialDatasourceProvider
 String _$socialDatasourceHash() => r'9bfd32af5d1c50b8454451238358d6a5cf98fec7';
 
 @ProviderFor(socialRepository)
-const socialRepositoryProvider = SocialRepositoryProvider._();
+final socialRepositoryProvider = SocialRepositoryProvider._();
 
 final class SocialRepositoryProvider
     extends
@@ -70,7 +70,7 @@ final class SocialRepositoryProvider
           SocialRepository
         >
     with $Provider<SocialRepository> {
-  const SocialRepositoryProvider._()
+  SocialRepositoryProvider._()
     : super(
         from: null,
         argument: null,
@@ -106,7 +106,7 @@ final class SocialRepositoryProvider
 String _$socialRepositoryHash() => r'165a03b89aaffe72d28302a3f4460cef7dfba587';
 
 @ProviderFor(getBirthdaysTodayUseCase)
-const getBirthdaysTodayUseCaseProvider = GetBirthdaysTodayUseCaseProvider._();
+final getBirthdaysTodayUseCaseProvider = GetBirthdaysTodayUseCaseProvider._();
 
 final class GetBirthdaysTodayUseCaseProvider
     extends
@@ -116,7 +116,7 @@ final class GetBirthdaysTodayUseCaseProvider
           GetBirthdaysTodayUseCase
         >
     with $Provider<GetBirthdaysTodayUseCase> {
-  const GetBirthdaysTodayUseCaseProvider._()
+  GetBirthdaysTodayUseCaseProvider._()
     : super(
         from: null,
         argument: null,
@@ -154,7 +154,7 @@ String _$getBirthdaysTodayUseCaseHash() =>
     r'99c9f355c2ac8725c8be68e283bcb1dcd169d4a8';
 
 @ProviderFor(sendBirthdayWishesUseCase)
-const sendBirthdayWishesUseCaseProvider = SendBirthdayWishesUseCaseProvider._();
+final sendBirthdayWishesUseCaseProvider = SendBirthdayWishesUseCaseProvider._();
 
 final class SendBirthdayWishesUseCaseProvider
     extends
@@ -164,7 +164,7 @@ final class SendBirthdayWishesUseCaseProvider
           SendBirthdayWishesUseCase
         >
     with $Provider<SendBirthdayWishesUseCase> {
-  const SendBirthdayWishesUseCaseProvider._()
+  SendBirthdayWishesUseCaseProvider._()
     : super(
         from: null,
         argument: null,
@@ -202,7 +202,7 @@ String _$sendBirthdayWishesUseCaseHash() =>
     r'96f4e2cd28b6c4200876f87f2a7972303becf032';
 
 @ProviderFor(createAnnouncementUseCase)
-const createAnnouncementUseCaseProvider = CreateAnnouncementUseCaseProvider._();
+final createAnnouncementUseCaseProvider = CreateAnnouncementUseCaseProvider._();
 
 final class CreateAnnouncementUseCaseProvider
     extends
@@ -212,7 +212,7 @@ final class CreateAnnouncementUseCaseProvider
           CreateAnnouncementUseCase
         >
     with $Provider<CreateAnnouncementUseCase> {
-  const CreateAnnouncementUseCaseProvider._()
+  CreateAnnouncementUseCaseProvider._()
     : super(
         from: null,
         argument: null,
@@ -250,7 +250,7 @@ String _$createAnnouncementUseCaseHash() =>
     r'ce206e67f6556d2ffdadd68fce29ca1801a15459';
 
 @ProviderFor(getMutualGroupsUseCase)
-const getMutualGroupsUseCaseProvider = GetMutualGroupsUseCaseProvider._();
+final getMutualGroupsUseCaseProvider = GetMutualGroupsUseCaseProvider._();
 
 final class GetMutualGroupsUseCaseProvider
     extends
@@ -260,7 +260,7 @@ final class GetMutualGroupsUseCaseProvider
           GetMutualGroupsUseCase
         >
     with $Provider<GetMutualGroupsUseCase> {
-  const GetMutualGroupsUseCaseProvider._()
+  GetMutualGroupsUseCaseProvider._()
     : super(
         from: null,
         argument: null,
@@ -300,7 +300,7 @@ String _$getMutualGroupsUseCaseHash() =>
 /// Provider for fetching mutual groups with a specific user
 
 @ProviderFor(mutualGroups)
-const mutualGroupsProvider = MutualGroupsFamily._();
+final mutualGroupsProvider = MutualGroupsFamily._();
 
 /// Provider for fetching mutual groups with a specific user
 
@@ -315,7 +315,7 @@ final class MutualGroupsProvider
         $FutureModifier<List<MutualGroup>>,
         $FutureProvider<List<MutualGroup>> {
   /// Provider for fetching mutual groups with a specific user
-  const MutualGroupsProvider._({
+  MutualGroupsProvider._({
     required MutualGroupsFamily super.from,
     required int super.argument,
   }) : super(
@@ -365,7 +365,7 @@ String _$mutualGroupsHash() => r'dd386b55ed65523221d692b179f1942fe2dbb69d';
 
 final class MutualGroupsFamily extends $Family
     with $FunctionalFamilyOverride<FutureOr<List<MutualGroup>>, int> {
-  const MutualGroupsFamily._()
+  MutualGroupsFamily._()
     : super(
         retry: null,
         name: r'mutualGroupsProvider',
@@ -386,7 +386,7 @@ final class MutualGroupsFamily extends $Family
 /// Provider for fetching today's birthdays
 
 @ProviderFor(birthdaysToday)
-const birthdaysTodayProvider = BirthdaysTodayProvider._();
+final birthdaysTodayProvider = BirthdaysTodayProvider._();
 
 /// Provider for fetching today's birthdays
 
@@ -399,7 +399,7 @@ final class BirthdaysTodayProvider
         >
     with $FutureModifier<List<Birthday>>, $FutureProvider<List<Birthday>> {
   /// Provider for fetching today's birthdays
-  const BirthdaysTodayProvider._()
+  BirthdaysTodayProvider._()
     : super(
         from: null,
         argument: null,
@@ -430,13 +430,13 @@ String _$birthdaysTodayHash() => r'13b90f9ba96ec787ff506ed3664254fe0489a91b';
 /// Notifier for sending birthday wishes
 
 @ProviderFor(SendBirthdayWishesNotifier)
-const sendBirthdayWishesProvider = SendBirthdayWishesNotifierProvider._();
+final sendBirthdayWishesProvider = SendBirthdayWishesNotifierProvider._();
 
 /// Notifier for sending birthday wishes
 final class SendBirthdayWishesNotifierProvider
     extends $AsyncNotifierProvider<SendBirthdayWishesNotifier, void> {
   /// Notifier for sending birthday wishes
-  const SendBirthdayWishesNotifierProvider._()
+  SendBirthdayWishesNotifierProvider._()
     : super(
         from: null,
         argument: null,
@@ -465,7 +465,6 @@ abstract class _$SendBirthdayWishesNotifier extends $AsyncNotifier<void> {
   @$mustCallSuper
   @override
   void runBuild() {
-    build();
     final ref = this.ref as $Ref<AsyncValue<void>, void>;
     final element =
         ref.element
@@ -475,6 +474,6 @@ abstract class _$SendBirthdayWishesNotifier extends $AsyncNotifier<void> {
               Object?,
               Object?
             >;
-    element.handleValue(ref, null);
+    element.handleCreate(ref, build);
   }
 }

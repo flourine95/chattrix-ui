@@ -14,7 +14,7 @@ part of 'voice_recorder_provider.dart';
 // ignore_for_file: type=lint, type=warning
 
 @ProviderFor(voiceRecorderService)
-const voiceRecorderServiceProvider = VoiceRecorderServiceProvider._();
+final voiceRecorderServiceProvider = VoiceRecorderServiceProvider._();
 
 final class VoiceRecorderServiceProvider
     extends
@@ -24,7 +24,7 @@ final class VoiceRecorderServiceProvider
           VoiceRecorderService
         >
     with $Provider<VoiceRecorderService> {
-  const VoiceRecorderServiceProvider._()
+  VoiceRecorderServiceProvider._()
     : super(
         from: null,
         argument: null,

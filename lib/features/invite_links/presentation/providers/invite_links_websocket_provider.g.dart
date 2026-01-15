@@ -14,12 +14,12 @@ part of 'invite_links_websocket_provider.dart';
 // ignore_for_file: type=lint, type=warning
 
 @ProviderFor(InviteLinksWebSocketListener)
-const inviteLinksWebSocketListenerProvider =
+final inviteLinksWebSocketListenerProvider =
     InviteLinksWebSocketListenerProvider._();
 
 final class InviteLinksWebSocketListenerProvider
     extends $NotifierProvider<InviteLinksWebSocketListener, bool> {
-  const InviteLinksWebSocketListenerProvider._()
+  InviteLinksWebSocketListenerProvider._()
     : super(
         from: null,
         argument: null,
@@ -54,7 +54,6 @@ abstract class _$InviteLinksWebSocketListener extends $Notifier<bool> {
   @$mustCallSuper
   @override
   void runBuild() {
-    final created = build();
     final ref = this.ref as $Ref<bool, bool>;
     final element =
         ref.element
@@ -64,6 +63,6 @@ abstract class _$InviteLinksWebSocketListener extends $Notifier<bool> {
               Object?,
               Object?
             >;
-    element.handleValue(ref, created);
+    element.handleCreate(ref, build);
   }
 }

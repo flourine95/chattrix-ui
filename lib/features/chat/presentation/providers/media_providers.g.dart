@@ -18,7 +18,7 @@ part of 'media_providers.dart';
 /// Supports date filtering: startDate, endDate
 
 @ProviderFor(conversationMedia)
-const conversationMediaProvider = ConversationMediaFamily._();
+final conversationMediaProvider = ConversationMediaFamily._();
 
 /// Provider to fetch media from a conversation
 ///
@@ -37,7 +37,7 @@ final class ConversationMediaProvider
   ///
   /// Supports multiple media types: IMAGE, VIDEO, FILE, AUDIO, VOICE, LINK
   /// Supports date filtering: startDate, endDate
-  const ConversationMediaProvider._({
+  ConversationMediaProvider._({
     required ConversationMediaFamily super.from,
     required (
       int, {
@@ -122,7 +122,7 @@ final class ConversationMediaFamily extends $Family
             DateTime? endDate,
           })
         > {
-  const ConversationMediaFamily._()
+  ConversationMediaFamily._()
     : super(
         retry: null,
         name: r'conversationMediaProvider',

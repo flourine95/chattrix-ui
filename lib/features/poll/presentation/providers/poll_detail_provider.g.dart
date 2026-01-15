@@ -14,11 +14,11 @@ part of 'poll_detail_provider.dart';
 // ignore_for_file: type=lint, type=warning
 
 @ProviderFor(PollDetail)
-const pollDetailProvider = PollDetailFamily._();
+final pollDetailProvider = PollDetailFamily._();
 
 final class PollDetailProvider
     extends $AsyncNotifierProvider<PollDetail, PollEntity> {
-  const PollDetailProvider._({
+  PollDetailProvider._({
     required PollDetailFamily super.from,
     required (int, int) super.argument,
   }) : super(
@@ -65,7 +65,7 @@ final class PollDetailFamily extends $Family
           FutureOr<PollEntity>,
           (int, int)
         > {
-  const PollDetailFamily._()
+  PollDetailFamily._()
     : super(
         retry: null,
         name: r'pollDetailProvider',
@@ -90,7 +90,6 @@ abstract class _$PollDetail extends $AsyncNotifier<PollEntity> {
   @$mustCallSuper
   @override
   void runBuild() {
-    final created = build(_$args.$1, _$args.$2);
     final ref = this.ref as $Ref<AsyncValue<PollEntity>, PollEntity>;
     final element =
         ref.element
@@ -100,6 +99,6 @@ abstract class _$PollDetail extends $AsyncNotifier<PollEntity> {
               Object?,
               Object?
             >;
-    element.handleValue(ref, created);
+    element.handleCreate(ref, () => build(_$args.$1, _$args.$2));
   }
 }

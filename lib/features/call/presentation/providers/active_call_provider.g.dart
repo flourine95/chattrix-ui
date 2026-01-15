@@ -20,7 +20,7 @@ part of 'active_call_provider.dart';
 /// ```
 
 @ProviderFor(activeCall)
-const activeCallProvider = ActiveCallFamily._();
+final activeCallProvider = ActiveCallFamily._();
 
 /// Provider to check if there's an active call in a conversation
 ///
@@ -43,7 +43,7 @@ final class ActiveCallProvider
   /// ```dart
   /// final activeCall = ref.watch(activeCallProvider(conversationId));
   /// ```
-  const ActiveCallProvider._({
+  ActiveCallProvider._({
     required ActiveCallFamily super.from,
     required int super.argument,
   }) : super(
@@ -97,7 +97,7 @@ String _$activeCallHash() => r'e023151f0c03c1b471b9cf87e1bd9d5dbce6c2c8';
 
 final class ActiveCallFamily extends $Family
     with $FunctionalFamilyOverride<FutureOr<CallInfo?>, int> {
-  const ActiveCallFamily._()
+  ActiveCallFamily._()
     : super(
         retry: null,
         name: r'activeCallProvider',

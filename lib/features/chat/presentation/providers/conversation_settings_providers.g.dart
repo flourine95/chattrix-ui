@@ -14,7 +14,7 @@ part of 'conversation_settings_providers.dart';
 // ignore_for_file: type=lint, type=warning
 
 @ProviderFor(conversationSettingsDatasource)
-const conversationSettingsDatasourceProvider =
+final conversationSettingsDatasourceProvider =
     ConversationSettingsDatasourceProvider._();
 
 final class ConversationSettingsDatasourceProvider
@@ -25,7 +25,7 @@ final class ConversationSettingsDatasourceProvider
           ConversationSettingsDatasource
         >
     with $Provider<ConversationSettingsDatasource> {
-  const ConversationSettingsDatasourceProvider._()
+  ConversationSettingsDatasourceProvider._()
     : super(
         from: null,
         argument: null,
@@ -65,7 +65,7 @@ String _$conversationSettingsDatasourceHash() =>
     r'3e93912580abcf286b679ebc121e7942afc55279';
 
 @ProviderFor(conversationSettingsRepository)
-const conversationSettingsRepositoryProvider =
+final conversationSettingsRepositoryProvider =
     ConversationSettingsRepositoryProvider._();
 
 final class ConversationSettingsRepositoryProvider
@@ -76,7 +76,7 @@ final class ConversationSettingsRepositoryProvider
           ConversationSettingsRepository
         >
     with $Provider<ConversationSettingsRepository> {
-  const ConversationSettingsRepositoryProvider._()
+  ConversationSettingsRepositoryProvider._()
     : super(
         from: null,
         argument: null,
@@ -116,7 +116,7 @@ String _$conversationSettingsRepositoryHash() =>
     r'f7acc88a9952f6ef49940af9ac8ce78c72fb8570';
 
 @ProviderFor(getConversationSettingsUseCase)
-const getConversationSettingsUseCaseProvider =
+final getConversationSettingsUseCaseProvider =
     GetConversationSettingsUseCaseProvider._();
 
 final class GetConversationSettingsUseCaseProvider
@@ -127,7 +127,7 @@ final class GetConversationSettingsUseCaseProvider
           GetConversationSettingsUseCase
         >
     with $Provider<GetConversationSettingsUseCase> {
-  const GetConversationSettingsUseCaseProvider._()
+  GetConversationSettingsUseCaseProvider._()
     : super(
         from: null,
         argument: null,
@@ -167,7 +167,7 @@ String _$getConversationSettingsUseCaseHash() =>
     r'c42b62d8d72741214e58453e4a46da277499c5fa';
 
 @ProviderFor(updateConversationSettingsUseCase)
-const updateConversationSettingsUseCaseProvider =
+final updateConversationSettingsUseCaseProvider =
     UpdateConversationSettingsUseCaseProvider._();
 
 final class UpdateConversationSettingsUseCaseProvider
@@ -178,7 +178,7 @@ final class UpdateConversationSettingsUseCaseProvider
           UpdateConversationSettingsUseCase
         >
     with $Provider<UpdateConversationSettingsUseCase> {
-  const UpdateConversationSettingsUseCaseProvider._()
+  UpdateConversationSettingsUseCaseProvider._()
     : super(
         from: null,
         argument: null,
@@ -219,7 +219,7 @@ String _$updateConversationSettingsUseCaseHash() =>
     r'e5d7a785cce6734121029fd28be7fb43b8ccb5ef';
 
 @ProviderFor(muteConversationUseCase)
-const muteConversationUseCaseProvider = MuteConversationUseCaseProvider._();
+final muteConversationUseCaseProvider = MuteConversationUseCaseProvider._();
 
 final class MuteConversationUseCaseProvider
     extends
@@ -229,7 +229,7 @@ final class MuteConversationUseCaseProvider
           MuteConversationUseCase
         >
     with $Provider<MuteConversationUseCase> {
-  const MuteConversationUseCaseProvider._()
+  MuteConversationUseCaseProvider._()
     : super(
         from: null,
         argument: null,
@@ -267,7 +267,7 @@ String _$muteConversationUseCaseHash() =>
     r'5e02210341437ec2027eed543686e697f33540a3';
 
 @ProviderFor(unmuteConversationUseCase)
-const unmuteConversationUseCaseProvider = UnmuteConversationUseCaseProvider._();
+final unmuteConversationUseCaseProvider = UnmuteConversationUseCaseProvider._();
 
 final class UnmuteConversationUseCaseProvider
     extends
@@ -277,7 +277,7 @@ final class UnmuteConversationUseCaseProvider
           UnmuteConversationUseCase
         >
     with $Provider<UnmuteConversationUseCase> {
-  const UnmuteConversationUseCaseProvider._()
+  UnmuteConversationUseCaseProvider._()
     : super(
         from: null,
         argument: null,
@@ -315,7 +315,7 @@ String _$unmuteConversationUseCaseHash() =>
     r'61d8fd4fe7a65ae09393e726246ce64d626b0e9b';
 
 @ProviderFor(updatePermissionsUseCase)
-const updatePermissionsUseCaseProvider = UpdatePermissionsUseCaseProvider._();
+final updatePermissionsUseCaseProvider = UpdatePermissionsUseCaseProvider._();
 
 final class UpdatePermissionsUseCaseProvider
     extends
@@ -325,7 +325,7 @@ final class UpdatePermissionsUseCaseProvider
           UpdatePermissionsUseCase
         >
     with $Provider<UpdatePermissionsUseCase> {
-  const UpdatePermissionsUseCaseProvider._()
+  UpdatePermissionsUseCaseProvider._()
     : super(
         from: null,
         argument: null,

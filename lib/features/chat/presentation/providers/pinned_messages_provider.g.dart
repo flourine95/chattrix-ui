@@ -15,13 +15,13 @@ part of 'pinned_messages_provider.dart';
 /// Provider for pinned messages in a conversation
 
 @ProviderFor(PinnedMessages)
-const pinnedMessagesProvider = PinnedMessagesFamily._();
+final pinnedMessagesProvider = PinnedMessagesFamily._();
 
 /// Provider for pinned messages in a conversation
 final class PinnedMessagesProvider
     extends $AsyncNotifierProvider<PinnedMessages, List<Message>> {
   /// Provider for pinned messages in a conversation
-  const PinnedMessagesProvider._({
+  PinnedMessagesProvider._({
     required PinnedMessagesFamily super.from,
     required String super.argument,
   }) : super(
@@ -70,7 +70,7 @@ final class PinnedMessagesFamily extends $Family
           FutureOr<List<Message>>,
           String
         > {
-  const PinnedMessagesFamily._()
+  PinnedMessagesFamily._()
     : super(
         retry: null,
         name: r'pinnedMessagesProvider',
@@ -98,7 +98,6 @@ abstract class _$PinnedMessages extends $AsyncNotifier<List<Message>> {
   @$mustCallSuper
   @override
   void runBuild() {
-    final created = build(_$args);
     final ref = this.ref as $Ref<AsyncValue<List<Message>>, List<Message>>;
     final element =
         ref.element
@@ -108,6 +107,6 @@ abstract class _$PinnedMessages extends $AsyncNotifier<List<Message>> {
               Object?,
               Object?
             >;
-    element.handleValue(ref, created);
+    element.handleCreate(ref, () => build(_$args));
   }
 }

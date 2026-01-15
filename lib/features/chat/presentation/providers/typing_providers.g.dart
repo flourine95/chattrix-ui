@@ -14,11 +14,11 @@ part of 'typing_providers.dart';
 // ignore_for_file: type=lint, type=warning
 
 @ProviderFor(TypingNotifier)
-const typingProvider = TypingNotifierProvider._();
+final typingProvider = TypingNotifierProvider._();
 
 final class TypingNotifierProvider
     extends $NotifierProvider<TypingNotifier, Map<String, List<TypingUser>>> {
-  const TypingNotifierProvider._()
+  TypingNotifierProvider._()
     : super(
         from: null,
         argument: null,
@@ -55,7 +55,6 @@ abstract class _$TypingNotifier
   @$mustCallSuper
   @override
   void runBuild() {
-    final created = build();
     final ref =
         this.ref
             as $Ref<
@@ -73,14 +72,14 @@ abstract class _$TypingNotifier
               Object?,
               Object?
             >;
-    element.handleValue(ref, created);
+    element.handleCreate(ref, build);
   }
 }
 
 /// Convenience provider to get typing users for a specific conversation
 
 @ProviderFor(conversationTypingUsers)
-const conversationTypingUsersProvider = ConversationTypingUsersFamily._();
+final conversationTypingUsersProvider = ConversationTypingUsersFamily._();
 
 /// Convenience provider to get typing users for a specific conversation
 
@@ -93,7 +92,7 @@ final class ConversationTypingUsersProvider
         >
     with $Provider<List<TypingUser>> {
   /// Convenience provider to get typing users for a specific conversation
-  const ConversationTypingUsersProvider._({
+  ConversationTypingUsersProvider._({
     required ConversationTypingUsersFamily super.from,
     required String super.argument,
   }) : super(
@@ -152,7 +151,7 @@ String _$conversationTypingUsersHash() =>
 
 final class ConversationTypingUsersFamily extends $Family
     with $FunctionalFamilyOverride<List<TypingUser>, String> {
-  const ConversationTypingUsersFamily._()
+  ConversationTypingUsersFamily._()
     : super(
         retry: null,
         name: r'conversationTypingUsersProvider',

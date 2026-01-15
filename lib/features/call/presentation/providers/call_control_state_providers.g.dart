@@ -16,14 +16,14 @@ part of 'call_control_state_providers.dart';
 /// Each provider manages its own state independently to prevent unnecessary rebuilds
 
 @ProviderFor(IsMutedState)
-const isMutedStateProvider = IsMutedStateProvider._();
+final isMutedStateProvider = IsMutedStateProvider._();
 
 /// Separate state providers for call controls
 /// Each provider manages its own state independently to prevent unnecessary rebuilds
 final class IsMutedStateProvider extends $NotifierProvider<IsMutedState, bool> {
   /// Separate state providers for call controls
   /// Each provider manages its own state independently to prevent unnecessary rebuilds
-  const IsMutedStateProvider._()
+  IsMutedStateProvider._()
     : super(
         from: null,
         argument: null,
@@ -60,7 +60,6 @@ abstract class _$IsMutedState extends $Notifier<bool> {
   @$mustCallSuper
   @override
   void runBuild() {
-    final created = build();
     final ref = this.ref as $Ref<bool, bool>;
     final element =
         ref.element
@@ -70,16 +69,16 @@ abstract class _$IsMutedState extends $Notifier<bool> {
               Object?,
               Object?
             >;
-    element.handleValue(ref, created);
+    element.handleCreate(ref, build);
   }
 }
 
 @ProviderFor(IsVideoEnabledState)
-const isVideoEnabledStateProvider = IsVideoEnabledStateProvider._();
+final isVideoEnabledStateProvider = IsVideoEnabledStateProvider._();
 
 final class IsVideoEnabledStateProvider
     extends $NotifierProvider<IsVideoEnabledState, bool> {
-  const IsVideoEnabledStateProvider._()
+  IsVideoEnabledStateProvider._()
     : super(
         from: null,
         argument: null,
@@ -114,7 +113,6 @@ abstract class _$IsVideoEnabledState extends $Notifier<bool> {
   @$mustCallSuper
   @override
   void runBuild() {
-    final created = build();
     final ref = this.ref as $Ref<bool, bool>;
     final element =
         ref.element
@@ -124,16 +122,16 @@ abstract class _$IsVideoEnabledState extends $Notifier<bool> {
               Object?,
               Object?
             >;
-    element.handleValue(ref, created);
+    element.handleCreate(ref, build);
   }
 }
 
 @ProviderFor(IsSpeakerEnabledState)
-const isSpeakerEnabledStateProvider = IsSpeakerEnabledStateProvider._();
+final isSpeakerEnabledStateProvider = IsSpeakerEnabledStateProvider._();
 
 final class IsSpeakerEnabledStateProvider
     extends $NotifierProvider<IsSpeakerEnabledState, bool> {
-  const IsSpeakerEnabledStateProvider._()
+  IsSpeakerEnabledStateProvider._()
     : super(
         from: null,
         argument: null,
@@ -168,7 +166,6 @@ abstract class _$IsSpeakerEnabledState extends $Notifier<bool> {
   @$mustCallSuper
   @override
   void runBuild() {
-    final created = build();
     final ref = this.ref as $Ref<bool, bool>;
     final element =
         ref.element
@@ -178,16 +175,16 @@ abstract class _$IsSpeakerEnabledState extends $Notifier<bool> {
               Object?,
               Object?
             >;
-    element.handleValue(ref, created);
+    element.handleCreate(ref, build);
   }
 }
 
 @ProviderFor(IsFrontCameraState)
-const isFrontCameraStateProvider = IsFrontCameraStateProvider._();
+final isFrontCameraStateProvider = IsFrontCameraStateProvider._();
 
 final class IsFrontCameraStateProvider
     extends $NotifierProvider<IsFrontCameraState, bool> {
-  const IsFrontCameraStateProvider._()
+  IsFrontCameraStateProvider._()
     : super(
         from: null,
         argument: null,
@@ -222,7 +219,6 @@ abstract class _$IsFrontCameraState extends $Notifier<bool> {
   @$mustCallSuper
   @override
   void runBuild() {
-    final created = build();
     final ref = this.ref as $Ref<bool, bool>;
     final element =
         ref.element
@@ -232,16 +228,16 @@ abstract class _$IsFrontCameraState extends $Notifier<bool> {
               Object?,
               Object?
             >;
-    element.handleValue(ref, created);
+    element.handleCreate(ref, build);
   }
 }
 
 @ProviderFor(RemoteIsMutedState)
-const remoteIsMutedStateProvider = RemoteIsMutedStateProvider._();
+final remoteIsMutedStateProvider = RemoteIsMutedStateProvider._();
 
 final class RemoteIsMutedStateProvider
     extends $NotifierProvider<RemoteIsMutedState, bool> {
-  const RemoteIsMutedStateProvider._()
+  RemoteIsMutedStateProvider._()
     : super(
         from: null,
         argument: null,
@@ -276,7 +272,6 @@ abstract class _$RemoteIsMutedState extends $Notifier<bool> {
   @$mustCallSuper
   @override
   void runBuild() {
-    final created = build();
     final ref = this.ref as $Ref<bool, bool>;
     final element =
         ref.element
@@ -286,16 +281,16 @@ abstract class _$RemoteIsMutedState extends $Notifier<bool> {
               Object?,
               Object?
             >;
-    element.handleValue(ref, created);
+    element.handleCreate(ref, build);
   }
 }
 
 @ProviderFor(RemoteIsVideoEnabledState)
-const remoteIsVideoEnabledStateProvider = RemoteIsVideoEnabledStateProvider._();
+final remoteIsVideoEnabledStateProvider = RemoteIsVideoEnabledStateProvider._();
 
 final class RemoteIsVideoEnabledStateProvider
     extends $NotifierProvider<RemoteIsVideoEnabledState, bool> {
-  const RemoteIsVideoEnabledStateProvider._()
+  RemoteIsVideoEnabledStateProvider._()
     : super(
         from: null,
         argument: null,
@@ -330,7 +325,6 @@ abstract class _$RemoteIsVideoEnabledState extends $Notifier<bool> {
   @$mustCallSuper
   @override
   void runBuild() {
-    final created = build();
     final ref = this.ref as $Ref<bool, bool>;
     final element =
         ref.element
@@ -340,16 +334,16 @@ abstract class _$RemoteIsVideoEnabledState extends $Notifier<bool> {
               Object?,
               Object?
             >;
-    element.handleValue(ref, created);
+    element.handleCreate(ref, build);
   }
 }
 
 @ProviderFor(RemoteUidState)
-const remoteUidStateProvider = RemoteUidStateProvider._();
+final remoteUidStateProvider = RemoteUidStateProvider._();
 
 final class RemoteUidStateProvider
     extends $NotifierProvider<RemoteUidState, int?> {
-  const RemoteUidStateProvider._()
+  RemoteUidStateProvider._()
     : super(
         from: null,
         argument: null,
@@ -383,7 +377,6 @@ abstract class _$RemoteUidState extends $Notifier<int?> {
   @$mustCallSuper
   @override
   void runBuild() {
-    final created = build();
     final ref = this.ref as $Ref<int?, int?>;
     final element =
         ref.element
@@ -393,6 +386,6 @@ abstract class _$RemoteUidState extends $Notifier<int?> {
               Object?,
               Object?
             >;
-    element.handleValue(ref, created);
+    element.handleCreate(ref, build);
   }
 }

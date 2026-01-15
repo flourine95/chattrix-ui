@@ -14,11 +14,11 @@ part of 'join_group_provider.dart';
 // ignore_for_file: type=lint, type=warning
 
 @ProviderFor(JoinGroup)
-const joinGroupProvider = JoinGroupProvider._();
+final joinGroupProvider = JoinGroupProvider._();
 
 final class JoinGroupProvider
     extends $AsyncNotifierProvider<JoinGroup, JoinGroupResultEntity?> {
-  const JoinGroupProvider._()
+  JoinGroupProvider._()
     : super(
         from: null,
         argument: null,
@@ -44,7 +44,6 @@ abstract class _$JoinGroup extends $AsyncNotifier<JoinGroupResultEntity?> {
   @$mustCallSuper
   @override
   void runBuild() {
-    final created = build();
     final ref =
         this.ref
             as $Ref<AsyncValue<JoinGroupResultEntity?>, JoinGroupResultEntity?>;
@@ -59,6 +58,6 @@ abstract class _$JoinGroup extends $AsyncNotifier<JoinGroupResultEntity?> {
               Object?,
               Object?
             >;
-    element.handleValue(ref, created);
+    element.handleCreate(ref, build);
   }
 }

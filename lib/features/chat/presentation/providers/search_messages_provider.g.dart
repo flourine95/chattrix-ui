@@ -17,7 +17,7 @@ part of 'search_messages_provider.dart';
 /// **State**: AsyncValue<List<Message>>
 
 @ProviderFor(SearchMessages)
-const searchMessagesProvider = SearchMessagesFamily._();
+final searchMessagesProvider = SearchMessagesFamily._();
 
 /// Provider for searching messages in a conversation
 ///
@@ -27,7 +27,7 @@ final class SearchMessagesProvider
   /// Provider for searching messages in a conversation
   ///
   /// **State**: AsyncValue<List<Message>>
-  const SearchMessagesProvider._({
+  SearchMessagesProvider._({
     required SearchMessagesFamily super.from,
     required (String, String) super.argument,
   }) : super(
@@ -78,7 +78,7 @@ final class SearchMessagesFamily extends $Family
           FutureOr<List<Message>>,
           (String, String)
         > {
-  const SearchMessagesFamily._()
+  SearchMessagesFamily._()
     : super(
         retry: null,
         name: r'searchMessagesProvider',
@@ -111,7 +111,6 @@ abstract class _$SearchMessages extends $AsyncNotifier<List<Message>> {
   @$mustCallSuper
   @override
   void runBuild() {
-    final created = build(_$args.$1, _$args.$2);
     final ref = this.ref as $Ref<AsyncValue<List<Message>>, List<Message>>;
     final element =
         ref.element
@@ -121,6 +120,6 @@ abstract class _$SearchMessages extends $AsyncNotifier<List<Message>> {
               Object?,
               Object?
             >;
-    element.handleValue(ref, created);
+    element.handleCreate(ref, () => build(_$args.$1, _$args.$2));
   }
 }

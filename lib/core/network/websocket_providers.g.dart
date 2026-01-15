@@ -14,13 +14,13 @@ part of 'websocket_providers.dart';
 // ignore_for_file: type=lint, type=warning
 
 @ProviderFor(webSocketClient)
-const webSocketClientProvider = WebSocketClientProvider._();
+final webSocketClientProvider = WebSocketClientProvider._();
 
 final class WebSocketClientProvider
     extends
         $FunctionalProvider<WebSocketClient, WebSocketClient, WebSocketClient>
     with $Provider<WebSocketClient> {
-  const WebSocketClientProvider._()
+  WebSocketClientProvider._()
     : super(
         from: null,
         argument: null,
@@ -56,7 +56,7 @@ final class WebSocketClientProvider
 String _$webSocketClientHash() => r'ec6251da86914721d6ace6cf1245aac3de72ec19';
 
 @ProviderFor(webSocketMessageRouter)
-const webSocketMessageRouterProvider = WebSocketMessageRouterProvider._();
+final webSocketMessageRouterProvider = WebSocketMessageRouterProvider._();
 
 final class WebSocketMessageRouterProvider
     extends
@@ -66,7 +66,7 @@ final class WebSocketMessageRouterProvider
           WebSocketMessageRouter
         >
     with $Provider<WebSocketMessageRouter> {
-  const WebSocketMessageRouterProvider._()
+  WebSocketMessageRouterProvider._()
     : super(
         from: null,
         argument: null,
@@ -104,7 +104,7 @@ String _$webSocketMessageRouterHash() =>
     r'fc596012397fd8a219eaa65b550dcd3b0dac9c08';
 
 @ProviderFor(webSocketConnectionManager)
-const webSocketConnectionManagerProvider =
+final webSocketConnectionManagerProvider =
     WebSocketConnectionManagerProvider._();
 
 final class WebSocketConnectionManagerProvider
@@ -115,7 +115,7 @@ final class WebSocketConnectionManagerProvider
           WebSocketConnectionManager
         >
     with $Provider<WebSocketConnectionManager> {
-  const WebSocketConnectionManagerProvider._()
+  WebSocketConnectionManagerProvider._()
     : super(
         from: null,
         argument: null,
@@ -153,7 +153,7 @@ String _$webSocketConnectionManagerHash() =>
     r'cbe8c454ba135b37cf9e6ce49d0850397fd5d0bc';
 
 @ProviderFor(webSocketService)
-const webSocketServiceProvider = WebSocketServiceProvider._();
+final webSocketServiceProvider = WebSocketServiceProvider._();
 
 final class WebSocketServiceProvider
     extends
@@ -163,7 +163,7 @@ final class WebSocketServiceProvider
           WebSocketService
         >
     with $Provider<WebSocketService> {
-  const WebSocketServiceProvider._()
+  WebSocketServiceProvider._()
     : super(
         from: null,
         argument: null,

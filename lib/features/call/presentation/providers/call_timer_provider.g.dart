@@ -14,10 +14,10 @@ part of 'call_timer_provider.dart';
 // ignore_for_file: type=lint, type=warning
 
 @ProviderFor(CallTimer)
-const callTimerProvider = CallTimerProvider._();
+final callTimerProvider = CallTimerProvider._();
 
 final class CallTimerProvider extends $NotifierProvider<CallTimer, String> {
-  const CallTimerProvider._()
+  CallTimerProvider._()
     : super(
         from: null,
         argument: null,
@@ -51,7 +51,6 @@ abstract class _$CallTimer extends $Notifier<String> {
   @$mustCallSuper
   @override
   void runBuild() {
-    final created = build();
     final ref = this.ref as $Ref<String, String>;
     final element =
         ref.element
@@ -61,6 +60,6 @@ abstract class _$CallTimer extends $Notifier<String> {
               Object?,
               Object?
             >;
-    element.handleValue(ref, created);
+    element.handleCreate(ref, build);
   }
 }

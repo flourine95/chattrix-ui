@@ -17,7 +17,7 @@ part of 'scheduled_messages_notifier.dart';
 /// Manages the state of scheduled messages with filtering by status
 
 @ProviderFor(ScheduledMessagesNotifier)
-const scheduledMessagesProvider = ScheduledMessagesNotifierFamily._();
+final scheduledMessagesProvider = ScheduledMessagesNotifierFamily._();
 
 /// Notifier for scheduled messages list
 ///
@@ -31,7 +31,7 @@ final class ScheduledMessagesNotifierProvider
   /// Notifier for scheduled messages list
   ///
   /// Manages the state of scheduled messages with filtering by status
-  const ScheduledMessagesNotifierProvider._({
+  ScheduledMessagesNotifierProvider._({
     required ScheduledMessagesNotifierFamily super.from,
     required ({int conversationId, String status}) super.argument,
   }) : super(
@@ -84,7 +84,7 @@ final class ScheduledMessagesNotifierFamily extends $Family
           FutureOr<List<ScheduledMessage>>,
           ({int conversationId, String status})
         > {
-  const ScheduledMessagesNotifierFamily._()
+  ScheduledMessagesNotifierFamily._()
     : super(
         retry: null,
         name: r'scheduledMessagesProvider',
@@ -126,10 +126,6 @@ abstract class _$ScheduledMessagesNotifier
   @$mustCallSuper
   @override
   void runBuild() {
-    final created = build(
-      conversationId: _$args.conversationId,
-      status: _$args.status,
-    );
     final ref =
         this.ref
             as $Ref<AsyncValue<List<ScheduledMessage>>, List<ScheduledMessage>>;
@@ -144,6 +140,9 @@ abstract class _$ScheduledMessagesNotifier
               Object?,
               Object?
             >;
-    element.handleValue(ref, created);
+    element.handleCreate(
+      ref,
+      () => build(conversationId: _$args.conversationId, status: _$args.status),
+    );
   }
 }

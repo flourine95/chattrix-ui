@@ -18,7 +18,7 @@ part of 'user_notes_provider.dart';
 /// TODO: Replace with API calls when backend is ready
 
 @ProviderFor(UserNotes)
-const userNotesProvider = UserNotesProvider._();
+final userNotesProvider = UserNotesProvider._();
 
 /// Provider for user notes/stories
 ///
@@ -30,7 +30,7 @@ final class UserNotesProvider
   ///
   /// Uses mock data until API is available
   /// TODO: Replace with API calls when backend is ready
-  const UserNotesProvider._()
+  UserNotesProvider._()
     : super(
         from: null,
         argument: null,
@@ -69,7 +69,6 @@ abstract class _$UserNotes extends $Notifier<Map<String, UserNoteEntity>> {
   @$mustCallSuper
   @override
   void runBuild() {
-    final created = build();
     final ref =
         this.ref
             as $Ref<Map<String, UserNoteEntity>, Map<String, UserNoteEntity>>;
@@ -84,6 +83,6 @@ abstract class _$UserNotes extends $Notifier<Map<String, UserNoteEntity>> {
               Object?,
               Object?
             >;
-    element.handleValue(ref, created);
+    element.handleCreate(ref, build);
   }
 }

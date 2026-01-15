@@ -15,7 +15,7 @@ part of 'media_providers_fallback.dart';
 /// Fallback provider that extracts media from messages if API doesn't work
 
 @ProviderFor(conversationMediaFallback)
-const conversationMediaFallbackProvider = ConversationMediaFallbackFamily._();
+final conversationMediaFallbackProvider = ConversationMediaFallbackFamily._();
 
 /// Fallback provider that extracts media from messages if API doesn't work
 
@@ -28,7 +28,7 @@ final class ConversationMediaFallbackProvider
         >
     with $FutureModifier<List<MediaItem>>, $FutureProvider<List<MediaItem>> {
   /// Fallback provider that extracts media from messages if API doesn't work
-  const ConversationMediaFallbackProvider._({
+  ConversationMediaFallbackProvider._({
     required ConversationMediaFallbackFamily super.from,
     required (int, {int limit}) super.argument,
   }) : super(
@@ -84,7 +84,7 @@ final class ConversationMediaFallbackFamily extends $Family
           FutureOr<List<MediaItem>>,
           (int, {int limit})
         > {
-  const ConversationMediaFallbackFamily._()
+  ConversationMediaFallbackFamily._()
     : super(
         retry: null,
         name: r'conversationMediaFallbackProvider',

@@ -14,7 +14,7 @@ part of 'scheduled_message_providers.dart';
 // ignore_for_file: type=lint, type=warning
 
 @ProviderFor(scheduledMessageDatasource)
-const scheduledMessageDatasourceProvider =
+final scheduledMessageDatasourceProvider =
     ScheduledMessageDatasourceProvider._();
 
 final class ScheduledMessageDatasourceProvider
@@ -25,7 +25,7 @@ final class ScheduledMessageDatasourceProvider
           ScheduledMessageDatasource
         >
     with $Provider<ScheduledMessageDatasource> {
-  const ScheduledMessageDatasourceProvider._()
+  ScheduledMessageDatasourceProvider._()
     : super(
         from: null,
         argument: null,
@@ -63,7 +63,7 @@ String _$scheduledMessageDatasourceHash() =>
     r'e4e6bc2acfb8f544cd2f5e78d10022428b007d15';
 
 @ProviderFor(scheduledMessageRepository)
-const scheduledMessageRepositoryProvider =
+final scheduledMessageRepositoryProvider =
     ScheduledMessageRepositoryProvider._();
 
 final class ScheduledMessageRepositoryProvider
@@ -74,7 +74,7 @@ final class ScheduledMessageRepositoryProvider
           ScheduledMessageRepository
         >
     with $Provider<ScheduledMessageRepository> {
-  const ScheduledMessageRepositoryProvider._()
+  ScheduledMessageRepositoryProvider._()
     : super(
         from: null,
         argument: null,
@@ -112,7 +112,7 @@ String _$scheduledMessageRepositoryHash() =>
     r'bd40b72b5aa4b23780f945f0bcadb3552fafd002';
 
 @ProviderFor(scheduleMessageUseCase)
-const scheduleMessageUseCaseProvider = ScheduleMessageUseCaseProvider._();
+final scheduleMessageUseCaseProvider = ScheduleMessageUseCaseProvider._();
 
 final class ScheduleMessageUseCaseProvider
     extends
@@ -122,7 +122,7 @@ final class ScheduleMessageUseCaseProvider
           ScheduleMessageUseCase
         >
     with $Provider<ScheduleMessageUseCase> {
-  const ScheduleMessageUseCaseProvider._()
+  ScheduleMessageUseCaseProvider._()
     : super(
         from: null,
         argument: null,
@@ -160,7 +160,7 @@ String _$scheduleMessageUseCaseHash() =>
     r'851dd045cdb702e156293986d05959631936d6d4';
 
 @ProviderFor(getScheduledMessagesUseCase)
-const getScheduledMessagesUseCaseProvider =
+final getScheduledMessagesUseCaseProvider =
     GetScheduledMessagesUseCaseProvider._();
 
 final class GetScheduledMessagesUseCaseProvider
@@ -171,7 +171,7 @@ final class GetScheduledMessagesUseCaseProvider
           GetScheduledMessagesUseCase
         >
     with $Provider<GetScheduledMessagesUseCase> {
-  const GetScheduledMessagesUseCaseProvider._()
+  GetScheduledMessagesUseCaseProvider._()
     : super(
         from: null,
         argument: null,
@@ -209,7 +209,7 @@ String _$getScheduledMessagesUseCaseHash() =>
     r'ea28099c2e3de8e9677a52a843246bdf4d0210e6';
 
 @ProviderFor(updateScheduledMessageUseCase)
-const updateScheduledMessageUseCaseProvider =
+final updateScheduledMessageUseCaseProvider =
     UpdateScheduledMessageUseCaseProvider._();
 
 final class UpdateScheduledMessageUseCaseProvider
@@ -220,7 +220,7 @@ final class UpdateScheduledMessageUseCaseProvider
           UpdateScheduledMessageUseCase
         >
     with $Provider<UpdateScheduledMessageUseCase> {
-  const UpdateScheduledMessageUseCaseProvider._()
+  UpdateScheduledMessageUseCaseProvider._()
     : super(
         from: null,
         argument: null,
@@ -260,7 +260,7 @@ String _$updateScheduledMessageUseCaseHash() =>
     r'916ad00bc5cdb5d674cc4b8deaffea11fc6701e1';
 
 @ProviderFor(cancelScheduledMessageUseCase)
-const cancelScheduledMessageUseCaseProvider =
+final cancelScheduledMessageUseCaseProvider =
     CancelScheduledMessageUseCaseProvider._();
 
 final class CancelScheduledMessageUseCaseProvider
@@ -271,7 +271,7 @@ final class CancelScheduledMessageUseCaseProvider
           CancelScheduledMessageUseCase
         >
     with $Provider<CancelScheduledMessageUseCase> {
-  const CancelScheduledMessageUseCaseProvider._()
+  CancelScheduledMessageUseCaseProvider._()
     : super(
         from: null,
         argument: null,
@@ -317,7 +317,7 @@ String _$cancelScheduledMessageUseCaseHash() =>
 /// - scheduled.message.failed: When a scheduled message fails to send
 
 @ProviderFor(scheduledMessageWebSocketListener)
-const scheduledMessageWebSocketListenerProvider =
+final scheduledMessageWebSocketListenerProvider =
     ScheduledMessageWebSocketListenerProvider._();
 
 /// Provider to listen to WebSocket events for scheduled messages
@@ -334,7 +334,7 @@ final class ScheduledMessageWebSocketListenerProvider
   /// This provider automatically listens to:
   /// - scheduled.message.sent: When a scheduled message is successfully sent
   /// - scheduled.message.failed: When a scheduled message fails to send
-  const ScheduledMessageWebSocketListenerProvider._()
+  ScheduledMessageWebSocketListenerProvider._()
     : super(
         from: null,
         argument: null,

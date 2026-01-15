@@ -14,7 +14,7 @@ part of 'search_conversations_provider.dart';
 // ignore_for_file: type=lint, type=warning
 
 @ProviderFor(searchConversationsUseCase)
-const searchConversationsUseCaseProvider =
+final searchConversationsUseCaseProvider =
     SearchConversationsUseCaseProvider._();
 
 final class SearchConversationsUseCaseProvider
@@ -25,7 +25,7 @@ final class SearchConversationsUseCaseProvider
           SearchConversationsUseCase
         >
     with $Provider<SearchConversationsUseCase> {
-  const SearchConversationsUseCaseProvider._()
+  SearchConversationsUseCaseProvider._()
     : super(
         from: null,
         argument: null,
@@ -63,11 +63,11 @@ String _$searchConversationsUseCaseHash() =>
     r'006379fb70760276f44b0a0037f4a8fb2bfde371';
 
 @ProviderFor(SearchConversations)
-const searchConversationsProvider = SearchConversationsProvider._();
+final searchConversationsProvider = SearchConversationsProvider._();
 
 final class SearchConversationsProvider
     extends $AsyncNotifierProvider<SearchConversations, List<Conversation>> {
-  const SearchConversationsProvider._()
+  SearchConversationsProvider._()
     : super(
         from: null,
         argument: null,
@@ -95,7 +95,6 @@ abstract class _$SearchConversations
   @$mustCallSuper
   @override
   void runBuild() {
-    final created = build();
     final ref =
         this.ref as $Ref<AsyncValue<List<Conversation>>, List<Conversation>>;
     final element =
@@ -106,6 +105,6 @@ abstract class _$SearchConversations
               Object?,
               Object?
             >;
-    element.handleValue(ref, created);
+    element.handleCreate(ref, build);
   }
 }

@@ -18,7 +18,7 @@ part of 'online_users_notifier.dart';
 /// to update the list in real-time.
 
 @ProviderFor(OnlineUsersNotifier)
-const onlineUsersProvider = OnlineUsersNotifierProvider._();
+final onlineUsersProvider = OnlineUsersNotifierProvider._();
 
 /// Notifier for managing online users list
 ///
@@ -30,7 +30,7 @@ final class OnlineUsersNotifierProvider
   ///
   /// Fetches online users from contacts and listens to WebSocket user status events
   /// to update the list in real-time.
-  const OnlineUsersNotifierProvider._()
+  OnlineUsersNotifierProvider._()
     : super(
         from: null,
         argument: null,
@@ -62,7 +62,6 @@ abstract class _$OnlineUsersNotifier extends $AsyncNotifier<List<User>> {
   @$mustCallSuper
   @override
   void runBuild() {
-    final created = build();
     final ref = this.ref as $Ref<AsyncValue<List<User>>, List<User>>;
     final element =
         ref.element
@@ -72,6 +71,6 @@ abstract class _$OnlineUsersNotifier extends $AsyncNotifier<List<User>> {
               Object?,
               Object?
             >;
-    element.handleValue(ref, created);
+    element.handleCreate(ref, build);
   }
 }

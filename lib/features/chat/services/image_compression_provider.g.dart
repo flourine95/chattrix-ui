@@ -14,7 +14,7 @@ part of 'image_compression_provider.dart';
 // ignore_for_file: type=lint, type=warning
 
 @ProviderFor(imageCompressionService)
-const imageCompressionServiceProvider = ImageCompressionServiceProvider._();
+final imageCompressionServiceProvider = ImageCompressionServiceProvider._();
 
 final class ImageCompressionServiceProvider
     extends
@@ -24,7 +24,7 @@ final class ImageCompressionServiceProvider
           ImageCompressionService
         >
     with $Provider<ImageCompressionService> {
-  const ImageCompressionServiceProvider._()
+  ImageCompressionServiceProvider._()
     : super(
         from: null,
         argument: null,

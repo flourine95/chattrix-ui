@@ -14,7 +14,7 @@ part of 'invite_link_providers.dart';
 // ignore_for_file: type=lint, type=warning
 
 @ProviderFor(inviteLinkDatasource)
-const inviteLinkDatasourceProvider = InviteLinkDatasourceProvider._();
+final inviteLinkDatasourceProvider = InviteLinkDatasourceProvider._();
 
 final class InviteLinkDatasourceProvider
     extends
@@ -24,7 +24,7 @@ final class InviteLinkDatasourceProvider
           InviteLinkDatasource
         >
     with $Provider<InviteLinkDatasource> {
-  const InviteLinkDatasourceProvider._()
+  InviteLinkDatasourceProvider._()
     : super(
         from: null,
         argument: null,
@@ -62,7 +62,7 @@ String _$inviteLinkDatasourceHash() =>
     r'cd6985cf58c7acd63e6c5caa03b998357a77b633';
 
 @ProviderFor(inviteLinkRepository)
-const inviteLinkRepositoryProvider = InviteLinkRepositoryProvider._();
+final inviteLinkRepositoryProvider = InviteLinkRepositoryProvider._();
 
 final class InviteLinkRepositoryProvider
     extends
@@ -72,7 +72,7 @@ final class InviteLinkRepositoryProvider
           InviteLinkRepository
         >
     with $Provider<InviteLinkRepository> {
-  const InviteLinkRepositoryProvider._()
+  InviteLinkRepositoryProvider._()
     : super(
         from: null,
         argument: null,
@@ -110,7 +110,7 @@ String _$inviteLinkRepositoryHash() =>
     r'375d07cc0b79ec1e689c4d5c37ef84d59641fcd1';
 
 @ProviderFor(createInviteLinkUseCase)
-const createInviteLinkUseCaseProvider = CreateInviteLinkUseCaseProvider._();
+final createInviteLinkUseCaseProvider = CreateInviteLinkUseCaseProvider._();
 
 final class CreateInviteLinkUseCaseProvider
     extends
@@ -120,7 +120,7 @@ final class CreateInviteLinkUseCaseProvider
           CreateInviteLinkUseCase
         >
     with $Provider<CreateInviteLinkUseCase> {
-  const CreateInviteLinkUseCaseProvider._()
+  CreateInviteLinkUseCaseProvider._()
     : super(
         from: null,
         argument: null,
@@ -158,7 +158,7 @@ String _$createInviteLinkUseCaseHash() =>
     r'4cfb7cbf6d7033c3098cc5f8785464184ffc80b4';
 
 @ProviderFor(getInviteLinksUseCase)
-const getInviteLinksUseCaseProvider = GetInviteLinksUseCaseProvider._();
+final getInviteLinksUseCaseProvider = GetInviteLinksUseCaseProvider._();
 
 final class GetInviteLinksUseCaseProvider
     extends
@@ -168,7 +168,7 @@ final class GetInviteLinksUseCaseProvider
           GetInviteLinksUseCase
         >
     with $Provider<GetInviteLinksUseCase> {
-  const GetInviteLinksUseCaseProvider._()
+  GetInviteLinksUseCaseProvider._()
     : super(
         from: null,
         argument: null,
@@ -206,7 +206,7 @@ String _$getInviteLinksUseCaseHash() =>
     r'61c00e29832230b7527f41a4d8b5d649a44e6d6e';
 
 @ProviderFor(revokeInviteLinkUseCase)
-const revokeInviteLinkUseCaseProvider = RevokeInviteLinkUseCaseProvider._();
+final revokeInviteLinkUseCaseProvider = RevokeInviteLinkUseCaseProvider._();
 
 final class RevokeInviteLinkUseCaseProvider
     extends
@@ -216,7 +216,7 @@ final class RevokeInviteLinkUseCaseProvider
           RevokeInviteLinkUseCase
         >
     with $Provider<RevokeInviteLinkUseCase> {
-  const RevokeInviteLinkUseCaseProvider._()
+  RevokeInviteLinkUseCaseProvider._()
     : super(
         from: null,
         argument: null,
@@ -254,7 +254,7 @@ String _$revokeInviteLinkUseCaseHash() =>
     r'f94a455fb3fe3332a4572ba19f827466ec06daca';
 
 @ProviderFor(getInviteLinkInfoUseCase)
-const getInviteLinkInfoUseCaseProvider = GetInviteLinkInfoUseCaseProvider._();
+final getInviteLinkInfoUseCaseProvider = GetInviteLinkInfoUseCaseProvider._();
 
 final class GetInviteLinkInfoUseCaseProvider
     extends
@@ -264,7 +264,7 @@ final class GetInviteLinkInfoUseCaseProvider
           GetInviteLinkInfoUseCase
         >
     with $Provider<GetInviteLinkInfoUseCase> {
-  const GetInviteLinkInfoUseCaseProvider._()
+  GetInviteLinkInfoUseCaseProvider._()
     : super(
         from: null,
         argument: null,
@@ -302,7 +302,7 @@ String _$getInviteLinkInfoUseCaseHash() =>
     r'2054833d7d7ed90649a86d7682f121beb1732373';
 
 @ProviderFor(joinViaInviteLinkUseCase)
-const joinViaInviteLinkUseCaseProvider = JoinViaInviteLinkUseCaseProvider._();
+final joinViaInviteLinkUseCaseProvider = JoinViaInviteLinkUseCaseProvider._();
 
 final class JoinViaInviteLinkUseCaseProvider
     extends
@@ -312,7 +312,7 @@ final class JoinViaInviteLinkUseCaseProvider
           JoinViaInviteLinkUseCase
         >
     with $Provider<JoinViaInviteLinkUseCase> {
-  const JoinViaInviteLinkUseCaseProvider._()
+  JoinViaInviteLinkUseCaseProvider._()
     : super(
         from: null,
         argument: null,
@@ -350,7 +350,7 @@ String _$joinViaInviteLinkUseCaseHash() =>
     r'86b22620548b94a10c8c61bf88abdb7f529a4412';
 
 @ProviderFor(getQrCodeUseCase)
-const getQrCodeUseCaseProvider = GetQrCodeUseCaseProvider._();
+final getQrCodeUseCaseProvider = GetQrCodeUseCaseProvider._();
 
 final class GetQrCodeUseCaseProvider
     extends
@@ -360,7 +360,7 @@ final class GetQrCodeUseCaseProvider
           GetQrCodeUseCase
         >
     with $Provider<GetQrCodeUseCase> {
-  const GetQrCodeUseCaseProvider._()
+  GetQrCodeUseCaseProvider._()
     : super(
         from: null,
         argument: null,
@@ -396,7 +396,7 @@ final class GetQrCodeUseCaseProvider
 String _$getQrCodeUseCaseHash() => r'718eb2046f8722c27fa086051e93607335cb0baa';
 
 @ProviderFor(inviteLinksList)
-const inviteLinksListProvider = InviteLinksListFamily._();
+final inviteLinksListProvider = InviteLinksListFamily._();
 
 final class InviteLinksListProvider
     extends
@@ -406,7 +406,7 @@ final class InviteLinksListProvider
           FutureOr<List<InviteLink>>
         >
     with $FutureModifier<List<InviteLink>>, $FutureProvider<List<InviteLink>> {
-  const InviteLinksListProvider._({
+  InviteLinksListProvider._({
     required InviteLinksListFamily super.from,
     required int super.argument,
   }) : super(
@@ -454,7 +454,7 @@ String _$inviteLinksListHash() => r'428a27d2fe0d245107e4909b9109f0ed4b21dfaa';
 
 final class InviteLinksListFamily extends $Family
     with $FunctionalFamilyOverride<FutureOr<List<InviteLink>>, int> {
-  const InviteLinksListFamily._()
+  InviteLinksListFamily._()
     : super(
         retry: null,
         name: r'inviteLinksListProvider',

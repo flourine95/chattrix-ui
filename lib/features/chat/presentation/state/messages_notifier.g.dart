@@ -14,11 +14,11 @@ part of 'messages_notifier.dart';
 // ignore_for_file: type=lint, type=warning
 
 @ProviderFor(MessagesNotifier)
-const messagesProvider = MessagesNotifierFamily._();
+final messagesProvider = MessagesNotifierFamily._();
 
 final class MessagesNotifierProvider
     extends $AsyncNotifierProvider<MessagesNotifier, List<Message>> {
-  const MessagesNotifierProvider._({
+  MessagesNotifierProvider._({
     required MessagesNotifierFamily super.from,
     required String super.argument,
   }) : super(
@@ -65,7 +65,7 @@ final class MessagesNotifierFamily extends $Family
           FutureOr<List<Message>>,
           String
         > {
-  const MessagesNotifierFamily._()
+  MessagesNotifierFamily._()
     : super(
         retry: null,
         name: r'messagesProvider',
@@ -89,7 +89,6 @@ abstract class _$MessagesNotifier extends $AsyncNotifier<List<Message>> {
   @$mustCallSuper
   @override
   void runBuild() {
-    final created = build(_$args);
     final ref = this.ref as $Ref<AsyncValue<List<Message>>, List<Message>>;
     final element =
         ref.element
@@ -99,6 +98,6 @@ abstract class _$MessagesNotifier extends $AsyncNotifier<List<Message>> {
               Object?,
               Object?
             >;
-    element.handleValue(ref, created);
+    element.handleCreate(ref, () => build(_$args));
   }
 }

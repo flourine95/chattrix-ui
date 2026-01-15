@@ -14,11 +14,11 @@ part of 'create_poll_provider.dart';
 // ignore_for_file: type=lint, type=warning
 
 @ProviderFor(CreatePoll)
-const createPollProvider = CreatePollProvider._();
+final createPollProvider = CreatePollProvider._();
 
 final class CreatePollProvider
     extends $AsyncNotifierProvider<CreatePoll, PollEntity?> {
-  const CreatePollProvider._()
+  CreatePollProvider._()
     : super(
         from: null,
         argument: null,
@@ -44,7 +44,6 @@ abstract class _$CreatePoll extends $AsyncNotifier<PollEntity?> {
   @$mustCallSuper
   @override
   void runBuild() {
-    final created = build();
     final ref = this.ref as $Ref<AsyncValue<PollEntity?>, PollEntity?>;
     final element =
         ref.element
@@ -54,6 +53,6 @@ abstract class _$CreatePoll extends $AsyncNotifier<PollEntity?> {
               Object?,
               Object?
             >;
-    element.handleValue(ref, created);
+    element.handleCreate(ref, build);
   }
 }

@@ -14,7 +14,7 @@ part of 'birthday_providers.dart';
 // ignore_for_file: type=lint, type=warning
 
 @ProviderFor(birthdayApiService)
-const birthdayApiServiceProvider = BirthdayApiServiceProvider._();
+final birthdayApiServiceProvider = BirthdayApiServiceProvider._();
 
 final class BirthdayApiServiceProvider
     extends
@@ -24,7 +24,7 @@ final class BirthdayApiServiceProvider
           BirthdayApiService
         >
     with $Provider<BirthdayApiService> {
-  const BirthdayApiServiceProvider._()
+  BirthdayApiServiceProvider._()
     : super(
         from: null,
         argument: null,
@@ -62,7 +62,7 @@ String _$birthdayApiServiceHash() =>
     r'381f5bd9cde0677033d5d19b27fab6df5ce1f49e';
 
 @ProviderFor(birthdayRepository)
-const birthdayRepositoryProvider = BirthdayRepositoryProvider._();
+final birthdayRepositoryProvider = BirthdayRepositoryProvider._();
 
 final class BirthdayRepositoryProvider
     extends
@@ -72,7 +72,7 @@ final class BirthdayRepositoryProvider
           BirthdayRepository
         >
     with $Provider<BirthdayRepository> {
-  const BirthdayRepositoryProvider._()
+  BirthdayRepositoryProvider._()
     : super(
         from: null,
         argument: null,
@@ -110,7 +110,7 @@ String _$birthdayRepositoryHash() =>
     r'41fe4c400cfce2db58e94cf3231fa0ca636090ca';
 
 @ProviderFor(getTodayBirthdaysUseCase)
-const getTodayBirthdaysUseCaseProvider = GetTodayBirthdaysUseCaseProvider._();
+final getTodayBirthdaysUseCaseProvider = GetTodayBirthdaysUseCaseProvider._();
 
 final class GetTodayBirthdaysUseCaseProvider
     extends
@@ -120,7 +120,7 @@ final class GetTodayBirthdaysUseCaseProvider
           GetTodayBirthdaysUseCase
         >
     with $Provider<GetTodayBirthdaysUseCase> {
-  const GetTodayBirthdaysUseCaseProvider._()
+  GetTodayBirthdaysUseCaseProvider._()
     : super(
         from: null,
         argument: null,
@@ -158,7 +158,7 @@ String _$getTodayBirthdaysUseCaseHash() =>
     r'8e93d672760307833a1a2845e756bdd83752e7ef';
 
 @ProviderFor(getUpcomingBirthdaysUseCase)
-const getUpcomingBirthdaysUseCaseProvider =
+final getUpcomingBirthdaysUseCaseProvider =
     GetUpcomingBirthdaysUseCaseProvider._();
 
 final class GetUpcomingBirthdaysUseCaseProvider
@@ -169,7 +169,7 @@ final class GetUpcomingBirthdaysUseCaseProvider
           GetUpcomingBirthdaysUseCase
         >
     with $Provider<GetUpcomingBirthdaysUseCase> {
-  const GetUpcomingBirthdaysUseCaseProvider._()
+  GetUpcomingBirthdaysUseCaseProvider._()
     : super(
         from: null,
         argument: null,
@@ -207,7 +207,7 @@ String _$getUpcomingBirthdaysUseCaseHash() =>
     r'38bec271a5ccf71576eff6ea586e914076ad196f';
 
 @ProviderFor(sendBirthdayWishesUseCase)
-const sendBirthdayWishesUseCaseProvider = SendBirthdayWishesUseCaseProvider._();
+final sendBirthdayWishesUseCaseProvider = SendBirthdayWishesUseCaseProvider._();
 
 final class SendBirthdayWishesUseCaseProvider
     extends
@@ -217,7 +217,7 @@ final class SendBirthdayWishesUseCaseProvider
           SendBirthdayWishesUseCase
         >
     with $Provider<SendBirthdayWishesUseCase> {
-  const SendBirthdayWishesUseCaseProvider._()
+  SendBirthdayWishesUseCaseProvider._()
     : super(
         from: null,
         argument: null,
@@ -255,11 +255,11 @@ String _$sendBirthdayWishesUseCaseHash() =>
     r'9682b8b3c45d9565c2b525c6283470fa56316fba';
 
 @ProviderFor(TodayBirthdays)
-const todayBirthdaysProvider = TodayBirthdaysProvider._();
+final todayBirthdaysProvider = TodayBirthdaysProvider._();
 
 final class TodayBirthdaysProvider
     extends $AsyncNotifierProvider<TodayBirthdays, List<BirthdayUserEntity>> {
-  const TodayBirthdaysProvider._()
+  TodayBirthdaysProvider._()
     : super(
         from: null,
         argument: null,
@@ -286,7 +286,6 @@ abstract class _$TodayBirthdays
   @$mustCallSuper
   @override
   void runBuild() {
-    final created = build();
     final ref =
         this.ref
             as $Ref<
@@ -304,17 +303,17 @@ abstract class _$TodayBirthdays
               Object?,
               Object?
             >;
-    element.handleValue(ref, created);
+    element.handleCreate(ref, build);
   }
 }
 
 @ProviderFor(UpcomingBirthdays)
-const upcomingBirthdaysProvider = UpcomingBirthdaysFamily._();
+final upcomingBirthdaysProvider = UpcomingBirthdaysFamily._();
 
 final class UpcomingBirthdaysProvider
     extends
         $AsyncNotifierProvider<UpcomingBirthdays, List<BirthdayUserEntity>> {
-  const UpcomingBirthdaysProvider._({
+  UpcomingBirthdaysProvider._({
     required UpcomingBirthdaysFamily super.from,
     required int super.argument,
   }) : super(
@@ -361,7 +360,7 @@ final class UpcomingBirthdaysFamily extends $Family
           FutureOr<List<BirthdayUserEntity>>,
           int
         > {
-  const UpcomingBirthdaysFamily._()
+  UpcomingBirthdaysFamily._()
     : super(
         retry: null,
         name: r'upcomingBirthdaysProvider',
@@ -386,7 +385,6 @@ abstract class _$UpcomingBirthdays
   @$mustCallSuper
   @override
   void runBuild() {
-    final created = build(days: _$args);
     final ref =
         this.ref
             as $Ref<
@@ -404,6 +402,6 @@ abstract class _$UpcomingBirthdays
               Object?,
               Object?
             >;
-    element.handleValue(ref, created);
+    element.handleCreate(ref, () => build(days: _$args));
   }
 }

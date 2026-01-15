@@ -14,7 +14,7 @@ part of 'conversation_settings_provider.dart';
 // ignore_for_file: type=lint, type=warning
 
 @ProviderFor(conversationSettingsDataSource)
-const conversationSettingsDataSourceProvider =
+final conversationSettingsDataSourceProvider =
     ConversationSettingsDataSourceProvider._();
 
 final class ConversationSettingsDataSourceProvider
@@ -25,7 +25,7 @@ final class ConversationSettingsDataSourceProvider
           ConversationSettingsDataSource
         >
     with $Provider<ConversationSettingsDataSource> {
-  const ConversationSettingsDataSourceProvider._()
+  ConversationSettingsDataSourceProvider._()
     : super(
         from: null,
         argument: null,
@@ -65,7 +65,7 @@ String _$conversationSettingsDataSourceHash() =>
     r'c1ba7bd25bb032337c29e58e9d13fa730c807156';
 
 @ProviderFor(ConversationSettings)
-const conversationSettingsProvider = ConversationSettingsFamily._();
+final conversationSettingsProvider = ConversationSettingsFamily._();
 
 final class ConversationSettingsProvider
     extends
@@ -73,7 +73,7 @@ final class ConversationSettingsProvider
           ConversationSettings,
           ConversationSettingsModel?
         > {
-  const ConversationSettingsProvider._({
+  ConversationSettingsProvider._({
     required ConversationSettingsFamily super.from,
     required int super.argument,
   }) : super(
@@ -121,7 +121,7 @@ final class ConversationSettingsFamily extends $Family
           FutureOr<ConversationSettingsModel?>,
           int
         > {
-  const ConversationSettingsFamily._()
+  ConversationSettingsFamily._()
     : super(
         retry: null,
         name: r'conversationSettingsProvider',
@@ -146,7 +146,6 @@ abstract class _$ConversationSettings
   @$mustCallSuper
   @override
   void runBuild() {
-    final created = build(_$args);
     final ref =
         this.ref
             as $Ref<
@@ -164,6 +163,6 @@ abstract class _$ConversationSettings
               Object?,
               Object?
             >;
-    element.handleValue(ref, created);
+    element.handleCreate(ref, () => build(_$args));
   }
 }

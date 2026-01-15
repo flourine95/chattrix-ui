@@ -14,11 +14,11 @@ part of 'invite_links_list_provider.dart';
 // ignore_for_file: type=lint, type=warning
 
 @ProviderFor(InviteLinksList)
-const inviteLinksListProvider = InviteLinksListFamily._();
+final inviteLinksListProvider = InviteLinksListFamily._();
 
 final class InviteLinksListProvider
     extends $AsyncNotifierProvider<InviteLinksList, List<InviteLinkEntity>> {
-  const InviteLinksListProvider._({
+  InviteLinksListProvider._({
     required InviteLinksListFamily super.from,
     required int super.argument,
   }) : super(
@@ -65,7 +65,7 @@ final class InviteLinksListFamily extends $Family
           FutureOr<List<InviteLinkEntity>>,
           int
         > {
-  const InviteLinksListFamily._()
+  InviteLinksListFamily._()
     : super(
         retry: null,
         name: r'inviteLinksListProvider',
@@ -90,7 +90,6 @@ abstract class _$InviteLinksList
   @$mustCallSuper
   @override
   void runBuild() {
-    final created = build(_$args);
     final ref =
         this.ref
             as $Ref<AsyncValue<List<InviteLinkEntity>>, List<InviteLinkEntity>>;
@@ -105,6 +104,6 @@ abstract class _$InviteLinksList
               Object?,
               Object?
             >;
-    element.handleValue(ref, created);
+    element.handleCreate(ref, () => build(_$args));
   }
 }

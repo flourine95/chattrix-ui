@@ -15,12 +15,12 @@ part of 'pip_state_provider.dart';
 /// Provider to manage Picture-in-Picture state
 
 @ProviderFor(PipState)
-const pipStateProvider = PipStateProvider._();
+final pipStateProvider = PipStateProvider._();
 
 /// Provider to manage Picture-in-Picture state
 final class PipStateProvider extends $NotifierProvider<PipState, bool> {
   /// Provider to manage Picture-in-Picture state
-  const PipStateProvider._()
+  PipStateProvider._()
     : super(
         from: null,
         argument: null,
@@ -56,7 +56,6 @@ abstract class _$PipState extends $Notifier<bool> {
   @$mustCallSuper
   @override
   void runBuild() {
-    final created = build();
     final ref = this.ref as $Ref<bool, bool>;
     final element =
         ref.element
@@ -66,20 +65,20 @@ abstract class _$PipState extends $Notifier<bool> {
               Object?,
               Object?
             >;
-    element.handleValue(ref, created);
+    element.handleCreate(ref, build);
   }
 }
 
 /// Provider to manage PiP position
 
 @ProviderFor(PipPosition)
-const pipPositionProvider = PipPositionProvider._();
+final pipPositionProvider = PipPositionProvider._();
 
 /// Provider to manage PiP position
 final class PipPositionProvider
     extends $NotifierProvider<PipPosition, ({double x, double y})> {
   /// Provider to manage PiP position
-  const PipPositionProvider._()
+  PipPositionProvider._()
     : super(
         from: null,
         argument: null,
@@ -115,7 +114,6 @@ abstract class _$PipPosition extends $Notifier<({double x, double y})> {
   @$mustCallSuper
   @override
   void runBuild() {
-    final created = build();
     final ref =
         this.ref as $Ref<({double x, double y}), ({double x, double y})>;
     final element =
@@ -126,6 +124,6 @@ abstract class _$PipPosition extends $Notifier<({double x, double y})> {
               Object?,
               Object?
             >;
-    element.handleValue(ref, created);
+    element.handleCreate(ref, build);
   }
 }

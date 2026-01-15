@@ -29,7 +29,7 @@ part of 'marked_unread_provider.dart';
 /// - DELETE /v1/conversations/{id}/mark-unread
 
 @ProviderFor(MarkedUnreadConversations)
-const markedUnreadConversationsProvider = MarkedUnreadConversationsProvider._();
+final markedUnreadConversationsProvider = MarkedUnreadConversationsProvider._();
 
 /// Provider to manage conversations marked as unread by user
 ///
@@ -63,7 +63,7 @@ final class MarkedUnreadConversationsProvider
   /// When API endpoint is ready, replace SharedPreferences with API calls:
   /// - POST /v1/conversations/{id}/mark-unread
   /// - DELETE /v1/conversations/{id}/mark-unread
-  const MarkedUnreadConversationsProvider._()
+  MarkedUnreadConversationsProvider._()
     : super(
         from: null,
         argument: null,
@@ -114,7 +114,6 @@ abstract class _$MarkedUnreadConversations extends $Notifier<Set<int>> {
   @$mustCallSuper
   @override
   void runBuild() {
-    final created = build();
     final ref = this.ref as $Ref<Set<int>, Set<int>>;
     final element =
         ref.element
@@ -124,6 +123,6 @@ abstract class _$MarkedUnreadConversations extends $Notifier<Set<int>> {
               Object?,
               Object?
             >;
-    element.handleValue(ref, created);
+    element.handleCreate(ref, build);
   }
 }

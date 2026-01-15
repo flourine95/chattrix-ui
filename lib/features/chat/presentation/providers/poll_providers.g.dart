@@ -14,12 +14,12 @@ part of 'poll_providers.dart';
 // ignore_for_file: type=lint, type=warning
 
 @ProviderFor(pollDatasource)
-const pollDatasourceProvider = PollDatasourceProvider._();
+final pollDatasourceProvider = PollDatasourceProvider._();
 
 final class PollDatasourceProvider
     extends $FunctionalProvider<PollDatasource, PollDatasource, PollDatasource>
     with $Provider<PollDatasource> {
-  const PollDatasourceProvider._()
+  PollDatasourceProvider._()
     : super(
         from: null,
         argument: null,
@@ -55,12 +55,12 @@ final class PollDatasourceProvider
 String _$pollDatasourceHash() => r'b93343f40dbc17c7f87574d701c4f567a05542e3';
 
 @ProviderFor(pollRepository)
-const pollRepositoryProvider = PollRepositoryProvider._();
+final pollRepositoryProvider = PollRepositoryProvider._();
 
 final class PollRepositoryProvider
     extends $FunctionalProvider<PollRepository, PollRepository, PollRepository>
     with $Provider<PollRepository> {
-  const PollRepositoryProvider._()
+  PollRepositoryProvider._()
     : super(
         from: null,
         argument: null,
@@ -96,7 +96,7 @@ final class PollRepositoryProvider
 String _$pollRepositoryHash() => r'9f6187770f7f701937fbdb74464482027c894500';
 
 @ProviderFor(createPollUseCase)
-const createPollUseCaseProvider = CreatePollUseCaseProvider._();
+final createPollUseCaseProvider = CreatePollUseCaseProvider._();
 
 final class CreatePollUseCaseProvider
     extends
@@ -106,7 +106,7 @@ final class CreatePollUseCaseProvider
           CreatePollUseCase
         >
     with $Provider<CreatePollUseCase> {
-  const CreatePollUseCaseProvider._()
+  CreatePollUseCaseProvider._()
     : super(
         from: null,
         argument: null,
@@ -143,13 +143,13 @@ final class CreatePollUseCaseProvider
 String _$createPollUseCaseHash() => r'e469e8909e3c5d125d648b39fc919ea922cca4de';
 
 @ProviderFor(votePollUseCase)
-const votePollUseCaseProvider = VotePollUseCaseProvider._();
+final votePollUseCaseProvider = VotePollUseCaseProvider._();
 
 final class VotePollUseCaseProvider
     extends
         $FunctionalProvider<VotePollUseCase, VotePollUseCase, VotePollUseCase>
     with $Provider<VotePollUseCase> {
-  const VotePollUseCaseProvider._()
+  VotePollUseCaseProvider._()
     : super(
         from: null,
         argument: null,
@@ -185,7 +185,7 @@ final class VotePollUseCaseProvider
 String _$votePollUseCaseHash() => r'b576d3c9732b9db3129e96baa9ff47be078d8a93';
 
 @ProviderFor(closePollUseCase)
-const closePollUseCaseProvider = ClosePollUseCaseProvider._();
+final closePollUseCaseProvider = ClosePollUseCaseProvider._();
 
 final class ClosePollUseCaseProvider
     extends
@@ -195,7 +195,7 @@ final class ClosePollUseCaseProvider
           ClosePollUseCase
         >
     with $Provider<ClosePollUseCase> {
-  const ClosePollUseCaseProvider._()
+  ClosePollUseCaseProvider._()
     : super(
         from: null,
         argument: null,
@@ -231,7 +231,7 @@ final class ClosePollUseCaseProvider
 String _$closePollUseCaseHash() => r'f3c8d6f1c27d178d3a652380f5db78904fad86a0';
 
 @ProviderFor(deletePollUseCase)
-const deletePollUseCaseProvider = DeletePollUseCaseProvider._();
+final deletePollUseCaseProvider = DeletePollUseCaseProvider._();
 
 final class DeletePollUseCaseProvider
     extends
@@ -241,7 +241,7 @@ final class DeletePollUseCaseProvider
           DeletePollUseCase
         >
     with $Provider<DeletePollUseCase> {
-  const DeletePollUseCaseProvider._()
+  DeletePollUseCaseProvider._()
     : super(
         from: null,
         argument: null,
@@ -278,7 +278,7 @@ final class DeletePollUseCaseProvider
 String _$deletePollUseCaseHash() => r'a3a6a062bb2efc9ba0a9cc6f417c52e4ac895dfb';
 
 @ProviderFor(getAllPollsUseCase)
-const getAllPollsUseCaseProvider = GetAllPollsUseCaseProvider._();
+final getAllPollsUseCaseProvider = GetAllPollsUseCaseProvider._();
 
 final class GetAllPollsUseCaseProvider
     extends
@@ -288,7 +288,7 @@ final class GetAllPollsUseCaseProvider
           GetAllPollsUseCase
         >
     with $Provider<GetAllPollsUseCase> {
-  const GetAllPollsUseCaseProvider._()
+  GetAllPollsUseCaseProvider._()
     : super(
         from: null,
         argument: null,
@@ -326,11 +326,11 @@ String _$getAllPollsUseCaseHash() =>
     r'0713516eb8983095eb2096286ed52b0ccf9355e0';
 
 @ProviderFor(PollsList)
-const pollsListProvider = PollsListFamily._();
+final pollsListProvider = PollsListFamily._();
 
 final class PollsListProvider
     extends $AsyncNotifierProvider<PollsList, List<Poll>> {
-  const PollsListProvider._({
+  PollsListProvider._({
     required PollsListFamily super.from,
     required int super.argument,
   }) : super(
@@ -377,7 +377,7 @@ final class PollsListFamily extends $Family
           FutureOr<List<Poll>>,
           int
         > {
-  const PollsListFamily._()
+  PollsListFamily._()
     : super(
         retry: null,
         name: r'pollsListProvider',
@@ -401,7 +401,6 @@ abstract class _$PollsList extends $AsyncNotifier<List<Poll>> {
   @$mustCallSuper
   @override
   void runBuild() {
-    final created = build(_$args);
     final ref = this.ref as $Ref<AsyncValue<List<Poll>>, List<Poll>>;
     final element =
         ref.element
@@ -411,6 +410,6 @@ abstract class _$PollsList extends $AsyncNotifier<List<Poll>> {
               Object?,
               Object?
             >;
-    element.handleValue(ref, created);
+    element.handleCreate(ref, () => build(_$args));
   }
 }

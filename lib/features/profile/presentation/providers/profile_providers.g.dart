@@ -14,7 +14,7 @@ part of 'profile_providers.dart';
 // ignore_for_file: type=lint, type=warning
 
 @ProviderFor(profileRemoteDataSource)
-const profileRemoteDataSourceProvider = ProfileRemoteDataSourceProvider._();
+final profileRemoteDataSourceProvider = ProfileRemoteDataSourceProvider._();
 
 final class ProfileRemoteDataSourceProvider
     extends
@@ -24,7 +24,7 @@ final class ProfileRemoteDataSourceProvider
           ProfileRemoteDataSource
         >
     with $Provider<ProfileRemoteDataSource> {
-  const ProfileRemoteDataSourceProvider._()
+  ProfileRemoteDataSourceProvider._()
     : super(
         from: null,
         argument: null,
@@ -62,7 +62,7 @@ String _$profileRemoteDataSourceHash() =>
     r'd0adbeed58cf8e17ec88b957ca926e722e794c17';
 
 @ProviderFor(profileRepository)
-const profileRepositoryProvider = ProfileRepositoryProvider._();
+final profileRepositoryProvider = ProfileRepositoryProvider._();
 
 final class ProfileRepositoryProvider
     extends
@@ -72,7 +72,7 @@ final class ProfileRepositoryProvider
           ProfileRepository
         >
     with $Provider<ProfileRepository> {
-  const ProfileRepositoryProvider._()
+  ProfileRepositoryProvider._()
     : super(
         from: null,
         argument: null,
@@ -109,7 +109,7 @@ final class ProfileRepositoryProvider
 String _$profileRepositoryHash() => r'f3f43c41459918d120abcc67af88fdfc559960f3';
 
 @ProviderFor(getProfileUseCase)
-const getProfileUseCaseProvider = GetProfileUseCaseProvider._();
+final getProfileUseCaseProvider = GetProfileUseCaseProvider._();
 
 final class GetProfileUseCaseProvider
     extends
@@ -119,7 +119,7 @@ final class GetProfileUseCaseProvider
           GetProfileUseCase
         >
     with $Provider<GetProfileUseCase> {
-  const GetProfileUseCaseProvider._()
+  GetProfileUseCaseProvider._()
     : super(
         from: null,
         argument: null,
@@ -156,7 +156,7 @@ final class GetProfileUseCaseProvider
 String _$getProfileUseCaseHash() => r'a4483c190934c61cc1caf94c0d35df05c7ffc465';
 
 @ProviderFor(updateProfileUseCase)
-const updateProfileUseCaseProvider = UpdateProfileUseCaseProvider._();
+final updateProfileUseCaseProvider = UpdateProfileUseCaseProvider._();
 
 final class UpdateProfileUseCaseProvider
     extends
@@ -166,7 +166,7 @@ final class UpdateProfileUseCaseProvider
           UpdateProfileUseCase
         >
     with $Provider<UpdateProfileUseCase> {
-  const UpdateProfileUseCaseProvider._()
+  UpdateProfileUseCaseProvider._()
     : super(
         from: null,
         argument: null,
@@ -204,11 +204,11 @@ String _$updateProfileUseCaseHash() =>
     r'36e24f3f8c834cd93c5265cb5dced00a46fb2d05';
 
 @ProviderFor(ProfileController)
-const profileControllerProvider = ProfileControllerProvider._();
+final profileControllerProvider = ProfileControllerProvider._();
 
 final class ProfileControllerProvider
     extends $AsyncNotifierProvider<ProfileController, Profile> {
-  const ProfileControllerProvider._()
+  ProfileControllerProvider._()
     : super(
         from: null,
         argument: null,
@@ -234,7 +234,6 @@ abstract class _$ProfileController extends $AsyncNotifier<Profile> {
   @$mustCallSuper
   @override
   void runBuild() {
-    final created = build();
     final ref = this.ref as $Ref<AsyncValue<Profile>, Profile>;
     final element =
         ref.element
@@ -244,6 +243,6 @@ abstract class _$ProfileController extends $AsyncNotifier<Profile> {
               Object?,
               Object?
             >;
-    element.handleValue(ref, created);
+    element.handleCreate(ref, build);
   }
 }
