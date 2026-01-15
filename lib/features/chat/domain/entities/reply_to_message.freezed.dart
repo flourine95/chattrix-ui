@@ -14,7 +14,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$ReplyToMessage {
 
- int get id; String get content; int get senderId; String get senderUsername; String? get senderFullName; String get type; String? get createdAt; String? get fileName; String? get locationName;
+ int get id; String get content; int get senderId; String get senderUsername; String? get senderFullName; String get type; String? get createdAt; String? get fileName; String? get locationName; String? get mediaUrl; int? get duration;
 /// Create a copy of ReplyToMessage
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -25,16 +25,16 @@ $ReplyToMessageCopyWith<ReplyToMessage> get copyWith => _$ReplyToMessageCopyWith
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ReplyToMessage&&(identical(other.id, id) || other.id == id)&&(identical(other.content, content) || other.content == content)&&(identical(other.senderId, senderId) || other.senderId == senderId)&&(identical(other.senderUsername, senderUsername) || other.senderUsername == senderUsername)&&(identical(other.senderFullName, senderFullName) || other.senderFullName == senderFullName)&&(identical(other.type, type) || other.type == type)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.fileName, fileName) || other.fileName == fileName)&&(identical(other.locationName, locationName) || other.locationName == locationName));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ReplyToMessage&&(identical(other.id, id) || other.id == id)&&(identical(other.content, content) || other.content == content)&&(identical(other.senderId, senderId) || other.senderId == senderId)&&(identical(other.senderUsername, senderUsername) || other.senderUsername == senderUsername)&&(identical(other.senderFullName, senderFullName) || other.senderFullName == senderFullName)&&(identical(other.type, type) || other.type == type)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.fileName, fileName) || other.fileName == fileName)&&(identical(other.locationName, locationName) || other.locationName == locationName)&&(identical(other.mediaUrl, mediaUrl) || other.mediaUrl == mediaUrl)&&(identical(other.duration, duration) || other.duration == duration));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,id,content,senderId,senderUsername,senderFullName,type,createdAt,fileName,locationName);
+int get hashCode => Object.hash(runtimeType,id,content,senderId,senderUsername,senderFullName,type,createdAt,fileName,locationName,mediaUrl,duration);
 
 @override
 String toString() {
-  return 'ReplyToMessage(id: $id, content: $content, senderId: $senderId, senderUsername: $senderUsername, senderFullName: $senderFullName, type: $type, createdAt: $createdAt, fileName: $fileName, locationName: $locationName)';
+  return 'ReplyToMessage(id: $id, content: $content, senderId: $senderId, senderUsername: $senderUsername, senderFullName: $senderFullName, type: $type, createdAt: $createdAt, fileName: $fileName, locationName: $locationName, mediaUrl: $mediaUrl, duration: $duration)';
 }
 
 
@@ -45,7 +45,7 @@ abstract mixin class $ReplyToMessageCopyWith<$Res>  {
   factory $ReplyToMessageCopyWith(ReplyToMessage value, $Res Function(ReplyToMessage) _then) = _$ReplyToMessageCopyWithImpl;
 @useResult
 $Res call({
- int id, String content, int senderId, String senderUsername, String? senderFullName, String type, String? createdAt, String? fileName, String? locationName
+ int id, String content, int senderId, String senderUsername, String? senderFullName, String type, String? createdAt, String? fileName, String? locationName, String? mediaUrl, int? duration
 });
 
 
@@ -62,7 +62,7 @@ class _$ReplyToMessageCopyWithImpl<$Res>
 
 /// Create a copy of ReplyToMessage
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? content = null,Object? senderId = null,Object? senderUsername = null,Object? senderFullName = freezed,Object? type = null,Object? createdAt = freezed,Object? fileName = freezed,Object? locationName = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? content = null,Object? senderId = null,Object? senderUsername = null,Object? senderFullName = freezed,Object? type = null,Object? createdAt = freezed,Object? fileName = freezed,Object? locationName = freezed,Object? mediaUrl = freezed,Object? duration = freezed,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as int,content: null == content ? _self.content : content // ignore: cast_nullable_to_non_nullable
@@ -73,7 +73,9 @@ as String?,type: null == type ? _self.type : type // ignore: cast_nullable_to_no
 as String,createdAt: freezed == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
 as String?,fileName: freezed == fileName ? _self.fileName : fileName // ignore: cast_nullable_to_non_nullable
 as String?,locationName: freezed == locationName ? _self.locationName : locationName // ignore: cast_nullable_to_non_nullable
-as String?,
+as String?,mediaUrl: freezed == mediaUrl ? _self.mediaUrl : mediaUrl // ignore: cast_nullable_to_non_nullable
+as String?,duration: freezed == duration ? _self.duration : duration // ignore: cast_nullable_to_non_nullable
+as int?,
   ));
 }
 
@@ -158,10 +160,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int id,  String content,  int senderId,  String senderUsername,  String? senderFullName,  String type,  String? createdAt,  String? fileName,  String? locationName)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int id,  String content,  int senderId,  String senderUsername,  String? senderFullName,  String type,  String? createdAt,  String? fileName,  String? locationName,  String? mediaUrl,  int? duration)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _ReplyToMessage() when $default != null:
-return $default(_that.id,_that.content,_that.senderId,_that.senderUsername,_that.senderFullName,_that.type,_that.createdAt,_that.fileName,_that.locationName);case _:
+return $default(_that.id,_that.content,_that.senderId,_that.senderUsername,_that.senderFullName,_that.type,_that.createdAt,_that.fileName,_that.locationName,_that.mediaUrl,_that.duration);case _:
   return orElse();
 
 }
@@ -179,10 +181,10 @@ return $default(_that.id,_that.content,_that.senderId,_that.senderUsername,_that
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int id,  String content,  int senderId,  String senderUsername,  String? senderFullName,  String type,  String? createdAt,  String? fileName,  String? locationName)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int id,  String content,  int senderId,  String senderUsername,  String? senderFullName,  String type,  String? createdAt,  String? fileName,  String? locationName,  String? mediaUrl,  int? duration)  $default,) {final _that = this;
 switch (_that) {
 case _ReplyToMessage():
-return $default(_that.id,_that.content,_that.senderId,_that.senderUsername,_that.senderFullName,_that.type,_that.createdAt,_that.fileName,_that.locationName);case _:
+return $default(_that.id,_that.content,_that.senderId,_that.senderUsername,_that.senderFullName,_that.type,_that.createdAt,_that.fileName,_that.locationName,_that.mediaUrl,_that.duration);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -199,10 +201,10 @@ return $default(_that.id,_that.content,_that.senderId,_that.senderUsername,_that
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int id,  String content,  int senderId,  String senderUsername,  String? senderFullName,  String type,  String? createdAt,  String? fileName,  String? locationName)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int id,  String content,  int senderId,  String senderUsername,  String? senderFullName,  String type,  String? createdAt,  String? fileName,  String? locationName,  String? mediaUrl,  int? duration)?  $default,) {final _that = this;
 switch (_that) {
 case _ReplyToMessage() when $default != null:
-return $default(_that.id,_that.content,_that.senderId,_that.senderUsername,_that.senderFullName,_that.type,_that.createdAt,_that.fileName,_that.locationName);case _:
+return $default(_that.id,_that.content,_that.senderId,_that.senderUsername,_that.senderFullName,_that.type,_that.createdAt,_that.fileName,_that.locationName,_that.mediaUrl,_that.duration);case _:
   return null;
 
 }
@@ -214,7 +216,7 @@ return $default(_that.id,_that.content,_that.senderId,_that.senderUsername,_that
 
 
 class _ReplyToMessage implements ReplyToMessage {
-  const _ReplyToMessage({required this.id, required this.content, required this.senderId, required this.senderUsername, this.senderFullName, required this.type, this.createdAt, this.fileName, this.locationName});
+  const _ReplyToMessage({required this.id, required this.content, required this.senderId, required this.senderUsername, this.senderFullName, required this.type, this.createdAt, this.fileName, this.locationName, this.mediaUrl, this.duration});
   
 
 @override final  int id;
@@ -226,6 +228,8 @@ class _ReplyToMessage implements ReplyToMessage {
 @override final  String? createdAt;
 @override final  String? fileName;
 @override final  String? locationName;
+@override final  String? mediaUrl;
+@override final  int? duration;
 
 /// Create a copy of ReplyToMessage
 /// with the given fields replaced by the non-null parameter values.
@@ -237,16 +241,16 @@ _$ReplyToMessageCopyWith<_ReplyToMessage> get copyWith => __$ReplyToMessageCopyW
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ReplyToMessage&&(identical(other.id, id) || other.id == id)&&(identical(other.content, content) || other.content == content)&&(identical(other.senderId, senderId) || other.senderId == senderId)&&(identical(other.senderUsername, senderUsername) || other.senderUsername == senderUsername)&&(identical(other.senderFullName, senderFullName) || other.senderFullName == senderFullName)&&(identical(other.type, type) || other.type == type)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.fileName, fileName) || other.fileName == fileName)&&(identical(other.locationName, locationName) || other.locationName == locationName));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ReplyToMessage&&(identical(other.id, id) || other.id == id)&&(identical(other.content, content) || other.content == content)&&(identical(other.senderId, senderId) || other.senderId == senderId)&&(identical(other.senderUsername, senderUsername) || other.senderUsername == senderUsername)&&(identical(other.senderFullName, senderFullName) || other.senderFullName == senderFullName)&&(identical(other.type, type) || other.type == type)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.fileName, fileName) || other.fileName == fileName)&&(identical(other.locationName, locationName) || other.locationName == locationName)&&(identical(other.mediaUrl, mediaUrl) || other.mediaUrl == mediaUrl)&&(identical(other.duration, duration) || other.duration == duration));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,id,content,senderId,senderUsername,senderFullName,type,createdAt,fileName,locationName);
+int get hashCode => Object.hash(runtimeType,id,content,senderId,senderUsername,senderFullName,type,createdAt,fileName,locationName,mediaUrl,duration);
 
 @override
 String toString() {
-  return 'ReplyToMessage(id: $id, content: $content, senderId: $senderId, senderUsername: $senderUsername, senderFullName: $senderFullName, type: $type, createdAt: $createdAt, fileName: $fileName, locationName: $locationName)';
+  return 'ReplyToMessage(id: $id, content: $content, senderId: $senderId, senderUsername: $senderUsername, senderFullName: $senderFullName, type: $type, createdAt: $createdAt, fileName: $fileName, locationName: $locationName, mediaUrl: $mediaUrl, duration: $duration)';
 }
 
 
@@ -257,7 +261,7 @@ abstract mixin class _$ReplyToMessageCopyWith<$Res> implements $ReplyToMessageCo
   factory _$ReplyToMessageCopyWith(_ReplyToMessage value, $Res Function(_ReplyToMessage) _then) = __$ReplyToMessageCopyWithImpl;
 @override @useResult
 $Res call({
- int id, String content, int senderId, String senderUsername, String? senderFullName, String type, String? createdAt, String? fileName, String? locationName
+ int id, String content, int senderId, String senderUsername, String? senderFullName, String type, String? createdAt, String? fileName, String? locationName, String? mediaUrl, int? duration
 });
 
 
@@ -274,7 +278,7 @@ class __$ReplyToMessageCopyWithImpl<$Res>
 
 /// Create a copy of ReplyToMessage
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? content = null,Object? senderId = null,Object? senderUsername = null,Object? senderFullName = freezed,Object? type = null,Object? createdAt = freezed,Object? fileName = freezed,Object? locationName = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? content = null,Object? senderId = null,Object? senderUsername = null,Object? senderFullName = freezed,Object? type = null,Object? createdAt = freezed,Object? fileName = freezed,Object? locationName = freezed,Object? mediaUrl = freezed,Object? duration = freezed,}) {
   return _then(_ReplyToMessage(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as int,content: null == content ? _self.content : content // ignore: cast_nullable_to_non_nullable
@@ -285,7 +289,9 @@ as String?,type: null == type ? _self.type : type // ignore: cast_nullable_to_no
 as String,createdAt: freezed == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
 as String?,fileName: freezed == fileName ? _self.fileName : fileName // ignore: cast_nullable_to_non_nullable
 as String?,locationName: freezed == locationName ? _self.locationName : locationName // ignore: cast_nullable_to_non_nullable
-as String?,
+as String?,mediaUrl: freezed == mediaUrl ? _self.mediaUrl : mediaUrl // ignore: cast_nullable_to_non_nullable
+as String?,duration: freezed == duration ? _self.duration : duration // ignore: cast_nullable_to_non_nullable
+as int?,
   ));
 }
 

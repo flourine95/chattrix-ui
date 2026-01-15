@@ -22,6 +22,8 @@ class LocationMessageBubble extends StatelessWidget {
     this.replyToMessage,
     this.onEdit,
     this.onDelete,
+    this.onForward,
+    this.onScrollToMessage,
     this.isGroup = false,
     this.isLastMessage = false,
   });
@@ -36,6 +38,8 @@ class LocationMessageBubble extends StatelessWidget {
   final ReplyToMessage? replyToMessage;
   final VoidCallback? onEdit;
   final VoidCallback? onDelete;
+  final VoidCallback? onForward;
+  final Function(int messageId)? onScrollToMessage;
   final bool isGroup;
   final bool isLastMessage;
 
@@ -77,6 +81,8 @@ class LocationMessageBubble extends StatelessWidget {
         replyToMessage: replyToMessage,
         onEdit: onEdit,
         onDelete: onDelete,
+        onForward: onForward,
+        onScrollToMessage: onScrollToMessage,
         isGroup: isGroup,
         isLastMessage: isLastMessage,
         child: Column(

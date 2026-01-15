@@ -98,4 +98,22 @@ abstract class ChatRepository {
     String? cursor,
     int limit = 20,
   });
+
+  /// Forward message to multiple conversations
+  ///
+  /// **Parameters:**
+  /// - [conversationId]: ID of the conversation containing the original message
+  /// - [messageId]: ID of the message to forward
+  /// - [targetConversationIds]: List of conversation IDs to forward to
+  ///
+  /// **API:** `POST /v1/conversations/{conversationId}/messages/{messageId}/forward`
+  /// **Errors:**
+  /// - 400: Cannot forward deleted message / Validation failed
+  /// - 403: No permission to access conversation
+  /// - 404: Message not found
+  Future<Either<Failure, List<Message>>> forwardMessage({
+    required String conversationId,
+    required String messageId,
+    required List<int> targetConversationIds,
+  });
 }

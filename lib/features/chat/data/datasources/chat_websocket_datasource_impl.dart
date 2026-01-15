@@ -118,34 +118,20 @@ class ChatWebSocketDataSourceImpl implements ChatWebSocketDataSource {
       switch (type) {
         case _ChatWebSocketResponse.chatMessage:
           try {
-            debugPrint('🟡 [DEBUG] ===== RAW MESSAGE FROM BACKEND =====');
-            debugPrint('🟡 [DEBUG] Payload: $payload');
-
+            debugPrint('🟡 [WebSocket] RAW MESSAGE RECEIVED');
+            debugPrint('🟡 [WebSocket] Payload: $payload');
+            
             final messageEntity = MessageModel.fromApi(payload as Map<String, dynamic>).toEntity();
-
-            debugPrint('🟡 [DEBUG] ===== PARSED MESSAGE =====');
-            debugPrint('🟡 [DEBUG] Message ID: ${messageEntity.id}');
-            debugPrint('🟡 [DEBUG] Content: ${messageEntity.content}');
-            debugPrint('🟡 [DEBUG] Sender ID: ${messageEntity.senderId}');
-            debugPrint('🟡 [DEBUG] Sender username: ${messageEntity.senderUsername}');
-            debugPrint('🟡 [DEBUG] Conversation ID: ${messageEntity.conversationId}');
-
-            // Debug: Check if replyToMessage is present
-            if (messageEntity.replyToMessageId != null) {
-              debugPrint('🔵 [WebSocket] Message received with replyToMessageId: ${messageEntity.replyToMessageId}');
-              debugPrint(
-                '🔵 [WebSocket] replyToMessage object: ${messageEntity.replyToMessage != null ? "Present" : "NULL"}',
-              );
-              if (messageEntity.replyToMessage != null) {
-                debugPrint('🔵 [WebSocket] replyToMessage content: ${messageEntity.replyToMessage!.content}');
-              }
-            }
-
+            
+            debugPrint('🟡 [WebSocket] Parsed message ID: ${messageEntity.id}');
+            debugPrint('🟡 [WebSocket] Content: ${messageEntity.content}');
+            debugPrint('🟡 [WebSocket] ReplyToMessageId: ${messageEntity.replyToMessageId}');
+            debugPrint('🟡 [WebSocket] ReplyToMessage: ${messageEntity.replyToMessage != null ? "Present" : "NULL"}');
+            
             _messageController.add(messageEntity);
-            debugPrint('🟡 [DEBUG] ✅ Message added to stream controller');
             AppLogger.debug('Successfully processed chat message', tag: 'ChatWebSocketDataSource');
           } catch (e, st) {
-            debugPrint('❌ [DEBUG] Error parsing chat message: $e');
+            debugPrint('❌ [WebSocket] ERROR parsing message: $e');
             AppLogger.error('Failed to parse chat message', error: e, stackTrace: st, tag: 'ChatWebSocketDataSource');
           }
           break;

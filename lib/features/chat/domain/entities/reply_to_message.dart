@@ -14,5 +14,7 @@ abstract class ReplyToMessage with _$ReplyToMessage {
     String? createdAt,
     String? fileName,
     String? locationName,
+    String? mediaUrl,
+    int? duration,
   }) = _ReplyToMessage;
 }

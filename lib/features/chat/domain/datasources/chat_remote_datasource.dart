@@ -285,4 +285,17 @@ abstract class ChatRemoteDatasource {
   ///
   /// **API:** `DELETE /v1/conversations/{conversationId}/events/{eventId}`
   Future<void> deleteEvent({required String conversationId, required int eventId});
+
+  /// Forward message to multiple conversations
+  ///
+  /// **API:** `POST /v1/conversations/{conversationId}/messages/{messageId}/forward`
+  /// **Errors:**
+  /// - 400: Cannot forward deleted message / Validation failed
+  /// - 403: No permission to access conversation
+  /// - 404: Message not found
+  Future<List<MessageModel>> forwardMessage({
+    required String conversationId,
+    required String messageId,
+    required List<int> targetConversationIds,
+  });
 }

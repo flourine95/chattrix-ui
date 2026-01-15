@@ -17,6 +17,8 @@ class EmojiMessageBubble extends StatefulWidget {
     this.replyToMessage,
     this.onEdit,
     this.onDelete,
+    this.onForward,
+    this.onScrollToMessage,
     this.isGroup = false,
     this.isLastMessage = false,
   });
@@ -31,6 +33,8 @@ class EmojiMessageBubble extends StatefulWidget {
   final ReplyToMessage? replyToMessage;
   final VoidCallback? onEdit;
   final VoidCallback? onDelete;
+  final VoidCallback? onForward;
+  final Function(int messageId)? onScrollToMessage;
   final bool isGroup;
   final bool isLastMessage;
 
@@ -181,6 +185,24 @@ class _EmojiMessageBubbleState extends State<EmojiMessageBubble> {
                 onTap: () {
                   Navigator.pop(context);
                   widget.onReply!();
+                },
+              ),
+            if (widget.onForward != null)
+              ListTile(
+                leading: const Icon(Icons.forward),
+                title: const Text('Forward'),
+                onTap: () {
+                  Navigator.pop(context);
+                  widget.onForward!();
+                },
+              ),
+            if (widget.onPin != null)
+              ListTile(
+                leading: const Icon(Icons.push_pin),
+                title: const Text('Pin'),
+                onTap: () {
+                  Navigator.pop(context);
+                  widget.onPin!();
                 },
               ),
             if (widget.onAddReaction != null)

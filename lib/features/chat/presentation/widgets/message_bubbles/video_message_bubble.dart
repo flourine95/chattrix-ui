@@ -21,6 +21,8 @@ class VideoMessageBubble extends StatefulWidget {
     this.replyToMessage,
     this.onEdit,
     this.onDelete,
+    this.onForward,
+    this.onScrollToMessage,
     this.isGroup = false,
     this.isLastMessage = false,
   });
@@ -35,6 +37,8 @@ class VideoMessageBubble extends StatefulWidget {
   final ReplyToMessage? replyToMessage;
   final VoidCallback? onEdit;
   final VoidCallback? onDelete;
+  final VoidCallback? onForward;
+  final Function(int messageId)? onScrollToMessage;
   final bool isGroup;
   final bool isLastMessage;
 
@@ -114,6 +118,12 @@ class _VideoMessageBubbleState extends State<VideoMessageBubble> with AutomaticK
   Widget build(BuildContext context) {
     super.build(context); // Required for AutomaticKeepAliveClientMixin
 
+    debugPrint('🎥 [VideoMessageBubble] Rendering video message ${widget.message.id}');
+    debugPrint('🎥 [VideoMessageBubble] mediaUrl: ${widget.message.mediaUrl}');
+    debugPrint('🎥 [VideoMessageBubble] thumbnailUrl: ${widget.message.thumbnailUrl}');
+    debugPrint('🎥 [VideoMessageBubble] duration: ${widget.message.duration}');
+    debugPrint('🎥 [VideoMessageBubble] content: ${widget.message.content}');
+
     final textColor = FormatUtils.getTextColor(context, widget.isMe);
     final textTheme = Theme.of(context).textTheme;
 
@@ -129,6 +139,8 @@ class _VideoMessageBubbleState extends State<VideoMessageBubble> with AutomaticK
       replyToMessage: widget.replyToMessage,
       onEdit: widget.onEdit,
       onDelete: widget.onDelete,
+      onForward: widget.onForward,
+      onScrollToMessage: widget.onScrollToMessage,
       isGroup: widget.isGroup,
       isLastMessage: widget.isLastMessage,
       child: Column(

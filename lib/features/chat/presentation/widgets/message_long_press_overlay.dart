@@ -16,6 +16,7 @@ class MessageLongPressOverlay extends HookWidget {
     required this.onQuickReaction,
     required this.canEdit,
     this.onPin,
+    this.onForward,
   });
 
   final Message message;
@@ -28,6 +29,7 @@ class MessageLongPressOverlay extends HookWidget {
   final Function(String emoji) onQuickReaction;
   final bool canEdit;
   final VoidCallback? onPin;
+  final VoidCallback? onForward;
 
   static const List<String> _quickEmojis = ['👍', '❤️', '😂', '😮', '😢', '🔥'];
 
@@ -196,6 +198,7 @@ class MessageLongPressOverlay extends HookWidget {
                 onCopy: handleCopy,
                 onEdit: canEdit && onEdit != null ? () => handleAction(onEdit) : null,
                 onPin: onPin != null ? () => handleAction(onPin) : null,
+                onForward: onForward != null ? () => handleAction(onForward) : null,
                 onDelete: isMe && onDelete != null ? () => handleAction(onDelete) : null,
                 onMoreReactions: onAddReaction != null ? handleMoreReactions : null,
               ),
@@ -290,6 +293,7 @@ class _ActionBar extends StatelessWidget {
     required this.onCopy,
     required this.onEdit,
     required this.onPin,
+    required this.onForward,
     required this.onDelete,
     required this.onMoreReactions,
   });
@@ -298,6 +302,7 @@ class _ActionBar extends StatelessWidget {
   final VoidCallback? onCopy;
   final VoidCallback? onEdit;
   final VoidCallback? onPin;
+  final VoidCallback? onForward;
   final VoidCallback? onDelete;
   final VoidCallback? onMoreReactions;
 
@@ -316,6 +321,12 @@ class _ActionBar extends StatelessWidget {
 
     if (onCopy != null) {
       actions.add(_ActionButton(icon: Icons.copy, label: 'Copy', onTap: onCopy!, textTheme: textTheme, colors: colors));
+    }
+
+    if (onForward != null) {
+      actions.add(
+        _ActionButton(icon: Icons.forward, label: 'Forward', onTap: onForward!, textTheme: textTheme, colors: colors),
+      );
     }
 
     if (onEdit != null) {
@@ -419,6 +430,7 @@ void showMessageLongPressOverlay({
   VoidCallback? onAddReaction,
   VoidCallback? onEdit,
   VoidCallback? onDelete,
+  VoidCallback? onForward,
   required Function(String emoji) onQuickReaction,
   required bool canEdit,
   VoidCallback? onPin,
@@ -437,6 +449,7 @@ void showMessageLongPressOverlay({
       onAddReaction: onAddReaction,
       onEdit: onEdit,
       onDelete: onDelete,
+      onForward: onForward,
       onQuickReaction: onQuickReaction,
       canEdit: canEdit,
       onPin: onPin,

@@ -20,6 +20,8 @@ class ImageMessageBubble extends StatelessWidget {
     this.replyToMessage,
     this.onEdit,
     this.onDelete,
+    this.onForward,
+    this.onScrollToMessage,
     this.isGroup = false,
     this.isLastMessage = false,
   });
@@ -34,6 +36,8 @@ class ImageMessageBubble extends StatelessWidget {
   final ReplyToMessage? replyToMessage;
   final VoidCallback? onEdit;
   final VoidCallback? onDelete;
+  final VoidCallback? onForward;
+  final Function(int messageId)? onScrollToMessage;
   final bool isGroup;
   final bool isLastMessage;
 
@@ -65,6 +69,8 @@ class ImageMessageBubble extends StatelessWidget {
       replyToMessage: replyToMessage,
       onEdit: onEdit,
       onDelete: onDelete,
+      onForward: onForward,
+      onScrollToMessage: onScrollToMessage,
       isGroup: isGroup,
       isLastMessage: isLastMessage,
       child: Column(
@@ -91,18 +97,37 @@ class ImageMessageBubble extends StatelessWidget {
                     imageUrl: message.mediaUrl!,
                     width: 280,
                     fit: BoxFit.cover,
-                    placeholder: (context, url) => Container(
-                      width: 280,
-                      height: 200,
-                      color: Colors.grey.shade300,
-                      child: const Center(child: CircularProgressIndicator()),
-                    ),
+                    placeholder: (context, url) {
+                      return Container(
+                        width: 280,
+                        height: 200,
+                        color: Colors.grey.shade300,
+                        child: const Center(child: CircularProgressIndicator()),
+                      );
+                    },
                     errorWidget: (context, url, error) {
                       return Container(
                         width: 280,
                         height: 200,
                         color: Colors.grey.shade300,
-                        child: const Icon(Icons.broken_image, size: 48),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Icon(Icons.broken_image, size: 48),
+                            const SizedBox(height: 8),
+                            Text(
+                              'Failed to load',
+                              style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                            ),
+                            Text(
+                              error.toString(),
+                              style: TextStyle(fontSize: 10, color: Colors.grey.shade500),
+                              textAlign: TextAlign.center,
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ],
+                        ),
                       );
                     },
                     // Performance optimizations

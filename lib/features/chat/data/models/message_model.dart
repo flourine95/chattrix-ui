@@ -71,6 +71,8 @@ abstract class MessageModel with _$MessageModel {
     PollDto? pollData,
     // Event data (for EVENT type messages)
     EventDto? eventData,
+    // Metadata for additional message data (e.g., link preview info)
+    Map<String, dynamic>? metadata,
   }) = _MessageModel;
 
   factory MessageModel.fromJson(Map<String, dynamic> json) => _$MessageModelFromJson(json);
@@ -78,10 +80,18 @@ abstract class MessageModel with _$MessageModel {
   /// Parse message from API response
   /// Handles both REST API and WebSocket message formats
   factory MessageModel.fromApi(Map<String, dynamic> json) {
-    // Parse replyToMessage
+    // Parse replyToMessage - remove metadata field to avoid parsing errors
     ReplyToMessageModel? replyToMessage;
     if (json['replyToMessage'] != null && json['replyToMessage'] is Map<String, dynamic>) {
-      replyToMessage = ReplyToMessageModel.fromJson(json['replyToMessage']);
+      try {
+        final replyJson = Map<String, dynamic>.from(json['replyToMessage']);
+        
+        // Remove metadata field as it's not part of ReplyToMessageModel
+        replyJson.remove('metadata');
+        replyToMessage = ReplyToMessageModel.fromJson(replyJson);
+      } catch (e) {
+        debugPrint('⚠️ [MessageModel] Failed to parse replyToMessage: $e');
+      }
     }
 
     // Parse mentionedUsers - skip invalid entries
@@ -107,14 +117,23 @@ abstract class MessageModel with _$MessageModel {
     Map<String, List<int>>? reactions;
     if (json['reactions'] != null && json['reactions'] is Map) {
       reactions = (json['reactions'] as Map).map(
-        (key, value) => MapEntry(key.toString(), (value as List).map((e) => (e as num).toInt()).toList()),
+        (key, value) => MapEntry(
+          key.toString(),
+          (value as List)
+              .where((e) => e != null) // Filter out null values
+              .map((e) => (e as num).toInt())
+              .toList(),
+        ),
       );
     }
 
     // Parse mentions - API returns List<int>
     List<int>? mentions;
     if (json['mentions'] != null && json['mentions'] is List) {
-      mentions = (json['mentions'] as List).map((e) => (e as num).toInt()).toList();
+      mentions = (json['mentions'] as List)
+          .where((e) => e != null) // Filter out null values
+          .map((e) => (e as num).toInt())
+          .toList();
     }
 
     // Parse poll data - API returns 'poll' object for POLL type messages
@@ -124,13 +143,8 @@ abstract class MessageModel with _$MessageModel {
     if (pollJson != null && pollJson is Map) {
       try {
         pollData = PollDto.fromJson(pollJson as Map<String, dynamic>);
-        debugPrint('🗳️ [MessageModel] ✅ Successfully parsed poll ${pollData.id} for message ${json['id']}');
       } catch (e) {
-        debugPrint('⚠️ [MessageModel] Failed to parse poll for message ${json['id']}: $e');
-      }
-    } else {
-      if (json['type'] == 'POLL') {
-        debugPrint('🗳️ [MessageModel] ⚠️ POLL message ${json['id']} has no poll data (pollId: ${json['pollId']})');
+        debugPrint('⚠️ [MessageModel] Failed to parse poll: $e');
       }
     }
 
@@ -141,17 +155,23 @@ abstract class MessageModel with _$MessageModel {
     if (eventJson != null && eventJson is Map) {
       try {
         eventData = EventDto.fromJson(eventJson as Map<String, dynamic>);
-        debugPrint('📅 [MessageModel] ✅ Successfully parsed event ${eventData.id} for message ${json['id']}');
       } catch (e) {
-        debugPrint('⚠️ [MessageModel] Failed to parse event for message ${json['id']}: $e');
-      }
-    } else {
-      if (json['type'] == 'EVENT') {
-        debugPrint('📅 [MessageModel] ⚠️ EVENT message ${json['id']} has no event data');
+        debugPrint('⚠️ [MessageModel] Failed to parse event: $e');
       }
     }
 
-    return MessageModel(
+    // Extract mediaUrl and thumbnailUrl from metadata if not at root level
+    String? mediaUrl = json['mediaUrl']?.toString();
+    String? thumbnailUrl = json['thumbnailUrl']?.toString();
+    
+    // If mediaUrl is null, check in metadata object
+    if (mediaUrl == null && json['metadata'] != null && json['metadata'] is Map) {
+      final metadata = json['metadata'] as Map<String, dynamic>;
+      mediaUrl = metadata['mediaUrl']?.toString();
+      thumbnailUrl = metadata['thumbnailUrl']?.toString();
+    }
+
+    final model = MessageModel(
       id: (json['id'] ?? json['messageId'] ?? 0) as int,
       conversationId: (json['conversationId'] ?? json['conversation_id'] ?? 0) as int,
       senderId: (json['senderId'] ?? json['sender']?['id'] ?? 0) as int,
@@ -160,15 +180,15 @@ abstract class MessageModel with _$MessageModel {
       content: (json['content'] ?? '').toString(),
       type: (json['type'] ?? 'TEXT').toString(),
       createdAt: (json['createdAt'] ?? json['sentAt'] ?? DateTime.now().toIso8601String()).toString(),
-      mediaUrl: json['mediaUrl']?.toString(),
-      thumbnailUrl: json['thumbnailUrl']?.toString(),
+      mediaUrl: mediaUrl,
+      thumbnailUrl: thumbnailUrl,
       fileName: json['fileName']?.toString(),
-      fileSize: json['fileSize'] != null ? (json['fileSize'] as num).toInt() : null,
-      duration: json['duration'] != null ? (json['duration'] as num).toInt() : null,
-      latitude: json['latitude'] != null ? (json['latitude'] as num).toDouble() : null,
-      longitude: json['longitude'] != null ? (json['longitude'] as num).toDouble() : null,
+      fileSize: _parseIntSafe(json['fileSize']),
+      duration: _parseIntSafe(json['duration']),
+      latitude: _parseDoubleSafe(json['latitude']),
+      longitude: _parseDoubleSafe(json['longitude']),
       locationName: json['locationName']?.toString(),
-      replyToMessageId: json['replyToMessageId'] != null ? (json['replyToMessageId'] as num).toInt() : null,
+      replyToMessageId: _parseIntSafe(json['replyToMessageId']),
       replyToMessage: replyToMessage,
       reactions: reactions,
       mentions: mentions,
@@ -180,21 +200,44 @@ abstract class MessageModel with _$MessageModel {
       deleted: json['deleted'] ?? false,
       deletedAt: json['deletedAt']?.toString(),
       forwarded: json['forwarded'] ?? false,
-      originalMessageId: json['originalMessageId'] != null ? (json['originalMessageId'] as num).toInt() : null,
-      forwardCount: json['forwardCount'] ?? 0,
-      readCount: json['readCount'] ?? 0,
+      originalMessageId: _parseIntSafe(json['originalMessageId']),
+      forwardCount: _parseIntSafe(json['forwardCount']) ?? 0,
+      readCount: _parseIntSafe(json['readCount']) ?? 0,
       readBy: readBy,
       scheduled: json['scheduled'] ?? false,
       scheduledTime: json['scheduledTime']?.toString(),
       scheduledStatus: json['scheduledStatus']?.toString(),
       pinned: json['pinned'] ?? false,
       pinnedAt: json['pinnedAt']?.toString(),
-      pinnedBy: json['pinnedBy'] != null ? (json['pinnedBy'] as num).toInt() : null,
+      pinnedBy: _parseIntSafe(json['pinnedBy']),
       pinnedByUsername: json['pinnedByUsername']?.toString(),
       pinnedByFullName: json['pinnedByFullName']?.toString(),
       pollData: pollData,
       eventData: eventData,
+      metadata: json['metadata'] as Map<String, dynamic>?,
     );
+
+    return model;
+  }
+
+  /// Safe int parsing - handles null, string, and number
+  static int? _parseIntSafe(dynamic value) {
+    if (value == null) return null;
+    if (value is int) return value;
+    if (value is double) return value.toInt();
+    if (value is String) return int.tryParse(value);
+    if (value is num) return value.toInt();
+    return null;
+  }
+
+  /// Safe double parsing - handles null, string, and number
+  static double? _parseDoubleSafe(dynamic value) {
+    if (value == null) return null;
+    if (value is double) return value;
+    if (value is int) return value.toDouble();
+    if (value is String) return double.tryParse(value);
+    if (value is num) return value.toDouble();
+    return null;
   }
 
   /// Convert to domain entity
@@ -242,6 +285,7 @@ abstract class MessageModel with _$MessageModel {
       pinnedByFullName: pinnedByFullName,
       pollData: pollData?.toEntity(),
       eventData: eventData?.toEntity(),
+      metadata: metadata,
     );
   }
 }

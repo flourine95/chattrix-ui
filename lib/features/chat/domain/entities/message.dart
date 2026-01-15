@@ -58,5 +58,7 @@ abstract class Message with _$Message {
     PollEntity? pollData,
     // Event data (for EVENT type messages)
     EventEntity? eventData,
+    // Metadata for additional message data (e.g., link preview info)
+    Map<String, dynamic>? metadata,
   }) = _Message;
 }

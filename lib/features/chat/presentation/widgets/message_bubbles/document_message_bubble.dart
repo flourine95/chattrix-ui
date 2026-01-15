@@ -21,6 +21,8 @@ class DocumentMessageBubble extends StatelessWidget {
     this.replyToMessage,
     this.onEdit,
     this.onDelete,
+    this.onForward,
+    this.onScrollToMessage,
     this.isGroup = false,
     this.isLastMessage = false,
   });
@@ -35,6 +37,8 @@ class DocumentMessageBubble extends StatelessWidget {
   final ReplyToMessage? replyToMessage;
   final VoidCallback? onEdit;
   final VoidCallback? onDelete;
+  final VoidCallback? onForward;
+  final Function(int messageId)? onScrollToMessage;
   final bool isGroup;
   final bool isLastMessage;
 
@@ -116,6 +120,12 @@ class DocumentMessageBubble extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    debugPrint('📄 [DocumentMessageBubble] Rendering document message ${message.id}');
+    debugPrint('📄 [DocumentMessageBubble] mediaUrl: ${message.mediaUrl}');
+    debugPrint('📄 [DocumentMessageBubble] fileName: ${message.fileName}');
+    debugPrint('📄 [DocumentMessageBubble] fileSize: ${message.fileSize}');
+    debugPrint('📄 [DocumentMessageBubble] content: ${message.content}');
+    
     final textColor = FormatUtils.getTextColor(context, isMe);
     final textTheme = Theme.of(context).textTheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
@@ -135,6 +145,8 @@ class DocumentMessageBubble extends StatelessWidget {
       replyToMessage: replyToMessage,
       onEdit: onEdit,
       onDelete: onDelete,
+      onForward: onForward,
+      onScrollToMessage: onScrollToMessage,
       isGroup: isGroup,
       isLastMessage: isLastMessage,
       child: InkWell(

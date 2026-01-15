@@ -1,6 +1,7 @@
 import 'package:chattrix_ui/features/chat/domain/usecases/create_conversation_usecase.dart';
 import 'package:chattrix_ui/features/chat/domain/usecases/delete_message_usecase.dart';
 import 'package:chattrix_ui/features/chat/domain/usecases/edit_message_usecase.dart';
+import 'package:chattrix_ui/features/chat/domain/usecases/forward_message_usecase.dart';
 import 'package:chattrix_ui/features/chat/domain/usecases/get_conversation_members_usecase.dart';
 import 'package:chattrix_ui/features/chat/domain/usecases/get_conversation_usecase.dart';
 import 'package:chattrix_ui/features/chat/domain/usecases/get_conversations_usecase.dart';
@@ -108,4 +109,9 @@ final unpinMessageUsecaseProvider = Provider<UnpinMessageUsecase>((ref) {
 final getPinnedMessagesUsecaseProvider = Provider<GetPinnedMessagesUsecase>((ref) {
   final datasource = ref.watch(chatRemoteDatasourceProvider);
   return GetPinnedMessagesUsecase(datasource);
+});
+
+final forwardMessageUsecaseProvider = Provider<ForwardMessageUsecase>((ref) {
+  final repository = ref.watch(chatRepositoryProvider);
+  return ForwardMessageUsecase(repository);
 });

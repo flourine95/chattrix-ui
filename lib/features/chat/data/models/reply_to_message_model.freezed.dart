@@ -15,7 +15,8 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$ReplyToMessageModel {
 
- int get id; String get content; int get senderId; String get senderUsername; String? get senderFullName; String get type; String? get createdAt; String? get fileName; String? get locationName;
+ int get id; String get content;@JsonKey(name: 'senderId') int? get senderId;@JsonKey(name: 'senderUsername') String? get senderUsername; String? get senderFullName; String get type; String? get createdAt; String? get fileName; String? get locationName; String? get mediaUrl; int? get duration;// Ignore metadata field from API
+@JsonKey(includeFromJson: false, includeToJson: false) Map<String, dynamic>? get metadata;
 /// Create a copy of ReplyToMessageModel
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -28,16 +29,16 @@ $ReplyToMessageModelCopyWith<ReplyToMessageModel> get copyWith => _$ReplyToMessa
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ReplyToMessageModel&&(identical(other.id, id) || other.id == id)&&(identical(other.content, content) || other.content == content)&&(identical(other.senderId, senderId) || other.senderId == senderId)&&(identical(other.senderUsername, senderUsername) || other.senderUsername == senderUsername)&&(identical(other.senderFullName, senderFullName) || other.senderFullName == senderFullName)&&(identical(other.type, type) || other.type == type)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.fileName, fileName) || other.fileName == fileName)&&(identical(other.locationName, locationName) || other.locationName == locationName));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ReplyToMessageModel&&(identical(other.id, id) || other.id == id)&&(identical(other.content, content) || other.content == content)&&(identical(other.senderId, senderId) || other.senderId == senderId)&&(identical(other.senderUsername, senderUsername) || other.senderUsername == senderUsername)&&(identical(other.senderFullName, senderFullName) || other.senderFullName == senderFullName)&&(identical(other.type, type) || other.type == type)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.fileName, fileName) || other.fileName == fileName)&&(identical(other.locationName, locationName) || other.locationName == locationName)&&(identical(other.mediaUrl, mediaUrl) || other.mediaUrl == mediaUrl)&&(identical(other.duration, duration) || other.duration == duration)&&const DeepCollectionEquality().equals(other.metadata, metadata));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,content,senderId,senderUsername,senderFullName,type,createdAt,fileName,locationName);
+int get hashCode => Object.hash(runtimeType,id,content,senderId,senderUsername,senderFullName,type,createdAt,fileName,locationName,mediaUrl,duration,const DeepCollectionEquality().hash(metadata));
 
 @override
 String toString() {
-  return 'ReplyToMessageModel(id: $id, content: $content, senderId: $senderId, senderUsername: $senderUsername, senderFullName: $senderFullName, type: $type, createdAt: $createdAt, fileName: $fileName, locationName: $locationName)';
+  return 'ReplyToMessageModel(id: $id, content: $content, senderId: $senderId, senderUsername: $senderUsername, senderFullName: $senderFullName, type: $type, createdAt: $createdAt, fileName: $fileName, locationName: $locationName, mediaUrl: $mediaUrl, duration: $duration, metadata: $metadata)';
 }
 
 
@@ -48,7 +49,7 @@ abstract mixin class $ReplyToMessageModelCopyWith<$Res>  {
   factory $ReplyToMessageModelCopyWith(ReplyToMessageModel value, $Res Function(ReplyToMessageModel) _then) = _$ReplyToMessageModelCopyWithImpl;
 @useResult
 $Res call({
- int id, String content, int senderId, String senderUsername, String? senderFullName, String type, String? createdAt, String? fileName, String? locationName
+ int id, String content,@JsonKey(name: 'senderId') int? senderId,@JsonKey(name: 'senderUsername') String? senderUsername, String? senderFullName, String type, String? createdAt, String? fileName, String? locationName, String? mediaUrl, int? duration,@JsonKey(includeFromJson: false, includeToJson: false) Map<String, dynamic>? metadata
 });
 
 
@@ -65,18 +66,21 @@ class _$ReplyToMessageModelCopyWithImpl<$Res>
 
 /// Create a copy of ReplyToMessageModel
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? content = null,Object? senderId = null,Object? senderUsername = null,Object? senderFullName = freezed,Object? type = null,Object? createdAt = freezed,Object? fileName = freezed,Object? locationName = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? content = null,Object? senderId = freezed,Object? senderUsername = freezed,Object? senderFullName = freezed,Object? type = null,Object? createdAt = freezed,Object? fileName = freezed,Object? locationName = freezed,Object? mediaUrl = freezed,Object? duration = freezed,Object? metadata = freezed,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as int,content: null == content ? _self.content : content // ignore: cast_nullable_to_non_nullable
-as String,senderId: null == senderId ? _self.senderId : senderId // ignore: cast_nullable_to_non_nullable
-as int,senderUsername: null == senderUsername ? _self.senderUsername : senderUsername // ignore: cast_nullable_to_non_nullable
-as String,senderFullName: freezed == senderFullName ? _self.senderFullName : senderFullName // ignore: cast_nullable_to_non_nullable
+as String,senderId: freezed == senderId ? _self.senderId : senderId // ignore: cast_nullable_to_non_nullable
+as int?,senderUsername: freezed == senderUsername ? _self.senderUsername : senderUsername // ignore: cast_nullable_to_non_nullable
+as String?,senderFullName: freezed == senderFullName ? _self.senderFullName : senderFullName // ignore: cast_nullable_to_non_nullable
 as String?,type: null == type ? _self.type : type // ignore: cast_nullable_to_non_nullable
 as String,createdAt: freezed == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
 as String?,fileName: freezed == fileName ? _self.fileName : fileName // ignore: cast_nullable_to_non_nullable
 as String?,locationName: freezed == locationName ? _self.locationName : locationName // ignore: cast_nullable_to_non_nullable
-as String?,
+as String?,mediaUrl: freezed == mediaUrl ? _self.mediaUrl : mediaUrl // ignore: cast_nullable_to_non_nullable
+as String?,duration: freezed == duration ? _self.duration : duration // ignore: cast_nullable_to_non_nullable
+as int?,metadata: freezed == metadata ? _self.metadata : metadata // ignore: cast_nullable_to_non_nullable
+as Map<String, dynamic>?,
   ));
 }
 
@@ -161,10 +165,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int id,  String content,  int senderId,  String senderUsername,  String? senderFullName,  String type,  String? createdAt,  String? fileName,  String? locationName)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int id,  String content, @JsonKey(name: 'senderId')  int? senderId, @JsonKey(name: 'senderUsername')  String? senderUsername,  String? senderFullName,  String type,  String? createdAt,  String? fileName,  String? locationName,  String? mediaUrl,  int? duration, @JsonKey(includeFromJson: false, includeToJson: false)  Map<String, dynamic>? metadata)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _ReplyToMessageModel() when $default != null:
-return $default(_that.id,_that.content,_that.senderId,_that.senderUsername,_that.senderFullName,_that.type,_that.createdAt,_that.fileName,_that.locationName);case _:
+return $default(_that.id,_that.content,_that.senderId,_that.senderUsername,_that.senderFullName,_that.type,_that.createdAt,_that.fileName,_that.locationName,_that.mediaUrl,_that.duration,_that.metadata);case _:
   return orElse();
 
 }
@@ -182,10 +186,10 @@ return $default(_that.id,_that.content,_that.senderId,_that.senderUsername,_that
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int id,  String content,  int senderId,  String senderUsername,  String? senderFullName,  String type,  String? createdAt,  String? fileName,  String? locationName)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int id,  String content, @JsonKey(name: 'senderId')  int? senderId, @JsonKey(name: 'senderUsername')  String? senderUsername,  String? senderFullName,  String type,  String? createdAt,  String? fileName,  String? locationName,  String? mediaUrl,  int? duration, @JsonKey(includeFromJson: false, includeToJson: false)  Map<String, dynamic>? metadata)  $default,) {final _that = this;
 switch (_that) {
 case _ReplyToMessageModel():
-return $default(_that.id,_that.content,_that.senderId,_that.senderUsername,_that.senderFullName,_that.type,_that.createdAt,_that.fileName,_that.locationName);case _:
+return $default(_that.id,_that.content,_that.senderId,_that.senderUsername,_that.senderFullName,_that.type,_that.createdAt,_that.fileName,_that.locationName,_that.mediaUrl,_that.duration,_that.metadata);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -202,10 +206,10 @@ return $default(_that.id,_that.content,_that.senderId,_that.senderUsername,_that
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int id,  String content,  int senderId,  String senderUsername,  String? senderFullName,  String type,  String? createdAt,  String? fileName,  String? locationName)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int id,  String content, @JsonKey(name: 'senderId')  int? senderId, @JsonKey(name: 'senderUsername')  String? senderUsername,  String? senderFullName,  String type,  String? createdAt,  String? fileName,  String? locationName,  String? mediaUrl,  int? duration, @JsonKey(includeFromJson: false, includeToJson: false)  Map<String, dynamic>? metadata)?  $default,) {final _that = this;
 switch (_that) {
 case _ReplyToMessageModel() when $default != null:
-return $default(_that.id,_that.content,_that.senderId,_that.senderUsername,_that.senderFullName,_that.type,_that.createdAt,_that.fileName,_that.locationName);case _:
+return $default(_that.id,_that.content,_that.senderId,_that.senderUsername,_that.senderFullName,_that.type,_that.createdAt,_that.fileName,_that.locationName,_that.mediaUrl,_that.duration,_that.metadata);case _:
   return null;
 
 }
@@ -217,18 +221,31 @@ return $default(_that.id,_that.content,_that.senderId,_that.senderUsername,_that
 @JsonSerializable()
 
 class _ReplyToMessageModel extends ReplyToMessageModel {
-  const _ReplyToMessageModel({required this.id, required this.content, required this.senderId, required this.senderUsername, this.senderFullName, required this.type, this.createdAt, this.fileName, this.locationName}): super._();
+  const _ReplyToMessageModel({required this.id, required this.content, @JsonKey(name: 'senderId') this.senderId, @JsonKey(name: 'senderUsername') this.senderUsername, this.senderFullName, required this.type, this.createdAt, this.fileName, this.locationName, this.mediaUrl, this.duration, @JsonKey(includeFromJson: false, includeToJson: false) final  Map<String, dynamic>? metadata}): _metadata = metadata,super._();
   factory _ReplyToMessageModel.fromJson(Map<String, dynamic> json) => _$ReplyToMessageModelFromJson(json);
 
 @override final  int id;
 @override final  String content;
-@override final  int senderId;
-@override final  String senderUsername;
+@override@JsonKey(name: 'senderId') final  int? senderId;
+@override@JsonKey(name: 'senderUsername') final  String? senderUsername;
 @override final  String? senderFullName;
 @override final  String type;
 @override final  String? createdAt;
 @override final  String? fileName;
 @override final  String? locationName;
+@override final  String? mediaUrl;
+@override final  int? duration;
+// Ignore metadata field from API
+ final  Map<String, dynamic>? _metadata;
+// Ignore metadata field from API
+@override@JsonKey(includeFromJson: false, includeToJson: false) Map<String, dynamic>? get metadata {
+  final value = _metadata;
+  if (value == null) return null;
+  if (_metadata is EqualUnmodifiableMapView) return _metadata;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableMapView(value);
+}
+
 
 /// Create a copy of ReplyToMessageModel
 /// with the given fields replaced by the non-null parameter values.
@@ -243,16 +260,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ReplyToMessageModel&&(identical(other.id, id) || other.id == id)&&(identical(other.content, content) || other.content == content)&&(identical(other.senderId, senderId) || other.senderId == senderId)&&(identical(other.senderUsername, senderUsername) || other.senderUsername == senderUsername)&&(identical(other.senderFullName, senderFullName) || other.senderFullName == senderFullName)&&(identical(other.type, type) || other.type == type)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.fileName, fileName) || other.fileName == fileName)&&(identical(other.locationName, locationName) || other.locationName == locationName));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ReplyToMessageModel&&(identical(other.id, id) || other.id == id)&&(identical(other.content, content) || other.content == content)&&(identical(other.senderId, senderId) || other.senderId == senderId)&&(identical(other.senderUsername, senderUsername) || other.senderUsername == senderUsername)&&(identical(other.senderFullName, senderFullName) || other.senderFullName == senderFullName)&&(identical(other.type, type) || other.type == type)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.fileName, fileName) || other.fileName == fileName)&&(identical(other.locationName, locationName) || other.locationName == locationName)&&(identical(other.mediaUrl, mediaUrl) || other.mediaUrl == mediaUrl)&&(identical(other.duration, duration) || other.duration == duration)&&const DeepCollectionEquality().equals(other._metadata, _metadata));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,content,senderId,senderUsername,senderFullName,type,createdAt,fileName,locationName);
+int get hashCode => Object.hash(runtimeType,id,content,senderId,senderUsername,senderFullName,type,createdAt,fileName,locationName,mediaUrl,duration,const DeepCollectionEquality().hash(_metadata));
 
 @override
 String toString() {
-  return 'ReplyToMessageModel(id: $id, content: $content, senderId: $senderId, senderUsername: $senderUsername, senderFullName: $senderFullName, type: $type, createdAt: $createdAt, fileName: $fileName, locationName: $locationName)';
+  return 'ReplyToMessageModel(id: $id, content: $content, senderId: $senderId, senderUsername: $senderUsername, senderFullName: $senderFullName, type: $type, createdAt: $createdAt, fileName: $fileName, locationName: $locationName, mediaUrl: $mediaUrl, duration: $duration, metadata: $metadata)';
 }
 
 
@@ -263,7 +280,7 @@ abstract mixin class _$ReplyToMessageModelCopyWith<$Res> implements $ReplyToMess
   factory _$ReplyToMessageModelCopyWith(_ReplyToMessageModel value, $Res Function(_ReplyToMessageModel) _then) = __$ReplyToMessageModelCopyWithImpl;
 @override @useResult
 $Res call({
- int id, String content, int senderId, String senderUsername, String? senderFullName, String type, String? createdAt, String? fileName, String? locationName
+ int id, String content,@JsonKey(name: 'senderId') int? senderId,@JsonKey(name: 'senderUsername') String? senderUsername, String? senderFullName, String type, String? createdAt, String? fileName, String? locationName, String? mediaUrl, int? duration,@JsonKey(includeFromJson: false, includeToJson: false) Map<String, dynamic>? metadata
 });
 
 
@@ -280,18 +297,21 @@ class __$ReplyToMessageModelCopyWithImpl<$Res>
 
 /// Create a copy of ReplyToMessageModel
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? content = null,Object? senderId = null,Object? senderUsername = null,Object? senderFullName = freezed,Object? type = null,Object? createdAt = freezed,Object? fileName = freezed,Object? locationName = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? content = null,Object? senderId = freezed,Object? senderUsername = freezed,Object? senderFullName = freezed,Object? type = null,Object? createdAt = freezed,Object? fileName = freezed,Object? locationName = freezed,Object? mediaUrl = freezed,Object? duration = freezed,Object? metadata = freezed,}) {
   return _then(_ReplyToMessageModel(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as int,content: null == content ? _self.content : content // ignore: cast_nullable_to_non_nullable
-as String,senderId: null == senderId ? _self.senderId : senderId // ignore: cast_nullable_to_non_nullable
-as int,senderUsername: null == senderUsername ? _self.senderUsername : senderUsername // ignore: cast_nullable_to_non_nullable
-as String,senderFullName: freezed == senderFullName ? _self.senderFullName : senderFullName // ignore: cast_nullable_to_non_nullable
+as String,senderId: freezed == senderId ? _self.senderId : senderId // ignore: cast_nullable_to_non_nullable
+as int?,senderUsername: freezed == senderUsername ? _self.senderUsername : senderUsername // ignore: cast_nullable_to_non_nullable
+as String?,senderFullName: freezed == senderFullName ? _self.senderFullName : senderFullName // ignore: cast_nullable_to_non_nullable
 as String?,type: null == type ? _self.type : type // ignore: cast_nullable_to_non_nullable
 as String,createdAt: freezed == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
 as String?,fileName: freezed == fileName ? _self.fileName : fileName // ignore: cast_nullable_to_non_nullable
 as String?,locationName: freezed == locationName ? _self.locationName : locationName // ignore: cast_nullable_to_non_nullable
-as String?,
+as String?,mediaUrl: freezed == mediaUrl ? _self.mediaUrl : mediaUrl // ignore: cast_nullable_to_non_nullable
+as String?,duration: freezed == duration ? _self.duration : duration // ignore: cast_nullable_to_non_nullable
+as int?,metadata: freezed == metadata ? _self._metadata : metadata // ignore: cast_nullable_to_non_nullable
+as Map<String, dynamic>?,
   ));
 }
 

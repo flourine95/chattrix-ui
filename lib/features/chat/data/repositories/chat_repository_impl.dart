@@ -191,4 +191,21 @@ class ChatRepositoryImpl extends BaseRepository implements ChatRepository {
       return models.map((model) => model.toEntity()).toList();
     });
   }
+
+  @override
+  Future<Either<Failure, List<Message>>> forwardMessage({
+    required String conversationId,
+    required String messageId,
+    required List<int> targetConversationIds,
+  }) async {
+    return executeApiCall(() async {
+      final models = await remoteDatasource.forwardMessage(
+        conversationId: conversationId,
+        messageId: messageId,
+        targetConversationIds: targetConversationIds,
+      );
+      return models.map((model) => model.toEntity()).toList();
+    });
+  }
 }
+

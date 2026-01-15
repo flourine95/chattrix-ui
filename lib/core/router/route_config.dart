@@ -9,9 +9,11 @@ import 'package:chattrix_ui/features/call/presentation/pages/call_page.dart';
 import 'package:chattrix_ui/features/call/presentation/pages/incoming_call_page.dart';
 import 'package:chattrix_ui/features/call/presentation/pages/outgoing_call_page.dart';
 import 'package:chattrix_ui/features/chat/domain/entities/conversation.dart';
+import 'package:chattrix_ui/features/chat/domain/entities/message.dart';
 import 'package:chattrix_ui/features/chat/presentation/pages/chat_info_page.dart';
 import 'package:chattrix_ui/features/chat/presentation/pages/chat_list_page.dart';
 import 'package:chattrix_ui/features/chat/presentation/pages/chat_view_page.dart';
+import 'package:chattrix_ui/features/chat/presentation/pages/forward_message_page.dart';
 import 'package:chattrix_ui/features/chat/presentation/pages/new_chat_page.dart';
 import 'package:chattrix_ui/features/chat/presentation/pages/new_group_chat_page.dart';
 import 'package:chattrix_ui/features/chat/presentation/pages/pinned_messages_page.dart';
@@ -84,6 +86,14 @@ class RouteConfig {
       GoRoute(path: RoutePaths.newChat, name: 'new-chat', builder: (context, state) => const NewChatPage()),
       GoRoute(path: RoutePaths.newGroup, name: 'new-group', builder: (context, state) => const NewGroupChatPage()),
       GoRoute(path: RoutePaths.chatInfo, name: 'chat-info', builder: (context, state) => _buildChatInfoPage(state)),
+      GoRoute(
+        path: '/forward-message',
+        name: 'forward-message',
+        builder: (context, state) {
+          final message = state.extra as Message;
+          return RouterSetup(child: ForwardMessagePage(message: message));
+        },
+      ),
       GoRoute(
         path: RoutePaths.searchConversations,
         name: 'search-conversations',

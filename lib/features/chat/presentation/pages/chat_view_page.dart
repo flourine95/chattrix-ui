@@ -296,14 +296,19 @@ class ChatViewPage extends HookConsumerWidget {
       }
     }
 
-    Future<void> sendMessage({String? specificContent, String type = 'TEXT', String? mediaUrl, int? duration}) async {
+    Future<void> sendMessage({String? specificContent, String type = 'TEXT', String? mediaUrl, int? duration, int? replyId}) async {
       debugPrint('🔵 [SendMessage] ===== SENDING MESSAGE =====');
       debugPrint('🔵 [SendMessage] Type: $type');
-      debugPrint('🔵 [SendMessage] ReplyToMessageId: ${replyToMessage.value?.id}');
-
+      debugPrint('🔵 [SendMessage] ReplyToMessageId: ${replyId ?? replyToMessage.value?.id}');
+      
       if (selectedAssets.value.isNotEmpty && mediaUrl == null) {
+        // Capture reply ID and text before clearing
+        final capturedReplyId = replyToMessage.value?.id;
+        final textContent = controller.text.trim();
         final cloudinary = ref.read(cloudinaryServiceProvider);
-        for (var asset in selectedAssets.value) {
+        
+        for (var i = 0; i < selectedAssets.value.length; i++) {
+          final asset = selectedAssets.value[i];
           File? file = await asset.file;
           if (file != null) {
             try {
@@ -311,30 +316,37 @@ class ChatViewPage extends HookConsumerWidget {
                   ? await cloudinary.uploadAudio(file)
                   : await cloudinary.uploadImage(file);
 
+              // First asset gets the text content (caption), others are sent without text
+              final caption = (i == 0 && textContent.isNotEmpty) ? textContent : '';
+              
               sendMessage(
-                specificContent: '',
+                specificContent: caption,
                 type: asset.type == AssetType.video ? 'VIDEO' : 'IMAGE',
                 mediaUrl: response.url,
                 duration: asset.duration,
+                replyId: capturedReplyId,  // Pass reply ID explicitly
               );
             } catch (_) {}
           }
         }
+        
+        controller.clear();
         selectedAssets.value = [];
+        replyToMessage.value = null;  // Clear reply after all messages sent
         return;
       }
 
       final content = specificContent ?? controller.text.trim();
       if (content.isEmpty && mediaUrl == null) return;
 
-      debugPrint('🔵 [SendMessage] Content: "$content"');
-      debugPrint('🔵 [SendMessage] MediaUrl: $mediaUrl');
-      debugPrint('🔵 [SendMessage] Conversation ID: $chatId');
-      debugPrint('🔵 [SendMessage] Current user: ${ref.read(currentUserProvider)?.username}');
-
-      final replyId = replyToMessage.value?.id;
+      final finalReplyId = replyId ?? replyToMessage.value?.id;
       if (specificContent == null) controller.clear();
-      replyToMessage.value = null;
+      
+      // Only clear reply if this is not a recursive call (replyId not passed)
+      if (replyId == null) {
+        replyToMessage.value = null;
+      }
+      
       showGallery.value = false;
       scrollToBottom();
 
@@ -348,30 +360,24 @@ class ChatViewPage extends HookConsumerWidget {
       final request = ChatMessageRequest(
         content: content,
         type: type,
-        replyToMessageId: replyId,
+        replyToMessageId: finalReplyId,
         mediaUrl: mediaUrl,
         duration: duration,
       );
 
-      debugPrint('🔵 [SendMessage] Request created: ${request.toJson()}');
+      debugPrint('🔵 [SendMessage] Request: ${request.toJson()}');
+      debugPrint('🔵 [SendMessage] WebSocket connected: ${wsConnection.isConnected}');
 
       if (wsConnection.isConnected) {
-        debugPrint('🔵 [SendMessage] ✅ WebSocket connected, sending via WebSocket');
+        debugPrint('🔵 [SendMessage] Sending via WebSocket...');
         wsDataSource.sendMessage(chatId, request);
-        // Wait a moment for the message to be processed, then refresh to get complete data
-        Future.delayed(const Duration(milliseconds: 500), () {
-          if (replyId != null) {
-            debugPrint('🔵 [SendMessage] Refreshing messages to get complete reply data...');
-            ref.read(messagesProvider(chatId).notifier).refresh();
-          }
-        });
       } else {
-        debugPrint('🔵 [SendMessage] ❌ WebSocket NOT connected, sending via API');
+        debugPrint('🔵 [SendMessage] Sending via API...');
         final usecase = ref.read(sendMessageUsecaseProvider);
         await usecase(conversationId: chatId, request: request);
         ref.read(messagesProvider(chatId).notifier).refresh();
       }
-
+      
       debugPrint('🔵 [SendMessage] ===== MESSAGE SENT =====');
     }
 
@@ -823,6 +829,50 @@ class ChatViewPage extends HookConsumerWidget {
       }
     }
 
+    void handleScrollToMessage(int messageId) {
+      debugPrint('🔍 [ScrollToMessage] Scrolling to message: $messageId');
+      
+      // Set highlighted message
+      highlightedMessageId.value = messageId;
+      
+      // Find message index
+      final messages = messagesAsync.value;
+      if (messages == null) return;
+      
+      final messageIndex = messages.indexWhere((m) => m.id == messageId);
+      if (messageIndex == -1) {
+        debugPrint('🔍 [ScrollToMessage] Message not found: $messageId');
+        return;
+      }
+      
+      debugPrint('🔍 [ScrollToMessage] Message index: $messageIndex / ${messages.length}');
+      
+      // Scroll to message
+      if (scrollController.hasClients) {
+        // For reversed list, calculate from bottom
+        final reversedIndex = messages.length - messageIndex;
+        final targetPosition = reversedIndex * 100.0; // Approximate height
+        
+        debugPrint('🔍 [ScrollToMessage] Scrolling to position: $targetPosition');
+        
+        scrollController.animateTo(
+          targetPosition,
+          duration: const Duration(milliseconds: 600),
+          curve: Curves.easeInOut,
+        );
+        
+        // Clear highlight after 2 seconds
+        Future.delayed(const Duration(seconds: 2), () {
+          highlightedMessageId.value = null;
+        });
+      }
+    }
+
+    void handleForwardMessage(Message message) {
+      debugPrint('📤 [ForwardMessage] Forwarding message: ${message.id}');
+      context.push('/forward-message', extra: message);
+    }
+
     // --- UI ---
     return PopScope(
       canPop: !showGallery.value,
@@ -868,6 +918,8 @@ class ChatViewPage extends HookConsumerWidget {
                       highlightedMessageId: highlightedMessageId.value,
                       onReply: (m) => replyToMessage.value = m,
                       onPin: handlePinMessage,
+                      onForward: handleForwardMessage,
+                      onScrollToMessage: handleScrollToMessage,
                       onReactionTap: (m, e) async {
                         final result = await ref.read(toggleReactionUsecaseProvider)(
                           messageId: m.id.toString(),
@@ -1168,6 +1220,8 @@ class _MessageList extends HookConsumerWidget {
   final int? highlightedMessageId;
   final Function(Message) onReply;
   final Function(Message) onPin;
+  final Function(Message) onForward;
+  final Function(int messageId) onScrollToMessage;
   final Function(Message, String) onReactionTap;
   final Function(Message) onAddReaction;
   final Function(Message) onEdit;
@@ -1182,6 +1236,8 @@ class _MessageList extends HookConsumerWidget {
     this.highlightedMessageId,
     required this.onReply,
     required this.onPin,
+    required this.onForward,
+    required this.onScrollToMessage,
     required this.onReactionTap,
     required this.onAddReaction,
     required this.onEdit,
@@ -1277,6 +1333,8 @@ class _MessageList extends HookConsumerWidget {
                               replyToMessage: m.replyToMessage,
                               onReply: () => onReply(m),
                               onPin: () => onPin(m),
+                              onForward: () => onForward(m),
+                              onScrollToMessage: onScrollToMessage,
                               onReactionTap: (e) => onReactionTap(m, e),
                               onAddReaction: () => onAddReaction(m),
                               onEdit: isMe ? () => onEdit(m) : null,
@@ -1300,6 +1358,8 @@ class _MessageList extends HookConsumerWidget {
                                 replyToMessage: m.replyToMessage,
                                 onReply: () => onReply(m),
                                 onPin: () => onPin(m),
+                                onForward: () => onForward(m),
+                                onScrollToMessage: onScrollToMessage,
                                 onReactionTap: (e) => onReactionTap(m, e),
                                 onAddReaction: () => onAddReaction(m),
                                 onEdit: isMe ? () => onEdit(m) : null,

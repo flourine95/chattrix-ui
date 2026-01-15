@@ -180,28 +180,36 @@ class ChatRemoteDatasourceImpl implements ChatRemoteDatasource {
         // Parse messages
         final messages = <MessageModel>[];
         for (var json in data.whereType<Map<String, dynamic>>()) {
-          // Check if this is a POLL message without poll data
-          if (json['type'] == 'POLL' && json['pollId'] != null && !json.containsKey('poll')) {
-            debugPrint('🗳️ [ChatRemoteDataSource] POLL message ${json['id']} missing poll data, fetching...');
+          try {
+            // Check if this is a POLL message without poll data
+            if (json['type'] == 'POLL' && json['pollId'] != null && !json.containsKey('poll')) {
+              debugPrint('🗳️ [ChatRemoteDataSource] POLL message ${json['id']} missing poll data, fetching...');
 
-            try {
-              // Fetch poll details
-              final pollResponse = await dio.get('/v1/conversations/$conversationId/polls/${json['pollId']}');
-              if (pollResponse.statusCode == 200) {
-                final pollData = pollResponse.data['data'] as Map<String, dynamic>;
-                // Add poll data to message JSON
-                json['poll'] = pollData;
-                debugPrint(
-                  '🗳️ [ChatRemoteDataSource] Successfully fetched poll ${json['pollId']} for message ${json['id']}',
-                );
+              try {
+                // Fetch poll details
+                final pollResponse = await dio.get('/v1/conversations/$conversationId/polls/${json['pollId']}');
+                if (pollResponse.statusCode == 200) {
+                  final pollData = pollResponse.data['data'] as Map<String, dynamic>;
+                  // Add poll data to message JSON
+                  json['poll'] = pollData;
+                  debugPrint(
+                    '🗳️ [ChatRemoteDataSource] Successfully fetched poll ${json['pollId']} for message ${json['id']}',
+                  );
+                }
+              } catch (e) {
+                debugPrint('⚠️ [ChatRemoteDataSource] Failed to fetch poll ${json['pollId']}: $e');
+                // Continue without poll data - will show "not available" in UI
               }
-            } catch (e) {
-              debugPrint('⚠️ [ChatRemoteDataSource] Failed to fetch poll ${json['pollId']}: $e');
-              // Continue without poll data - will show "not available" in UI
             }
-          }
 
-          messages.add(MessageModel.fromApi(json));
+            messages.add(MessageModel.fromApi(json));
+          } catch (e, stackTrace) {
+            debugPrint('❌ [ChatRemoteDataSource] Failed to parse message ${json['id']}: $e');
+            debugPrint('📋 [ChatRemoteDataSource] Message JSON: $json');
+            debugPrint('📋 [ChatRemoteDataSource] Stack trace: $stackTrace');
+            // Skip this message and continue with others
+            continue;
+          }
         }
 
         return messages;
@@ -1062,4 +1070,39 @@ class ChatRemoteDatasourceImpl implements ChatRemoteDatasource {
       throw ServerException(message: e.response?.data['message'] ?? 'Failed to delete event');
     }
   }
+
+  @override
+  Future<List<MessageModel>> forwardMessage({
+    required String conversationId,
+    required String messageId,
+    required List<int> targetConversationIds,
+  }) async {
+    try {
+      AppLogger.debug(
+        '📤 Forwarding message $messageId to ${targetConversationIds.length} conversations',
+        tag: 'ChatRemoteDataSource',
+      );
+
+      final response = await dio.post(
+        '/v1/conversations/$conversationId/messages/$messageId/forward',
+        data: {'conversationIds': targetConversationIds},
+      );
+
+      AppLogger.debug('📥 Forward message response - Status: ${response.statusCode}', tag: 'ChatRemoteDataSource');
+
+      if (response.statusCode == 201 && response.data['success'] == true) {
+        final List<dynamic> messagesJson = response.data['data'] as List<dynamic>;
+        final messages = messagesJson.map((json) => MessageModel.fromJson(json as Map<String, dynamic>)).toList();
+
+        AppLogger.info('✅ Successfully forwarded message to ${messages.length} conversations', tag: 'ChatRemoteDataSource');
+        return messages;
+      }
+
+      throw ServerException(message: response.data['message'] ?? 'Failed to forward message');
+    } on DioException catch (e) {
+      AppLogger.error('❌ Failed to forward message: ${e.message}', tag: 'ChatRemoteDataSource');
+      throw ServerException(message: e.response?.data['message'] ?? 'Failed to forward message');
+    }
+  }
 }
+

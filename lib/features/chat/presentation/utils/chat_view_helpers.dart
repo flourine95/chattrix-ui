@@ -309,19 +309,20 @@ void handleAttachmentSelection(
   ChatActionsController chatActions,
   BuildContext context,
   String chatId,
+  TextEditingController textController,  // ← Add this parameter
 ) {
   switch (type) {
     case AttachmentType.camera:
       showAttachmentPicker.value = false;
-      chatActions.handleCamera();
+      chatActions.handleCamera(textController: textController);
       break;
     case AttachmentType.gallery:
       showAttachmentPicker.value = false;
-      chatActions.handleGallery();
+      chatActions.handleGallery(textController: textController);
       break;
     case AttachmentType.video:
       showAttachmentPicker.value = false;
-      chatActions.handleVideo();
+      chatActions.handleVideo(textController: textController);
       break;
     case AttachmentType.document:
       showAttachmentPicker.value = false;

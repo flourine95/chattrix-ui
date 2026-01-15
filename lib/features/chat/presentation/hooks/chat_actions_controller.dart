@@ -47,10 +47,11 @@ class ChatActionsController {
     String type = 'TEXT',
     String? mediaUrl,
     int? duration,
+    int? replyId,
   }) async {
     debugPrint('🔵 [SendMessage] ===== SENDING MESSAGE =====');
     debugPrint('🔵 [SendMessage] Type: $type');
-    debugPrint('🔵 [SendMessage] ReplyToMessageId: ${replyToMessage.value?.id}');
+    debugPrint('🔵 [SendMessage] ReplyToMessageId: ${replyId ?? replyToMessage.value?.id}');
 
     // Handle selected assets from gallery
     if (selectedAssets.value.isNotEmpty && mediaUrl == null) {
@@ -64,11 +65,16 @@ class ChatActionsController {
     debugPrint('🔵 [SendMessage] Content: "$content"');
     debugPrint('🔵 [SendMessage] MediaUrl: $mediaUrl');
 
-    final replyId = replyToMessage.value?.id;
+    final finalReplyId = replyId ?? replyToMessage.value?.id;
 
     // Clear UI
     if (specificContent == null) textController.clear();
-    replyToMessage.value = null;
+    
+    // Only clear reply if this is not a recursive call (replyId not passed)
+    if (replyId == null) {
+      replyToMessage.value = null;
+    }
+    
     showGallery.value = false;
     scrollToBottom();
 
@@ -79,7 +85,7 @@ class ChatActionsController {
     final request = ChatMessageRequest(
       content: content,
       type: type,
-      replyToMessageId: replyId,
+      replyToMessageId: finalReplyId,
       mediaUrl: mediaUrl,
       duration: duration,
     );
@@ -91,7 +97,7 @@ class ChatActionsController {
     await usecase(conversationId: chatId, request: request);
 
     // Refresh messages if reply (to get complete data)
-    if (replyId != null) {
+    if (finalReplyId != null) {
       Future.delayed(const Duration(milliseconds: 500), () {
         ref.read(messagesProvider(chatId).notifier).refresh();
       });
@@ -102,21 +108,32 @@ class ChatActionsController {
 
   /// Send selected assets from gallery
   Future<void> _sendSelectedAssets() async {
+    // Capture reply ID and text before clearing
+    final capturedReplyId = replyToMessage.value?.id;
+    final textContent = textController.text.trim();
     final uploadService = MediaUploadService(ref.read(cloudinaryServiceProvider));
 
     try {
       final results = await uploadService.uploadAssets(selectedAssets.value);
 
-      for (final result in results) {
+      for (var i = 0; i < results.length; i++) {
+        final result = results[i];
+        
+        // First asset gets the text content (caption), others are sent without text
+        final caption = (i == 0 && textContent.isNotEmpty) ? textContent : '';
+        
         await sendMessage(
-          specificContent: '',
+          specificContent: caption,
           type: result.type,
           mediaUrl: result.url,
           duration: result.duration,
+          replyId: capturedReplyId,  // Pass reply ID explicitly
         );
       }
 
+      textController.clear();
       selectedAssets.value = [];
+      replyToMessage.value = null;  // Clear reply after all messages sent
     } catch (e) {
       debugPrint('❌ [SendMessage] Failed to upload assets: $e');
       _showError('Failed to upload media: $e');
@@ -125,13 +142,17 @@ class ChatActionsController {
 
   // --- MEDIA HANDLERS ---
 
-  Future<void> handleCamera() async {
+  Future<void> handleCamera({TextEditingController? textController}) async {
     try {
       final mediaPicker = ref.read(mediaPickerServiceProvider);
       final photoFile = await mediaPicker.takePhoto(context);
 
       if (photoFile != null) {
-        await _uploadAndSendImage(photoFile);
+        final caption = textController?.text.trim();
+        final capturedReplyId = replyToMessage.value?.id;
+        await _uploadAndSendImage(photoFile, caption: caption, replyId: capturedReplyId);
+        textController?.clear();
+        replyToMessage.value = null;
       }
     } catch (e) {
       debugPrint('❌ [Camera] Error: $e');
@@ -139,13 +160,17 @@ class ChatActionsController {
     }
   }
 
-  Future<void> handleGallery() async {
+  Future<void> handleGallery({TextEditingController? textController}) async {
     try {
       final mediaPicker = ref.read(mediaPickerServiceProvider);
       final imageFile = await mediaPicker.pickImageFromGallery(context);
 
       if (imageFile != null) {
-        await _uploadAndSendImage(imageFile);
+        final caption = textController?.text.trim();
+        final capturedReplyId = replyToMessage.value?.id;
+        await _uploadAndSendImage(imageFile, caption: caption, replyId: capturedReplyId);
+        textController?.clear();
+        replyToMessage.value = null;
       }
     } catch (e) {
       debugPrint('❌ [Gallery] Error: $e');
@@ -153,13 +178,17 @@ class ChatActionsController {
     }
   }
 
-  Future<void> handleVideo() async {
+  Future<void> handleVideo({TextEditingController? textController}) async {
     try {
       final mediaPicker = ref.read(mediaPickerServiceProvider);
       final videoFile = await mediaPicker.pickVideoFromGallery(context);
 
       if (videoFile != null) {
-        await _uploadAndSendVideo(videoFile);
+        final caption = textController?.text.trim();
+        final capturedReplyId = replyToMessage.value?.id;
+        await _uploadAndSendVideo(videoFile, caption: caption, replyId: capturedReplyId);
+        textController?.clear();
+        replyToMessage.value = null;
       }
     } catch (e) {
       debugPrint('❌ [Video] Error: $e');
@@ -173,7 +202,9 @@ class ChatActionsController {
       final pickedFile = await mediaPicker.pickDocument();
 
       if (pickedFile != null) {
-        await _uploadAndSendDocument(pickedFile.file, pickedFile.name);
+        final capturedReplyId = replyToMessage.value?.id;
+        await _uploadAndSendDocument(pickedFile.file, pickedFile.name, replyId: capturedReplyId);
+        replyToMessage.value = null;
       }
     } catch (e) {
       debugPrint('❌ [FilePicker] Error: $e');
@@ -200,7 +231,9 @@ class ChatActionsController {
         const SnackBar(content: Text('Uploading audio...'), duration: Duration(seconds: 30)),
       );
 
-      await _uploadAndSendAudio(audioFile);
+      final capturedReplyId = replyToMessage.value?.id;
+      await _uploadAndSendAudio(audioFile, replyId: capturedReplyId);
+      replyToMessage.value = null;
 
       if (context.mounted) {
         ScaffoldMessenger.of(context).hideCurrentSnackBar();
@@ -257,13 +290,15 @@ class ChatActionsController {
     if (isRecording.value) {
       // Stop recording and send
       final duration = recordingDuration.value;
+      final capturedReplyId = replyToMessage.value?.id;
       final file = await voiceRecorder.stopRecording();
       isRecording.value = false;
       recordingDuration.value = Duration.zero;
 
       if (file != null) {
         try {
-          await _uploadAndSendVoice(file, duration.inSeconds);
+          await _uploadAndSendVoice(file, duration.inSeconds, replyId: capturedReplyId);
+          replyToMessage.value = null;
         } catch (e) {
           debugPrint('❌ [Voice] Error uploading: $e');
           _showError('Unable to send voice message: $e');
@@ -297,34 +332,34 @@ class ChatActionsController {
 
   // --- UPLOAD HELPERS ---
 
-  Future<void> _uploadAndSendImage(File file) async {
+  Future<void> _uploadAndSendImage(File file, {String? caption, int? replyId}) async {
     final uploadService = MediaUploadService(ref.read(cloudinaryServiceProvider));
     final url = await uploadService.uploadImage(file);
-    await sendMessage(specificContent: '', type: 'IMAGE', mediaUrl: url);
+    await sendMessage(specificContent: caption ?? '', type: 'IMAGE', mediaUrl: url, replyId: replyId);
   }
 
-  Future<void> _uploadAndSendVideo(File file) async {
+  Future<void> _uploadAndSendVideo(File file, {String? caption, int? replyId}) async {
     final uploadService = MediaUploadService(ref.read(cloudinaryServiceProvider));
     final url = await uploadService.uploadVideo(file);
-    await sendMessage(specificContent: '', type: 'VIDEO', mediaUrl: url);
+    await sendMessage(specificContent: caption ?? '', type: 'VIDEO', mediaUrl: url, replyId: replyId);
   }
 
-  Future<void> _uploadAndSendAudio(File file) async {
+  Future<void> _uploadAndSendAudio(File file, {int? replyId}) async {
     final uploadService = MediaUploadService(ref.read(cloudinaryServiceProvider));
     final url = await uploadService.uploadAudio(file);
-    await sendMessage(specificContent: '', type: 'AUDIO', mediaUrl: url);
+    await sendMessage(specificContent: '', type: 'AUDIO', mediaUrl: url, replyId: replyId);
   }
 
-  Future<void> _uploadAndSendVoice(File file, int duration) async {
+  Future<void> _uploadAndSendVoice(File file, int duration, {int? replyId}) async {
     final uploadService = MediaUploadService(ref.read(cloudinaryServiceProvider));
     final url = await uploadService.uploadAudio(file);
-    await sendMessage(specificContent: '', type: 'VOICE', mediaUrl: url, duration: duration);
+    await sendMessage(specificContent: '', type: 'VOICE', mediaUrl: url, duration: duration, replyId: replyId);
   }
 
-  Future<void> _uploadAndSendDocument(File file, String fileName) async {
+  Future<void> _uploadAndSendDocument(File file, String fileName, {int? replyId}) async {
     final uploadService = MediaUploadService(ref.read(cloudinaryServiceProvider));
     final url = await uploadService.uploadDocument(file, fileName: fileName);
-    await sendMessage(specificContent: fileName, type: 'FILE', mediaUrl: url);
+    await sendMessage(specificContent: fileName, type: 'FILE', mediaUrl: url, replyId: replyId);
   }
 
   // --- TYPING INDICATOR ---

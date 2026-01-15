@@ -19,6 +19,8 @@ class AudioMessageBubble extends StatefulWidget {
     this.replyToMessage,
     this.onEdit,
     this.onDelete,
+    this.onForward,
+    this.onScrollToMessage,
     this.isGroup = false,
     this.isLastMessage = false,
   });
@@ -33,6 +35,8 @@ class AudioMessageBubble extends StatefulWidget {
   final ReplyToMessage? replyToMessage;
   final VoidCallback? onEdit;
   final VoidCallback? onDelete;
+  final VoidCallback? onForward;
+  final Function(int messageId)? onScrollToMessage;
   final bool isGroup;
   final bool isLastMessage;
 
@@ -148,6 +152,8 @@ class _AudioMessageBubbleState extends State<AudioMessageBubble> with AutomaticK
       replyToMessage: widget.replyToMessage,
       onEdit: widget.onEdit,
       onDelete: widget.onDelete,
+      onForward: widget.onForward,
+      onScrollToMessage: widget.onScrollToMessage,
       isGroup: widget.isGroup,
       isLastMessage: widget.isLastMessage,
       child: Padding(
@@ -155,25 +161,14 @@ class _AudioMessageBubbleState extends State<AudioMessageBubble> with AutomaticK
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // Microphone icon for voice messages
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: textColor.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Icon(Icons.mic, color: textColor.withValues(alpha: 0.7), size: 20),
-            ),
-            const SizedBox(width: 12),
-
             // Play/Pause button
             GestureDetector(
               onTap: _togglePlayPause,
               child: Container(
-                width: 36,
-                height: 36,
+                width: 40,
+                height: 40,
                 decoration: BoxDecoration(color: textColor.withValues(alpha: 0.2), shape: BoxShape.circle),
-                child: Icon(_isPlaying ? Icons.pause : Icons.play_arrow, color: textColor, size: 20),
+                child: Icon(_isPlaying ? Icons.pause : Icons.play_arrow, color: textColor, size: 24),
               ),
             ),
             const SizedBox(width: 12),

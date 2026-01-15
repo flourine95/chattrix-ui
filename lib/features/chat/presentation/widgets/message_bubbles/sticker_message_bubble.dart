@@ -24,6 +24,8 @@ class StickerMessageBubble extends StatefulWidget {
     this.replyToMessage,
     this.onEdit,
     this.onDelete,
+    this.onForward,
+    this.onScrollToMessage,
     this.isGroup = false,
     this.isLastMessage = false,
   });
@@ -38,6 +40,8 @@ class StickerMessageBubble extends StatefulWidget {
   final ReplyToMessage? replyToMessage;
   final VoidCallback? onEdit;
   final VoidCallback? onDelete;
+  final VoidCallback? onForward;
+  final Function(int messageId)? onScrollToMessage;
   final bool isGroup;
   final bool isLastMessage;
 
@@ -131,6 +135,8 @@ class _StickerMessageBubbleState extends State<StickerMessageBubble> {
             onAddReaction: widget.onAddReaction,
             onEdit: null, // Stickers can't be edited
             onDelete: widget.onDelete,
+            onForward: widget.onForward,
+            onPin: widget.onPin,
             onQuickReaction: _handleQuickReaction,
             canEdit: false,
           );

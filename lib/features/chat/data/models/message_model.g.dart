@@ -79,6 +79,7 @@ _MessageModel _$MessageModelFromJson(Map<String, dynamic> json) =>
       eventData: json['eventData'] == null
           ? null
           : EventDto.fromJson(json['eventData'] as Map<String, dynamic>),
+      metadata: json['metadata'] as Map<String, dynamic>?,
     );
 
 Map<String, dynamic> _$MessageModelToJson(_MessageModel instance) =>
@@ -125,4 +126,5 @@ Map<String, dynamic> _$MessageModelToJson(_MessageModel instance) =>
       'pinnedByFullName': instance.pinnedByFullName,
       'pollData': instance.pollData,
       'eventData': instance.eventData,
+      'metadata': instance.metadata,
     };

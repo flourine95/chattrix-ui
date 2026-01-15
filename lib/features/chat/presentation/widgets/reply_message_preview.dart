@@ -2,6 +2,52 @@ import 'package:chattrix_ui/features/chat/domain/entities/message.dart';
 import 'package:chattrix_ui/features/chat/domain/entities/reply_to_message.dart';
 import 'package:flutter/material.dart';
 
+/// Helper function to detect correct message type from reply message
+String _detectMessageTypeFromReply(ReplyToMessage replyToMessage) {
+  var type = replyToMessage.type.toUpperCase();
+  
+  // 🔧 FIX: Backend sometimes returns wrong type - detect from mediaUrl and duration
+  if (type == 'TEXT' && replyToMessage.mediaUrl != null) {
+    if (replyToMessage.duration != null) {
+      type = 'VOICE';
+    } else {
+      final url = replyToMessage.mediaUrl!.toLowerCase();
+      if (url.contains('.mp3') || url.contains('.m4a') || url.contains('/audio/')) {
+        type = 'AUDIO';
+      } else if (url.contains('.jpg') || url.contains('.png') || url.contains('/image/')) {
+        type = 'IMAGE';
+      } else if (url.contains('.mp4') || url.contains('/video/')) {
+        type = 'VIDEO';
+      }
+    }
+  }
+  
+  return type;
+}
+
+/// Helper function to detect correct message type from full message
+String _detectMessageTypeFromMessage(Message message) {
+  var type = message.type.toUpperCase();
+  
+  // 🔧 FIX: Backend sometimes returns wrong type - detect from mediaUrl and duration
+  if (type == 'TEXT' && message.mediaUrl != null) {
+    if (message.duration != null) {
+      type = 'VOICE';
+    } else {
+      final url = message.mediaUrl!.toLowerCase();
+      if (url.contains('.mp3') || url.contains('.m4a') || url.contains('/audio/')) {
+        type = 'AUDIO';
+      } else if (url.contains('.jpg') || url.contains('.png') || url.contains('/image/')) {
+        type = 'IMAGE';
+      } else if (url.contains('.mp4') || url.contains('/video/')) {
+        type = 'VIDEO';
+      }
+    }
+  }
+  
+  return type;
+}
+
 /// Widget to show the message being replied to
 class ReplyMessagePreview extends StatelessWidget {
   const ReplyMessagePreview({super.key, required this.replyToMessage, required this.onCancel});
@@ -64,10 +110,17 @@ class ReplyMessagePreview extends StatelessWidget {
   }
 
   String _getMessagePreview() {
-    final type = replyToMessage.type.toUpperCase();
+    final type = _detectMessageTypeFromMessage(replyToMessage);
+    
+    // If content is not empty, show it for text messages
+    if (type == 'TEXT' && replyToMessage.content.isNotEmpty) {
+      return replyToMessage.content;
+    }
+    
+    // For other types or empty content, show type-specific preview
     switch (type) {
       case 'EMOJI':
-        return replyToMessage.content;
+        return replyToMessage.content.isNotEmpty ? replyToMessage.content : '😊 Emoji';
       case 'STICKER':
         return '🎭 Sticker';
       case 'IMAGE':
@@ -84,7 +137,7 @@ class ReplyMessagePreview extends StatelessWidget {
         return '📍 ${replyToMessage.locationName ?? 'Location'}';
       case 'TEXT':
       default:
-        return replyToMessage.content;
+        return replyToMessage.content.isNotEmpty ? replyToMessage.content : 'Message';
     }
   }
 }
@@ -135,10 +188,17 @@ class QuotedMessageWidget extends StatelessWidget {
   }
 
   String _getMessagePreview() {
-    final type = replyToMessage.type.toUpperCase();
+    final type = _detectMessageTypeFromReply(replyToMessage);
+    
+    // If content is not empty, show it for text messages
+    if (type == 'TEXT' && replyToMessage.content.isNotEmpty) {
+      return replyToMessage.content;
+    }
+    
+    // For other types or empty content, show type-specific preview
     switch (type) {
       case 'EMOJI':
-        return replyToMessage.content; // Show the emoji itself
+        return replyToMessage.content.isNotEmpty ? replyToMessage.content : '😊 Emoji';
       case 'STICKER':
         return '🎭 Sticker';
       case 'IMAGE':
@@ -155,7 +215,7 @@ class QuotedMessageWidget extends StatelessWidget {
         return '📍 ${replyToMessage.locationName ?? 'Location'}';
       case 'TEXT':
       default:
-        return replyToMessage.content;
+        return replyToMessage.content.isNotEmpty ? replyToMessage.content : 'Message';
     }
   }
 }

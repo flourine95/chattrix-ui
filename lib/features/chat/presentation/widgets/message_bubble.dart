@@ -5,6 +5,7 @@ import 'package:chattrix_ui/features/chat/presentation/widgets/message_bubbles/d
 import 'package:chattrix_ui/features/chat/presentation/widgets/message_bubbles/emoji_message_bubble.dart';
 import 'package:chattrix_ui/features/chat/presentation/widgets/message_bubbles/event_message_bubble.dart';
 import 'package:chattrix_ui/features/chat/presentation/widgets/message_bubbles/image_message_bubble.dart';
+import 'package:chattrix_ui/features/chat/presentation/widgets/message_bubbles/link_message_bubble.dart';
 import 'package:chattrix_ui/features/chat/presentation/widgets/message_bubbles/location_message_bubble.dart';
 import 'package:chattrix_ui/features/chat/presentation/widgets/message_bubbles/scheduled_message_bubble.dart';
 import 'package:chattrix_ui/features/chat/presentation/widgets/message_bubbles/sticker_message_bubble.dart';
@@ -32,6 +33,8 @@ class MessageBubble extends StatelessWidget {
     this.replyToMessage,
     this.onEdit,
     this.onDelete,
+    this.onForward,
+    this.onScrollToMessage,
     this.isGroup = false,
     this.isLastMessage = false,
     this.isHighlighted = false,
@@ -47,6 +50,8 @@ class MessageBubble extends StatelessWidget {
   final ReplyToMessage? replyToMessage;
   final VoidCallback? onEdit;
   final VoidCallback? onDelete;
+  final VoidCallback? onForward;
+  final Function(int messageId)? onScrollToMessage;
   final bool isGroup;
   final bool isLastMessage;
   final bool isHighlighted;
@@ -59,12 +64,37 @@ class MessageBubble extends StatelessWidget {
     }
 
     // Determine message type and render appropriate bubble
-    final messageType = message.type.toUpperCase();
-
-    // Debug logging for POLL messages
-    if (messageType == 'POLL') {
-      debugPrint('🗳️ [MessageBubble] Rendering POLL message ID: ${message.id}');
-      debugPrint('🗳️ [MessageBubble] pollData is null: ${message.pollData == null}');
+    var messageType = message.type.toUpperCase();
+    
+    // Debug log for message type
+    if (messageType == 'LINK') {
+      debugPrint('🔗 [MessageBubble] Rendering LINK message: ${message.id} - ${message.content}');
+    }
+    
+    // 🔧 FIX: Backend sometimes returns wrong type for media messages
+    // If message has mediaUrl and duration, it's likely an audio/voice message
+    if (messageType == 'TEXT' && message.mediaUrl != null && message.duration != null) {
+      messageType = 'VOICE';
+    }
+    
+    // If message has mediaUrl but no duration, check file extension
+    if (messageType == 'TEXT' && message.mediaUrl != null) {
+      final url = message.mediaUrl!.toLowerCase();
+      if (url.contains('.mp3') || url.contains('.m4a') || url.contains('.wav') || 
+          url.contains('.aac') || url.contains('/audio/') || url.contains('/video/upload/')) {
+        messageType = 'AUDIO';
+      } else if (url.contains('.jpg') || url.contains('.jpeg') || url.contains('.png') || 
+                 url.contains('.gif') || url.contains('.webp') || url.contains('/image/')) {
+        messageType = 'IMAGE';
+      } else if (url.contains('.mp4') || url.contains('.mov') || url.contains('.avi') || 
+                 url.contains('.webm') || url.contains('/video/')) {
+        // Check if it's actually audio uploaded as video (common with voice recordings)
+        if (message.duration != null && message.duration! < 300) { // Less than 5 minutes, likely voice
+          messageType = 'VOICE';
+        } else {
+          messageType = 'VIDEO';
+        }
+      }
     }
 
     // Wrap in RepaintBoundary to isolate repaints and improve scroll performance
@@ -73,6 +103,23 @@ class MessageBubble extends StatelessWidget {
         'SYSTEM' => SystemMessageBubble(message: message),
         'POLL' => PollMessageBubble(message: message, currentUserId: currentUserId ?? 0),
         'EVENT' => EventMessageBubble(message: message, currentUserId: currentUserId ?? 0),
+        'LINK' => LinkMessageBubble(
+          key: ValueKey('link_${message.id}'), // ✅ Unique key forces initState on new messages
+          message: message,
+          isMe: isMe,
+          onReply: onReply,
+          onPin: onPin,
+          onReactionTap: onReactionTap,
+          onAddReaction: onAddReaction,
+          currentUserId: currentUserId,
+          replyToMessage: replyToMessage,
+          onEdit: onEdit,
+          onDelete: onDelete,
+          onForward: onForward,
+          onScrollToMessage: onScrollToMessage,
+          isGroup: isGroup,
+          isLastMessage: isLastMessage,
+        ),
         'EMOJI' => EmojiMessageBubble(
           message: message,
           isMe: isMe,
@@ -84,6 +131,8 @@ class MessageBubble extends StatelessWidget {
           replyToMessage: replyToMessage,
           onEdit: onEdit,
           onDelete: onDelete,
+          onForward: onForward,
+          onScrollToMessage: onScrollToMessage,
           isGroup: isGroup,
           isLastMessage: isLastMessage,
         ),
@@ -98,6 +147,8 @@ class MessageBubble extends StatelessWidget {
           replyToMessage: replyToMessage,
           onEdit: onEdit,
           onDelete: onDelete,
+          onForward: onForward,
+          onScrollToMessage: onScrollToMessage,
           isGroup: isGroup,
           isLastMessage: isLastMessage,
         ),
@@ -112,6 +163,8 @@ class MessageBubble extends StatelessWidget {
           replyToMessage: replyToMessage,
           onEdit: onEdit,
           onDelete: onDelete,
+          onForward: onForward,
+          onScrollToMessage: onScrollToMessage,
           isGroup: isGroup,
           isLastMessage: isLastMessage,
         ),
@@ -126,6 +179,8 @@ class MessageBubble extends StatelessWidget {
           replyToMessage: replyToMessage,
           onEdit: onEdit,
           onDelete: onDelete,
+          onForward: onForward,
+          onScrollToMessage: onScrollToMessage,
           isGroup: isGroup,
           isLastMessage: isLastMessage,
         ),
@@ -140,6 +195,8 @@ class MessageBubble extends StatelessWidget {
           replyToMessage: replyToMessage,
           onEdit: onEdit,
           onDelete: onDelete,
+          onForward: onForward,
+          onScrollToMessage: onScrollToMessage,
           isGroup: isGroup,
           isLastMessage: isLastMessage,
         ),
@@ -154,6 +211,8 @@ class MessageBubble extends StatelessWidget {
           replyToMessage: replyToMessage,
           onEdit: onEdit,
           onDelete: onDelete,
+          onForward: onForward,
+          onScrollToMessage: onScrollToMessage,
           isGroup: isGroup,
           isLastMessage: isLastMessage,
         ),
@@ -168,6 +227,8 @@ class MessageBubble extends StatelessWidget {
           replyToMessage: replyToMessage,
           onEdit: onEdit,
           onDelete: onDelete,
+          onForward: onForward,
+          onScrollToMessage: onScrollToMessage,
           isGroup: isGroup,
           isLastMessage: isLastMessage,
         ),
@@ -182,6 +243,8 @@ class MessageBubble extends StatelessWidget {
           replyToMessage: replyToMessage,
           onEdit: onEdit,
           onDelete: onDelete,
+          onForward: onForward,
+          onScrollToMessage: onScrollToMessage,
           isGroup: isGroup,
           isLastMessage: isLastMessage,
         ),
@@ -206,6 +269,8 @@ class BaseBubbleContainer extends StatefulWidget {
     this.replyToMessage,
     this.onEdit,
     this.onDelete,
+    this.onForward,
+    this.onScrollToMessage,
     this.isGroup = false,
     this.isLastMessage = false,
   });
@@ -222,6 +287,8 @@ class BaseBubbleContainer extends StatefulWidget {
   final ReplyToMessage? replyToMessage;
   final VoidCallback? onEdit;
   final VoidCallback? onDelete;
+  final VoidCallback? onForward;
+  final Function(int messageId)? onScrollToMessage;
   final bool isGroup;
   final bool isLastMessage;
 
@@ -339,6 +406,7 @@ class _BaseBubbleContainerState extends State<BaseBubbleContainer> with Automati
             onAddReaction: widget.onAddReaction,
             onEdit: widget.onEdit,
             onDelete: widget.onDelete,
+            onForward: widget.onForward,
             onPin: widget.onPin,
             onQuickReaction: _handleQuickReaction,
             canEdit: widget.message?.type == 'TEXT',
@@ -373,11 +441,40 @@ class _BaseBubbleContainerState extends State<BaseBubbleContainer> with Automati
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        // Show forwarded indicator if message is forwarded
+                        if (widget.message?.forwarded == true)
+                          Container(
+                            padding: const EdgeInsets.fromLTRB(12, 8, 12, 4),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  Icons.shortcut_rounded,
+                                  size: 13,
+                                  color: isDark ? Colors.grey.shade500 : Colors.grey.shade600,
+                                ),
+                                const SizedBox(width: 4),
+                                Text(
+                                  'Forwarded',
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w500,
+                                    color: isDark ? Colors.grey.shade500 : Colors.grey.shade600,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
                         // Show quoted message if this is a reply
                         if (widget.replyToMessage != null)
                           Padding(
                             padding: const EdgeInsets.fromLTRB(12, 8, 12, 0),
-                            child: QuotedMessageWidget(replyToMessage: widget.replyToMessage!, onTap: null),
+                            child: QuotedMessageWidget(
+                              replyToMessage: widget.replyToMessage!,
+                              onTap: widget.onScrollToMessage != null && widget.replyToMessage!.id != null
+                                  ? () => widget.onScrollToMessage!(widget.replyToMessage!.id!)
+                                  : null,
+                            ),
                           ),
                         widget.child,
                       ],
