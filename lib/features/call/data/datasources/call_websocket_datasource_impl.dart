@@ -59,6 +59,14 @@ class CallWebSocketDataSourceImpl implements CallWebSocketDataSource {
       return;
     }
 
+    // 🔍 DEBUG: Log raw payload để xem backend gửi gì
+    print('🔍 [Call WS] Event type: $type');
+    print('🔍 [Call WS] Raw payload: $payload');
+    if (payload.containsKey('callId')) {
+      print('🔍 [Call WS] callId type: ${payload['callId'].runtimeType}');
+      print('🔍 [Call WS] callId value: ${payload['callId']}');
+    }
+
     switch (type) {
       case _CallWebSocketResponse.incoming:
         _handleIncomingCall(payload);
@@ -74,29 +82,41 @@ class CallWebSocketDataSourceImpl implements CallWebSocketDataSource {
 
   void _handleIncomingCall(Map<String, dynamic> payload) {
     try {
+      print('🔍 [Call WS] Parsing incoming call...');
       final invitation = CallInvitationModel.fromJson(payload).toEntity();
+      print('✅ [Call WS] Incoming call parsed successfully: ${invitation.callId}');
       _incomingCallController.add(invitation);
-    } catch (e) {
+    } catch (e, stack) {
       // Log error nhưng không crash app
-      print('Error parsing incoming call: $e');
+      print('❌ [Call WS] Error parsing incoming call: $e');
+      print('❌ [Call WS] Stack trace: $stack');
+      print('❌ [Call WS] Payload was: $payload');
     }
   }
 
   void _handleParticipantUpdate(Map<String, dynamic> payload) {
     try {
+      print('🔍 [Call WS] Parsing participant update...');
       final update = CallParticipantUpdateModel.fromJson(payload).toEntity();
+      print('✅ [Call WS] Participant update parsed: userId=${update.userId}, status=${update.status}');
       _participantUpdateController.add(update);
-    } catch (e) {
-      print('Error parsing participant update: $e');
+    } catch (e, stack) {
+      print('❌ [Call WS] Error parsing participant update: $e');
+      print('❌ [Call WS] Stack trace: $stack');
+      print('❌ [Call WS] Payload was: $payload');
     }
   }
 
   void _handleCallTimeout(Map<String, dynamic> payload) {
     try {
+      print('🔍 [Call WS] Parsing call timeout...');
       final timeout = CallTimeoutModel.fromJson(payload).toEntity();
+      print('✅ [Call WS] Call timeout parsed: ${timeout.callId}');
       _callTimeoutController.add(timeout);
-    } catch (e) {
-      print('Error parsing call timeout: $e');
+    } catch (e, stack) {
+      print('❌ [Call WS] Error parsing call timeout: $e');
+      print('❌ [Call WS] Stack trace: $stack');
+      print('❌ [Call WS] Payload was: $payload');
     }
   }
 

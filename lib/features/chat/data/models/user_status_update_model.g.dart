@@ -13,10 +13,8 @@ part of 'user_status_update_model.dart';
 _UserStatusUpdateModel _$UserStatusUpdateModelFromJson(
   Map<String, dynamic> json,
 ) => _UserStatusUpdateModel(
-  userId: json['userId'] as String,
-  username: json['username'] as String,
-  displayName: json['fullName'] as String,
-  isOnline: json['online'] as bool,
+  userId: (json['userId'] as num).toInt(),
+  status: json['status'] as String,
   lastSeen: json['lastSeen'] as String?,
 );
 
@@ -24,8 +22,6 @@ Map<String, dynamic> _$UserStatusUpdateModelToJson(
   _UserStatusUpdateModel instance,
 ) => <String, dynamic>{
   'userId': instance.userId,
-  'username': instance.username,
-  'fullName': instance.displayName,
-  'online': instance.isOnline,
+  'status': instance.status,
   'lastSeen': instance.lastSeen,
 };

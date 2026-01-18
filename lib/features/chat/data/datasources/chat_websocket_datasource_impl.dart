@@ -62,11 +62,14 @@ class ChatWebSocketDataSourceImpl implements ChatWebSocketDataSource {
   }
 
   void _handleMessage(Map<String, dynamic> message) {
+    String? type;
+    dynamic payload;
+    
     try {
-      final type = message['type'] as String?;
+      type = message['type'] as String?;
       if (type == null) return;
 
-      final payload = message['payload'] ?? message['data'];
+      payload = message['payload'] ?? message['data'];
       if (payload == null) return;
 
       // Dùng switch case trực tiếp với WebSocketEvents
@@ -131,8 +134,11 @@ class ChatWebSocketDataSourceImpl implements ChatWebSocketDataSource {
           _heartbeatAckController.add(null);
           break;
       }
-    } catch (e) {
+    } catch (e, stack) {
       debugPrint('🟡 WS Handle Message Error: $e');
+      debugPrint('🟡 Event type was: $type');
+      debugPrint('🟡 Payload was: $payload');
+      debugPrint('🟡 Stack trace: $stack');
     }
   }
 

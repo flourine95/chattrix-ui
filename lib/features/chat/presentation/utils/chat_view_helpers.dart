@@ -456,15 +456,10 @@ Future<void> handlePinMessage(Message message, WidgetRef ref, int chatId, BuildC
 void handleAudioCall(BuildContext context, WidgetRef ref, dynamic conversation, dynamic me, int chatId) {
   if (conversation == null || me == null) return;
 
-  if (conversation.type == ConversationType.group) {
-    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Group calls are not supported yet')));
-    return;
-  }
-
   final conversationName = ConversationUtils.getConversationTitle(conversation, me);
   final conversationAvatar = ConversationUtils.getOtherParticipantAvatarUrl(conversation, me);
-  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Invalid conversation ID')));
 
+  // Initiate audio call (supports both 1-1 and group)
   ref
       .read(callProvider.notifier)
       .initiateCall(chatId, CallType.audio, conversationName: conversationName, conversationAvatar: conversationAvatar);
@@ -473,15 +468,10 @@ void handleAudioCall(BuildContext context, WidgetRef ref, dynamic conversation, 
 void handleVideoCall(BuildContext context, WidgetRef ref, dynamic conversation, dynamic me, int chatId) {
   if (conversation == null || me == null) return;
 
-  if (conversation.type == ConversationType.group) {
-    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Group calls are not supported yet')));
-    return;
-  }
-
   final conversationName = ConversationUtils.getConversationTitle(conversation, me);
   final conversationAvatar = ConversationUtils.getOtherParticipantAvatarUrl(conversation, me);
-  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Invalid conversation ID')));
 
+  // Initiate video call (supports both 1-1 and group)
   ref
       .read(callProvider.notifier)
       .initiateCall(chatId, CallType.video, conversationName: conversationName, conversationAvatar: conversationAvatar);

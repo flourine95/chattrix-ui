@@ -5,6 +5,7 @@ import 'package:chattrix_ui/core/errors/failures.dart';
 import 'package:chattrix_ui/core/toast/toast_controller.dart';
 import 'package:chattrix_ui/core/toast/toast_type.dart';
 import 'package:chattrix_ui/core/utils/app_logger.dart';
+import 'package:chattrix_ui/features/auth/presentation/providers/auth_providers.dart';
 import 'package:chattrix_ui/features/call/domain/entities/call_end_reason.dart';
 import 'package:chattrix_ui/features/call/domain/entities/call_invitation.dart';
 import 'package:chattrix_ui/features/call/domain/entities/call_reject_reason.dart';
@@ -281,11 +282,17 @@ class CallNotifier extends _$CallNotifier {
             await agoraService.initialize();
             AppLogger.call('✅ Agora initialized');
 
+            // ✅ Use current user ID, not callerId
+            final currentUser = ref.read(currentUserProvider);
+            if (currentUser == null) {
+              throw Exception('Current user not found');
+            }
+
             AppLogger.call('🔗 Joining Agora channel: ${connection.callInfo.channelId}');
             await agoraService.joinChannel(
               token: connection.token,
               channelId: connection.callInfo.channelId,
-              uid: connection.callInfo.callerId,
+              uid: currentUser.id, // ✅ Use current user ID
               isVideoCall: callType == CallType.video,
             );
             AppLogger.call('✅ Joined Agora channel successfully');
@@ -333,10 +340,17 @@ class CallNotifier extends _$CallNotifier {
               try {
                 final agoraService = ref.read(agoraServiceProvider);
                 await agoraService.initialize();
+                
+                // ✅ Use current user ID, not callerId
+                final currentUser = ref.read(currentUserProvider);
+                if (currentUser == null) {
+                  throw Exception('Current user not found');
+                }
+                
                 await agoraService.joinChannel(
                   token: connection.token,
                   channelId: connection.callInfo.channelId,
-                  uid: connection.callInfo.callerId,
+                  uid: currentUser.id, // ✅ Use current user ID
                   isVideoCall: invitation.callType == CallType.video,
                 );
 
@@ -391,10 +405,17 @@ class CallNotifier extends _$CallNotifier {
           try {
             final agoraService = ref.read(agoraServiceProvider);
             await agoraService.initialize();
+            
+            // ✅ Use current user ID, not callerId
+            final currentUser = ref.read(currentUserProvider);
+            if (currentUser == null) {
+              throw Exception('Current user not found');
+            }
+            
             await agoraService.joinChannel(
               token: connection.token,
               channelId: connection.callInfo.channelId,
-              uid: connection.callInfo.callerId,
+              uid: currentUser.id, // ✅ Use current user ID
               isVideoCall: callType == CallType.video,
             );
 

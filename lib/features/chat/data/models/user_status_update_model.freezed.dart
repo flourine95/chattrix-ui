@@ -15,7 +15,8 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$UserStatusUpdateModel {
 
- String get userId; String get username;@JsonKey(name: 'fullName') String get displayName;@JsonKey(name: 'online') bool get isOnline; String? get lastSeen;
+ int get userId; String get status;// "online" or "offline"
+ String? get lastSeen;
 /// Create a copy of UserStatusUpdateModel
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -28,16 +29,16 @@ $UserStatusUpdateModelCopyWith<UserStatusUpdateModel> get copyWith => _$UserStat
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is UserStatusUpdateModel&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.username, username) || other.username == username)&&(identical(other.displayName, displayName) || other.displayName == displayName)&&(identical(other.isOnline, isOnline) || other.isOnline == isOnline)&&(identical(other.lastSeen, lastSeen) || other.lastSeen == lastSeen));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is UserStatusUpdateModel&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.status, status) || other.status == status)&&(identical(other.lastSeen, lastSeen) || other.lastSeen == lastSeen));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,userId,username,displayName,isOnline,lastSeen);
+int get hashCode => Object.hash(runtimeType,userId,status,lastSeen);
 
 @override
 String toString() {
-  return 'UserStatusUpdateModel(userId: $userId, username: $username, displayName: $displayName, isOnline: $isOnline, lastSeen: $lastSeen)';
+  return 'UserStatusUpdateModel(userId: $userId, status: $status, lastSeen: $lastSeen)';
 }
 
 
@@ -48,7 +49,7 @@ abstract mixin class $UserStatusUpdateModelCopyWith<$Res>  {
   factory $UserStatusUpdateModelCopyWith(UserStatusUpdateModel value, $Res Function(UserStatusUpdateModel) _then) = _$UserStatusUpdateModelCopyWithImpl;
 @useResult
 $Res call({
- String userId, String username,@JsonKey(name: 'fullName') String displayName,@JsonKey(name: 'online') bool isOnline, String? lastSeen
+ int userId, String status, String? lastSeen
 });
 
 
@@ -65,13 +66,11 @@ class _$UserStatusUpdateModelCopyWithImpl<$Res>
 
 /// Create a copy of UserStatusUpdateModel
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? userId = null,Object? username = null,Object? displayName = null,Object? isOnline = null,Object? lastSeen = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? userId = null,Object? status = null,Object? lastSeen = freezed,}) {
   return _then(_self.copyWith(
 userId: null == userId ? _self.userId : userId // ignore: cast_nullable_to_non_nullable
-as String,username: null == username ? _self.username : username // ignore: cast_nullable_to_non_nullable
-as String,displayName: null == displayName ? _self.displayName : displayName // ignore: cast_nullable_to_non_nullable
-as String,isOnline: null == isOnline ? _self.isOnline : isOnline // ignore: cast_nullable_to_non_nullable
-as bool,lastSeen: freezed == lastSeen ? _self.lastSeen : lastSeen // ignore: cast_nullable_to_non_nullable
+as int,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
+as String,lastSeen: freezed == lastSeen ? _self.lastSeen : lastSeen // ignore: cast_nullable_to_non_nullable
 as String?,
   ));
 }
@@ -157,10 +156,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String userId,  String username, @JsonKey(name: 'fullName')  String displayName, @JsonKey(name: 'online')  bool isOnline,  String? lastSeen)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int userId,  String status,  String? lastSeen)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _UserStatusUpdateModel() when $default != null:
-return $default(_that.userId,_that.username,_that.displayName,_that.isOnline,_that.lastSeen);case _:
+return $default(_that.userId,_that.status,_that.lastSeen);case _:
   return orElse();
 
 }
@@ -178,10 +177,10 @@ return $default(_that.userId,_that.username,_that.displayName,_that.isOnline,_th
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String userId,  String username, @JsonKey(name: 'fullName')  String displayName, @JsonKey(name: 'online')  bool isOnline,  String? lastSeen)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int userId,  String status,  String? lastSeen)  $default,) {final _that = this;
 switch (_that) {
 case _UserStatusUpdateModel():
-return $default(_that.userId,_that.username,_that.displayName,_that.isOnline,_that.lastSeen);case _:
+return $default(_that.userId,_that.status,_that.lastSeen);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -198,10 +197,10 @@ return $default(_that.userId,_that.username,_that.displayName,_that.isOnline,_th
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String userId,  String username, @JsonKey(name: 'fullName')  String displayName, @JsonKey(name: 'online')  bool isOnline,  String? lastSeen)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int userId,  String status,  String? lastSeen)?  $default,) {final _that = this;
 switch (_that) {
 case _UserStatusUpdateModel() when $default != null:
-return $default(_that.userId,_that.username,_that.displayName,_that.isOnline,_that.lastSeen);case _:
+return $default(_that.userId,_that.status,_that.lastSeen);case _:
   return null;
 
 }
@@ -213,13 +212,12 @@ return $default(_that.userId,_that.username,_that.displayName,_that.isOnline,_th
 @JsonSerializable()
 
 class _UserStatusUpdateModel extends UserStatusUpdateModel {
-  const _UserStatusUpdateModel({required this.userId, required this.username, @JsonKey(name: 'fullName') required this.displayName, @JsonKey(name: 'online') required this.isOnline, this.lastSeen}): super._();
+  const _UserStatusUpdateModel({required this.userId, required this.status, this.lastSeen}): super._();
   factory _UserStatusUpdateModel.fromJson(Map<String, dynamic> json) => _$UserStatusUpdateModelFromJson(json);
 
-@override final  String userId;
-@override final  String username;
-@override@JsonKey(name: 'fullName') final  String displayName;
-@override@JsonKey(name: 'online') final  bool isOnline;
+@override final  int userId;
+@override final  String status;
+// "online" or "offline"
 @override final  String? lastSeen;
 
 /// Create a copy of UserStatusUpdateModel
@@ -235,16 +233,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _UserStatusUpdateModel&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.username, username) || other.username == username)&&(identical(other.displayName, displayName) || other.displayName == displayName)&&(identical(other.isOnline, isOnline) || other.isOnline == isOnline)&&(identical(other.lastSeen, lastSeen) || other.lastSeen == lastSeen));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _UserStatusUpdateModel&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.status, status) || other.status == status)&&(identical(other.lastSeen, lastSeen) || other.lastSeen == lastSeen));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,userId,username,displayName,isOnline,lastSeen);
+int get hashCode => Object.hash(runtimeType,userId,status,lastSeen);
 
 @override
 String toString() {
-  return 'UserStatusUpdateModel(userId: $userId, username: $username, displayName: $displayName, isOnline: $isOnline, lastSeen: $lastSeen)';
+  return 'UserStatusUpdateModel(userId: $userId, status: $status, lastSeen: $lastSeen)';
 }
 
 
@@ -255,7 +253,7 @@ abstract mixin class _$UserStatusUpdateModelCopyWith<$Res> implements $UserStatu
   factory _$UserStatusUpdateModelCopyWith(_UserStatusUpdateModel value, $Res Function(_UserStatusUpdateModel) _then) = __$UserStatusUpdateModelCopyWithImpl;
 @override @useResult
 $Res call({
- String userId, String username,@JsonKey(name: 'fullName') String displayName,@JsonKey(name: 'online') bool isOnline, String? lastSeen
+ int userId, String status, String? lastSeen
 });
 
 
@@ -272,13 +270,11 @@ class __$UserStatusUpdateModelCopyWithImpl<$Res>
 
 /// Create a copy of UserStatusUpdateModel
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? userId = null,Object? username = null,Object? displayName = null,Object? isOnline = null,Object? lastSeen = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? userId = null,Object? status = null,Object? lastSeen = freezed,}) {
   return _then(_UserStatusUpdateModel(
 userId: null == userId ? _self.userId : userId // ignore: cast_nullable_to_non_nullable
-as String,username: null == username ? _self.username : username // ignore: cast_nullable_to_non_nullable
-as String,displayName: null == displayName ? _self.displayName : displayName // ignore: cast_nullable_to_non_nullable
-as String,isOnline: null == isOnline ? _self.isOnline : isOnline // ignore: cast_nullable_to_non_nullable
-as bool,lastSeen: freezed == lastSeen ? _self.lastSeen : lastSeen // ignore: cast_nullable_to_non_nullable
+as int,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
+as String,lastSeen: freezed == lastSeen ? _self.lastSeen : lastSeen // ignore: cast_nullable_to_non_nullable
 as String?,
   ));
 }

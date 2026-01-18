@@ -1,15 +1,23 @@
 import 'package:chattrix_ui/core/domain/enums/enums.dart';
 import 'package:chattrix_ui/core/widgets/user_avatar.dart';
 import 'package:chattrix_ui/features/auth/presentation/providers/auth_providers.dart';
+import 'package:chattrix_ui/features/call/presentation/providers/active_call_provider.dart';
+import 'package:chattrix_ui/features/call/presentation/state/call_notifier.dart';
+import 'package:chattrix_ui/features/call/presentation/widgets/active_call_banner.dart';
 import 'package:chattrix_ui/features/chat/domain/entities/message.dart';
 import 'package:chattrix_ui/features/chat/domain/entities/typing_indicator.dart';
 import 'package:chattrix_ui/features/chat/presentation/hooks/chat_actions_controller.dart';
 import 'package:chattrix_ui/features/chat/presentation/providers/chat_providers.dart';
 import 'package:chattrix_ui/features/chat/presentation/providers/pinned_messages_provider.dart';
 import 'package:chattrix_ui/features/chat/presentation/providers/typing_indicator_provider.dart';
+import 'package:chattrix_ui/features/chat/presentation/utils/chat_view_helpers.dart';
 import 'package:chattrix_ui/features/chat/presentation/widgets/attachment_picker.dart';
+import 'package:chattrix_ui/features/chat/presentation/widgets/chat_app_bar.dart';
+import 'package:chattrix_ui/features/chat/presentation/widgets/chat_gallery.dart';
+import 'package:chattrix_ui/features/chat/presentation/widgets/chat_input_bar.dart';
 import 'package:chattrix_ui/features/chat/presentation/widgets/edit_message_bottom_sheet.dart';
 import 'package:chattrix_ui/features/chat/presentation/widgets/emoji_sticker_picker.dart';
+import 'package:chattrix_ui/features/chat/presentation/widgets/input_bar_config.dart';
 import 'package:chattrix_ui/features/chat/presentation/widgets/message_bubble.dart';
 import 'package:chattrix_ui/features/chat/presentation/widgets/pinned_messages_banner.dart';
 import 'package:chattrix_ui/features/chat/presentation/widgets/reply_message_preview.dart';
@@ -19,19 +27,9 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:photo_manager/photo_manager.dart';
 
-import '../utils/chat_view_helpers.dart';
-import '../widgets/chat_app_bar.dart';
-import '../widgets/chat_gallery.dart';
-import '../widgets/chat_input_bar.dart';
-import '../widgets/input_bar_config.dart';
 
-/// Refactored ChatViewPage - Clean and maintainable
-/// 
-/// Changes:
-/// - Extracted logic to ChatActionsController
-/// - Simplified build method
-/// - Reduced from 1800+ lines to ~400 lines
-/// - Better separation of concerns
+
+
 class ChatViewPage extends HookConsumerWidget {
   const ChatViewPage({super.key, required this.chatId, this.highlightMessageId});
 
@@ -207,6 +205,32 @@ Widget _buildBody({
     },
     child: Column(
       children: [
+        // Active Call Banner
+        Consumer(
+          builder: (context, ref, _) {
+            final activeCallAsync = ref.watch(activeCallProvider(chatId));
+            
+            return activeCallAsync.when(
+              data: (callInfo) {
+                if (callInfo == null) return const SizedBox.shrink();
+                
+                return ActiveCallBanner(
+                  callInfo: callInfo,
+                  onJoinPressed: () {
+                    final callNotifier = ref.read(callProvider.notifier);
+                    callNotifier.joinCall(
+                      callInfo.id,
+                      callInfo.callType,
+                    );
+                  },
+                );
+              },
+              loading: () => const SizedBox.shrink(),
+              error: (_, __) => const SizedBox.shrink(),
+            );
+          },
+        ),
+        
         // Pinned Messages Banner
         if (pinnedMessagesAsync.hasValue && pinnedMessagesAsync.value!.isNotEmpty)
           PinnedMessagesBanner(

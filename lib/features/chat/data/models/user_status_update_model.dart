@@ -10,10 +10,8 @@ abstract class UserStatusUpdateModel with _$UserStatusUpdateModel {
   const UserStatusUpdateModel._();
 
   const factory UserStatusUpdateModel({
-    required String userId,
-    required String username,
-    @JsonKey(name: 'fullName') required String displayName,
-    @JsonKey(name: 'online') required bool isOnline,
+    required int userId,
+    required String status, // "online" or "offline"
     String? lastSeen,
   }) = _UserStatusUpdateModel;
 
@@ -23,10 +21,10 @@ abstract class UserStatusUpdateModel with _$UserStatusUpdateModel {
   /// Convert to entity
   UserStatusUpdate toEntity() {
     return UserStatusUpdate(
-      userId: userId,
-      username: username,
-      displayName: displayName,
-      isOnline: isOnline,
+      userId: userId.toString(),
+      username: '', // Not provided by backend
+      displayName: '', // Not provided by backend
+      isOnline: status == 'online',
       lastSeen: lastSeen,
     );
   }
