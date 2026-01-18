@@ -222,8 +222,8 @@ return $default(_that.id,_that.username,_that.email,_that.emailVerified,_that.ph
 /// @nodoc
 @JsonSerializable()
 
-class _UserDto implements UserDto {
-  const _UserDto({required this.id, required this.username, required this.email, required this.emailVerified, this.phone, required this.fullName, this.avatarUrl, this.bio, this.gender, this.dateOfBirth, this.location, this.profileVisibility, this.lastSeen, required this.createdAt, this.updatedAt});
+class _UserDto extends UserDto {
+  const _UserDto({required this.id, required this.username, required this.email, required this.emailVerified, this.phone, required this.fullName, this.avatarUrl, this.bio, this.gender, this.dateOfBirth, this.location, this.profileVisibility, this.lastSeen, required this.createdAt, this.updatedAt}): super._();
   factory _UserDto.fromJson(Map<String, dynamic> json) => _$UserDtoFromJson(json);
 
 @override final  int id;

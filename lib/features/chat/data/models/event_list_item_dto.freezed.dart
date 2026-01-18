@@ -219,8 +219,8 @@ return $default(_that.messageId,_that.title,_that.description,_that.startTime,_t
 /// @nodoc
 @JsonSerializable()
 
-class _EventListItemDto implements EventListItemDto {
-  const _EventListItemDto({required this.messageId, required this.title, this.description, required this.startTime, required this.endTime, this.location, required final  List<int> going, required final  List<int> maybe, required final  List<int> notGoing, required this.createdBy, required this.createdByUsername, required this.createdAt}): _going = going,_maybe = maybe,_notGoing = notGoing;
+class _EventListItemDto extends EventListItemDto {
+  const _EventListItemDto({required this.messageId, required this.title, this.description, required this.startTime, required this.endTime, this.location, required final  List<int> going, required final  List<int> maybe, required final  List<int> notGoing, required this.createdBy, required this.createdByUsername, required this.createdAt}): _going = going,_maybe = maybe,_notGoing = notGoing,super._();
   factory _EventListItemDto.fromJson(Map<String, dynamic> json) => _$EventListItemDtoFromJson(json);
 
 @override final  int messageId;

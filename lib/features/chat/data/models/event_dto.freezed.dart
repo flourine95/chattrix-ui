@@ -231,8 +231,8 @@ return $default(_that.id,_that.conversationId,_that.creator,_that.title,_that.de
 /// @nodoc
 @JsonSerializable()
 
-class _EventDto implements EventDto {
-  const _EventDto({required this.id, required this.conversationId, required this.creator, required this.title, this.description, required this.startTime, required this.endTime, this.location, required this.createdAt, required this.updatedAt, required this.goingCount, required this.maybeCount, required this.notGoingCount, this.currentUserRsvpStatus, required final  List<EventRsvpDto> rsvps}): _rsvps = rsvps;
+class _EventDto extends EventDto {
+  const _EventDto({required this.id, required this.conversationId, required this.creator, required this.title, this.description, required this.startTime, required this.endTime, this.location, required this.createdAt, required this.updatedAt, required this.goingCount, required this.maybeCount, required this.notGoingCount, this.currentUserRsvpStatus, required final  List<EventRsvpDto> rsvps}): _rsvps = rsvps,super._();
   factory _EventDto.fromJson(Map<String, dynamic> json) => _$EventDtoFromJson(json);
 
 @override final  int id;
@@ -550,8 +550,8 @@ return $default(_that.id,_that.user,_that.status,_that.createdAt,_that.updatedAt
 /// @nodoc
 @JsonSerializable()
 
-class _EventRsvpDto implements EventRsvpDto {
-  const _EventRsvpDto({required this.id, required this.user, required this.status, required this.createdAt, required this.updatedAt});
+class _EventRsvpDto extends EventRsvpDto {
+  const _EventRsvpDto({required this.id, required this.user, required this.status, required this.createdAt, required this.updatedAt}): super._();
   factory _EventRsvpDto.fromJson(Map<String, dynamic> json) => _$EventRsvpDtoFromJson(json);
 
 @override final  int id;

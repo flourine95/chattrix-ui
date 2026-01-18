@@ -327,9 +327,9 @@ class _ConversationList extends ConsumerWidget {
             final isCurrentlyPinned = conversation.settings?.pinned ?? false;
 
             if (isCurrentlyPinned) {
-              await dataSource.unpinConversation(conversation.id);
+              await dataSource.unpinConversation(conversationId: conversation.id);
             } else {
-              await dataSource.pinConversation(conversation.id);
+              await dataSource.pinConversation(conversationId: conversation.id);
             }
 
             // Invalidate providers to refresh
@@ -387,9 +387,9 @@ class _ConversationList extends ConsumerWidget {
             final isCurrentlyMuted = conversation.settings?.muted ?? false;
 
             if (isCurrentlyMuted) {
-              await dataSource.unmuteConversation(conversation.id);
+              await dataSource.unmuteConversation(conversationId: conversation.id);
             } else {
-              await dataSource.muteConversation(conversation.id);
+              await dataSource.muteConversation(conversationId: conversation.id);
             }
 
             // Invalidate providers to refresh
@@ -451,9 +451,9 @@ class _ConversationList extends ConsumerWidget {
             final isCurrentlyHidden = conversation.settings?.hidden ?? false;
 
             if (isCurrentlyHidden) {
-              await dataSource.unhideConversation(conversation.id);
+              await dataSource.unhideConversation(conversationId: conversation.id);
             } else {
-              await dataSource.hideConversation(conversation.id);
+              await dataSource.hideConversation(conversationId: conversation.id);
             }
 
             // Invalidate providers to refresh

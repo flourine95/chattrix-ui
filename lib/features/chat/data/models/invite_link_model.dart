@@ -1,10 +1,13 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:chattrix_ui/features/chat/domain/entities/invite_link.dart';
 
 part 'invite_link_model.freezed.dart';
 part 'invite_link_model.g.dart';
 
 @freezed
 abstract class InviteLinkModel with _$InviteLinkModel {
+  const InviteLinkModel._();
+
   const factory InviteLinkModel({
     required int id,
     required String token,
@@ -22,6 +25,23 @@ abstract class InviteLinkModel with _$InviteLinkModel {
 
   factory InviteLinkModel.fromJson(Map<String, dynamic> json) =>
       _$InviteLinkModelFromJson(json);
+
+  InviteLink toEntity() {
+    return InviteLink(
+      id: id,
+      token: token,
+      conversationId: conversationId,
+      createdBy: createdBy,
+      createdByUsername: createdByUsername,
+      createdAt: createdAt,
+      maxUses: maxUses,
+      currentUses: currentUses,
+      revoked: revoked,
+      revokedAt: revokedAt,
+      revokedBy: revokedBy,
+      valid: valid,
+    );
+  }
 }
 
 @freezed
@@ -37,6 +57,8 @@ abstract class CreateInviteLinkRequest with _$CreateInviteLinkRequest {
 
 @freezed
 abstract class InviteLinkInfoModel with _$InviteLinkInfoModel {
+  const InviteLinkInfoModel._();
+
   const factory InviteLinkInfoModel({
     required String token,
     required int groupId,
@@ -49,10 +71,24 @@ abstract class InviteLinkInfoModel with _$InviteLinkInfoModel {
 
   factory InviteLinkInfoModel.fromJson(Map<String, dynamic> json) =>
       _$InviteLinkInfoModelFromJson(json);
+
+  InviteLinkInfo toEntity() {
+    return InviteLinkInfo(
+      token: token,
+      groupId: groupId,
+      memberCount: memberCount,
+      valid: valid,
+      createdBy: createdBy,
+      createdByUsername: createdByUsername,
+      createdByFullName: createdByFullName,
+    );
+  }
 }
 
 @freezed
 abstract class JoinViaInviteLinkResponse with _$JoinViaInviteLinkResponse {
+  const JoinViaInviteLinkResponse._();
+
   const factory JoinViaInviteLinkResponse({
     required bool success,
     required int conversationId,
@@ -61,5 +97,13 @@ abstract class JoinViaInviteLinkResponse with _$JoinViaInviteLinkResponse {
 
   factory JoinViaInviteLinkResponse.fromJson(Map<String, dynamic> json) =>
       _$JoinViaInviteLinkResponseFromJson(json);
+
+  JoinViaInviteLink toEntity() {
+    return JoinViaInviteLink(
+      success: success,
+      conversationId: conversationId,
+      message: message,
+    );
+  }
 }
 

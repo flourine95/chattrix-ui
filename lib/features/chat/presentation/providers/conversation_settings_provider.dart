@@ -1,110 +1,85 @@
+import 'package:chattrix_ui/core/network/dio_client.dart';
+import 'package:chattrix_ui/features/chat/data/repositories/conversation_settings_repository_impl.dart';
+import 'package:chattrix_ui/features/chat/data/datasources/conversation_settings_datasource_impl.dart';
+import 'package:chattrix_ui/features/chat/domain/entities/conversation_settings.dart';
+import 'package:chattrix_ui/features/chat/domain/repositories/conversation_settings_repository.dart';
+import 'package:chattrix_ui/features/chat/presentation/state/conversations_notifier.dart';
+import 'package:chattrix_ui/core/constants/api_constants.dart';
+import 'package:dio/dio.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:flutter/foundation.dart';
-import '../../data/datasources/conversation_settings_datasource.dart';
-import '../../data/models/conversation_settings_model.dart';
-import '../../../auth/presentation/providers/auth_repository_provider.dart';
-import '../../../../core/constants/api_constants.dart';
-import '../state/conversations_notifier.dart';
 
 part 'conversation_settings_provider.g.dart';
 
 @riverpod
-ConversationSettingsDataSource conversationSettingsDataSource(Ref ref) {
-  return ConversationSettingsDataSourceImpl(ref.watch(dioProvider));
+ConversationSettingsDatasourceImpl conversationSettingsDataSource(Ref ref) {
+  final dio = ref.read(dioClientProvider);
+  return ConversationSettingsDatasourceImpl(dio: dio);
 }
 
 @riverpod
-class ConversationSettings extends _$ConversationSettings {
+ConversationSettingsRepository conversationSettingsRepository(Ref ref) {
+  final datasource = ref.watch(conversationSettingsDataSourceProvider);
+  return ConversationSettingsRepositoryImpl(datasource);
+}
+
+@riverpod
+class ConversationSettingsNotifier extends _$ConversationSettingsNotifier {
   @override
-  Future<ConversationSettingsModel?> build(int conversationId) async {
-    try {
-      final dataSource = ref.read(conversationSettingsDataSourceProvider);
-      final response = await dataSource.getSettings(conversationId);
-      return response.data;
-    } catch (e) {
-      return null;
-    }
+  Future<ConversationSettings?> build(int conversationId) async {
+    final repository = ref.read(conversationSettingsRepositoryProvider);
+    final result = await repository.getSettings(conversationId: conversationId);
+    
+    return result.fold(
+      (failure) => null,
+      (settings) => settings,
+    );
   }
 
   Future<void> togglePin() async {
-    debugPrint('🔍 [Provider] togglePin START - conversationId: $conversationId');
-
-    // Ensure state is loaded first
-    if (state.value == null) {
-      debugPrint('🔍 [Provider] togglePin - state is null, fetching settings first...');
-      try {
-        await future; // Wait for build() to complete
-      } catch (e) {
-        debugPrint('🔍 [Provider] togglePin - failed to fetch settings: $e');
-        throw Exception('Failed to load conversation settings');
-      }
-    }
-
     final current = state.value;
-    if (current == null) {
-      debugPrint('🔍 [Provider] togglePin - state is still null after fetch, aborting');
-      return;
-    }
+    if (current == null) return;
 
-    debugPrint('🔍 [Provider] togglePin - current.pinned: ${current.pinned}');
     state = const AsyncValue.loading();
 
     try {
-      final dataSource = ref.read(conversationSettingsDataSourceProvider);
-      final response = current.pinned
-          ? await dataSource.unpinConversation(conversationId)
-          : await dataSource.pinConversation(conversationId);
-      state = AsyncValue.data(response.data);
+      final repository = ref.read(conversationSettingsRepositoryProvider);
+      final result = current.pinned
+          ? await repository.unpinConversation(conversationId: conversationId)
+          : await repository.pinConversation(conversationId: conversationId);
 
-      // Invalidate conversations list to refresh with new pin state
-      ref.invalidate(conversationsProvider);
-      debugPrint('🔍 [Provider] togglePin - completed successfully');
+      result.fold(
+        (failure) => state = AsyncValue.error(failure, StackTrace.current),
+        (settings) {
+          state = AsyncValue.data(settings);
+          ref.invalidate(conversationsProvider);
+        },
+      );
     } catch (e, st) {
-      debugPrint('🔍 [Provider] togglePin - error: $e');
       state = AsyncValue.error(e, st);
       rethrow;
     }
   }
 
   Future<void> toggleHide() async {
-    debugPrint('🔍 [Provider] toggleHide START - conversationId: $conversationId');
-
-    // Ensure state is loaded first
-    if (state.value == null) {
-      debugPrint('🔍 [Provider] toggleHide - state is null, fetching settings first...');
-      try {
-        await future; // Wait for build() to complete
-      } catch (e) {
-        debugPrint('🔍 [Provider] toggleHide - failed to fetch settings: $e');
-        throw Exception('Failed to load conversation settings');
-      }
-    }
-
     final current = state.value;
-    if (current == null) {
-      debugPrint('🔍 [Provider] toggleHide - state is still null after fetch, aborting');
-      return;
-    }
+    if (current == null) return;
 
-    debugPrint('🔍 [Provider] toggleHide - current.hidden: ${current.hidden}');
     state = const AsyncValue.loading();
 
     try {
-      final dataSource = ref.read(conversationSettingsDataSourceProvider);
-      debugPrint('🔍 [Provider] toggleHide - calling datasource...');
+      final repository = ref.read(conversationSettingsRepositoryProvider);
+      final result = current.hidden
+          ? await repository.unhideConversation(conversationId: conversationId)
+          : await repository.hideConversation(conversationId: conversationId);
 
-      final response = current.hidden
-          ? await dataSource.unhideConversation(conversationId)
-          : await dataSource.hideConversation(conversationId);
-
-      debugPrint('🔍 [Provider] toggleHide - response received: ${response.data}');
-      state = AsyncValue.data(response.data);
-
-      // Invalidate conversations list to refresh with new hide state
-      ref.invalidate(conversationsProvider);
-      debugPrint('🔍 [Provider] toggleHide - completed successfully');
+      result.fold(
+        (failure) => state = AsyncValue.error(failure, StackTrace.current),
+        (settings) {
+          state = AsyncValue.data(settings);
+          ref.invalidate(conversationsProvider);
+        },
+      );
     } catch (e, st) {
-      debugPrint('🔍 [Provider] toggleHide - error: $e');
       state = AsyncValue.error(e, st);
       rethrow;
     }
@@ -115,12 +90,17 @@ class ConversationSettings extends _$ConversationSettings {
     if (current == null) return;
 
     state = const AsyncValue.loading();
+
     try {
-      final dataSource = ref.read(conversationSettingsDataSourceProvider);
-      final response = current.muted
-          ? await dataSource.unmuteConversation(conversationId)
-          : await dataSource.muteConversation(conversationId);
-      state = AsyncValue.data(response.data);
+      final repository = ref.read(conversationSettingsRepositoryProvider);
+      final result = current.muted
+          ? await repository.unmuteConversation(conversationId: conversationId)
+          : await repository.muteConversation(conversationId: conversationId);
+
+      result.fold(
+        (failure) => state = AsyncValue.error(failure, StackTrace.current),
+        (settings) => state = AsyncValue.data(settings),
+      );
     } catch (e, st) {
       state = AsyncValue.error(e, st);
     }
@@ -131,12 +111,17 @@ class ConversationSettings extends _$ConversationSettings {
     if (current == null) return;
 
     state = const AsyncValue.loading();
+
     try {
-      final dataSource = ref.read(conversationSettingsDataSourceProvider);
-      final response = current.blocked
-          ? await dataSource.unblockUser(conversationId)
-          : await dataSource.blockUser(conversationId);
-      state = AsyncValue.data(response.data);
+      final repository = ref.read(conversationSettingsRepositoryProvider);
+      final result = current.blocked
+          ? await repository.unblockUser(conversationId: conversationId)
+          : await repository.blockUser(conversationId: conversationId);
+
+      result.fold(
+        (failure) => state = AsyncValue.error(failure, StackTrace.current),
+        (settings) => state = AsyncValue.data(settings),
+      );
     } catch (e, st) {
       state = AsyncValue.error(e, st);
     }
@@ -144,21 +129,27 @@ class ConversationSettings extends _$ConversationSettings {
 
   Future<void> updateNickname(String nickname) async {
     state = const AsyncValue.loading();
+
     try {
-      final dataSource = ref.read(conversationSettingsDataSourceProvider);
-      final response = await dataSource.updateSettings(
-        conversationId,
-        UpdateConversationSettingsRequest(customNickname: nickname),
+      final repository = ref.read(conversationSettingsRepositoryProvider);
+      final result = await repository.updateSettings(
+        conversationId: conversationId,
+        customNickname: nickname,
       );
-      state = AsyncValue.data(response.data);
+
+      result.fold(
+        (failure) => state = AsyncValue.error(failure, StackTrace.current),
+        (settings) => state = AsyncValue.data(settings),
+      );
     } catch (e, st) {
       state = AsyncValue.error(e, st);
     }
   }
 
+  // Additional methods for group management
   Future<void> leaveGroup() async {
     try {
-      final dio = ref.read(dioProvider);
+      final dio = ref.read(dioClientProvider);
       await dio.post(ApiConstants.leaveConversation(conversationId));
     } catch (e) {
       rethrow;
@@ -167,8 +158,11 @@ class ConversationSettings extends _$ConversationSettings {
 
   Future<void> updateDescription(String description) async {
     try {
-      final dio = ref.read(dioProvider);
-      await dio.put(ApiConstants.conversationById(conversationId), data: {'description': description});
+      final dio = ref.read(dioClientProvider);
+      await dio.put(
+        ApiConstants.conversationById(conversationId),
+        data: {'description': description},
+      );
     } catch (e) {
       rethrow;
     }
@@ -176,8 +170,11 @@ class ConversationSettings extends _$ConversationSettings {
 
   Future<void> updateGroupName(String name) async {
     try {
-      final dio = ref.read(dioProvider);
-      await dio.put(ApiConstants.conversationById(conversationId), data: {'name': name});
+      final dio = ref.read(dioClientProvider);
+      await dio.put(
+        ApiConstants.conversationById(conversationId),
+        data: {'name': name},
+      );
     } catch (e) {
       rethrow;
     }
@@ -185,7 +182,7 @@ class ConversationSettings extends _$ConversationSettings {
 
   Future<void> deleteGroupAvatar() async {
     try {
-      final dio = ref.read(dioProvider);
+      final dio = ref.read(dioClientProvider);
       await dio.delete(ApiConstants.conversationAvatar(conversationId));
     } catch (e) {
       rethrow;

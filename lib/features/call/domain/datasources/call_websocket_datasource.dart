@@ -1,26 +1,21 @@
-import 'package:chattrix_ui/features/call/domain/entities/call_accept.dart';
-import 'package:chattrix_ui/features/call/domain/entities/call_end.dart';
 import 'package:chattrix_ui/features/call/domain/entities/call_invitation.dart';
-import 'package:chattrix_ui/features/call/domain/entities/call_reject.dart';
+import 'package:chattrix_ui/features/call/domain/entities/call_participant_update.dart';
 import 'package:chattrix_ui/features/call/domain/entities/call_timeout.dart';
 
+/// WebSocket DataSource cho Call feature
+/// 
+/// Theo API spec mới, WebSocket chỉ nhận events (không gửi):
+/// - call.incoming: Cuộc gọi đến
+/// - call.participant_update: Cập nhật trạng thái participant
+/// - call.timeout: Cuộc gọi timeout
 abstract class CallWebSocketDataSource {
-  void sendCallInvitation({required String receiverId, required String callType});
-
-  void sendCallAccept({required String callId, required String sdpAnswer});
-
-  void sendCallReject({required String callId, required String reason});
-
-  void sendCallEnd(String callId);
-
+  /// Stream nhận cuộc gọi đến
   Stream<CallInvitation> get incomingCallStream;
 
-  Stream<CallAccept> get callAcceptedStream;
+  /// Stream nhận cập nhật participant (joined, left, rejected)
+  Stream<CallParticipantUpdate> get participantUpdateStream;
 
-  Stream<CallReject> get callRejectedStream;
-
-  Stream<CallEnd> get callEndedStream;
-
+  /// Stream nhận timeout event
   Stream<CallTimeout> get callTimeoutStream;
 
   void dispose();

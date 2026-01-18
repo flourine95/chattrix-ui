@@ -219,8 +219,8 @@ return $default(_that.id,_that.token,_that.conversationId,_that.createdBy,_that.
 /// @nodoc
 @JsonSerializable()
 
-class _InviteLinkModel implements InviteLinkModel {
-  const _InviteLinkModel({required this.id, required this.token, required this.conversationId, required this.createdBy, required this.createdByUsername, required this.createdAt, this.maxUses, this.currentUses = 0, this.revoked = false, this.revokedAt, this.revokedBy, this.valid = true});
+class _InviteLinkModel extends InviteLinkModel {
+  const _InviteLinkModel({required this.id, required this.token, required this.conversationId, required this.createdBy, required this.createdByUsername, required this.createdAt, this.maxUses, this.currentUses = 0, this.revoked = false, this.revokedAt, this.revokedBy, this.valid = true}): super._();
   factory _InviteLinkModel.fromJson(Map<String, dynamic> json) => _$InviteLinkModelFromJson(json);
 
 @override final  int id;
@@ -776,8 +776,8 @@ return $default(_that.token,_that.groupId,_that.memberCount,_that.valid,_that.cr
 /// @nodoc
 @JsonSerializable()
 
-class _InviteLinkInfoModel implements InviteLinkInfoModel {
-  const _InviteLinkInfoModel({required this.token, required this.groupId, required this.memberCount, required this.valid, required this.createdBy, required this.createdByUsername, required this.createdByFullName});
+class _InviteLinkInfoModel extends InviteLinkInfoModel {
+  const _InviteLinkInfoModel({required this.token, required this.groupId, required this.memberCount, required this.valid, required this.createdBy, required this.createdByUsername, required this.createdByFullName}): super._();
   factory _InviteLinkInfoModel.fromJson(Map<String, dynamic> json) => _$InviteLinkInfoModelFromJson(json);
 
 @override final  String token;
@@ -1053,8 +1053,8 @@ return $default(_that.success,_that.conversationId,_that.message);case _:
 /// @nodoc
 @JsonSerializable()
 
-class _JoinViaInviteLinkResponse implements JoinViaInviteLinkResponse {
-  const _JoinViaInviteLinkResponse({required this.success, required this.conversationId, required this.message});
+class _JoinViaInviteLinkResponse extends JoinViaInviteLinkResponse {
+  const _JoinViaInviteLinkResponse({required this.success, required this.conversationId, required this.message}): super._();
   factory _JoinViaInviteLinkResponse.fromJson(Map<String, dynamic> json) => _$JoinViaInviteLinkResponseFromJson(json);
 
 @override final  bool success;

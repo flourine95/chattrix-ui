@@ -1,8 +1,8 @@
+import 'package:chattrix_ui/core/constants/api_constants.dart';
 import 'package:chattrix_ui/core/errors/exceptions.dart';
 import 'package:chattrix_ui/features/chat/data/models/poll_model.dart';
 import 'package:chattrix_ui/features/chat/domain/datasources/poll_datasource.dart';
 import 'package:dio/dio.dart';
-import 'package:flutter/foundation.dart';
 
 class PollDatasourceImpl implements PollDatasource {
   final Dio dio;
@@ -12,29 +12,22 @@ class PollDatasourceImpl implements PollDatasource {
   @override
   Future<PollModel> createPoll({required int conversationId, required CreatePollRequest request}) async {
     try {
-      // NEW API: POST /v1/conversations/{id}/messages/poll
-      // Returns Message with metadata.poll
-      final response = await dio.post(
-        '/v1/conversations/$conversationId/messages/poll',
-        data: request.toJson(),
-      );
+      final response = await dio.post(ApiConstants.createPoll(conversationId), data: request.toJson());
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         final data = response.data['data'] as Map<String, dynamic>;
-        
-        // Extract poll from metadata
+
         final metadata = data['metadata'] as Map<String, dynamic>?;
         if (metadata != null && metadata['poll'] != null) {
           final pollJson = metadata['poll'] as Map<String, dynamic>;
           return PollModel.fromJson(pollJson);
         }
-        
+
         throw ServerException(message: 'Poll data not found in response');
       }
 
       throw ServerException(message: 'Failed to create poll');
     } on DioException catch (e) {
-      debugPrint('❌ Create poll error: ${e.response?.statusCode} - ${e.response?.data}');
       throw ServerException(message: e.response?.data['message'] ?? 'Failed to create poll');
     }
   }
@@ -46,7 +39,7 @@ class PollDatasourceImpl implements PollDatasource {
     required VotePollRequest request,
   }) async {
     try {
-      final response = await dio.post('/v1/conversations/$conversationId/polls/$pollId/vote', data: request.toJson());
+      final response = await dio.post(ApiConstants.votePoll(conversationId, pollId), data: request.toJson());
 
       if (response.statusCode == 200) {
         return PollModel.fromJson(response.data['data'] as Map<String, dynamic>);
@@ -54,7 +47,6 @@ class PollDatasourceImpl implements PollDatasource {
 
       throw ServerException(message: 'Failed to vote poll');
     } on DioException catch (e) {
-      debugPrint('❌ Vote error: ${e.response?.statusCode} - ${e.response?.data}');
       throw ServerException(message: e.response?.data['message'] ?? 'Failed to vote poll');
     }
   }
@@ -66,7 +58,10 @@ class PollDatasourceImpl implements PollDatasource {
     required RemoveVoteRequest request,
   }) async {
     try {
-      final response = await dio.delete('/v1/conversations/$conversationId/polls/$pollId/vote', data: request.toJson());
+      final response = await dio.delete(
+        '${ApiConstants.pollById(conversationId, pollId)}/vote',
+        data: request.toJson(),
+      );
 
       if (response.statusCode == 200) {
         return PollModel.fromJson(response.data['data'] as Map<String, dynamic>);
@@ -81,7 +76,7 @@ class PollDatasourceImpl implements PollDatasource {
   @override
   Future<PollModel> closePoll({required int conversationId, required int pollId}) async {
     try {
-      final response = await dio.post('/v1/conversations/$conversationId/polls/$pollId/close');
+      final response = await dio.post(ApiConstants.closePoll(conversationId, pollId));
 
       if (response.statusCode == 200) {
         return PollModel.fromJson(response.data['data'] as Map<String, dynamic>);
@@ -96,7 +91,7 @@ class PollDatasourceImpl implements PollDatasource {
   @override
   Future<String> deletePoll({required int conversationId, required int pollId}) async {
     try {
-      final response = await dio.delete('/v1/conversations/$conversationId/polls/$pollId');
+      final response = await dio.delete(ApiConstants.pollById(conversationId, pollId));
 
       if (response.statusCode == 200) {
         return response.data['data'] as String? ?? 'Poll deleted successfully';
@@ -111,7 +106,7 @@ class PollDatasourceImpl implements PollDatasource {
   @override
   Future<PollModel> getPollDetails({required int conversationId, required int pollId}) async {
     try {
-      final response = await dio.get('/v1/conversations/$conversationId/polls/$pollId');
+      final response = await dio.get(ApiConstants.pollById(conversationId, pollId));
 
       if (response.statusCode == 200) {
         return PollModel.fromJson(response.data['data'] as Map<String, dynamic>);
@@ -126,7 +121,7 @@ class PollDatasourceImpl implements PollDatasource {
   @override
   Future<List<PollModel>> getAllPolls({required int conversationId}) async {
     try {
-      final response = await dio.get('/v1/conversations/$conversationId/polls');
+      final response = await dio.get(ApiConstants.polls(conversationId));
 
       if (response.statusCode == 200) {
         final dataWrapper = response.data['data'] as Map<String, dynamic>?;
@@ -141,7 +136,6 @@ class PollDatasourceImpl implements PollDatasource {
 
       throw ServerException(message: 'Failed to get polls');
     } on DioException catch (e) {
-      debugPrint('🗳️ [PollDatasource] Error: ${e.response?.statusCode} - ${e.response?.data}');
       throw ServerException(message: e.response?.data['message'] ?? 'Failed to get polls');
     }
   }

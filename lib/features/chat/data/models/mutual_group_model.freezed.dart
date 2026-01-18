@@ -212,8 +212,8 @@ return $default(_that.id,_that.type,_that.createdAt,_that.updatedAt,_that.partic
 /// @nodoc
 @JsonSerializable()
 
-class _MutualGroupModel implements MutualGroupModel {
-  const _MutualGroupModel({required this.id, required this.type, required this.createdAt, required this.updatedAt, final  List<ParticipantModel> participants = const []}): _participants = participants;
+class _MutualGroupModel extends MutualGroupModel {
+  const _MutualGroupModel({required this.id, required this.type, required this.createdAt, required this.updatedAt, final  List<ParticipantModel> participants = const []}): _participants = participants,super._();
   factory _MutualGroupModel.fromJson(Map<String, dynamic> json) => _$MutualGroupModelFromJson(json);
 
 @override final  int id;

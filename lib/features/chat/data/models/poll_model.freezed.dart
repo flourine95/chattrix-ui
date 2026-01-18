@@ -229,8 +229,8 @@ return $default(_that.id,_that.question,_that.conversationId,_that.creator,_that
 /// @nodoc
 @JsonSerializable()
 
-class _PollModel implements PollModel {
-  const _PollModel({required this.id, required this.question, required this.conversationId, required this.creator, required this.allowMultipleVotes, this.expiresAt, this.closed = false, this.expired = false, this.active = true, required this.createdAt, this.totalVoters = 0, final  List<PollOptionModel> options = const [], final  List<int> currentUserVotedOptionIds = const []}): _options = options,_currentUserVotedOptionIds = currentUserVotedOptionIds;
+class _PollModel extends PollModel {
+  const _PollModel({required this.id, required this.question, required this.conversationId, required this.creator, required this.allowMultipleVotes, this.expiresAt, this.closed = false, this.expired = false, this.active = true, required this.createdAt, this.totalVoters = 0, final  List<PollOptionModel> options = const [], final  List<int> currentUserVotedOptionIds = const []}): _options = options,_currentUserVotedOptionIds = currentUserVotedOptionIds,super._();
   factory _PollModel.fromJson(Map<String, dynamic> json) => _$PollModelFromJson(json);
 
 @override final  int id;
@@ -542,8 +542,8 @@ return $default(_that.id,_that.optionText,_that.optionOrder,_that.voteCount,_tha
 /// @nodoc
 @JsonSerializable()
 
-class _PollOptionModel implements PollOptionModel {
-  const _PollOptionModel({required this.id, required this.optionText, required this.optionOrder, this.voteCount = 0, this.percentage = 0.0, final  List<UserDto> voters = const []}): _voters = voters;
+class _PollOptionModel extends PollOptionModel {
+  const _PollOptionModel({required this.id, required this.optionText, required this.optionOrder, this.voteCount = 0, this.percentage = 0.0, final  List<UserDto> voters = const []}): _voters = voters,super._();
   factory _PollOptionModel.fromJson(Map<String, dynamic> json) => _$PollOptionModelFromJson(json);
 
 @override final  int id;

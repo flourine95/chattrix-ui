@@ -1,10 +1,13 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:chattrix_ui/features/chat/domain/entities/birthday.dart';
 
 part 'birthday_model.freezed.dart';
 part 'birthday_model.g.dart';
 
 @freezed
 abstract class BirthdayModel with _$BirthdayModel {
+  const BirthdayModel._();
+
   const factory BirthdayModel({
     required int userId,
     required String username,
@@ -16,6 +19,18 @@ abstract class BirthdayModel with _$BirthdayModel {
   }) = _BirthdayModel;
 
   factory BirthdayModel.fromJson(Map<String, dynamic> json) => _$BirthdayModelFromJson(json);
+
+  Birthday toEntity() {
+    return Birthday(
+      userId: userId,
+      username: username,
+      fullName: fullName,
+      avatarUrl: avatarUrl,
+      dateOfBirth: dateOfBirth,
+      age: age,
+      birthdayMessage: birthdayMessage,
+    );
+  }
 }
 
 @freezed
@@ -31,8 +46,20 @@ abstract class SendBirthdayWishesRequest with _$SendBirthdayWishesRequest {
 
 @freezed
 abstract class SendBirthdayWishesResponse with _$SendBirthdayWishesResponse {
-  const factory SendBirthdayWishesResponse({required int conversationCount, required int userId}) =
-      _SendBirthdayWishesResponse;
+  const SendBirthdayWishesResponse._();
+
+  const factory SendBirthdayWishesResponse({
+    required int conversationCount,
+    required int userId,
+  }) = _SendBirthdayWishesResponse;
 
   factory SendBirthdayWishesResponse.fromJson(Map<String, dynamic> json) => _$SendBirthdayWishesResponseFromJson(json);
+
+  // Simple response, just return a map
+  Map<String, dynamic> toEntity() {
+    return {
+      'conversationCount': conversationCount,
+      'userId': userId,
+    };
+  }
 }

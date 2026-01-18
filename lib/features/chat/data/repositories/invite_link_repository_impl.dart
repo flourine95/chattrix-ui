@@ -2,10 +2,9 @@ import 'package:chattrix_ui/core/errors/failures.dart';
 import 'package:chattrix_ui/features/chat/domain/datasources/invite_link_datasource.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:chattrix_ui/core/repositories/base_repository.dart';
-import '../../domain/entities/invite_link.dart';
-import '../../domain/repositories/invite_link_repository.dart';
-import '../models/invite_link_model.dart';
-import '../mappers/invite_link_mapper.dart';
+import 'package:chattrix_ui/features/chat/domain/entities/invite_link.dart';
+import 'package:chattrix_ui/features/chat/domain/repositories/invite_link_repository.dart';
+import 'package:chattrix_ui/features/chat/data/models/invite_link_model.dart';
 
 class InviteLinkRepositoryImpl extends BaseRepository implements InviteLinkRepository {
   final InviteLinkDatasource _datasource;

@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:chattrix_ui/core/constants/websocket_events.dart';
 import 'package:chattrix_ui/core/network/websocket_service.dart';
 import 'package:chattrix_ui/core/services/online_status_cache.dart';
-import 'package:chattrix_ui/core/utils/app_logger.dart';
 import 'package:chattrix_ui/features/chat/data/models/chat_message_request.dart';
 import 'package:chattrix_ui/features/chat/data/models/conversation_update_model.dart';
 import 'package:chattrix_ui/features/chat/data/models/message_model.dart';
@@ -18,38 +17,12 @@ import 'package:chattrix_ui/features/chat/domain/entities/typing_indicator.dart'
 import 'package:chattrix_ui/features/chat/domain/entities/user_status_update.dart';
 import 'package:flutter/foundation.dart';
 
-/// WebSocket event types sent from client to server
-/// Uses WebSocketEvents as source of truth
-class _ChatWebSocketEvent {
-  static const String chatMessage = WebSocketEvents.chatMessage;
-  static const String typingStart = WebSocketEvents.typingStart;
-  static const String typingStop = WebSocketEvents.typingStop;
-}
-
-/// WebSocket event types received from server
-/// Uses WebSocketEvents as source of truth
-class _ChatWebSocketResponse {
-  static const String chatMessage = WebSocketEvents.chatMessage;
-  static const String messageIdUpdate = WebSocketEvents.messageIdUpdate;
-  static const String typingIndicator = WebSocketEvents.typingIndicator;
-  static const String userStatus = WebSocketEvents.userStatus;
-  static const String conversationUpdate = WebSocketEvents.conversationUpdate;
-  static const String scheduledMessageSent = WebSocketEvents.scheduledMessageSent;
-  static const String scheduledMessageFailed = WebSocketEvents.scheduledMessageFailed;
-  static const String messageReaction = WebSocketEvents.messageReaction;
-  static const String pollEvent = WebSocketEvents.pollEvent;
-  static const String eventEvent = WebSocketEvents.eventEvent;
-  static const String heartbeatAck = WebSocketEvents.heartbeatAck;
-}
-
-/// Implementation of ChatWebSocketDataSource
 class ChatWebSocketDataSourceImpl implements ChatWebSocketDataSource {
   final WebSocketService _webSocketService;
   StreamSubscription<Map<String, dynamic>>? _subscription;
 
-  // Stream controllers for different message types
   final _messageController = StreamController<Message>.broadcast();
-  final _messageIdUpdateController = StreamController<Map<String, dynamic>>.broadcast(); // ✅ NEW
+  final _messageIdUpdateController = StreamController<Map<String, dynamic>>.broadcast();
   final _typingController = StreamController<TypingIndicator>.broadcast();
   final _userStatusController = StreamController<UserStatusUpdate>.broadcast();
   final _conversationUpdateController = StreamController<ConversationUpdate>.broadcast();
@@ -57,298 +30,141 @@ class ChatWebSocketDataSourceImpl implements ChatWebSocketDataSource {
   final _scheduledMessageFailedController = StreamController<ScheduledMessageFailedDto>.broadcast();
   final _pollEventController = StreamController<Map<String, dynamic>>.broadcast();
   final _eventEventController = StreamController<Map<String, dynamic>>.broadcast();
-  final _heartbeatAckController = StreamController<void>.broadcast(); // ✅ NEW
+  final _heartbeatAckController = StreamController<void>.broadcast();
 
   ChatWebSocketDataSourceImpl({required WebSocketService webSocketService}) : _webSocketService = webSocketService {
     _startListening();
   }
 
   void _startListening() {
-    // Listen to chat-related messages only
     final chatMessageTypes = [
-      _ChatWebSocketResponse.chatMessage,
-      _ChatWebSocketResponse.messageIdUpdate, // ✅ NEW
-      _ChatWebSocketResponse.typingIndicator,
-      _ChatWebSocketResponse.userStatus,
-      _ChatWebSocketResponse.conversationUpdate,
-      _ChatWebSocketResponse.scheduledMessageSent,
-      _ChatWebSocketResponse.scheduledMessageFailed,
-      _ChatWebSocketResponse.messageReaction,
-      _ChatWebSocketResponse.pollEvent,
-      _ChatWebSocketResponse.eventEvent,
-      _ChatWebSocketResponse.heartbeatAck, // ✅ NEW
+      WebSocketEvents.chatMessage,
+      WebSocketEvents.messageIdUpdate,
+      WebSocketEvents.typingIndicator,
+      WebSocketEvents.userStatus,
+      WebSocketEvents.conversationUpdate,
+      WebSocketEvents.scheduledMessageSent,
+      WebSocketEvents.scheduledMessageFailed,
+      WebSocketEvents.messageReaction,
+      WebSocketEvents.pollEvent,
+      WebSocketEvents.eventEvent,
+      WebSocketEvents.heartbeatAck,
     ];
 
     _subscription = _webSocketService.messageRouter
         .getStreamForTypes(chatMessageTypes)
         .listen(
           _handleMessage,
-          onError: (error, stackTrace) {
-            AppLogger.error(
-              'WebSocket message stream error',
-              error: error,
-              stackTrace: stackTrace,
-              tag: 'ChatWebSocketDataSource',
-            );
+          onError: (error) {
+            debugPrint('🟡 WS Stream Error: $error');
           },
         );
-
-    AppLogger.debug('Started listening for chat events', tag: 'ChatWebSocketDataSource');
   }
 
   void _handleMessage(Map<String, dynamic> message) {
     try {
       final type = message['type'] as String?;
-      if (type == null) {
-        AppLogger.warning('Received message without type field', tag: 'ChatWebSocketDataSource');
-        return;
-      }
+      if (type == null) return;
 
       final payload = message['payload'] ?? message['data'];
-      if (payload == null) {
-        AppLogger.warning(
-          'Received message without payload/data field for type: $type',
-          tag: 'ChatWebSocketDataSource',
-        );
-        return;
-      }
+      if (payload == null) return;
 
-      AppLogger.debug('Processing WebSocket message: $type', tag: 'ChatWebSocketDataSource');
-
+      // Dùng switch case trực tiếp với WebSocketEvents
       switch (type) {
-        case _ChatWebSocketResponse.chatMessage:
-          try {
-            debugPrint('🟡 [WebSocket] RAW MESSAGE RECEIVED');
-            debugPrint('🟡 [WebSocket] Payload: $payload');
-            
-            final messageEntity = MessageModel.fromApi(payload as Map<String, dynamic>).toEntity();
-            
-            debugPrint('🟡 [WebSocket] Parsed message ID: ${messageEntity.id}');
-            debugPrint('🟡 [WebSocket] Content: ${messageEntity.content}');
-            debugPrint('🟡 [WebSocket] ReplyToMessageId: ${messageEntity.replyToMessageId}');
-            debugPrint('🟡 [WebSocket] ReplyToMessage: ${messageEntity.replyToMessage != null ? "Present" : "NULL"}');
-            
-            _messageController.add(messageEntity);
-            AppLogger.debug('Successfully processed chat message', tag: 'ChatWebSocketDataSource');
-          } catch (e, st) {
-            debugPrint('❌ [WebSocket] ERROR parsing message: $e');
-            AppLogger.error('Failed to parse chat message', error: e, stackTrace: st, tag: 'ChatWebSocketDataSource');
+        case WebSocketEvents.chatMessage:
+          final messageEntity = MessageModel.fromApi(payload as Map<String, dynamic>).toEntity();
+          _messageController.add(messageEntity);
+          break;
+
+        case WebSocketEvents.messageIdUpdate:
+          final tempId = payload['tempId'] as int;
+          final realId = payload['realId'] as int;
+          final conversationId = payload['conversationId'] as int;
+          _messageIdUpdateController.add({'tempId': tempId, 'realId': realId, 'conversationId': conversationId});
+          break;
+
+        case WebSocketEvents.typingIndicator:
+          final indicatorEntity = TypingIndicatorModel.fromJson(payload as Map<String, dynamic>).toEntity();
+          _typingController.add(indicatorEntity);
+          break;
+
+        case WebSocketEvents.userStatus:
+          final statusEntity = UserStatusUpdateModel.fromJson(payload as Map<String, dynamic>).toEntity();
+
+          final cache = OnlineStatusCache();
+          final userId = int.tryParse(statusEntity.userId);
+          if (userId != null) {
+            final lastSeen = statusEntity.lastSeen != null ? DateTime.tryParse(statusEntity.lastSeen!) : null;
+            cache.updateStatus(userId, statusEntity.isOnline, lastSeen: lastSeen);
           }
+
+          _userStatusController.add(statusEntity);
           break;
 
-        case _ChatWebSocketResponse.messageIdUpdate:
-          // ✅ NEW: Handle temp ID → real ID sync
-          try {
-            final tempId = payload['tempId'] as int;
-            final realId = payload['realId'] as int;
-            final conversationId = payload['conversationId'] as int;
-
-            AppLogger.debug(
-              '🔄 Message ID update: $tempId → $realId (conversation: $conversationId)',
-              tag: 'ChatWebSocketDataSource',
-            );
-
-            _messageIdUpdateController.add({'tempId': tempId, 'realId': realId, 'conversationId': conversationId});
-          } catch (e, st) {
-            AppLogger.error(
-              'Failed to parse message ID update',
-              error: e,
-              stackTrace: st,
-              tag: 'ChatWebSocketDataSource',
-            );
-          }
+        case WebSocketEvents.conversationUpdate:
+          final updateEntity = ConversationUpdateModel.fromJson(payload as Map<String, dynamic>).toEntity();
+          _conversationUpdateController.add(updateEntity);
           break;
 
-        case _ChatWebSocketResponse.typingIndicator:
-          try {
-            final indicatorEntity = TypingIndicatorModel.fromJson(payload as Map<String, dynamic>).toEntity();
-            _typingController.add(indicatorEntity);
-            AppLogger.debug(
-              'Typing indicator: conversationId=${indicatorEntity.conversationId}, users=${indicatorEntity.typingUsers.length}',
-              tag: 'ChatWebSocketDataSource',
-            );
-          } catch (e, st) {
-            AppLogger.error(
-              'Failed to parse typing indicator',
-              error: e,
-              stackTrace: st,
-              tag: 'ChatWebSocketDataSource',
-            );
-          }
+        case WebSocketEvents.scheduledMessageSent:
+          final dto = ScheduledMessageSentDto.fromJson(payload as Map<String, dynamic>);
+          _scheduledMessageSentController.add(dto);
           break;
 
-        case _ChatWebSocketResponse.userStatus:
-          try {
-            final statusEntity = UserStatusUpdateModel.fromJson(payload as Map<String, dynamic>).toEntity();
-
-            // ✅ Update OnlineStatusCache
-            final cache = OnlineStatusCache();
-            final userId = int.tryParse(statusEntity.userId);
-            if (userId != null) {
-              final lastSeen = statusEntity.lastSeen != null ? DateTime.tryParse(statusEntity.lastSeen!) : null;
-              cache.updateStatus(userId, statusEntity.isOnline, lastSeen: lastSeen);
-            }
-
-            _userStatusController.add(statusEntity);
-            AppLogger.debug(
-              'User status update: userId=${statusEntity.userId}, online=${statusEntity.isOnline}',
-              tag: 'ChatWebSocketDataSource',
-            );
-          } catch (e, st) {
-            AppLogger.error(
-              'Failed to parse user status update',
-              error: e,
-              stackTrace: st,
-              tag: 'ChatWebSocketDataSource',
-            );
-          }
+        case WebSocketEvents.scheduledMessageFailed:
+          final dto = ScheduledMessageFailedDto.fromJson(payload as Map<String, dynamic>);
+          _scheduledMessageFailedController.add(dto);
           break;
 
-        case _ChatWebSocketResponse.conversationUpdate:
-          try {
-            final updateEntity = ConversationUpdateModel.fromJson(payload as Map<String, dynamic>).toEntity();
-            _conversationUpdateController.add(updateEntity);
-            AppLogger.debug(
-              'Conversation update: conversationId=${updateEntity.conversationId}',
-              tag: 'ChatWebSocketDataSource',
-            );
-          } catch (e, st) {
-            AppLogger.error(
-              'Failed to parse conversation update',
-              error: e,
-              stackTrace: st,
-              tag: 'ChatWebSocketDataSource',
-            );
-          }
+        case WebSocketEvents.messageReaction:
           break;
 
-        case _ChatWebSocketResponse.scheduledMessageSent:
-          try {
-            final dto = ScheduledMessageSentDto.fromJson(payload as Map<String, dynamic>);
-            _scheduledMessageSentController.add(dto);
-            AppLogger.debug(
-              'Scheduled message sent: scheduledMessageId=${dto.scheduledMessageId}',
-              tag: 'ChatWebSocketDataSource',
-            );
-          } catch (e, st) {
-            AppLogger.error(
-              'Failed to parse scheduled message sent event',
-              error: e,
-              stackTrace: st,
-              tag: 'ChatWebSocketDataSource',
-            );
-          }
+        case WebSocketEvents.pollEvent:
+          _pollEventController.add(payload as Map<String, dynamic>);
           break;
 
-        case _ChatWebSocketResponse.scheduledMessageFailed:
-          try {
-            final dto = ScheduledMessageFailedDto.fromJson(payload as Map<String, dynamic>);
-            _scheduledMessageFailedController.add(dto);
-            AppLogger.debug(
-              'Scheduled message failed: scheduledMessageId=${dto.scheduledMessageId}, reason=${dto.failedReason}',
-              tag: 'ChatWebSocketDataSource',
-            );
-          } catch (e, st) {
-            AppLogger.error(
-              'Failed to parse scheduled message failed event',
-              error: e,
-              stackTrace: st,
-              tag: 'ChatWebSocketDataSource',
-            );
-          }
+        case WebSocketEvents.eventEvent:
+          _eventEventController.add(payload as Map<String, dynamic>);
           break;
 
-        case _ChatWebSocketResponse.messageReaction:
-          // Handle message reaction updates
-          // This will be processed by the messages provider to update reactions in real-time
-          AppLogger.debug('Message reaction received: $payload', tag: 'ChatWebSocketDataSource');
-          // TODO: Implement reaction update logic if needed
-          // For now, just log it - reactions are already handled via API polling
-          break;
-
-        case _ChatWebSocketResponse.pollEvent:
-          try {
-            // Poll event structure: { "type": "POLL_CREATED", "poll": {...} }
-            _pollEventController.add(payload as Map<String, dynamic>);
-            final eventType = payload['type'] as String?;
-            AppLogger.debug('Poll event received: $eventType', tag: 'ChatWebSocketDataSource');
-          } catch (e, st) {
-            AppLogger.error('Failed to parse poll event', error: e, stackTrace: st, tag: 'ChatWebSocketDataSource');
-          }
-          break;
-
-        case _ChatWebSocketResponse.eventEvent:
-          try {
-            // Event event structure: { "type": "EVENT_CREATED", "event": {...} }
-            _eventEventController.add(payload as Map<String, dynamic>);
-            final eventType = payload['type'] as String?;
-            AppLogger.debug('Event event received: $eventType', tag: 'ChatWebSocketDataSource');
-          } catch (e, st) {
-            AppLogger.error('Failed to parse event event', error: e, stackTrace: st, tag: 'ChatWebSocketDataSource');
-          }
-          break;
-
-        case _ChatWebSocketResponse.heartbeatAck:
-          // ✅ NEW: Handle heartbeat acknowledgment
+        case WebSocketEvents.heartbeatAck:
           _heartbeatAckController.add(null);
-          AppLogger.debug('💓 Heartbeat ACK received', tag: 'ChatWebSocketDataSource');
           break;
-
-        default:
-          AppLogger.warning('Unknown message type: $type', tag: 'ChatWebSocketDataSource');
       }
-    } catch (e, stackTrace) {
-      // Catch-all for any unexpected errors
-      AppLogger.error(
-        'Unexpected error handling WebSocket message',
-        error: e,
-        stackTrace: stackTrace,
-        tag: 'ChatWebSocketDataSource',
-      );
+    } catch (e) {
+      debugPrint('🟡 WS Handle Message Error: $e');
     }
   }
 
   @override
-  Future<void> connect(String accessToken) async {
-    // Connection is managed by WebSocketService
-    // This method is kept for interface compatibility but does nothing
-    AppLogger.debug('Connect called (handled by WebSocketService)', tag: 'ChatWebSocketDataSource');
-  }
+  Future<void> connect(String accessToken) async {}
 
   @override
-  Future<void> disconnect() async {
-    // Disconnection is managed by WebSocketService
-    AppLogger.debug('Disconnect called (handled by WebSocketService)', tag: 'ChatWebSocketDataSource');
-  }
+  Future<void> disconnect() async {}
 
   @override
   void sendMessage(int conversationId, ChatMessageRequest request) {
     final messageData = request.toJson();
-
     messageData['conversationId'] = conversationId;
-
-    final wsPayload = {'type': _ChatWebSocketEvent.chatMessage, 'payload': messageData};
-
+    final wsPayload = {'type': WebSocketEvents.chatMessage, 'payload': messageData};
     _webSocketService.send(wsPayload);
   }
 
   @override
   void sendTypingStart(int conversationId) {
     final payload = {
-      'type': _ChatWebSocketEvent.typingStart,
+      'type': WebSocketEvents.typingStart,
       'payload': {'conversationId': conversationId},
     };
-
     _webSocketService.send(payload);
   }
 
   @override
   void sendTypingStop(int conversationId) {
     final payload = {
-      'type': _ChatWebSocketEvent.typingStop,
+      'type': WebSocketEvents.typingStop,
       'payload': {'conversationId': conversationId},
     };
-
     _webSocketService.send(payload);
   }
 
@@ -369,24 +185,21 @@ class ChatWebSocketDataSourceImpl implements ChatWebSocketDataSource {
   @override
   Stream<ConversationUpdate> get conversationUpdateStream => _conversationUpdateController.stream;
 
-  /// Stream for scheduled message sent events
+  @override
   Stream<ScheduledMessageSentDto> get scheduledMessageSentStream => _scheduledMessageSentController.stream;
 
-  /// Stream for scheduled message failed events
+  @override
   Stream<ScheduledMessageFailedDto> get scheduledMessageFailedStream => _scheduledMessageFailedController.stream;
 
-  /// Stream for poll events
   @override
   Stream<Map<String, dynamic>> get pollEventStream => _pollEventController.stream;
 
-  /// Stream for event events
+  @override
   Stream<Map<String, dynamic>> get eventEventStream => _eventEventController.stream;
 
-  /// Stream for message ID updates (temp ID → real ID)
   @override
   Stream<Map<String, dynamic>> get messageIdUpdateStream => _messageIdUpdateController.stream;
 
-  /// Stream for heartbeat acknowledgments
   @override
   Stream<void> get heartbeatAckStream => _heartbeatAckController.stream;
 

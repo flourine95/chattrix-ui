@@ -217,9 +217,9 @@ class HiddenConversationsPage extends ConsumerWidget {
                               debugPrint('🔍 [Unhide] Calling datasource directly...');
                               // Call datasource directly to avoid provider disposal issues
                               final dataSource = ref.read(conversationSettingsDataSourceProvider);
-                              final response = await dataSource.unhideConversation(conversationId);
+                              final response = await dataSource.unhideConversation(conversationId: conversationId);
 
-                              debugPrint('🔍 [Unhide] Unhide completed successfully: ${response.data}');
+                              debugPrint('🔍 [Unhide] Unhide completed successfully');
 
                               if (context.mounted) {
                                 // Close loading dialog

@@ -1,9 +1,8 @@
 import 'dart:async';
 
+import 'package:chattrix_ui/core/domain/enums/profile_visibility.dart';
 import 'package:chattrix_ui/features/auth/domain/entities/user.dart';
 import 'package:chattrix_ui/features/chat/data/datasources/chat_websocket_datasource_impl.dart';
-import 'package:chattrix_ui/features/chat/data/mappers/event_mapper.dart';
-import 'package:chattrix_ui/features/chat/data/mappers/event_list_mapper.dart';
 import 'package:chattrix_ui/features/chat/data/models/event_dto.dart';
 import 'package:chattrix_ui/features/chat/data/models/event_list_item_dto.dart';
 import 'package:chattrix_ui/features/chat/data/repositories/events_repository_impl.dart';
@@ -11,7 +10,6 @@ import 'package:chattrix_ui/features/chat/domain/entities/event_entity.dart';
 import 'package:chattrix_ui/features/chat/domain/repositories/events_repository.dart';
 import 'package:chattrix_ui/features/chat/presentation/providers/chat_providers.dart';
 import 'package:chattrix_ui/features/chat/presentation/providers/conversation_members_provider.dart';
-import 'package:chattrix_ui/core/domain/enums/profile_visibility.dart';
 import 'package:flutter/foundation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -47,10 +45,7 @@ class EventsList extends _$EventsList {
   }
 
   /// Fetch events from new list API
-  Future<List<EventEntity>> _fetchEvents({
-    required String status,
-    String? cursor,
-  }) async {
+  Future<List<EventEntity>> _fetchEvents({required String status, String? cursor}) async {
     debugPrint('📅 Fetching events with status: $status, cursor: $cursor');
 
     // Use the implementation provider to access listEvents method
@@ -58,11 +53,7 @@ class EventsList extends _$EventsList {
 
     try {
       // Call listEvents on the implementation
-      final response = await datasource.listEvents(
-        conversationId: conversationId,
-        status: status,
-        cursor: cursor,
-      );
+      final response = await datasource.listEvents(conversationId: conversationId, status: status, cursor: cursor);
 
       // Check if provider is still mounted after async operation
       if (!ref.mounted) {
@@ -81,15 +72,15 @@ class EventsList extends _$EventsList {
 
       // Get conversation members for user info enrichment
       final membersAsync = await ref.read(conversationMembersProvider(conversationId).future);
-      
+
       // Check again after async operation
       if (!ref.mounted) {
         debugPrint('📅 Provider disposed after fetching members, returning empty list');
         return [];
       }
-      
+
       final membersMap = {for (var m in membersAsync) m.id: m};
-      
+
       debugPrint('📅 Enriching ${items.length} events with user info from ${membersMap.length} members');
 
       // Parse events from list items
@@ -97,35 +88,44 @@ class EventsList extends _$EventsList {
       for (var item in items) {
         try {
           final eventDto = EventListItemDto.fromJson(item as Map<String, dynamic>);
-          
+
           // Get SearchUser from cache and convert to User (only use available fields)
           final searchUser = membersMap[eventDto.createdBy];
-          final creator = searchUser != null ? User(
-            id: searchUser.id,
-            username: searchUser.username,
-            email: searchUser.email,
-            emailVerified: false, // Not available in SearchUser
-            fullName: searchUser.fullName,
-            avatarUrl: searchUser.avatarUrl,
-            bio: null, // Not available in SearchUser
-            gender: null, // Not available in SearchUser
-            dateOfBirth: null, // Not available in SearchUser
-            location: null, // Not available in SearchUser
-            profileVisibility: ProfileVisibility.public, // Default value
-            lastSeen: searchUser.lastSeen,
-            createdAt: DateTime.now(), // Not available in SearchUser
-            updatedAt: DateTime.now(), // Not available in SearchUser
-          ) : null;
-          
+          final creator = searchUser != null
+              ? User(
+                  id: searchUser.id,
+                  username: searchUser.username,
+                  email: searchUser.email,
+                  emailVerified: false,
+                  // Not available in SearchUser
+                  fullName: searchUser.fullName,
+                  avatarUrl: searchUser.avatarUrl,
+                  bio: null,
+                  // Not available in SearchUser
+                  gender: null,
+                  // Not available in SearchUser
+                  dateOfBirth: null,
+                  // Not available in SearchUser
+                  location: null,
+                  // Not available in SearchUser
+                  profileVisibility: ProfileVisibility.public,
+                  // Default value
+                  lastSeen: searchUser.lastSeen,
+                  createdAt: DateTime.now(),
+                  // Not available in SearchUser
+                  updatedAt: DateTime.now(), // Not available in SearchUser
+                )
+              : null;
+
           // Convert to entity with creator from cache
-          final enrichedEvent = eventDto.toEntity(
-            creatorFromCache: creator,
-          );
-          
+          final enrichedEvent = eventDto.toEntity(creatorFromCache: creator);
+
           // Set conversationId
           events.add(enrichedEvent.copyWith(conversationId: conversationId));
-          
-          debugPrint('📅 Enriched event "${eventDto.title}" - creator: ${creator?.fullName ?? eventDto.createdByUsername}');
+
+          debugPrint(
+            '📅 Enriched event "${eventDto.title}" - creator: ${creator?.fullName ?? eventDto.createdByUsername}',
+          );
         } catch (e) {
           debugPrint('⚠️ Failed to parse event: $e');
         }

@@ -1,8 +1,8 @@
+import 'package:chattrix_ui/core/constants/api_constants.dart';
 import 'package:chattrix_ui/core/network/api_response.dart';
 import 'package:chattrix_ui/features/chat/data/models/scheduled_msg_model.dart';
 import 'package:chattrix_ui/features/chat/domain/datasources/scheduled_message_datasource.dart';
 import 'package:dio/dio.dart';
-import 'package:flutter/foundation.dart';
 
 class ScheduledMessageDatasourceImpl implements ScheduledMessageDatasource {
   final Dio _dio;
@@ -16,7 +16,7 @@ class ScheduledMessageDatasourceImpl implements ScheduledMessageDatasource {
   }) async {
     final requestBody = request.toJson();
 
-    final response = await _dio.post('/v1/conversations/$conversationId/messages/schedule', data: requestBody);
+    final response = await _dio.post(ApiConstants.scheduleMessage(conversationId), data: requestBody);
 
     return ApiResponse<ScheduledMessageModel>.fromJson(
       response.data,
@@ -32,19 +32,16 @@ class ScheduledMessageDatasourceImpl implements ScheduledMessageDatasource {
     int size = 20,
   }) async {
     try {
-      // Scheduled messages MUST have conversationId according to API spec
       if (conversationId == null) {
         throw Exception('conversationId is required to get scheduled messages');
       }
 
       final response = await _dio.get(
-        '/v1/conversations/$conversationId/messages/scheduled',
+        ApiConstants.scheduledMessages(conversationId),
         queryParameters: {'status': status, 'page': page, 'size': size},
       );
 
       final apiResponse = ApiResponse<ScheduledMessagesPaginationResponse>.fromJson(response.data, (json) {
-        // API returns: { data: { items: [...], meta: {...} } }
-        // We need to extract the nested 'data' object
         final dataObj = json as Map<String, dynamic>;
         final items = dataObj['items'] as List<dynamic>? ?? [];
         final meta = dataObj['meta'] as Map<String, dynamic>? ?? {};
@@ -58,9 +55,7 @@ class ScheduledMessageDatasourceImpl implements ScheduledMessageDatasource {
       });
 
       return apiResponse;
-    } catch (e, stackTrace) {
-      debugPrint('🔴 Error getting scheduled messages: $e');
-      debugPrint('🔴 Stack trace: $stackTrace');
+    } catch (e) {
       rethrow;
     }
   }
@@ -70,7 +65,7 @@ class ScheduledMessageDatasourceImpl implements ScheduledMessageDatasource {
     required int conversationId,
     required int scheduledMessageId,
   }) async {
-    final response = await _dio.get('/v1/conversations/$conversationId/messages/scheduled/$scheduledMessageId');
+    final response = await _dio.get(ApiConstants.scheduledMessageById(conversationId, scheduledMessageId));
 
     return ApiResponse<ScheduledMessageModel>.fromJson(
       response.data,
@@ -85,7 +80,7 @@ class ScheduledMessageDatasourceImpl implements ScheduledMessageDatasource {
     required UpdateScheduledMessageRequest request,
   }) async {
     final response = await _dio.put(
-      '/v1/conversations/$conversationId/messages/scheduled/$scheduledMessageId',
+      ApiConstants.scheduledMessageById(conversationId, scheduledMessageId),
       data: request.toJson(),
     );
 
@@ -100,7 +95,7 @@ class ScheduledMessageDatasourceImpl implements ScheduledMessageDatasource {
     required int conversationId,
     required int scheduledMessageId,
   }) async {
-    final response = await _dio.delete('/v1/conversations/$conversationId/messages/scheduled/$scheduledMessageId');
+    final response = await _dio.delete(ApiConstants.scheduledMessageById(conversationId, scheduledMessageId));
 
     return ApiResponse<void>.fromJson(response.data, (_) {});
   }
@@ -111,7 +106,7 @@ class ScheduledMessageDatasourceImpl implements ScheduledMessageDatasource {
     required List<int> scheduledMessageIds,
   }) async {
     final response = await _dio.delete(
-      '/v1/conversations/$conversationId/messages/scheduled/bulk',
+      ApiConstants.cancelScheduledMessagesBulk(conversationId),
       data: BulkCancelRequest(scheduledMessageIds: scheduledMessageIds).toJson(),
     );
 

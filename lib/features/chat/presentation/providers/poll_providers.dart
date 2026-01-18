@@ -2,22 +2,20 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:chattrix_ui/core/network/dio_client.dart';
+import 'package:chattrix_ui/features/chat/data/datasources/chat_websocket_datasource_impl.dart';
+import 'package:chattrix_ui/features/chat/presentation/providers/chat_websocket_provider_new.dart';
+import 'package:chattrix_ui/features/chat/presentation/providers/conversation_members_provider.dart';
+import 'package:chattrix_ui/features/poll/data/datasources/poll_api_service.dart';
+import 'package:chattrix_ui/features/poll/data/models/poll_list_item_dto.dart';
+import 'package:chattrix_ui/features/chat/data/datasources/poll_datasource_impl.dart';
+import 'package:chattrix_ui/features/chat/data/models/poll_model.dart';
+import 'package:chattrix_ui/features/chat/data/repositories/poll_repository_impl.dart';
+import 'package:chattrix_ui/features/chat/domain/datasources/poll_datasource.dart';
+import 'package:chattrix_ui/features/chat/domain/entities/poll.dart';
+import 'package:chattrix_ui/features/chat/domain/repositories/poll_repository.dart';
+import 'package:chattrix_ui/features/chat/domain/usecases/poll/close_poll_usecase.dart';
 
-import '../../../../features/auth/presentation/providers/auth_repository_provider.dart';
-import '../../../chat/data/datasources/chat_websocket_datasource_impl.dart';
-import '../../../chat/presentation/providers/chat_websocket_provider_new.dart';
-import '../../../chat/presentation/providers/conversation_members_provider.dart';
-import '../../../poll/data/datasources/poll_api_service.dart';
-import '../../../poll/data/mappers/poll_list_mapper.dart';
-import '../../../poll/data/models/poll_list_item_dto.dart';
-import '../../data/datasources/poll_datasource_impl.dart';
-import '../../data/mappers/poll_mapper.dart';
-import '../../data/models/poll_model.dart';
-import '../../data/repositories/poll_repository_impl.dart';
-import '../../domain/datasources/poll_datasource.dart';
-import '../../domain/entities/poll.dart';
-import '../../domain/repositories/poll_repository.dart';
-import '../../domain/usecases/poll/close_poll_usecase.dart';
 import '../../domain/usecases/poll/create_poll_usecase.dart';
 import '../../domain/usecases/poll/delete_poll_usecase.dart';
 import '../../domain/usecases/poll/get_all_polls_usecase.dart';
@@ -28,7 +26,7 @@ part 'poll_providers.g.dart';
 // Datasource Provider
 @riverpod
 PollDatasource pollDatasource(Ref ref) {
-  final dio = ref.watch(dioProvider);
+  final dio = ref.watch(dioClientProvider);
   return PollDatasourceImpl(dio: dio);
 }
 
@@ -244,6 +242,6 @@ class PollsList extends _$PollsList {
 // Provider for PollApiService
 @riverpod
 PollApiService pollApiService(Ref ref) {
-  final dio = ref.watch(dioProvider);
+  final dio = ref.watch(dioClientProvider);
   return PollApiService(dio);
 }

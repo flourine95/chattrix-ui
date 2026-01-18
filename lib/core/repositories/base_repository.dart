@@ -2,8 +2,8 @@ import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:fpdart/fpdart.dart';
 
-import '../errors/exceptions.dart';
-import '../errors/failures.dart';
+import 'package:chattrix_ui/core/errors/exceptions.dart';
+import 'package:chattrix_ui/core/errors/failures.dart';
 
 abstract class BaseRepository {
   Future<Either<Failure, T>> executeApiCall<T>(Future<T> Function() apiCall) async {

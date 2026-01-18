@@ -5,7 +5,6 @@ import 'package:chattrix_ui/features/chat/presentation/providers/chat_usecase_pr
 import 'package:chattrix_ui/features/chat/presentation/providers/chat_websocket_provider_new.dart';
 import 'package:chattrix_ui/features/poll/data/mappers/poll_mapper.dart';
 import 'package:chattrix_ui/features/poll/data/models/poll_dto.dart';
-import 'package:chattrix_ui/features/chat/data/mappers/event_mapper.dart';
 import 'package:chattrix_ui/features/chat/data/models/event_dto.dart';
 import 'package:chattrix_ui/features/chat/data/datasources/chat_websocket_datasource_impl.dart';
 import 'package:chattrix_ui/features/auth/presentation/providers/auth_providers.dart';

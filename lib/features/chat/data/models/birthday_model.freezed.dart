@@ -214,8 +214,8 @@ return $default(_that.userId,_that.username,_that.fullName,_that.avatarUrl,_that
 /// @nodoc
 @JsonSerializable()
 
-class _BirthdayModel implements BirthdayModel {
-  const _BirthdayModel({required this.userId, required this.username, required this.fullName, this.avatarUrl, required this.dateOfBirth, required this.age, required this.birthdayMessage});
+class _BirthdayModel extends BirthdayModel {
+  const _BirthdayModel({required this.userId, required this.username, required this.fullName, this.avatarUrl, required this.dateOfBirth, required this.age, required this.birthdayMessage}): super._();
   factory _BirthdayModel.fromJson(Map<String, dynamic> json) => _$BirthdayModelFromJson(json);
 
 @override final  int userId;
@@ -765,8 +765,8 @@ return $default(_that.conversationCount,_that.userId);case _:
 /// @nodoc
 @JsonSerializable()
 
-class _SendBirthdayWishesResponse implements SendBirthdayWishesResponse {
-  const _SendBirthdayWishesResponse({required this.conversationCount, required this.userId});
+class _SendBirthdayWishesResponse extends SendBirthdayWishesResponse {
+  const _SendBirthdayWishesResponse({required this.conversationCount, required this.userId}): super._();
   factory _SendBirthdayWishesResponse.fromJson(Map<String, dynamic> json) => _$SendBirthdayWishesResponseFromJson(json);
 
 @override final  int conversationCount;

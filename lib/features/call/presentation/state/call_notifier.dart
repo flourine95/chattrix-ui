@@ -5,11 +5,8 @@ import 'package:chattrix_ui/core/errors/failures.dart';
 import 'package:chattrix_ui/core/toast/toast_controller.dart';
 import 'package:chattrix_ui/core/toast/toast_type.dart';
 import 'package:chattrix_ui/core/utils/app_logger.dart';
-import 'package:chattrix_ui/features/call/domain/entities/call_accept.dart';
-import 'package:chattrix_ui/features/call/domain/entities/call_end.dart';
 import 'package:chattrix_ui/features/call/domain/entities/call_end_reason.dart';
 import 'package:chattrix_ui/features/call/domain/entities/call_invitation.dart';
-import 'package:chattrix_ui/features/call/domain/entities/call_reject.dart';
 import 'package:chattrix_ui/features/call/domain/entities/call_reject_reason.dart';
 import 'package:chattrix_ui/features/call/domain/entities/call_type.dart';
 import 'package:chattrix_ui/features/call/presentation/providers/call_control_state_providers.dart';
@@ -26,9 +23,7 @@ part 'call_notifier.g.dart';
 @riverpod
 class CallNotifier extends _$CallNotifier {
   StreamSubscription? _incomingCallSubscription;
-  StreamSubscription? _callAcceptedSubscription;
-  StreamSubscription? _callRejectedSubscription;
-  StreamSubscription? _callEndedSubscription;
+  StreamSubscription? _participantUpdateSubscription;
   StreamSubscription? _callTimeoutSubscription;
   StreamSubscription? _userJoinedSubscription;
   StreamSubscription? _userOfflineSubscription;
@@ -52,12 +47,12 @@ class CallNotifier extends _$CallNotifier {
     final wsDataSource = ref.watch(callWebSocketDataSourceProvider);
     final agoraService = ref.watch(agoraServiceProvider);
 
+    // WebSocket listeners - theo API spec mới
     _incomingCallSubscription = wsDataSource.incomingCallStream.listen(_handleIncomingCall);
-    _callAcceptedSubscription = wsDataSource.callAcceptedStream.listen(_handleCallAccepted);
-    _callRejectedSubscription = wsDataSource.callRejectedStream.listen(_handleCallRejected);
-    _callEndedSubscription = wsDataSource.callEndedStream.listen(_handleCallEnded);
+    _participantUpdateSubscription = wsDataSource.participantUpdateStream.listen(_handleParticipantUpdate);
     _callTimeoutSubscription = wsDataSource.callTimeoutStream.listen(_handleCallTimeout);
 
+    // Agora listeners
     _userJoinedSubscription = agoraService.userJoinedStream.listen(_handleUserJoined);
     _userOfflineSubscription = agoraService.userOfflineStream.listen(_handleUserOffline);
     _remoteVideoStateSubscription = agoraService.remoteVideoStateStream.listen(_handleRemoteVideoStateChanged);
@@ -66,9 +61,7 @@ class CallNotifier extends _$CallNotifier {
 
   void _cleanup() {
     _incomingCallSubscription?.cancel();
-    _callAcceptedSubscription?.cancel();
-    _callRejectedSubscription?.cancel();
-    _callEndedSubscription?.cancel();
+    _participantUpdateSubscription?.cancel();
     _callTimeoutSubscription?.cancel();
     _userJoinedSubscription?.cancel();
     _userOfflineSubscription?.cancel();
@@ -83,48 +76,62 @@ class CallNotifier extends _$CallNotifier {
     AppLogger.call('State changed to RINGING');
   }
 
-  void _handleCallAccepted(CallAccept accept) {
-    AppLogger.call('Call accepted: ${accept.callId}');
-    state.whenOrNull(
-      connecting: (connection, callType, isOutgoing) {
-        if (isOutgoing && connection.callInfo.id == accept.callId) {
-          AppLogger.call('Waiting for callee to join Agora channel');
-        }
-      },
-    );
-  }
+  /// Handle participant update event (JOINED, LEFT, REJECTED)
+  /// Theo API spec mới, tất cả updates về participants đều qua event này
+  void _handleParticipantUpdate(dynamic update) {
+    AppLogger.call('Participant update: userId=${update.userId}, status=${update.status}');
 
-  void _handleCallRejected(CallReject reject) {
-    AppLogger.call('Call rejected: ${reject.callId}, reason: ${reject.reason}');
-
-    state.whenOrNull(
-      connecting: (connection, callType, isOutgoing) {
-        if (connection.callInfo.id == reject.callId) {
-          AppLogger.call('Handling reject for matching call');
-          _endCallCleanup();
-          state = const CallState.ended(reason: 'Call was rejected');
-        }
-      },
-    );
-  }
-
-  void _handleCallEnded(CallEnd end) {
-    AppLogger.call('Call ended: ${end.callId}');
-
-    final shouldHandle = state.when(
-      idle: () => false,
-      initiating: (_, _, _, _) => false,
-      ringing: (invitation) => invitation.callId == end.callId,
-      connecting: (connection, _, _) => connection.callInfo.id == end.callId,
-      connected: (connection, p1, p2, p3, p4, p5, p6, p7, p8, p9) => connection.callInfo.id == end.callId,
-      ended: (_) => false,
-      error: (_) => false,
+    final currentState = state;
+    
+    // Lấy callId từ state hiện tại
+    String? currentCallId;
+    currentState.whenOrNull(
+      connecting: (connection, _, _) => currentCallId = connection.callInfo.id,
+      connected: (connection, _, _, _, _, _, _, _, _, _) => currentCallId = connection.callInfo.id,
     );
 
-    if (shouldHandle) {
-      AppLogger.call('Handling end for matching call');
-      _endCallCleanup();
-      state = const CallState.ended(reason: 'Call ended');
+    // Chỉ xử lý nếu update thuộc về cuộc gọi hiện tại
+    if (currentCallId != update.callId) {
+      return;
+    }
+
+    // Xử lý theo status
+    switch (update.status.toString()) {
+      case 'CallParticipantStatus.joined':
+        AppLogger.call('Participant ${update.fullName} joined the call');
+        // Agora sẽ handle việc hiển thị video/audio qua userJoinedStream
+        break;
+        
+      case 'CallParticipantStatus.left':
+        AppLogger.call('Participant ${update.fullName} left the call');
+        // Nếu là cuộc gọi 1-1, end call
+        currentState.whenOrNull(
+          connected: (connection, _, _, _, _, _, _, remoteUid, _, _) {
+            _endCallCleanup();
+            state = CallState.ended(reason: '${update.fullName} left the call');
+          },
+        );
+        break;
+        
+      case 'CallParticipantStatus.rejected':
+        AppLogger.call('Participant ${update.fullName} rejected the call');
+        currentState.whenOrNull(
+          connecting: (connection, callType, isOutgoing) {
+            if (isOutgoing) {
+              // Caller nhận thông báo callee reject
+              _endCallCleanup();
+              state = CallState.ended(reason: '${update.fullName} declined the call');
+            }
+          },
+        );
+        break;
+        
+      case 'CallParticipantStatus.missed':
+        AppLogger.call('Participant ${update.fullName} missed the call');
+        break;
+        
+      default:
+        AppLogger.call('Unknown participant status: ${update.status}');
     }
   }
 

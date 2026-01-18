@@ -774,8 +774,8 @@ return $default(_that.conversationId,_that.sendMessages,_that.addMembers,_that.r
 /// @nodoc
 @JsonSerializable()
 
-class _ConversationPermissionsModel implements ConversationPermissionsModel {
-  const _ConversationPermissionsModel({required this.conversationId, this.sendMessages = 'ALL', this.addMembers = 'ADMIN_ONLY', this.removeMembers = 'ADMIN_ONLY', this.editGroupInfo = 'ADMIN_ONLY', this.pinMessages = 'ADMIN_ONLY', this.deleteMessages = 'ADMIN_ONLY', this.createPolls = 'ALL'});
+class _ConversationPermissionsModel extends ConversationPermissionsModel {
+  const _ConversationPermissionsModel({required this.conversationId, this.sendMessages = 'ALL', this.addMembers = 'ADMIN_ONLY', this.removeMembers = 'ADMIN_ONLY', this.editGroupInfo = 'ADMIN_ONLY', this.pinMessages = 'ADMIN_ONLY', this.deleteMessages = 'ADMIN_ONLY', this.createPolls = 'ALL'}): super._();
   factory _ConversationPermissionsModel.fromJson(Map<String, dynamic> json) => _$ConversationPermissionsModelFromJson(json);
 
 @override final  int conversationId;
@@ -1601,8 +1601,8 @@ return $default(_that.userId,_that.username,_that.fullName,_that.muted,_that.mut
 /// @nodoc
 @JsonSerializable()
 
-class _MutedMemberModel implements MutedMemberModel {
-  const _MutedMemberModel({required this.userId, required this.username, required this.fullName, required this.muted, this.mutedUntil, this.mutedAt, this.mutedBy});
+class _MutedMemberModel extends MutedMemberModel {
+  const _MutedMemberModel({required this.userId, required this.username, required this.fullName, required this.muted, this.mutedUntil, this.mutedAt, this.mutedBy}): super._();
   factory _MutedMemberModel.fromJson(Map<String, dynamic> json) => _$MutedMemberModelFromJson(json);
 
 @override final  int userId;

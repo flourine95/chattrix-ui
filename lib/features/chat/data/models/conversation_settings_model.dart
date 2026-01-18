@@ -51,6 +51,8 @@ abstract class UpdateConversationSettingsRequest with _$UpdateConversationSettin
 
 @freezed
 abstract class ConversationPermissionsModel with _$ConversationPermissionsModel {
+  const ConversationPermissionsModel._();
+
   const factory ConversationPermissionsModel({
     required int conversationId,
     @Default('ALL') String sendMessages,
@@ -64,6 +66,19 @@ abstract class ConversationPermissionsModel with _$ConversationPermissionsModel 
 
   factory ConversationPermissionsModel.fromJson(Map<String, dynamic> json) =>
       _$ConversationPermissionsModelFromJson(json);
+
+  ConversationPermissions toEntity() {
+    return ConversationPermissions(
+      conversationId: conversationId,
+      sendMessages: sendMessages,
+      addMembers: addMembers,
+      removeMembers: removeMembers,
+      editGroupInfo: editGroupInfo,
+      pinMessages: pinMessages,
+      deleteMessages: deleteMessages,
+      createPolls: createPolls,
+    );
+  }
 }
 
 @freezed
@@ -91,6 +106,8 @@ abstract class MuteMemberRequest with _$MuteMemberRequest {
 
 @freezed
 abstract class MutedMemberModel with _$MutedMemberModel {
+  const MutedMemberModel._();
+
   const factory MutedMemberModel({
     required int userId,
     required String username,
@@ -102,4 +119,16 @@ abstract class MutedMemberModel with _$MutedMemberModel {
   }) = _MutedMemberModel;
 
   factory MutedMemberModel.fromJson(Map<String, dynamic> json) => _$MutedMemberModelFromJson(json);
+
+  MutedMember toEntity() {
+    return MutedMember(
+      userId: userId,
+      username: username,
+      fullName: fullName,
+      muted: muted,
+      mutedUntil: mutedUntil,
+      mutedAt: mutedAt,
+      mutedBy: mutedBy,
+    );
+  }
 }

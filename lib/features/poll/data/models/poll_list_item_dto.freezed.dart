@@ -220,8 +220,8 @@ return $default(_that.messageId,_that.question,_that.options,_that.allowMultiple
 /// @nodoc
 @JsonSerializable()
 
-class _PollListItemDto implements PollListItemDto {
-  const _PollListItemDto({required this.messageId, required this.question, required final  List<PollListOptionDto> options, required this.allowMultiple, required this.anonymous, required this.isClosed, required this.totalVotes, required this.createdBy, required this.createdByUsername, this.createdByFullName, this.createdByAvatarUrl, required this.createdAt, this.expiresAt}): _options = options;
+class _PollListItemDto extends PollListItemDto {
+  const _PollListItemDto({required this.messageId, required this.question, required final  List<PollListOptionDto> options, required this.allowMultiple, required this.anonymous, required this.isClosed, required this.totalVotes, required this.createdBy, required this.createdByUsername, this.createdByFullName, this.createdByAvatarUrl, required this.createdAt, this.expiresAt}): _options = options,super._();
   factory _PollListItemDto.fromJson(Map<String, dynamic> json) => _$PollListItemDtoFromJson(json);
 
 @override final  int messageId;
@@ -517,8 +517,8 @@ return $default(_that.id,_that.text,_that.voteCount,_that.voterIds,_that.hasVote
 /// @nodoc
 @JsonSerializable()
 
-class _PollListOptionDto implements PollListOptionDto {
-  const _PollListOptionDto({required this.id, required this.text, required this.voteCount, required final  List<int> voterIds, required this.hasVoted}): _voterIds = voterIds;
+class _PollListOptionDto extends PollListOptionDto {
+  const _PollListOptionDto({required this.id, required this.text, required this.voteCount, required final  List<int> voterIds, required this.hasVoted}): _voterIds = voterIds,super._();
   factory _PollListOptionDto.fromJson(Map<String, dynamic> json) => _$PollListOptionDtoFromJson(json);
 
 @override final  int id;

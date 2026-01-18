@@ -1,6 +1,5 @@
 import 'package:chattrix_ui/core/errors/failures.dart';
 import 'package:chattrix_ui/core/repositories/base_repository.dart';
-import 'package:chattrix_ui/features/auth/data/mappers/user_mapper.dart';
 import 'package:chattrix_ui/features/auth/domain/entities/user.dart';
 import 'package:chattrix_ui/features/chat/domain/datasources/chat_remote_datasource.dart';
 import 'package:chattrix_ui/features/chat/domain/entities/user_status.dart';

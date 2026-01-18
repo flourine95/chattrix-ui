@@ -5,7 +5,6 @@ import 'package:chattrix_ui/features/chat/domain/entities/message.dart';
 import 'package:chattrix_ui/features/poll/data/models/poll_dto.dart';
 import 'package:chattrix_ui/features/poll/data/mappers/poll_mapper.dart';
 import 'package:chattrix_ui/features/chat/data/models/event_dto.dart';
-import 'package:chattrix_ui/features/chat/data/mappers/event_mapper.dart';
 import 'package:chattrix_ui/features/poll/data/models/poll_option_dto.dart';
 import 'package:chattrix_ui/features/auth/data/models/user_dto.dart';
 import 'package:flutter/foundation.dart';

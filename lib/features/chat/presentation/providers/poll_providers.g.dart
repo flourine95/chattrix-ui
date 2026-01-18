@@ -52,7 +52,7 @@ final class PollDatasourceProvider
   }
 }
 
-String _$pollDatasourceHash() => r'b93343f40dbc17c7f87574d701c4f567a05542e3';
+String _$pollDatasourceHash() => r'031165cc44f7093d33e3bd311b2b7561fbbaa9b7';
 
 @ProviderFor(pollRepository)
 final pollRepositoryProvider = PollRepositoryProvider._();
@@ -453,4 +453,4 @@ final class PollApiServiceProvider
   }
 }
 
-String _$pollApiServiceHash() => r'570d3049567019ee9b760b4df6df8ea40de1c317';
+String _$pollApiServiceHash() => r'7b37a9a3fb6ed1b654c38e933c467bf040e9333b';

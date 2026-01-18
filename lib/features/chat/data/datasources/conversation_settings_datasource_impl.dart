@@ -1,8 +1,8 @@
+import 'package:chattrix_ui/core/constants/api_constants.dart';
 import 'package:chattrix_ui/core/errors/exceptions.dart';
 import 'package:chattrix_ui/features/chat/data/models/conversation_settings_model.dart';
 import 'package:chattrix_ui/features/chat/domain/datasources/conversation_settings_datasource.dart';
 import 'package:dio/dio.dart';
-import 'package:flutter/foundation.dart';
 
 class ConversationSettingsDatasourceImpl implements ConversationSettingsDatasource {
   final Dio dio;
@@ -12,7 +12,7 @@ class ConversationSettingsDatasourceImpl implements ConversationSettingsDatasour
   @override
   Future<ConversationSettingsModel> getSettings({required int conversationId}) async {
     try {
-      final response = await dio.get('/v1/conversations/$conversationId/settings');
+      final response = await dio.get(ApiConstants.conversationSettings(conversationId));
 
       if (response.statusCode == 200) {
         return ConversationSettingsModel.fromJson(response.data['data'] as Map<String, dynamic>);
@@ -30,7 +30,7 @@ class ConversationSettingsDatasourceImpl implements ConversationSettingsDatasour
     required UpdateConversationSettingsRequest request,
   }) async {
     try {
-      final response = await dio.put('/v1/conversations/$conversationId/settings', data: request.toJson());
+      final response = await dio.put(ApiConstants.conversationSettings(conversationId), data: request.toJson());
 
       if (response.statusCode == 200) {
         return ConversationSettingsModel.fromJson(response.data['data'] as Map<String, dynamic>);
@@ -45,7 +45,7 @@ class ConversationSettingsDatasourceImpl implements ConversationSettingsDatasour
   @override
   Future<ConversationSettingsModel> muteConversation({required int conversationId}) async {
     try {
-      final response = await dio.post('/v1/conversations/$conversationId/settings/mute');
+      final response = await dio.post(ApiConstants.muteConversation(conversationId));
 
       if (response.statusCode == 200) {
         return ConversationSettingsModel.fromJson(response.data['data'] as Map<String, dynamic>);
@@ -60,7 +60,7 @@ class ConversationSettingsDatasourceImpl implements ConversationSettingsDatasour
   @override
   Future<ConversationSettingsModel> unmuteConversation({required int conversationId}) async {
     try {
-      final response = await dio.post('/v1/conversations/$conversationId/settings/unmute');
+      final response = await dio.post(ApiConstants.unmuteConversation(conversationId));
 
       if (response.statusCode == 200) {
         return ConversationSettingsModel.fromJson(response.data['data'] as Map<String, dynamic>);
@@ -75,7 +75,7 @@ class ConversationSettingsDatasourceImpl implements ConversationSettingsDatasour
   @override
   Future<ConversationSettingsModel> pinConversation({required int conversationId}) async {
     try {
-      final response = await dio.post('/v1/conversations/$conversationId/settings/pin');
+      final response = await dio.post(ApiConstants.pinConversation(conversationId));
 
       if (response.statusCode == 200) {
         return ConversationSettingsModel.fromJson(response.data['data'] as Map<String, dynamic>);
@@ -90,7 +90,7 @@ class ConversationSettingsDatasourceImpl implements ConversationSettingsDatasour
   @override
   Future<ConversationSettingsModel> unpinConversation({required int conversationId}) async {
     try {
-      final response = await dio.post('/v1/conversations/$conversationId/settings/unpin');
+      final response = await dio.post(ApiConstants.unpinConversation(conversationId));
 
       if (response.statusCode == 200) {
         return ConversationSettingsModel.fromJson(response.data['data'] as Map<String, dynamic>);
@@ -105,7 +105,7 @@ class ConversationSettingsDatasourceImpl implements ConversationSettingsDatasour
   @override
   Future<ConversationSettingsModel> hideConversation({required int conversationId}) async {
     try {
-      final response = await dio.post('/v1/conversations/$conversationId/settings/hide');
+      final response = await dio.post(ApiConstants.hideConversation(conversationId));
 
       if (response.statusCode == 200) {
         return ConversationSettingsModel.fromJson(response.data['data'] as Map<String, dynamic>);
@@ -120,13 +120,7 @@ class ConversationSettingsDatasourceImpl implements ConversationSettingsDatasour
   @override
   Future<ConversationSettingsModel> unhideConversation({required int conversationId}) async {
     try {
-      debugPrint('🔍 [Datasource] Calling unhide API for conversation $conversationId');
-      debugPrint('🔍 [Datasource] URL: /v1/conversations/$conversationId/settings/unhide');
-
-      final response = await dio.post('/v1/conversations/$conversationId/settings/unhide');
-
-      debugPrint('🔍 [Datasource] Unhide API response status: ${response.statusCode}');
-      debugPrint('🔍 [Datasource] Unhide API response data: ${response.data}');
+      final response = await dio.post(ApiConstants.unhideConversation(conversationId));
 
       if (response.statusCode == 200) {
         return ConversationSettingsModel.fromJson(response.data['data'] as Map<String, dynamic>);
@@ -134,8 +128,6 @@ class ConversationSettingsDatasourceImpl implements ConversationSettingsDatasour
 
       throw ServerException(message: 'Failed to unhide conversation');
     } on DioException catch (e) {
-      debugPrint('🔍 [Datasource] Unhide API error: ${e.message}');
-      debugPrint('🔍 [Datasource] Unhide API error response: ${e.response?.data}');
       throw ServerException(message: e.response?.data['message'] ?? 'Failed to unhide conversation');
     }
   }
@@ -143,7 +135,7 @@ class ConversationSettingsDatasourceImpl implements ConversationSettingsDatasour
   @override
   Future<ConversationSettingsModel> archiveConversation({required int conversationId}) async {
     try {
-      final response = await dio.post('/v1/conversations/$conversationId/settings/archive');
+      final response = await dio.post(ApiConstants.archiveConversation(conversationId));
 
       if (response.statusCode == 200) {
         return ConversationSettingsModel.fromJson(response.data['data'] as Map<String, dynamic>);
@@ -158,7 +150,7 @@ class ConversationSettingsDatasourceImpl implements ConversationSettingsDatasour
   @override
   Future<ConversationSettingsModel> unarchiveConversation({required int conversationId}) async {
     try {
-      final response = await dio.post('/v1/conversations/$conversationId/settings/unarchive');
+      final response = await dio.post(ApiConstants.unarchiveConversation(conversationId));
 
       if (response.statusCode == 200) {
         return ConversationSettingsModel.fromJson(response.data['data'] as Map<String, dynamic>);
@@ -173,7 +165,7 @@ class ConversationSettingsDatasourceImpl implements ConversationSettingsDatasour
   @override
   Future<ConversationSettingsModel> blockUser({required int conversationId}) async {
     try {
-      final response = await dio.post('/v1/conversations/$conversationId/settings/block');
+      final response = await dio.post(ApiConstants.blockUser(conversationId));
 
       if (response.statusCode == 200) {
         return ConversationSettingsModel.fromJson(response.data['data'] as Map<String, dynamic>);
@@ -188,7 +180,7 @@ class ConversationSettingsDatasourceImpl implements ConversationSettingsDatasour
   @override
   Future<ConversationSettingsModel> unblockUser({required int conversationId}) async {
     try {
-      final response = await dio.post('/v1/conversations/$conversationId/settings/unblock');
+      final response = await dio.post(ApiConstants.unblockUser(conversationId));
 
       if (response.statusCode == 200) {
         return ConversationSettingsModel.fromJson(response.data['data'] as Map<String, dynamic>);
@@ -207,10 +199,7 @@ class ConversationSettingsDatasourceImpl implements ConversationSettingsDatasour
     required MuteMemberRequest request,
   }) async {
     try {
-      final response = await dio.post(
-        '/v1/conversations/$conversationId/settings/members/$userId/mute',
-        data: request.toJson(),
-      );
+      final response = await dio.post(ApiConstants.muteMember(conversationId, userId), data: request.toJson());
 
       if (response.statusCode == 200) {
         return MutedMemberModel.fromJson(response.data['data'] as Map<String, dynamic>);
@@ -225,7 +214,7 @@ class ConversationSettingsDatasourceImpl implements ConversationSettingsDatasour
   @override
   Future<MutedMemberModel> unmuteMember({required int conversationId, required int userId}) async {
     try {
-      final response = await dio.post('/v1/conversations/$conversationId/settings/members/$userId/unmute');
+      final response = await dio.post(ApiConstants.unmuteMember(conversationId, userId));
 
       if (response.statusCode == 200) {
         return MutedMemberModel.fromJson(response.data['data'] as Map<String, dynamic>);
@@ -240,7 +229,7 @@ class ConversationSettingsDatasourceImpl implements ConversationSettingsDatasour
   @override
   Future<ConversationPermissionsModel> getPermissions({required int conversationId}) async {
     try {
-      final response = await dio.get('/v1/conversations/$conversationId/settings/permissions');
+      final response = await dio.get(ApiConstants.conversationPermissions(conversationId));
 
       if (response.statusCode == 200) {
         return ConversationPermissionsModel.fromJson(response.data['data'] as Map<String, dynamic>);
@@ -258,7 +247,7 @@ class ConversationSettingsDatasourceImpl implements ConversationSettingsDatasour
     required UpdateConversationPermissionsRequest request,
   }) async {
     try {
-      final response = await dio.put('/v1/conversations/$conversationId/settings/permissions', data: request.toJson());
+      final response = await dio.put(ApiConstants.conversationPermissions(conversationId), data: request.toJson());
 
       if (response.statusCode == 200) {
         return ConversationPermissionsModel.fromJson(response.data['data'] as Map<String, dynamic>);

@@ -318,6 +318,13 @@ class ApiConstants {
   // Mutual Groups endpoints
   static String mutualGroups(int userId) => '$_baseUrl/$_v1/users/$userId/mutual-groups';
 
+
+  static String eventRsvps(int conversationId, int eventId) =>
+      '$_baseUrl/$_v1/conversations/$conversationId/events/$eventId/rsvps';
+
+  static String forwardMessage(int conversationId, int messageId) =>
+      '$_baseUrl/$_v1/conversations/$conversationId/messages/$messageId/forward';
+
   static String get chatWebSocket => '$_wsBaseUrl/ws/chat';
 
   static String chatWebSocketWithToken(String token) => '$chatWebSocket?token=$token';

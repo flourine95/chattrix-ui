@@ -1,7 +1,7 @@
-import 'package:chattrix_ui/features/chat/data/models/birthday_model.dart';
-import 'package:chattrix_ui/features/chat/data/models/mutual_group_model.dart';
 import 'package:chattrix_ui/features/chat/data/models/announcement_model.dart';
 import 'package:chattrix_ui/features/chat/data/models/announcement_request.dart';
+import 'package:chattrix_ui/features/chat/data/models/birthday_model.dart';
+import 'package:chattrix_ui/features/chat/data/models/mutual_group_model.dart';
 
 abstract class SocialDatasource {
   Future<List<BirthdayModel>> getBirthdaysToday();

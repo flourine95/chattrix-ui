@@ -20,11 +20,11 @@ final conversationSettingsDataSourceProvider =
 final class ConversationSettingsDataSourceProvider
     extends
         $FunctionalProvider<
-          ConversationSettingsDataSource,
-          ConversationSettingsDataSource,
-          ConversationSettingsDataSource
+          ConversationSettingsDatasourceImpl,
+          ConversationSettingsDatasourceImpl,
+          ConversationSettingsDatasourceImpl
         >
-    with $Provider<ConversationSettingsDataSource> {
+    with $Provider<ConversationSettingsDatasourceImpl> {
   ConversationSettingsDataSourceProvider._()
     : super(
         from: null,
@@ -41,20 +41,20 @@ final class ConversationSettingsDataSourceProvider
 
   @$internal
   @override
-  $ProviderElement<ConversationSettingsDataSource> $createElement(
+  $ProviderElement<ConversationSettingsDatasourceImpl> $createElement(
     $ProviderPointer pointer,
   ) => $ProviderElement(pointer);
 
   @override
-  ConversationSettingsDataSource create(Ref ref) {
+  ConversationSettingsDatasourceImpl create(Ref ref) {
     return conversationSettingsDataSource(ref);
   }
 
   /// {@macro riverpod.override_with_value}
-  Override overrideWithValue(ConversationSettingsDataSource value) {
+  Override overrideWithValue(ConversationSettingsDatasourceImpl value) {
     return $ProviderOverride(
       origin: this,
-      providerOverride: $SyncValueProvider<ConversationSettingsDataSource>(
+      providerOverride: $SyncValueProvider<ConversationSettingsDatasourceImpl>(
         value,
       ),
     );
@@ -62,19 +62,70 @@ final class ConversationSettingsDataSourceProvider
 }
 
 String _$conversationSettingsDataSourceHash() =>
-    r'c1ba7bd25bb032337c29e58e9d13fa730c807156';
+    r'0e959c20c0e49ca99d0474afc21d64733bd0a4c0';
 
-@ProviderFor(ConversationSettings)
-final conversationSettingsProvider = ConversationSettingsFamily._();
+@ProviderFor(conversationSettingsRepository)
+final conversationSettingsRepositoryProvider =
+    ConversationSettingsRepositoryProvider._();
 
-final class ConversationSettingsProvider
+final class ConversationSettingsRepositoryProvider
+    extends
+        $FunctionalProvider<
+          ConversationSettingsRepository,
+          ConversationSettingsRepository,
+          ConversationSettingsRepository
+        >
+    with $Provider<ConversationSettingsRepository> {
+  ConversationSettingsRepositoryProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'conversationSettingsRepositoryProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$conversationSettingsRepositoryHash();
+
+  @$internal
+  @override
+  $ProviderElement<ConversationSettingsRepository> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  ConversationSettingsRepository create(Ref ref) {
+    return conversationSettingsRepository(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(ConversationSettingsRepository value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<ConversationSettingsRepository>(
+        value,
+      ),
+    );
+  }
+}
+
+String _$conversationSettingsRepositoryHash() =>
+    r'6db6b308a92f4d39b00345cb9fa78f918e4e212f';
+
+@ProviderFor(ConversationSettingsNotifier)
+final conversationSettingsProvider = ConversationSettingsNotifierFamily._();
+
+final class ConversationSettingsNotifierProvider
     extends
         $AsyncNotifierProvider<
-          ConversationSettings,
-          ConversationSettingsModel?
+          ConversationSettingsNotifier,
+          ConversationSettings?
         > {
-  ConversationSettingsProvider._({
-    required ConversationSettingsFamily super.from,
+  ConversationSettingsNotifierProvider._({
+    required ConversationSettingsNotifierFamily super.from,
     required int super.argument,
   }) : super(
          retry: null,
@@ -85,7 +136,7 @@ final class ConversationSettingsProvider
        );
 
   @override
-  String debugGetCreateSourceHash() => _$conversationSettingsHash();
+  String debugGetCreateSourceHash() => _$conversationSettingsNotifierHash();
 
   @override
   String toString() {
@@ -96,11 +147,12 @@ final class ConversationSettingsProvider
 
   @$internal
   @override
-  ConversationSettings create() => ConversationSettings();
+  ConversationSettingsNotifier create() => ConversationSettingsNotifier();
 
   @override
   bool operator ==(Object other) {
-    return other is ConversationSettingsProvider && other.argument == argument;
+    return other is ConversationSettingsNotifierProvider &&
+        other.argument == argument;
   }
 
   @override
@@ -109,19 +161,19 @@ final class ConversationSettingsProvider
   }
 }
 
-String _$conversationSettingsHash() =>
-    r'113d5658bc497892b6173191caaf48053751b6a0';
+String _$conversationSettingsNotifierHash() =>
+    r'986a2170262c6082d2fed284a22e7d4ee7daf401';
 
-final class ConversationSettingsFamily extends $Family
+final class ConversationSettingsNotifierFamily extends $Family
     with
         $ClassFamilyOverride<
-          ConversationSettings,
-          AsyncValue<ConversationSettingsModel?>,
-          ConversationSettingsModel?,
-          FutureOr<ConversationSettingsModel?>,
+          ConversationSettingsNotifier,
+          AsyncValue<ConversationSettings?>,
+          ConversationSettings?,
+          FutureOr<ConversationSettings?>,
           int
         > {
-  ConversationSettingsFamily._()
+  ConversationSettingsNotifierFamily._()
     : super(
         retry: null,
         name: r'conversationSettingsProvider',
@@ -130,36 +182,36 @@ final class ConversationSettingsFamily extends $Family
         isAutoDispose: true,
       );
 
-  ConversationSettingsProvider call(int conversationId) =>
-      ConversationSettingsProvider._(argument: conversationId, from: this);
+  ConversationSettingsNotifierProvider call(int conversationId) =>
+      ConversationSettingsNotifierProvider._(
+        argument: conversationId,
+        from: this,
+      );
 
   @override
   String toString() => r'conversationSettingsProvider';
 }
 
-abstract class _$ConversationSettings
-    extends $AsyncNotifier<ConversationSettingsModel?> {
+abstract class _$ConversationSettingsNotifier
+    extends $AsyncNotifier<ConversationSettings?> {
   late final _$args = ref.$arg as int;
   int get conversationId => _$args;
 
-  FutureOr<ConversationSettingsModel?> build(int conversationId);
+  FutureOr<ConversationSettings?> build(int conversationId);
   @$mustCallSuper
   @override
   void runBuild() {
     final ref =
         this.ref
-            as $Ref<
-              AsyncValue<ConversationSettingsModel?>,
-              ConversationSettingsModel?
-            >;
+            as $Ref<AsyncValue<ConversationSettings?>, ConversationSettings?>;
     final element =
         ref.element
             as $ClassProviderElement<
               AnyNotifier<
-                AsyncValue<ConversationSettingsModel?>,
-                ConversationSettingsModel?
+                AsyncValue<ConversationSettings?>,
+                ConversationSettings?
               >,
-              AsyncValue<ConversationSettingsModel?>,
+              AsyncValue<ConversationSettings?>,
               Object?,
               Object?
             >;

@@ -5,7 +5,6 @@ import 'package:chattrix_ui/features/chat/domain/entities/event_entity.dart';
 import 'package:chattrix_ui/features/chat/domain/repositories/events_repository.dart';
 import 'package:chattrix_ui/features/chat/domain/datasources/chat_remote_datasource.dart';
 import 'package:chattrix_ui/features/chat/data/models/event_dto.dart';
-import 'package:chattrix_ui/features/chat/data/mappers/event_mapper.dart';
 import 'package:chattrix_ui/features/auth/domain/entities/user.dart';
 import 'package:chattrix_ui/core/domain/enums/profile_visibility.dart';
 

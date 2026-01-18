@@ -1,3 +1,4 @@
+import 'package:chattrix_ui/core/constants/api_constants.dart';
 import 'package:chattrix_ui/core/errors/exceptions.dart';
 import 'package:chattrix_ui/features/chat/data/models/invite_link_model.dart';
 import 'package:chattrix_ui/features/chat/domain/datasources/invite_link_datasource.dart';
@@ -14,7 +15,7 @@ class InviteLinkDatasourceImpl implements InviteLinkDatasource {
     required CreateInviteLinkRequest request,
   }) async {
     try {
-      final response = await dio.post('/v1/conversations/$conversationId/invite-links', data: request.toJson());
+      final response = await dio.post(ApiConstants.inviteLinks(conversationId), data: request.toJson());
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         return InviteLinkModel.fromJson(response.data['data'] as Map<String, dynamic>);
@@ -29,7 +30,7 @@ class InviteLinkDatasourceImpl implements InviteLinkDatasource {
   @override
   Future<List<InviteLinkModel>> getInviteLinks({required int conversationId}) async {
     try {
-      final response = await dio.get('/v1/conversations/$conversationId/invite-links');
+      final response = await dio.get(ApiConstants.inviteLinks(conversationId));
 
       if (response.statusCode == 200) {
         final data = response.data['data'];
@@ -46,7 +47,7 @@ class InviteLinkDatasourceImpl implements InviteLinkDatasource {
   @override
   Future<InviteLinkModel> revokeInviteLink({required int conversationId, required int linkId}) async {
     try {
-      final response = await dio.delete('/v1/conversations/$conversationId/invite-links/$linkId');
+      final response = await dio.delete(ApiConstants.inviteLinkById(conversationId, linkId));
 
       if (response.statusCode == 200) {
         return InviteLinkModel.fromJson(response.data['data'] as Map<String, dynamic>);
@@ -61,7 +62,7 @@ class InviteLinkDatasourceImpl implements InviteLinkDatasource {
   @override
   Future<InviteLinkInfoModel> getInviteLinkInfo({required String token}) async {
     try {
-      final response = await dio.get('/v1/invite-links/$token');
+      final response = await dio.get(ApiConstants.inviteLinkInfo(token));
 
       if (response.statusCode == 200) {
         return InviteLinkInfoModel.fromJson(response.data['data'] as Map<String, dynamic>);
@@ -76,7 +77,7 @@ class InviteLinkDatasourceImpl implements InviteLinkDatasource {
   @override
   Future<JoinViaInviteLinkResponse> joinViaInviteLink({required String token}) async {
     try {
-      final response = await dio.post('/v1/invite-links/$token/join');
+      final response = await dio.post(ApiConstants.joinViaInviteLink(token));
 
       if (response.statusCode == 200) {
         return JoinViaInviteLinkResponse.fromJson(response.data['data'] as Map<String, dynamic>);
@@ -92,7 +93,7 @@ class InviteLinkDatasourceImpl implements InviteLinkDatasource {
   Future<List<int>> getQrCode({required int conversationId, required int linkId, String? apiUrl}) async {
     try {
       final response = await dio.get(
-        '/v1/conversations/$conversationId/invite-links/$linkId/qr',
+        '${ApiConstants.inviteLinkById(conversationId, linkId)}/qr',
         queryParameters: apiUrl != null ? {'apiUrl': apiUrl} : null,
         options: Options(responseType: ResponseType.bytes),
       );

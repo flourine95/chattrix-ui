@@ -1,15 +1,13 @@
 import 'package:fpdart/fpdart.dart';
 import 'package:chattrix_ui/core/errors/failures.dart';
 import 'package:chattrix_ui/core/repositories/base_repository.dart';
-import '../../domain/entities/birthday.dart';
-import '../../domain/entities/mutual_group.dart';
-import '../../domain/entities/message.dart';
-import '../../domain/repositories/social_repository.dart';
-import '../../domain/datasources/social_datasource.dart';
-import '../mappers/birthday_mapper.dart';
-import '../mappers/mutual_group_mapper.dart';
-import '../models/birthday_model.dart';
-import '../models/announcement_request.dart';
+import 'package:chattrix_ui/features/chat/domain/entities/birthday.dart';
+import 'package:chattrix_ui/features/chat/domain/entities/mutual_group.dart';
+import 'package:chattrix_ui/features/chat/domain/entities/message.dart';
+import 'package:chattrix_ui/features/chat/domain/repositories/social_repository.dart';
+import 'package:chattrix_ui/features/chat/domain/datasources/social_datasource.dart';
+import 'package:chattrix_ui/features/chat/data/models/birthday_model.dart';
+import 'package:chattrix_ui/features/chat/data/models/announcement_request.dart';
 
 class SocialRepositoryImpl extends BaseRepository implements SocialRepository {
   final SocialDatasource _datasource;
@@ -36,8 +34,14 @@ class SocialRepositoryImpl extends BaseRepository implements SocialRepository {
         conversationIds: conversationIds,
         customMessage: customMessage,
       );
-      final model = await _datasource.sendBirthdayWishes(request: request);
-      return model.toEntity();
+      final response = await _datasource.sendBirthdayWishes(request: request);
+      // The datasource returns Map<String, dynamic>, convert to entity
+      return SendBirthdayWishes(
+        userId: response['userId'] as int,
+        conversationIds: (response['conversationIds'] as List).cast<int>(),
+        customMessage: response['customMessage'] as String?,
+        sentAt: DateTime.parse(response['sentAt'] as String),
+      );
     });
   }
 

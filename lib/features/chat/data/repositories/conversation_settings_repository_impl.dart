@@ -3,10 +3,9 @@ import 'package:chattrix_ui/core/repositories/base_repository.dart';
 import 'package:chattrix_ui/features/chat/domain/datasources/conversation_settings_datasource.dart';
 import 'package:fpdart/fpdart.dart';
 
-import '../../domain/entities/conversation_settings.dart';
-import '../../domain/repositories/conversation_settings_repository.dart';
-import '../models/conversation_settings_model.dart';
-import '../mappers/conversation_settings_mapper.dart';
+import 'package:chattrix_ui/features/chat/domain/entities/conversation_settings.dart';
+import 'package:chattrix_ui/features/chat/domain/repositories/conversation_settings_repository.dart';
+import 'package:chattrix_ui/features/chat/data/models/conversation_settings_model.dart';
 
 class ConversationSettingsRepositoryImpl extends BaseRepository implements ConversationSettingsRepository {
   final ConversationSettingsDatasource _datasource;

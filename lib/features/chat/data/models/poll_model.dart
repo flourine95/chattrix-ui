@@ -1,11 +1,14 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:chattrix_ui/features/auth/data/models/user_dto.dart';
+import 'package:chattrix_ui/features/chat/domain/entities/poll.dart';
 
 part 'poll_model.freezed.dart';
 part 'poll_model.g.dart';
 
 @freezed
 abstract class PollModel with _$PollModel {
+  const PollModel._();
+
   const factory PollModel({
     required int id,
     required String question,
@@ -23,10 +26,31 @@ abstract class PollModel with _$PollModel {
   }) = _PollModel;
 
   factory PollModel.fromJson(Map<String, dynamic> json) => _$PollModelFromJson(json);
+
+  /// Convert model to domain entity
+  Poll toEntity() {
+    return Poll(
+      id: id,
+      question: question,
+      conversationId: conversationId,
+      creator: creator.toEntity(),
+      allowMultipleVotes: allowMultipleVotes,
+      expiresAt: expiresAt,
+      closed: closed,
+      expired: expired,
+      active: active,
+      createdAt: createdAt,
+      totalVoters: totalVoters,
+      options: options.map((option) => option.toEntity()).toList(),
+      currentUserVotedOptionIds: currentUserVotedOptionIds,
+    );
+  }
 }
 
 @freezed
 abstract class PollOptionModel with _$PollOptionModel {
+  const PollOptionModel._();
+
   const factory PollOptionModel({
     required int id,
     required String optionText,
@@ -37,6 +61,18 @@ abstract class PollOptionModel with _$PollOptionModel {
   }) = _PollOptionModel;
 
   factory PollOptionModel.fromJson(Map<String, dynamic> json) => _$PollOptionModelFromJson(json);
+
+  /// Convert model to domain entity
+  PollOption toEntity() {
+    return PollOption(
+      id: id,
+      optionText: optionText,
+      optionOrder: optionOrder,
+      voteCount: voteCount,
+      percentage: percentage,
+      voters: voters.map((voter) => voter.toEntity()).toList(),
+    );
+  }
 }
 
 @freezed

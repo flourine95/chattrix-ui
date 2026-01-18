@@ -1,11 +1,10 @@
 import 'package:fpdart/fpdart.dart';
 import 'package:chattrix_ui/core/errors/failures.dart';
 import 'package:chattrix_ui/core/repositories/base_repository.dart';
-import '../../domain/entities/poll.dart';
-import '../../domain/repositories/poll_repository.dart';
-import '../../domain/datasources/poll_datasource.dart';
-import '../mappers/poll_mapper.dart';
-import '../models/poll_model.dart';
+import 'package:chattrix_ui/features/chat/domain/entities/poll.dart';
+import 'package:chattrix_ui/features/chat/domain/repositories/poll_repository.dart';
+import 'package:chattrix_ui/features/chat/domain/datasources/poll_datasource.dart';
+import 'package:chattrix_ui/features/chat/data/models/poll_model.dart';
 
 class PollRepositoryImpl extends BaseRepository implements PollRepository {
   final PollDatasource _datasource;

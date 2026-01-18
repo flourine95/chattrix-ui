@@ -211,8 +211,8 @@ return $default(_that.accessToken,_that.refreshToken,_that.tokenType,_that.expir
 /// @nodoc
 @JsonSerializable()
 
-class _AuthTokensDto implements AuthTokensDto {
-  const _AuthTokensDto({required this.accessToken, required this.refreshToken, required this.tokenType, required this.expiresIn});
+class _AuthTokensDto extends AuthTokensDto {
+  const _AuthTokensDto({required this.accessToken, required this.refreshToken, required this.tokenType, required this.expiresIn}): super._();
   factory _AuthTokensDto.fromJson(Map<String, dynamic> json) => _$AuthTokensDtoFromJson(json);
 
 @override final  String accessToken;
