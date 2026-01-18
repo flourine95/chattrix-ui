@@ -42,7 +42,7 @@ abstract class EventListItemDto with _$EventListItemDto {
       gender: null,
       dateOfBirth: null,
       location: null,
-      profileVisibility: 'public', // Default value
+      profileVisibility: null, // Nullable in User entity
       lastSeen: null,
       createdAt: DateTime.parse(createdAt),
       updatedAt: DateTime.parse(createdAt),

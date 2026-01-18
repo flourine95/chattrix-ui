@@ -1,4 +1,5 @@
 import 'package:chattrix_ui/core/network/dio_client.dart';
+import 'package:chattrix_ui/features/auth/presentation/providers/auth_providers.dart';
 import 'package:chattrix_ui/features/chat/data/repositories/conversation_settings_repository_impl.dart';
 import 'package:chattrix_ui/features/chat/data/datasources/conversation_settings_datasource_impl.dart';
 import 'package:chattrix_ui/features/chat/domain/entities/conversation_settings.dart';
@@ -12,7 +13,7 @@ part 'conversation_settings_provider.g.dart';
 
 @riverpod
 ConversationSettingsDatasourceImpl conversationSettingsDataSource(Ref ref) {
-  final dio = ref.read(dioClientProvider);
+  final dio = ref.read(dioProvider);
   return ConversationSettingsDatasourceImpl(dio: dio);
 }
 
@@ -149,7 +150,7 @@ class ConversationSettingsNotifier extends _$ConversationSettingsNotifier {
   // Additional methods for group management
   Future<void> leaveGroup() async {
     try {
-      final dio = ref.read(dioClientProvider);
+      final dio = ref.read(dioProvider);
       await dio.post(ApiConstants.leaveConversation(conversationId));
     } catch (e) {
       rethrow;
@@ -158,7 +159,7 @@ class ConversationSettingsNotifier extends _$ConversationSettingsNotifier {
 
   Future<void> updateDescription(String description) async {
     try {
-      final dio = ref.read(dioClientProvider);
+      final dio = ref.read(dioProvider);
       await dio.put(
         ApiConstants.conversationById(conversationId),
         data: {'description': description},
@@ -170,7 +171,7 @@ class ConversationSettingsNotifier extends _$ConversationSettingsNotifier {
 
   Future<void> updateGroupName(String name) async {
     try {
-      final dio = ref.read(dioClientProvider);
+      final dio = ref.read(dioProvider);
       await dio.put(
         ApiConstants.conversationById(conversationId),
         data: {'name': name},
@@ -182,7 +183,7 @@ class ConversationSettingsNotifier extends _$ConversationSettingsNotifier {
 
   Future<void> deleteGroupAvatar() async {
     try {
-      final dio = ref.read(dioClientProvider);
+      final dio = ref.read(dioProvider);
       await dio.delete(ApiConstants.conversationAvatar(conversationId));
     } catch (e) {
       rethrow;

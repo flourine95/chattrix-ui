@@ -35,12 +35,10 @@ class SocialRepositoryImpl extends BaseRepository implements SocialRepository {
         customMessage: customMessage,
       );
       final response = await _datasource.sendBirthdayWishes(request: request);
-      // The datasource returns Map<String, dynamic>, convert to entity
+      // Convert SendBirthdayWishesResponse to SendBirthdayWishes entity
       return SendBirthdayWishes(
-        userId: response['userId'] as int,
-        conversationIds: (response['conversationIds'] as List).cast<int>(),
-        customMessage: response['customMessage'] as String?,
-        sentAt: DateTime.parse(response['sentAt'] as String),
+        conversationCount: response.conversationCount,
+        userId: response.userId,
       );
     });
   }

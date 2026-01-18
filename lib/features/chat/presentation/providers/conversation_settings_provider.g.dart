@@ -62,7 +62,7 @@ final class ConversationSettingsDataSourceProvider
 }
 
 String _$conversationSettingsDataSourceHash() =>
-    r'0e959c20c0e49ca99d0474afc21d64733bd0a4c0';
+    r'b8282d765e84ff5a33f008452f187eca02e3aa49';
 
 @ProviderFor(conversationSettingsRepository)
 final conversationSettingsRepositoryProvider =
@@ -162,7 +162,7 @@ final class ConversationSettingsNotifierProvider
 }
 
 String _$conversationSettingsNotifierHash() =>
-    r'986a2170262c6082d2fed284a22e7d4ee7daf401';
+    r'7a8796bd25f9644b9ee9ceffa82a758357b3e1fe';
 
 final class ConversationSettingsNotifierFamily extends $Family
     with

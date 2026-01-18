@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:chattrix_ui/core/network/dio_client.dart';
+import 'package:chattrix_ui/features/auth/presentation/providers/auth_providers.dart';
 import 'package:chattrix_ui/features/chat/data/datasources/chat_websocket_datasource_impl.dart';
 import 'package:chattrix_ui/features/chat/presentation/providers/chat_websocket_provider_new.dart';
 import 'package:chattrix_ui/features/chat/presentation/providers/conversation_members_provider.dart';
@@ -26,7 +27,7 @@ part 'poll_providers.g.dart';
 // Datasource Provider
 @riverpod
 PollDatasource pollDatasource(Ref ref) {
-  final dio = ref.watch(dioClientProvider);
+  final dio = ref.watch(dioProvider);
   return PollDatasourceImpl(dio: dio);
 }
 
@@ -242,6 +243,6 @@ class PollsList extends _$PollsList {
 // Provider for PollApiService
 @riverpod
 PollApiService pollApiService(Ref ref) {
-  final dio = ref.watch(dioClientProvider);
+  final dio = ref.watch(dioProvider);
   return PollApiService(dio);
 }
