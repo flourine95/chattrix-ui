@@ -105,11 +105,22 @@ class CallNotifier extends _$CallNotifier {
         
       case 'CallParticipantStatus.left':
         AppLogger.call('Participant ${update.fullName} left the call');
-        // Nếu là cuộc gọi 1-1, end call
+        
+        // Kiểm tra số lượng participants để quyết định có end call không
         currentState.whenOrNull(
           connected: (connection, _, _, _, _, _, _, remoteUid, _, _) {
-            _endCallCleanup();
-            state = CallState.ended(reason: '${update.fullName} left the call');
+            final totalParticipants = connection.callInfo.participants.length;
+            
+            // Nếu là cuộc gọi 1-1 (2 người), end call khi người kia left
+            if (totalParticipants <= 2) {
+              AppLogger.call('1-1 call: Other participant left, ending call');
+              _endCallCleanup();
+              state = CallState.ended(reason: '${update.fullName} left the call');
+            } else {
+              // Group call: Chỉ log, không end call
+              AppLogger.call('Group call: ${update.fullName} left, ${totalParticipants - 1} participants remaining');
+              // TODO: Update UI to remove participant from list
+            }
           },
         );
         break;
@@ -206,9 +217,17 @@ class CallNotifier extends _$CallNotifier {
             _,
             _,
           ) {
-            if (currentRemoteUid == remoteUid) {
+            final totalParticipants = connection.callInfo.participants.length;
+            
+            // Nếu là cuộc gọi 1-1 (2 người), end call khi người kia offline
+            if (totalParticipants <= 2 && currentRemoteUid == remoteUid) {
+              AppLogger.call('1-1 call: Remote user offline, ending call');
               _endCallCleanup();
               state = const CallState.ended(reason: 'Remote user left');
+            } else if (totalParticipants > 2) {
+              // Group call: Chỉ log, không end call
+              AppLogger.call('Group call: User $remoteUid offline, ${totalParticipants - 1} participants remaining');
+              // TODO: Update UI to remove participant from list
             }
           },
     );

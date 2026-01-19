@@ -50,14 +50,16 @@ class ActiveCallBanner extends StatelessWidget {
               ],
             ),
           ),
-          ElevatedButton.icon(
+          const SizedBox(width: 8),
+          TextButton.icon(
             onPressed: onJoinPressed,
-            icon: const Icon(Icons.phone, size: 18),
+            icon: const Icon(Icons.phone, size: 16),
             label: const Text('Tham gia'),
-            style: ElevatedButton.styleFrom(
+            style: TextButton.styleFrom(
               backgroundColor: theme.colorScheme.primary,
               foregroundColor: theme.colorScheme.onPrimary,
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              minimumSize: const Size(0, 36),
             ),
           ),
         ],

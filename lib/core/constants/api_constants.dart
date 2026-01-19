@@ -17,8 +17,11 @@ class ApiConstants {
       return _host;
     }
 
+    // For Android: Use API_HOST from .env directly
+    // - Emulator: Set API_HOST=10.0.2.2 in .env
+    // - Physical device: Set API_HOST=192.168.x.x in .env
     if (defaultTargetPlatform == TargetPlatform.android) {
-      return _androidEmulatorHost;
+      return _host;
     }
 
     return _host;

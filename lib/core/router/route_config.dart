@@ -24,6 +24,8 @@ import 'package:chattrix_ui/features/chat/presentation/pages/scheduled_messages_
 import 'package:chattrix_ui/features/chat/presentation/pages/search_conversations_page.dart';
 import 'package:chattrix_ui/features/contacts/presentation/pages/contacts_demo_page.dart';
 import 'package:chattrix_ui/features/contacts/presentation/pages/contacts_page.dart';
+import 'package:chattrix_ui/features/contacts/presentation/pages/friend_requests_page.dart';
+import 'package:chattrix_ui/features/contacts/presentation/pages/send_friend_request_page.dart';
 import 'package:chattrix_ui/features/invite_links/presentation/pages/invite_link_info_page.dart';
 import 'package:chattrix_ui/features/invite_links/presentation/pages/invite_links_page.dart';
 import 'package:chattrix_ui/features/poll/presentation/pages/create_poll_page.dart';
@@ -86,6 +88,16 @@ class RouteConfig {
       GoRoute(path: RoutePaths.chatView, name: 'chat-view', builder: (context, state) => _buildChatViewPage(state)),
       GoRoute(path: RoutePaths.newChat, name: 'new-chat', builder: (context, state) => const NewChatPage()),
       GoRoute(path: RoutePaths.newGroup, name: 'new-group', builder: (context, state) => const NewGroupChatPage()),
+      GoRoute(
+        path: RoutePaths.friendRequests,
+        name: 'friend-requests',
+        builder: (context, state) => const FriendRequestsPage(),
+      ),
+      GoRoute(
+        path: RoutePaths.sendFriendRequest,
+        name: 'send-friend-request',
+        builder: (context, state) => const SendFriendRequestPage(),
+      ),
       GoRoute(path: RoutePaths.chatInfo, name: 'chat-info', builder: (context, state) => _buildChatInfoPage(state)),
       GoRoute(
         path: '/forward-message',

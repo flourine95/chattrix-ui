@@ -7,6 +7,8 @@ import 'package:chattrix_ui/features/call/presentation/providers/call_timer_prov
 import 'package:chattrix_ui/features/call/presentation/providers/pip_state_provider.dart';
 import 'package:chattrix_ui/features/call/presentation/state/call_notifier.dart';
 import 'package:chattrix_ui/features/call/presentation/state/call_state.dart';
+import 'package:chattrix_ui/features/chat/presentation/providers/chat_providers.dart';
+import 'package:chattrix_ui/features/chat/presentation/utils/chat_view_helpers.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -33,35 +35,47 @@ class CallPage extends ConsumerWidget {
             ringing: (_) => const Center(child: CircularProgressIndicator()),
             connecting: (_) => const Center(child: CircularProgressIndicator()),
             connected: (state) {
-              // Get remote participant info
-              // If outgoing: remote is the callee (not the caller)
-              // If incoming: remote is the caller
+              // Get conversation info for group calls
               final callInfo = state.connection.callInfo;
               final currentUserId = ref.watch(currentUserProvider)?.id;
+              final conversationId = callInfo.conversationId;
               
-              String? remoteName;
-              String? remoteAvatar;
+              // Get conversation to check if it's a group
+              final conversationsAsync = ref.watch(conversationsProvider);
+              final conversation = conversationsAsync.value?.lookup(conversationId);
               
-              if (currentUserId != null) {
-                // Find the other participant (not current user)
-                final remoteParticipant = callInfo.participants.firstWhere(
-                  (p) => p.userId != currentUserId,
-                  orElse: () => callInfo.participants.first,
-                );
-                remoteName = remoteParticipant.fullName;
-                remoteAvatar = remoteParticipant.avatar;
+              final isGroupCall = conversation?.type.name == 'group';
+              
+              String displayName;
+              String? displayAvatar;
+              
+              if (isGroupCall && conversation != null) {
+                // Group call: Show group name and avatar
+                displayName = conversation.name ?? 'Group Call';
+                displayAvatar = conversation.avatar;
               } else {
-                // Fallback: use caller info
-                remoteName = callInfo.callerName;
-                remoteAvatar = callInfo.callerAvatar;
+                // 1-1 call: Show remote participant
+                if (currentUserId != null) {
+                  final remoteParticipant = callInfo.participants.firstWhere(
+                    (p) => p.userId != currentUserId,
+                    orElse: () => callInfo.participants.first,
+                  );
+                  displayName = remoteParticipant.fullName;
+                  displayAvatar = remoteParticipant.avatar;
+                } else {
+                  displayName = callInfo.callerName;
+                  displayAvatar = callInfo.callerAvatar;
+                }
               }
 
-              // Key này giữ widget stable khi state fields thay đổi
               return _ConnectedCallView(
                 key: const ValueKey('connected_call'),
                 callType: state.callType,
-                remoteName: remoteName,
-                remoteAvatar: remoteAvatar,
+                displayName: displayName,
+                displayAvatar: displayAvatar,
+                callInfo: callInfo,
+                isGroupCall: isGroupCall,
+                currentUserId: currentUserId,
               );
             },
             ended: (state) => Center(child: Text("Ended: ${state.reason}")),
@@ -76,10 +90,21 @@ class CallPage extends ConsumerWidget {
 // Widget riêng cho connected state - tách biệt để tối ưu rebuild
 class _ConnectedCallView extends ConsumerWidget {
   final CallType callType;
-  final String remoteName;
-  final String? remoteAvatar;
+  final String displayName;
+  final String? displayAvatar;
+  final dynamic callInfo;
+  final bool isGroupCall;
+  final int? currentUserId;
 
-  const _ConnectedCallView({super.key, required this.callType, required this.remoteName, required this.remoteAvatar});
+  const _ConnectedCallView({
+    super.key,
+    required this.callType,
+    required this.displayName,
+    required this.displayAvatar,
+    required this.callInfo,
+    required this.isGroupCall,
+    required this.currentUserId,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -89,17 +114,23 @@ class _ConnectedCallView extends ConsumerWidget {
       children: [
         // 1. LAYER HIỂN THỊ (Video hoặc Avatar)
         if (isVideoCall)
-          _RemoteVideoLayer(remoteName: remoteName, remoteAvatar: remoteAvatar)
+          _RemoteVideoLayer(displayName: displayName, displayAvatar: displayAvatar)
         else
           Positioned.fill(
-            child: _AudioContentView(name: remoteName, avatar: remoteAvatar),
+            child: _AudioContentView(name: displayName, avatar: displayAvatar),
           ),
 
         // 2. LAYER MINIMIZE BUTTON (Top Left)
         const _MinimizeButton(),
 
-        // 3. LAYER HEADER (Tên + Thời gian + Mute Indicator)
-        _CallHeader(remoteName: remoteName, isVideoCall: isVideoCall),
+        // 3. LAYER HEADER (Tên + Thời gian + Participants)
+        _CallHeader(
+          displayName: displayName,
+          isVideoCall: isVideoCall,
+          isGroupCall: isGroupCall,
+          callInfo: callInfo,
+          currentUserId: currentUserId,
+        ),
 
         // 4. LAYER LOCAL VIDEO (Góc màn hình)
         if (isVideoCall) const _LocalVideoLayer(),
@@ -113,10 +144,10 @@ class _ConnectedCallView extends ConsumerWidget {
 
 // Remote Video Layer - Chỉ rebuild khi remoteIsVideoEnabled hoặc remoteUid thay đổi
 class _RemoteVideoLayer extends ConsumerWidget {
-  final String remoteName;
-  final String? remoteAvatar;
+  final String displayName;
+  final String? displayAvatar;
 
-  const _RemoteVideoLayer({required this.remoteName, required this.remoteAvatar});
+  const _RemoteVideoLayer({required this.displayName, required this.displayAvatar});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -126,21 +157,35 @@ class _RemoteVideoLayer extends ConsumerWidget {
     return Positioned.fill(
       child: videoEnabled
           ? _RemoteVideoView(remoteUid: uid)
-          : _AudioContentView(name: remoteName, avatar: remoteAvatar),
+          : _AudioContentView(name: displayName, avatar: displayAvatar),
     );
   }
 }
 
-// Call Header - Chỉ rebuild khi remoteIsMuted thay đổi
+// Call Header - Hiển thị tên + participants list cho group call
 class _CallHeader extends ConsumerWidget {
-  final String remoteName;
+  final String displayName;
   final bool isVideoCall;
+  final bool isGroupCall;
+  final dynamic callInfo;
+  final int? currentUserId;
 
-  const _CallHeader({required this.remoteName, required this.isVideoCall});
+  const _CallHeader({
+    required this.displayName,
+    required this.isVideoCall,
+    required this.isGroupCall,
+    required this.callInfo,
+    required this.currentUserId,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final remoteMuted = ref.watch(remoteIsMutedStateProvider);
+    
+    // Get active participants (JOINED status)
+    final activeParticipants = callInfo.participants
+        .where((p) => p.status.name == 'JOINED')
+        .toList();
 
     return Positioned(
       top: 0,
@@ -148,15 +193,15 @@ class _CallHeader extends ConsumerWidget {
       right: 0,
       child: SafeArea(
         child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 16),
-          alignment: Alignment.center,
+          padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
           child: Column(
             children: [
+              // Tên conversation/người
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    remoteName,
+                    displayName,
                     style: GoogleFonts.inter(
                       color: isVideoCall ? Colors.white : Colors.black87,
                       fontSize: 20,
@@ -164,7 +209,7 @@ class _CallHeader extends ConsumerWidget {
                       shadows: isVideoCall ? [const Shadow(blurRadius: 4, color: Colors.black54)] : null,
                     ),
                   ),
-                  if (remoteMuted) ...[
+                  if (!isGroupCall && remoteMuted) ...[
                     const SizedBox(width: 8),
                     Container(
                       padding: const EdgeInsets.all(4),
@@ -179,6 +224,72 @@ class _CallHeader extends ConsumerWidget {
               ),
               const SizedBox(height: 4),
               _CallTimer(isVideoCall: isVideoCall),
+              
+              // Participants list for group call
+              if (isGroupCall && activeParticipants.isNotEmpty) ...[
+                const SizedBox(height: 12),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: isVideoCall 
+                        ? Colors.black.withValues(alpha: 0.5)
+                        : Colors.grey[200],
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Column(
+                    children: [
+                      Text(
+                        '${activeParticipants.length} người trong cuộc gọi',
+                        style: GoogleFonts.inter(
+                          color: isVideoCall ? Colors.white : Colors.black87,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        alignment: WrapAlignment.center,
+                        children: activeParticipants.map((p) {
+                          final isCurrentUser = p.userId == currentUserId;
+                          return Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: isVideoCall
+                                  ? Colors.white.withValues(alpha: 0.2)
+                                  : Colors.white,
+                              borderRadius: BorderRadius.circular(12),
+                              border: isCurrentUser
+                                  ? Border.all(color: Colors.green, width: 2)
+                                  : null,
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                UserAvatar(
+                                  displayName: p.fullName,
+                                  avatarUrl: p.avatar,
+                                  radius: 10,
+                                ),
+                                const SizedBox(width: 6),
+                                Text(
+                                  isCurrentUser ? 'Bạn' : p.fullName,
+                                  style: GoogleFonts.inter(
+                                    color: isVideoCall ? Colors.white : Colors.black87,
+                                    fontSize: 11,
+                                    fontWeight: isCurrentUser ? FontWeight.w600 : FontWeight.w400,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        }).toList(),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ],
           ),
         ),

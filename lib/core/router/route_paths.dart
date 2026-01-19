@@ -10,6 +10,8 @@ class RoutePaths {
 
   static const String chats = '/';
   static const String contacts = '/contacts';
+  static const String friendRequests = '/contacts/friend-requests';
+  static const String sendFriendRequest = '/contacts/send-request';
   static const String profile = '/profile';
   static const String editProfile = '/profile/edit';
   static const String settings = '/settings';

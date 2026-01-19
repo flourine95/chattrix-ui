@@ -8,6 +8,7 @@ import 'package:chattrix_ui/features/call/domain/datasources/call_websocket_data
 import 'package:chattrix_ui/features/call/domain/entities/call_invitation.dart';
 import 'package:chattrix_ui/features/call/domain/entities/call_participant_update.dart';
 import 'package:chattrix_ui/features/call/domain/entities/call_timeout.dart';
+import 'package:flutter/foundation.dart';
 
 /// WebSocket event types theo API spec mới
 class _CallWebSocketResponse {
@@ -60,11 +61,11 @@ class CallWebSocketDataSourceImpl implements CallWebSocketDataSource {
     }
 
     // 🔍 DEBUG: Log raw payload để xem backend gửi gì
-    print('🔍 [Call WS] Event type: $type');
-    print('🔍 [Call WS] Raw payload: $payload');
+    debugPrint('🔍 [Call WS] Event type: $type');
+    debugPrint('🔍 [Call WS] Raw payload: $payload');
     if (payload.containsKey('callId')) {
-      print('🔍 [Call WS] callId type: ${payload['callId'].runtimeType}');
-      print('🔍 [Call WS] callId value: ${payload['callId']}');
+      debugPrint('🔍 [Call WS] callId type: ${payload['callId'].runtimeType}');
+      debugPrint('🔍 [Call WS] callId value: ${payload['callId']}');
     }
 
     switch (type) {
@@ -82,41 +83,41 @@ class CallWebSocketDataSourceImpl implements CallWebSocketDataSource {
 
   void _handleIncomingCall(Map<String, dynamic> payload) {
     try {
-      print('🔍 [Call WS] Parsing incoming call...');
+      debugPrint('🔍 [Call WS] Parsing incoming call...');
       final invitation = CallInvitationModel.fromJson(payload).toEntity();
-      print('✅ [Call WS] Incoming call parsed successfully: ${invitation.callId}');
+      debugPrint('✅ [Call WS] Incoming call parsed successfully: ${invitation.callId}');
       _incomingCallController.add(invitation);
     } catch (e, stack) {
       // Log error nhưng không crash app
-      print('❌ [Call WS] Error parsing incoming call: $e');
-      print('❌ [Call WS] Stack trace: $stack');
-      print('❌ [Call WS] Payload was: $payload');
+      debugPrint('❌ [Call WS] Error parsing incoming call: $e');
+      debugPrint('❌ [Call WS] Stack trace: $stack');
+      debugPrint('❌ [Call WS] Payload was: $payload');
     }
   }
 
   void _handleParticipantUpdate(Map<String, dynamic> payload) {
     try {
-      print('🔍 [Call WS] Parsing participant update...');
+      debugPrint('🔍 [Call WS] Parsing participant update...');
       final update = CallParticipantUpdateModel.fromJson(payload).toEntity();
-      print('✅ [Call WS] Participant update parsed: userId=${update.userId}, status=${update.status}');
+      debugPrint('✅ [Call WS] Participant update parsed: userId=${update.userId}, status=${update.status}');
       _participantUpdateController.add(update);
     } catch (e, stack) {
-      print('❌ [Call WS] Error parsing participant update: $e');
-      print('❌ [Call WS] Stack trace: $stack');
-      print('❌ [Call WS] Payload was: $payload');
+      debugPrint('❌ [Call WS] Error parsing participant update: $e');
+      debugPrint('❌ [Call WS] Stack trace: $stack');
+      debugPrint('❌ [Call WS] Payload was: $payload');
     }
   }
 
   void _handleCallTimeout(Map<String, dynamic> payload) {
     try {
-      print('🔍 [Call WS] Parsing call timeout...');
+      debugPrint('🔍 [Call WS] Parsing call timeout...');
       final timeout = CallTimeoutModel.fromJson(payload).toEntity();
-      print('✅ [Call WS] Call timeout parsed: ${timeout.callId}');
+      debugPrint('✅ [Call WS] Call timeout parsed: ${timeout.callId}');
       _callTimeoutController.add(timeout);
     } catch (e, stack) {
-      print('❌ [Call WS] Error parsing call timeout: $e');
-      print('❌ [Call WS] Stack trace: $stack');
-      print('❌ [Call WS] Payload was: $payload');
+      debugPrint('❌ [Call WS] Error parsing call timeout: $e');
+      debugPrint('❌ [Call WS] Stack trace: $stack');
+      debugPrint('❌ [Call WS] Payload was: $payload');
     }
   }
 

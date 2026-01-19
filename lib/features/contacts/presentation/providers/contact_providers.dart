@@ -1,7 +1,11 @@
+import 'dart:async';
+
 import 'package:chattrix_ui/core/errors/failures.dart';
+import 'package:chattrix_ui/core/network/websocket_providers.dart';
 import 'package:chattrix_ui/features/auth/presentation/providers/auth_providers.dart';
 import 'package:chattrix_ui/features/auth/presentation/providers/auth_state_provider.dart';
 import 'package:chattrix_ui/features/contacts/data/datasources/contact_remote_datasource_impl.dart';
+import 'package:chattrix_ui/features/contacts/data/datasources/contact_websocket_datasource.dart';
 import 'package:chattrix_ui/features/contacts/data/repositories/contact_repository_impl.dart';
 import 'package:chattrix_ui/features/contacts/domain/datasources/contact_remote_datasource.dart';
 import 'package:chattrix_ui/features/contacts/domain/entities/contact.dart';
@@ -14,7 +18,14 @@ import 'package:chattrix_ui/features/contacts/domain/usecases/get_received_frien
 import 'package:chattrix_ui/features/contacts/domain/usecases/get_sent_friend_requests_usecase.dart';
 import 'package:chattrix_ui/features/contacts/domain/usecases/reject_friend_request_usecase.dart';
 import 'package:chattrix_ui/features/contacts/domain/usecases/send_friend_request_usecase.dart';
+import 'package:flutter/foundation.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+
+// WebSocket datasource provider
+final contactWebSocketDataSourceProvider = Provider<ContactWebSocketDataSource>((ref) {
+  final wsService = ref.watch(webSocketServiceProvider);
+  return ContactWebSocketDataSource(webSocketService: wsService);
+});
 
 // Data source providers
 final contactRemoteDataSourceProvider = Provider<ContactRemoteDataSource>((ref) {
@@ -97,9 +108,58 @@ class ContactState {
 
 // Contact notifier
 class ContactNotifier extends Notifier<ContactState> {
+  StreamSubscription? _friendRequestReceivedSub;
+  StreamSubscription? _friendRequestAcceptedSub;
+  StreamSubscription? _friendRequestRejectedSub;
+  StreamSubscription? _friendRequestCancelledSub;
+
   @override
   ContactState build() {
+    // Setup WebSocket listeners
+    _setupWebSocketListeners();
+    
+    // Cleanup on dispose
+    ref.onDispose(() {
+      _friendRequestReceivedSub?.cancel();
+      _friendRequestAcceptedSub?.cancel();
+      _friendRequestRejectedSub?.cancel();
+      _friendRequestCancelledSub?.cancel();
+    });
+    
     return ContactState();
+  }
+
+  void _setupWebSocketListeners() {
+    final wsDataSource = ref.watch(contactWebSocketDataSourceProvider);
+
+    // Listen for new friend requests
+    _friendRequestReceivedSub = wsDataSource.friendRequestReceivedStream.listen((payload) {
+      debugPrint('🔔 New friend request received!');
+      // Reload received requests
+      loadReceivedFriendRequests();
+    });
+
+    // Listen for accepted requests
+    _friendRequestAcceptedSub = wsDataSource.friendRequestAcceptedStream.listen((payload) {
+      debugPrint('🔔 Friend request accepted!');
+      // Reload contacts and sent requests
+      loadContacts();
+      loadSentFriendRequests();
+    });
+
+    // Listen for rejected requests
+    _friendRequestRejectedSub = wsDataSource.friendRequestRejectedStream.listen((payload) {
+      debugPrint('🔔 Friend request rejected');
+      // Reload sent requests
+      loadSentFriendRequests();
+    });
+
+    // Listen for cancelled requests
+    _friendRequestCancelledSub = wsDataSource.friendRequestCancelledStream.listen((payload) {
+      debugPrint('🔔 Friend request cancelled');
+      // Reload received requests
+      loadReceivedFriendRequests();
+    });
   }
 
   String _getFailureMessage(Failure failure) {
