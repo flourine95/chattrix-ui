@@ -56,7 +56,13 @@ class ContactRemoteDataSourceImpl implements ContactRemoteDataSource {
     try {
       final response = await dio.post(ApiConstants.acceptFriendRequest(friendRequestId));
 
-      _handleResponse(response);
+      // For POST operations without data response, just check status code
+      if (response.statusCode != 200 && response.statusCode != 201) {
+        throw ServerException(
+          message: response.data?['message'] ?? 'Failed to accept friend request',
+          statusCode: response.statusCode ?? 500,
+        );
+      }
     } catch (e) {
       throw _handleError(e);
     }
@@ -67,7 +73,13 @@ class ContactRemoteDataSourceImpl implements ContactRemoteDataSource {
     try {
       final response = await dio.post(ApiConstants.rejectFriendRequest(friendRequestId));
 
-      _handleResponse(response);
+      // For POST operations without data response, just check status code
+      if (response.statusCode != 200 && response.statusCode != 201) {
+        throw ServerException(
+          message: response.data?['message'] ?? 'Failed to reject friend request',
+          statusCode: response.statusCode ?? 500,
+        );
+      }
     } catch (e) {
       throw _handleError(e);
     }
@@ -78,7 +90,13 @@ class ContactRemoteDataSourceImpl implements ContactRemoteDataSource {
     try {
       final response = await dio.delete(ApiConstants.cancelFriendRequest(friendRequestId));
 
-      _handleResponse(response);
+      // For DELETE operations, just check status code
+      if (response.statusCode != 200 && response.statusCode != 204) {
+        throw ServerException(
+          message: response.data?['message'] ?? 'Failed to cancel friend request',
+          statusCode: response.statusCode ?? 500,
+        );
+      }
     } catch (e) {
       throw _handleError(e);
     }

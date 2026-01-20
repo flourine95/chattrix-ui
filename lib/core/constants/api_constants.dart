@@ -1,65 +1,28 @@
-import 'package:flutter/foundation.dart' show kDebugMode, kIsWeb, defaultTargetPlatform, TargetPlatform;
+import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class ApiConstants {
   static String get _host => dotenv.env['API_HOST'] ?? 'localhost';
 
   static String get _port => dotenv.env['API_PORT'] ?? '8080';
-
-  static String get _apiPath => dotenv.env['API_PATH'] ?? '/api';
-
-  static String get _wsPath => dotenv.env['WS_PATH'] ?? '';
-
-  static const String _androidEmulatorHost = '10.0.2.2';
-
-  static String get _effectiveHost {
-    if (kIsWeb) {
-      return _host;
-    }
-
-    // For Android: Use API_HOST from .env directly
-    // - Emulator: Set API_HOST=10.0.2.2 in .env
-    // - Physical device: Set API_HOST=192.168.x.x in .env
-    if (defaultTargetPlatform == TargetPlatform.android) {
-      return _host;
-    }
-
-    return _host;
-  }
+  static const String _apiPath = '/api';
+  static const String _wsPath = '';
+  static const String _v1 = 'v1';
 
   static bool get _useSecureProtocol {
-    final useSecure = dotenv.env['USE_SECURE_PROTOCOL'];
-    if (useSecure != null) {
-      return useSecure.toLowerCase() == 'true';
-    }
-
-    if (!kDebugMode) {
-      return true;
-    }
-
-    final host = _effectiveHost;
-    final isLocalhost = host == 'localhost' || host == '127.0.0.1' || host == '10.0.2.2' || host == '0.0.0.0';
-
-    return !isLocalhost;
+    return !kDebugMode;
   }
 
   static String get _baseUrl {
-    final host = _effectiveHost;
     final protocol = _useSecureProtocol ? 'https' : 'http';
-    final url = '$protocol://$host:$_port$_apiPath';
-
-    return url;
+    return '$protocol://$_host:$_port$_apiPath';
   }
 
   static String get _wsBaseUrl {
-    final host = _effectiveHost;
     final protocol = _useSecureProtocol ? 'wss' : 'ws';
-    final url = '$protocol://$host:$_port$_wsPath';
-
-    return url;
+    final path = _wsPath.isNotEmpty ? _wsPath : '';
+    return '$protocol://$_host:$_port$path';
   }
-
-  static const String _v1 = 'v1';
 
   // Auth endpoints
   static String get register => '$_baseUrl/$_v1/auth/register';
@@ -194,6 +157,11 @@ class ApiConstants {
 
   static String activeCall(int conversationId) => '$_baseUrl/$_v1/calls/active/$conversationId';
 
+  // Call History endpoints
+  static String get callHistory => '$_baseUrl/$_v1/calls/history';
+
+  static String callHistoryWithFilter(String filter) => '$_baseUrl/$_v1/calls/history?filter=$filter';
+
   // Conversation Settings endpoints
   static String conversationSettings(int conversationId) => '$_baseUrl/$_v1/conversations/$conversationId/settings';
 
@@ -269,36 +237,19 @@ class ApiConstants {
 
   static String searchMedia(int conversationId) => '$_baseUrl/$_v1/conversations/$conversationId/search/media';
 
-  // Poll endpoints (NEW API - returns Message with metadata.poll)
+  // Poll & Event endpoints (New)
   static String createPoll(int conversationId) => '$_baseUrl/$_v1/conversations/$conversationId/messages/poll';
 
   static String votePoll(int conversationId, int messageId) =>
       '$_baseUrl/$_v1/conversations/$conversationId/messages/$messageId/poll/vote';
 
-  // Event endpoints (NEW API - returns Message with metadata.event)
   static String createEvent(int conversationId) => '$_baseUrl/$_v1/conversations/$conversationId/messages/event';
 
   static String rsvpEvent(int conversationId, int messageId) =>
       '$_baseUrl/$_v1/conversations/$conversationId/messages/$messageId/event/rsvp';
 
-  // Legacy poll/event endpoints (DEPRECATED - kept for backward compatibility)
-  static String polls(int conversationId) => '$_baseUrl/$_v1/conversations/$conversationId/polls';
-
-  static String pollById(int conversationId, int pollId) =>
-      '$_baseUrl/$_v1/conversations/$conversationId/polls/$pollId';
-
-  static String closePoll(int conversationId, int pollId) =>
-      '$_baseUrl/$_v1/conversations/$conversationId/polls/$pollId/close';
-
-  static String events(int conversationId) => '$_baseUrl/$_v1/conversations/$conversationId/events';
-
-  static String event(int conversationId, int eventId) =>
-      '$_baseUrl/$_v1/conversations/$conversationId/events/$eventId';
-
-  // Legacy event endpoint names (for backward compatibility)
-  static String eventById(int conversationId, int eventId) =>
-      '$_baseUrl/$_v1/conversations/$conversationId/events/$eventId';
-
+  static String eventRsvps(int conversationId, int eventId) =>
+      '$_baseUrl/$_v1/conversations/$conversationId/events/$eventId/rsvps';
 
   // Invite Link endpoints
   static String inviteLinks(int conversationId) => '$_baseUrl/$_v1/conversations/$conversationId/invite-links';
@@ -321,10 +272,19 @@ class ApiConstants {
   // Mutual Groups endpoints
   static String mutualGroups(int userId) => '$_baseUrl/$_v1/users/$userId/mutual-groups';
 
+  // Poll & event endpoints
 
-  static String eventRsvps(int conversationId, int eventId) =>
-      '$_baseUrl/$_v1/conversations/$conversationId/events/$eventId/rsvps';
+  static String polls(int conversationId) => '$_baseUrl/$_v1/conversations/$conversationId/polls';
 
+  static String pollById(int conversationId, int pollId) => '$_baseUrl/$_v1/conversations/$conversationId/polls/$pollId';
+
+  static String closePoll(int conversationId, int pollId) => '$_baseUrl/$_v1/conversations/$conversationId/polls/$pollId/close';
+
+  static String events(int conversationId) => '$_baseUrl/$_v1/conversations/$conversationId/events';
+
+  static String event(int conversationId, int eventId) => '$_baseUrl/$_v1/conversations/$conversationId/events/$eventId';
+
+  // Utils
   static String forwardMessage(int conversationId, int messageId) =>
       '$_baseUrl/$_v1/conversations/$conversationId/messages/$messageId/forward';
 
