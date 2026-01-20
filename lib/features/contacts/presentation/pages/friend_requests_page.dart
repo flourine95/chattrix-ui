@@ -1,5 +1,4 @@
 import 'package:chattrix_ui/core/widgets/user_avatar.dart';
-import 'package:chattrix_ui/features/auth/presentation/providers/auth_providers.dart';
 import 'package:chattrix_ui/features/contacts/presentation/providers/contact_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -14,9 +13,9 @@ class FriendRequestsPage extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final colors = Theme.of(context).colorScheme;
     final contactState = ref.watch(contactProvider);
-    
+
     final tabController = useTabController(initialLength: 2);
-    
+
     // Load data
     useEffect(() {
       Future.microtask(() {
@@ -29,10 +28,7 @@ class FriendRequestsPage extends HookConsumerWidget {
     return Scaffold(
       backgroundColor: colors.surface,
       appBar: AppBar(
-        title: Text(
-          'Friend Requests',
-          style: GoogleFonts.inter(fontWeight: FontWeight.bold),
-        ),
+        title: Text('Friend Requests', style: GoogleFonts.inter(fontWeight: FontWeight.bold)),
         backgroundColor: colors.surface,
         elevation: 0,
         bottom: TabBar(
@@ -51,17 +47,10 @@ class FriendRequestsPage extends HookConsumerWidget {
                     const SizedBox(width: 8),
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                      decoration: BoxDecoration(
-                        color: colors.primary,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
+                      decoration: BoxDecoration(color: colors.primary, borderRadius: BorderRadius.circular(12)),
                       child: Text(
                         '${contactState.receivedRequests.length}',
-                        style: GoogleFonts.inter(
-                          color: colors.onPrimary,
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                        ),
+                        style: GoogleFonts.inter(color: colors.onPrimary, fontSize: 12, fontWeight: FontWeight.bold),
                       ),
                     ),
                   ],
@@ -77,17 +66,10 @@ class FriendRequestsPage extends HookConsumerWidget {
                     const SizedBox(width: 8),
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                      decoration: BoxDecoration(
-                        color: colors.outline,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
+                      decoration: BoxDecoration(color: colors.outline, borderRadius: BorderRadius.circular(12)),
                       child: Text(
                         '${contactState.sentRequests.length}',
-                        style: GoogleFonts.inter(
-                          color: colors.onPrimary,
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                        ),
+                        style: GoogleFonts.inter(color: colors.onPrimary, fontSize: 12, fontWeight: FontWeight.bold),
                       ),
                     ),
                   ],
@@ -130,17 +112,10 @@ class FriendRequestsPage extends HookConsumerWidget {
               const SizedBox(height: 24),
               Text(
                 'No friend requests',
-                style: GoogleFonts.inter(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: colors.onSurface,
-                ),
+                style: GoogleFonts.inter(fontSize: 20, fontWeight: FontWeight.bold, color: colors.onSurface),
               ),
               const SizedBox(height: 8),
-              Text(
-                'You have no pending requests',
-                style: GoogleFonts.inter(color: colors.onSurfaceVariant),
-              ),
+              Text('You have no pending requests', style: GoogleFonts.inter(color: colors.onSurfaceVariant)),
             ],
           ),
         ),
@@ -154,50 +129,32 @@ class FriendRequestsPage extends HookConsumerWidget {
         padding: const EdgeInsets.all(16),
         itemBuilder: (context, index) {
           final request = state.receivedRequests[index];
-          
+
           // For received requests, show sender info
           final displayName = request.senderFullName;
           final displayUsername = request.senderUsername;
           final displayAvatar = request.senderAvatarUrl;
-          
+
           return Card(
             margin: const EdgeInsets.only(bottom: 12),
             elevation: 0,
             color: colors.surfaceContainerLow,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
-            ),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
             child: Padding(
               padding: const EdgeInsets.all(16),
               child: Column(
                 children: [
                   Row(
                     children: [
-                      UserAvatar(
-                        displayName: displayName,
-                        avatarUrl: displayAvatar,
-                        radius: 32,
-                      ),
+                      UserAvatar(displayName: displayName, avatarUrl: displayAvatar, radius: 32),
                       const SizedBox(width: 16),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              displayName,
-                              style: GoogleFonts.inter(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 16,
-                              ),
-                            ),
+                            Text(displayName, style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 16)),
                             const SizedBox(height: 2),
-                            Text(
-                              '@$displayUsername',
-                              style: GoogleFonts.inter(
-                                color: colors.primary,
-                                fontSize: 13,
-                              ),
-                            ),
+                            Text('@$displayUsername', style: GoogleFonts.inter(color: colors.primary, fontSize: 13)),
                             const SizedBox(height: 6),
                             Row(
                               children: [
@@ -205,10 +162,7 @@ class FriendRequestsPage extends HookConsumerWidget {
                                 const SizedBox(width: 4),
                                 Text(
                                   timeago.format(request.createdAt),
-                                  style: GoogleFonts.inter(
-                                    color: colors.outline,
-                                    fontSize: 12,
-                                  ),
+                                  style: GoogleFonts.inter(color: colors.outline, fontSize: 12),
                                 ),
                               ],
                             ),
@@ -248,11 +202,9 @@ class FriendRequestsPage extends HookConsumerWidget {
                           onPressed: () async {
                             final success = await ref.read(contactProvider.notifier).rejectFriendRequest(request.id);
                             if (success && context.mounted) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text('Request rejected'),
-                                ),
-                              );
+                              ScaffoldMessenger.of(
+                                context,
+                              ).showSnackBar(const SnackBar(content: Text('Request rejected')));
                             }
                           },
                           icon: const Icon(Icons.close),
@@ -298,17 +250,10 @@ class FriendRequestsPage extends HookConsumerWidget {
               const SizedBox(height: 24),
               Text(
                 'No sent requests',
-                style: GoogleFonts.inter(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: colors.onSurface,
-                ),
+                style: GoogleFonts.inter(fontSize: 20, fontWeight: FontWeight.bold, color: colors.onSurface),
               ),
               const SizedBox(height: 8),
-              Text(
-                'You haven\'t sent any requests',
-                style: GoogleFonts.inter(color: colors.onSurfaceVariant),
-              ),
+              Text('You haven\'t sent any requests', style: GoogleFonts.inter(color: colors.onSurfaceVariant)),
             ],
           ),
         ),
@@ -322,48 +267,30 @@ class FriendRequestsPage extends HookConsumerWidget {
         padding: const EdgeInsets.all(16),
         itemBuilder: (context, index) {
           final request = state.sentRequests[index];
-          
+
           // For sent requests, show receiver info
           final displayName = request.receiverFullName;
           final displayUsername = request.receiverUsername;
           final displayAvatar = request.receiverAvatarUrl;
-          
+
           return Card(
             margin: const EdgeInsets.only(bottom: 12),
             elevation: 0,
             color: colors.surfaceContainerLow,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
-            ),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
             child: Padding(
               padding: const EdgeInsets.all(16),
               child: Row(
                 children: [
-                  UserAvatar(
-                    displayName: displayName,
-                    avatarUrl: displayAvatar,
-                    radius: 28,
-                  ),
+                  UserAvatar(displayName: displayName, avatarUrl: displayAvatar, radius: 28),
                   const SizedBox(width: 16),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          displayName,
-                          style: GoogleFonts.inter(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
-                          ),
-                        ),
+                        Text(displayName, style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 16)),
                         const SizedBox(height: 2),
-                        Text(
-                          '@$displayUsername',
-                          style: GoogleFonts.inter(
-                            color: colors.primary,
-                            fontSize: 13,
-                          ),
-                        ),
+                        Text('@$displayUsername', style: GoogleFonts.inter(color: colors.primary, fontSize: 13)),
                         const SizedBox(height: 6),
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -395,9 +322,7 @@ class FriendRequestsPage extends HookConsumerWidget {
                     onPressed: () async {
                       final success = await ref.read(contactProvider.notifier).cancelFriendRequest(request.id);
                       if (success && context.mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Request cancelled')),
-                        );
+                        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Request cancelled')));
                       }
                     },
                     style: OutlinedButton.styleFrom(

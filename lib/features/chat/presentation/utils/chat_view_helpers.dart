@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:chattrix_ui/core/domain/enums/enums.dart';
 import 'package:chattrix_ui/features/call/domain/entities/call_type.dart';
 import 'package:chattrix_ui/features/call/presentation/state/call_notifier.dart';
 import 'package:chattrix_ui/features/chat/domain/entities/message.dart';
@@ -338,7 +337,7 @@ void handleAttachmentSelection(
       break;
     case AttachmentType.poll:
       showAttachmentPicker.value = false;
-      
+
       // ✅ Check if conversation is direct chat
       if (conversation?.type == 'DIRECT') {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -347,9 +346,7 @@ void handleAttachmentSelection(
               children: [
                 const Icon(Icons.info_outline, color: Colors.white),
                 const SizedBox(width: 12),
-                const Expanded(
-                  child: Text('Polls are only available in group conversations'),
-                ),
+                const Expanded(child: Text('Polls are only available in group conversations')),
               ],
             ),
             backgroundColor: Colors.orange.shade900,
@@ -358,12 +355,12 @@ void handleAttachmentSelection(
         );
         return;
       }
-      
+
       context.push('/chat/$chatId/create-poll');
       break;
     case AttachmentType.event:
       showAttachmentPicker.value = false;
-      
+
       // ✅ Check if conversation is direct chat
       if (conversation?.type == 'DIRECT') {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -372,9 +369,7 @@ void handleAttachmentSelection(
               children: [
                 const Icon(Icons.info_outline, color: Colors.white),
                 const SizedBox(width: 12),
-                const Expanded(
-                  child: Text('Events are only available in group conversations'),
-                ),
+                const Expanded(child: Text('Events are only available in group conversations')),
               ],
             ),
             backgroundColor: Colors.orange.shade900,
@@ -383,7 +378,7 @@ void handleAttachmentSelection(
         );
         return;
       }
-      
+
       context.push('/chat/$chatId/create-event');
       break;
     case AttachmentType.schedule:

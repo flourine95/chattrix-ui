@@ -1,14 +1,7 @@
 import 'dart:async';
 
-import 'package:flutter/foundation.dart';
-import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:chattrix_ui/core/network/dio_client.dart';
 import 'package:chattrix_ui/features/auth/presentation/providers/auth_providers.dart';
 import 'package:chattrix_ui/features/chat/data/datasources/chat_websocket_datasource_impl.dart';
-import 'package:chattrix_ui/features/chat/presentation/providers/chat_websocket_provider_new.dart';
-import 'package:chattrix_ui/features/chat/presentation/providers/conversation_members_provider.dart';
-import 'package:chattrix_ui/features/poll/data/datasources/poll_api_service.dart';
-import 'package:chattrix_ui/features/poll/data/models/poll_list_item_dto.dart';
 import 'package:chattrix_ui/features/chat/data/datasources/poll_datasource_impl.dart';
 import 'package:chattrix_ui/features/chat/data/models/poll_model.dart';
 import 'package:chattrix_ui/features/chat/data/repositories/poll_repository_impl.dart';
@@ -16,11 +9,17 @@ import 'package:chattrix_ui/features/chat/domain/datasources/poll_datasource.dar
 import 'package:chattrix_ui/features/chat/domain/entities/poll.dart';
 import 'package:chattrix_ui/features/chat/domain/repositories/poll_repository.dart';
 import 'package:chattrix_ui/features/chat/domain/usecases/poll/close_poll_usecase.dart';
+import 'package:chattrix_ui/features/chat/presentation/providers/chat_websocket_provider_new.dart';
+import 'package:chattrix_ui/features/chat/presentation/providers/conversation_members_provider.dart';
+import 'package:chattrix_ui/features/poll/data/datasources/poll_api_service.dart';
+import 'package:chattrix_ui/features/poll/data/models/poll_list_item_dto.dart';
+import 'package:flutter/foundation.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-import '../../domain/usecases/poll/create_poll_usecase.dart';
-import '../../domain/usecases/poll/delete_poll_usecase.dart';
-import '../../domain/usecases/poll/get_all_polls_usecase.dart';
-import '../../domain/usecases/poll/vote_poll_usecase.dart';
+import 'package:chattrix_ui/features/chat/domain/usecases/poll/create_poll_usecase.dart';
+import 'package:chattrix_ui/features/chat/domain/usecases/poll/delete_poll_usecase.dart';
+import 'package:chattrix_ui/features/chat/domain/usecases/poll/get_all_polls_usecase.dart';
+import 'package:chattrix_ui/features/chat/domain/usecases/poll/vote_poll_usecase.dart';
 
 part 'poll_providers.g.dart';
 
@@ -113,9 +112,9 @@ class PollsList extends _$PollsList {
       } catch (e) {
         debugPrint('⚠️ Failed to load members cache: $e');
       }
-      
+
       final membersMap = {for (var m in members) m.id: m};
-      
+
       debugPrint('👥 Members cache: ${membersMap.length} members');
       debugPrint('👥 Member IDs: ${membersMap.keys.toList()}');
 
@@ -123,27 +122,24 @@ class PollsList extends _$PollsList {
       final polls = items.map((item) {
         final itemMap = item as Map<String, dynamic>;
         var dto = PollListItemDto.fromJson(itemMap);
-        
+
         debugPrint('🗳️ Poll creator ID: ${dto.createdBy}, username: ${dto.createdByUsername}');
         debugPrint('🗳️ Before enrich - fullName: ${dto.createdByFullName}, avatarUrl: ${dto.createdByAvatarUrl}');
-        
+
         // Enrich with member info from cache if available
         final creatorId = dto.createdBy;
         final member = membersMap[creatorId];
         if (member != null) {
           debugPrint('✅ Found member in cache: ${member.fullName}, avatar: ${member.avatarUrl}');
-          dto = dto.copyWith(
-            createdByFullName: member.fullName,
-            createdByAvatarUrl: member.avatarUrl,
-          );
+          dto = dto.copyWith(createdByFullName: member.fullName, createdByAvatarUrl: member.avatarUrl);
           debugPrint('✅ After enrich - fullName: ${dto.createdByFullName}, avatarUrl: ${dto.createdByAvatarUrl}');
         } else {
           debugPrint('⚠️ Creator $creatorId not found in members cache');
         }
-        
+
         final pollModel = dto.toPollModel(conversationId);
         debugPrint('🗳️ PollModel creator: ${pollModel.creator.fullName}, avatar: ${pollModel.creator.avatarUrl}');
-        
+
         return pollModel.toEntity();
       }).toList();
 

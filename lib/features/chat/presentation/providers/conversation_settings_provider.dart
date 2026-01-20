@@ -1,12 +1,10 @@
-import 'package:chattrix_ui/core/network/dio_client.dart';
+import 'package:chattrix_ui/core/constants/api_constants.dart';
 import 'package:chattrix_ui/features/auth/presentation/providers/auth_providers.dart';
-import 'package:chattrix_ui/features/chat/data/repositories/conversation_settings_repository_impl.dart';
 import 'package:chattrix_ui/features/chat/data/datasources/conversation_settings_datasource_impl.dart';
+import 'package:chattrix_ui/features/chat/data/repositories/conversation_settings_repository_impl.dart';
 import 'package:chattrix_ui/features/chat/domain/entities/conversation_settings.dart';
 import 'package:chattrix_ui/features/chat/domain/repositories/conversation_settings_repository.dart';
 import 'package:chattrix_ui/features/chat/presentation/state/conversations_notifier.dart';
-import 'package:chattrix_ui/core/constants/api_constants.dart';
-import 'package:dio/dio.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'conversation_settings_provider.g.dart';
@@ -29,11 +27,8 @@ class ConversationSettingsNotifier extends _$ConversationSettingsNotifier {
   Future<ConversationSettings?> build(int conversationId) async {
     final repository = ref.read(conversationSettingsRepositoryProvider);
     final result = await repository.getSettings(conversationId: conversationId);
-    
-    return result.fold(
-      (failure) => null,
-      (settings) => settings,
-    );
+
+    return result.fold((failure) => null, (settings) => settings);
   }
 
   Future<void> togglePin() async {
@@ -48,13 +43,10 @@ class ConversationSettingsNotifier extends _$ConversationSettingsNotifier {
           ? await repository.unpinConversation(conversationId: conversationId)
           : await repository.pinConversation(conversationId: conversationId);
 
-      result.fold(
-        (failure) => state = AsyncValue.error(failure, StackTrace.current),
-        (settings) {
-          state = AsyncValue.data(settings);
-          ref.invalidate(conversationsProvider);
-        },
-      );
+      result.fold((failure) => state = AsyncValue.error(failure, StackTrace.current), (settings) {
+        state = AsyncValue.data(settings);
+        ref.invalidate(conversationsProvider);
+      });
     } catch (e, st) {
       state = AsyncValue.error(e, st);
       rethrow;
@@ -73,13 +65,10 @@ class ConversationSettingsNotifier extends _$ConversationSettingsNotifier {
           ? await repository.unhideConversation(conversationId: conversationId)
           : await repository.hideConversation(conversationId: conversationId);
 
-      result.fold(
-        (failure) => state = AsyncValue.error(failure, StackTrace.current),
-        (settings) {
-          state = AsyncValue.data(settings);
-          ref.invalidate(conversationsProvider);
-        },
-      );
+      result.fold((failure) => state = AsyncValue.error(failure, StackTrace.current), (settings) {
+        state = AsyncValue.data(settings);
+        ref.invalidate(conversationsProvider);
+      });
     } catch (e, st) {
       state = AsyncValue.error(e, st);
       rethrow;
@@ -133,10 +122,7 @@ class ConversationSettingsNotifier extends _$ConversationSettingsNotifier {
 
     try {
       final repository = ref.read(conversationSettingsRepositoryProvider);
-      final result = await repository.updateSettings(
-        conversationId: conversationId,
-        customNickname: nickname,
-      );
+      final result = await repository.updateSettings(conversationId: conversationId, customNickname: nickname);
 
       result.fold(
         (failure) => state = AsyncValue.error(failure, StackTrace.current),
@@ -160,10 +146,7 @@ class ConversationSettingsNotifier extends _$ConversationSettingsNotifier {
   Future<void> updateDescription(String description) async {
     try {
       final dio = ref.read(dioProvider);
-      await dio.put(
-        ApiConstants.conversationById(conversationId),
-        data: {'description': description},
-      );
+      await dio.put(ApiConstants.conversationById(conversationId), data: {'description': description});
     } catch (e) {
       rethrow;
     }
@@ -172,10 +155,7 @@ class ConversationSettingsNotifier extends _$ConversationSettingsNotifier {
   Future<void> updateGroupName(String name) async {
     try {
       final dio = ref.read(dioProvider);
-      await dio.put(
-        ApiConstants.conversationById(conversationId),
-        data: {'name': name},
-      );
+      await dio.put(ApiConstants.conversationById(conversationId), data: {'name': name});
     } catch (e) {
       rethrow;
     }
