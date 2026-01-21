@@ -15,7 +15,7 @@ import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-import '../widgets/call_controls_panel.dart';
+import 'package:chattrix_ui/features/call/presentation/widgets/call_controls_panel.dart';
 
 class CallPage extends ConsumerWidget {
   const CallPage({super.key});

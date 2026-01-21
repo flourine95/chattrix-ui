@@ -1,7 +1,6 @@
+import 'package:chattrix_ui/core/constants/api_constants.dart';
+import 'package:chattrix_ui/features/birthday/data/models/birthday_user_dto.dart';
 import 'package:dio/dio.dart';
-
-
-import '../models/birthday_user_dto.dart';
 
 class BirthdayApiService {
   final Dio _dio;
@@ -9,9 +8,8 @@ class BirthdayApiService {
   BirthdayApiService(this._dio);
 
   Future<List<BirthdayUserDto>> getTodayBirthdays() async {
-
     try {
-      final response = await _dio.get('/v1/birthdays/today');
+      final response = await _dio.get(ApiConstants.birthdaysToday);
 
       if (response.data is Map<String, dynamic>) {
         final data = response.data['data'];
@@ -30,7 +28,7 @@ class BirthdayApiService {
 
   Future<List<BirthdayUserDto>> getUpcomingBirthdays({int days = 7}) async {
     try {
-      final response = await _dio.get('/v1/birthdays/upcoming', queryParameters: {'days': days});
+      final response = await _dio.get(ApiConstants.birthdaysUpcoming, queryParameters: {'days': days});
 
       if (response.data is Map<String, dynamic>) {
         final data = response.data['data'];
@@ -60,7 +58,7 @@ class BirthdayApiService {
 
     try {
       await _dio.post(
-        '/v1/birthdays/send-wishes',
+        ApiConstants.sendBirthdayWishes,
         data: requestData,
         options: Options(
           responseType: ResponseType.plain,

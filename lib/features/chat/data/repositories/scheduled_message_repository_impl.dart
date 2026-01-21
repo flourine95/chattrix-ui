@@ -1,11 +1,11 @@
 import 'package:flutter/foundation.dart';
 import 'package:fpdart/fpdart.dart';
-import '../../../../core/errors/failures.dart';
-import '../../../../core/repositories/base_repository.dart';
-import '../../domain/datasources/scheduled_message_datasource.dart';
-import '../../domain/entities/scheduled_message.dart';
-import '../../domain/repositories/scheduled_message_repository.dart';
-import '../models/scheduled_msg_model.dart';
+import 'package:chattrix_ui/core/errors/failures.dart';
+import 'package:chattrix_ui/core/repositories/base_repository.dart';
+import 'package:chattrix_ui/features/chat/domain/datasources/scheduled_message_datasource.dart';
+import 'package:chattrix_ui/features/chat/domain/entities/scheduled_message.dart';
+import 'package:chattrix_ui/features/chat/domain/repositories/scheduled_message_repository.dart';
+import 'package:chattrix_ui/features/chat/data/models/scheduled_msg_model.dart';
 
 /// Implementation of ScheduledMessageRepository
 class ScheduledMessageRepositoryImpl extends BaseRepository implements ScheduledMessageRepository {

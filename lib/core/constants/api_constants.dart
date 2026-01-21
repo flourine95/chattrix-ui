@@ -248,6 +248,8 @@ class ApiConstants {
   // Birthday endpoints
   static String get birthdaysToday => '$_baseUrl/$_v1/birthdays/today';
 
+  static String get birthdaysUpcoming => '$_baseUrl/$_v1/birthdays/upcoming';
+
   static String get sendBirthdayWishes => '$_baseUrl/$_v1/birthdays/send-wishes';
 
   // Announcement endpoints

@@ -1,7 +1,7 @@
 import 'package:fpdart/fpdart.dart';
 import 'package:chattrix_ui/core/errors/failures.dart';
-import '../../entities/poll.dart';
-import '../../repositories/poll_repository.dart';
+import 'package:chattrix_ui/features/chat/domain/entities/poll.dart';
+import 'package:chattrix_ui/features/chat/domain/repositories/poll_repository.dart';
 
 /// Use case for getting all polls in a conversation
 class GetAllPollsUseCase {

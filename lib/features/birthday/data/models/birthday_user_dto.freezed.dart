@@ -214,8 +214,8 @@ return $default(_that.userId,_that.username,_that.fullName,_that.avatarUrl,_that
 /// @nodoc
 @JsonSerializable()
 
-class _BirthdayUserDto implements BirthdayUserDto {
-  const _BirthdayUserDto({required this.userId, required this.username, required this.fullName, this.avatarUrl, this.dateOfBirth, this.age, required this.birthdayMessage});
+class _BirthdayUserDto extends BirthdayUserDto {
+  const _BirthdayUserDto({required this.userId, required this.username, required this.fullName, this.avatarUrl, this.dateOfBirth, this.age, required this.birthdayMessage}): super._();
   factory _BirthdayUserDto.fromJson(Map<String, dynamic> json) => _$BirthdayUserDtoFromJson(json);
 
 @override final  int userId;

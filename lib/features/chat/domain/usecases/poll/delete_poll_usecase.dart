@@ -1,6 +1,6 @@
 import 'package:fpdart/fpdart.dart';
 import 'package:chattrix_ui/core/errors/failures.dart';
-import '../../repositories/poll_repository.dart';
+import 'package:chattrix_ui/features/chat/domain/repositories/poll_repository.dart';
 
 /// Use case for deleting a poll
 class DeletePollUseCase {

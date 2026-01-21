@@ -2,7 +2,6 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'birthday_user_entity.freezed.dart';
 
-/// Domain entity for birthday user
 @freezed
 abstract class BirthdayUserEntity with _$BirthdayUserEntity {
   const factory BirthdayUserEntity({
@@ -17,5 +16,10 @@ abstract class BirthdayUserEntity with _$BirthdayUserEntity {
 }
 
 extension BirthdayUserEntityX on BirthdayUserEntity {
-  bool get isBirthdayToday => birthdayMessage == 'Hôm nay';
+  /// Check if birthday is today
+  /// Supports both English "Today" and Vietnamese "Hôm nay"
+  bool get isBirthdayToday {
+    final message = birthdayMessage.toLowerCase().trim();
+    return message == 'today' || message == 'hôm nay';
+  }
 }

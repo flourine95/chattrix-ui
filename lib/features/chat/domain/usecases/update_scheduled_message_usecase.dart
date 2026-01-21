@@ -1,7 +1,7 @@
 import 'package:fpdart/fpdart.dart';
-import '../../../../core/errors/failures.dart';
-import '../entities/scheduled_message.dart';
-import '../repositories/scheduled_message_repository.dart';
+import 'package:chattrix_ui/core/errors/failures.dart';
+import 'package:chattrix_ui/features/chat/domain/entities/scheduled_message.dart';
+import 'package:chattrix_ui/features/chat/domain/repositories/scheduled_message_repository.dart';
 
 /// UseCase for updating a scheduled message
 class UpdateScheduledMessageUseCase {

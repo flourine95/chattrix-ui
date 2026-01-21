@@ -1,5 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-import '../../domain/entities/scheduled_message.dart';
+import 'package:chattrix_ui/features/chat/domain/entities/scheduled_message.dart';
 
 part 'scheduled_msg_model.freezed.dart';
 part 'scheduled_msg_model.g.dart';

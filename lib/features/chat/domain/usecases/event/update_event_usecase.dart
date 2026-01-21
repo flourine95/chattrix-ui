@@ -1,7 +1,7 @@
 import 'package:fpdart/fpdart.dart';
 import 'package:chattrix_ui/core/errors/failures.dart';
-import '../../entities/event.dart';
-import '../../repositories/event_repository.dart';
+import 'package:chattrix_ui/features/chat/domain/entities/event.dart';
+import 'package:chattrix_ui/features/chat/domain/repositories/event_repository.dart';
 
 /// Use case for updating an event
 class UpdateEventUseCase {

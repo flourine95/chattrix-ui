@@ -1,5 +1,5 @@
-import '../../../../core/network/api_response.dart';
-import '../../data/models/scheduled_msg_model.dart';
+import 'package:chattrix_ui/core/network/api_response.dart';
+import 'package:chattrix_ui/features/chat/data/models/scheduled_msg_model.dart';
 
 abstract class ScheduledMessageDatasource {
   Future<ApiResponse<ScheduledMessageModel>> scheduleMessage({

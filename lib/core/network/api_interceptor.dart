@@ -1,6 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
-import '../errors/exceptions.dart';
+import 'package:chattrix_ui/core/errors/exceptions.dart';
 
 class ApiInterceptor extends Interceptor {
   @override

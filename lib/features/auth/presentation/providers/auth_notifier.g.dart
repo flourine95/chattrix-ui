@@ -45,7 +45,7 @@ final class AuthNotifierProvider
   }
 }
 
-String _$authNotifierHash() => r'7a05a6ec1df0a8735d64132e5fe4da1e54b9836a';
+String _$authNotifierHash() => r'52e6dc7152a317532cc2d7cd9de4b181d8a0bf06';
 
 abstract class _$AuthNotifier extends $Notifier<AuthState> {
   AuthState build();
@@ -108,7 +108,7 @@ final class CurrentUserProvider extends $FunctionalProvider<User?, User?, User?>
   }
 }
 
-String _$currentUserHash() => r'0d14b5b0390f763424a979b41945e142d8cbf338';
+String _$currentUserHash() => r'136a4c18c102e18ca31daa576123c775047eded3';
 
 @ProviderFor(isLoading)
 final isLoadingProvider = IsLoadingProvider._();
@@ -148,7 +148,7 @@ final class IsLoadingProvider extends $FunctionalProvider<bool, bool, bool>
   }
 }
 
-String _$isLoadingHash() => r'd33e548e8a3411258ff74ba91f04b6f07d9a7b3f';
+String _$isLoadingHash() => r'18dfecc563bd84b7167b5f0a94fc7cf52902eab3';
 
 @ProviderFor(authError)
 final authErrorProvider = AuthErrorProvider._();
@@ -189,4 +189,4 @@ final class AuthErrorProvider
   }
 }
 
-String _$authErrorHash() => r'4da8ca65b98e586f819b3e9ff8aacb6b14565222';
+String _$authErrorHash() => r'1fc30c12ed46c02187726fcb46972b8a6b950489';

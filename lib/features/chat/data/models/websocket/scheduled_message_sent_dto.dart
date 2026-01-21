@@ -1,5 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-import '../outgoing_message_dto.dart';
+import 'package:chattrix_ui/features/chat/data/models/outgoing_message_dto.dart';
 
 part 'scheduled_message_sent_dto.freezed.dart';
 part 'scheduled_message_sent_dto.g.dart';

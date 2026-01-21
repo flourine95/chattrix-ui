@@ -1,10 +1,9 @@
+import 'package:chattrix_ui/core/errors/failures.dart';
+import 'package:chattrix_ui/core/repositories/base_repository.dart';
+import 'package:chattrix_ui/features/birthday/data/datasources/birthday_api_service.dart';
+import 'package:chattrix_ui/features/birthday/domain/entities/birthday_user_entity.dart';
+import 'package:chattrix_ui/features/birthday/domain/repositories/birthday_repository.dart';
 import 'package:fpdart/fpdart.dart';
-import '../../../../core/errors/failures.dart';
-import '../../../../core/repositories/base_repository.dart';
-import '../../domain/entities/birthday_user_entity.dart';
-import '../../domain/repositories/birthday_repository.dart';
-import '../datasources/birthday_api_service.dart';
-import '../mappers/birthday_user_mapper.dart';
 
 class BirthdayRepositoryImpl extends BaseRepository implements BirthdayRepository {
   final BirthdayApiService _apiService;
