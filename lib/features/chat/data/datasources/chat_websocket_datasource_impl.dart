@@ -25,6 +25,7 @@ class ChatWebSocketDataSourceImpl implements ChatWebSocketDataSource {
   final _messageIdUpdateController = StreamController<Map<String, dynamic>>.broadcast();
   final _typingController = StreamController<TypingIndicator>.broadcast();
   final _userStatusController = StreamController<UserStatusUpdate>.broadcast();
+  final _conversationCreatedController = StreamController<Map<String, dynamic>>.broadcast();
   final _conversationUpdateController = StreamController<ConversationUpdate>.broadcast();
   final _scheduledMessageSentController = StreamController<ScheduledMessageSentDto>.broadcast();
   final _scheduledMessageFailedController = StreamController<ScheduledMessageFailedDto>.broadcast();
@@ -42,6 +43,7 @@ class ChatWebSocketDataSourceImpl implements ChatWebSocketDataSource {
       WebSocketEvents.messageIdUpdate,
       WebSocketEvents.typingIndicator,
       WebSocketEvents.userStatus,
+      WebSocketEvents.conversationCreated,
       WebSocketEvents.conversationUpdate,
       WebSocketEvents.scheduledMessageSent,
       WebSocketEvents.scheduledMessageFailed,
@@ -126,6 +128,11 @@ class ChatWebSocketDataSourceImpl implements ChatWebSocketDataSource {
           }
 
           _userStatusController.add(statusEntity);
+          break;
+
+        case WebSocketEvents.conversationCreated:
+          debugPrint('🆕 [WS] New conversation created');
+          _conversationCreatedController.add(payload as Map<String, dynamic>);
           break;
 
         case WebSocketEvents.conversationUpdate:
@@ -219,6 +226,8 @@ class ChatWebSocketDataSourceImpl implements ChatWebSocketDataSource {
   @override
   Stream<ConversationUpdate> get conversationUpdateStream => _conversationUpdateController.stream;
 
+  Stream<Map<String, dynamic>> get conversationCreatedStream => _conversationCreatedController.stream;
+
   @override
   Stream<ScheduledMessageSentDto> get scheduledMessageSentStream => _scheduledMessageSentController.stream;
 
@@ -253,6 +262,7 @@ class ChatWebSocketDataSourceImpl implements ChatWebSocketDataSource {
     _messageIdUpdateController.close();
     _typingController.close();
     _userStatusController.close();
+    _conversationCreatedController.close();
     _conversationUpdateController.close();
     _scheduledMessageSentController.close();
     _scheduledMessageFailedController.close();

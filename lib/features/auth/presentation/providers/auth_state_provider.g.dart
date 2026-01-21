@@ -12,17 +12,11 @@ part of 'auth_state_provider.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
-/// Main auth state notifier using AsyncNotifier
-/// Manages authentication state with automatic loading/error handling
 
 @ProviderFor(Auth)
 final authProvider = AuthProvider._();
 
-/// Main auth state notifier using AsyncNotifier
-/// Manages authentication state with automatic loading/error handling
 final class AuthProvider extends $AsyncNotifierProvider<Auth, AuthState> {
-  /// Main auth state notifier using AsyncNotifier
-  /// Manages authentication state with automatic loading/error handling
   AuthProvider._()
     : super(
         from: null,
@@ -43,9 +37,6 @@ final class AuthProvider extends $AsyncNotifierProvider<Auth, AuthState> {
 }
 
 String _$authHash() => r'ce2f091fef454d36171d0f19fc80f9ef3d001642';
-
-/// Main auth state notifier using AsyncNotifier
-/// Manages authentication state with automatic loading/error handling
 
 abstract class _$Auth extends $AsyncNotifier<AuthState> {
   FutureOr<AuthState> build();

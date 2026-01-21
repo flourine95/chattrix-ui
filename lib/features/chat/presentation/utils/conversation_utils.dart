@@ -4,7 +4,6 @@ import 'package:chattrix_ui/features/auth/domain/entities/user.dart';
 import 'package:chattrix_ui/features/chat/domain/entities/conversation.dart';
 import 'package:chattrix_ui/features/chat/domain/entities/message.dart';
 import 'package:chattrix_ui/features/chat/domain/entities/participant.dart';
-import 'package:flutter/foundation.dart';
 
 /// Utility functions for conversation display logic
 class ConversationUtils {
@@ -232,7 +231,7 @@ class ConversationUtils {
     if (otherParticipant == null) {
       return false;
     }
-    
+
     return otherParticipant.isOnlineWithFallback;
   }
 
@@ -254,12 +253,15 @@ class ConversationUtils {
     return User(
       id: otherParticipant.userId,
       username: otherParticipant.username,
-      email: otherParticipant.email ?? '', // Use participant email if available
+      email: otherParticipant.email ?? '',
+      // Use participant email if available
       fullName: otherParticipant.fullName,
-      avatarUrl: otherParticipant.avatarUrl, // Now available in Participant
+      avatarUrl: otherParticipant.avatarUrl,
+      // Now available in Participant
       // ❌ REMOVED: online field (now tracked in OnlineStatusCache)
       lastSeen: otherParticipant.lastSeen,
-      emailVerified: false, // Not available in Participant
+      emailVerified: false,
+      // Not available in Participant
       createdAt: DateTime.now(), // Not available in Participant
     );
   }

@@ -7,6 +7,7 @@ class WebSocketEvents {
   static const String messageReaction = 'message.reaction';
 
   // Conversation Events
+  static const String conversationCreated = 'conversation.created';
   static const String conversationUpdate = 'conversation.update';
   static const String typingIndicator = 'typing.indicator';
   static const String typingStart = 'typing.start';

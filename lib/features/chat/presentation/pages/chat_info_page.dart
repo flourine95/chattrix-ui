@@ -1,6 +1,5 @@
 import 'package:chattrix_ui/core/constants/api_constants.dart';
 import 'package:chattrix_ui/core/domain/enums/enums.dart';
-import 'package:chattrix_ui/core/widgets/group_avatar.dart';
 import 'package:chattrix_ui/core/widgets/user_avatar.dart';
 import 'package:chattrix_ui/core/widgets/bottom_sheets.dart';
 import 'package:chattrix_ui/features/auth/presentation/providers/auth_providers.dart';
@@ -455,7 +454,11 @@ class ChatInfoPage extends HookConsumerWidget {
       children: [
         // Avatar
         isGroup
-            ? GroupAvatar(participants: conversation.participants, radius: 60)
+            ? UserAvatar(
+                displayName: displayName,
+                avatarUrl: conversation.avatarUrl,
+                radius: 60,
+              )
             : UserAvatar(
                 displayName: displayName,
                 avatarUrl: conversation.participants.firstOrNull?.avatarUrl,

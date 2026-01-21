@@ -434,7 +434,7 @@ class _ContactListItem extends ConsumerWidget {
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    contact.nickname != null ? contact.fullName : '@${contact.username ?? ''}',
+                    contact.nickname != null ? contact.fullName : '@${contact.username}',
                     style: TextStyle(
                       fontSize: 13,
                       color: isDark ? Colors.grey[400] : Colors.grey[600],
@@ -983,8 +983,8 @@ Future<int?> _getOrCreateConversation(WidgetRef ref, int userId) async {
       },
       (conversation) {
         debugPrint('✅ Created new conversation: ${conversation.id}');
-        // Refresh conversations list
-        ref.invalidate(conversationsProvider);
+        // Optimistically add conversation to list immediately
+        ref.read(conversationsProvider.notifier).addConversation(conversation);
         return conversation.id;
       },
     );

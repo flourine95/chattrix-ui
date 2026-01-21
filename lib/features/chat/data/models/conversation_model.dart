@@ -3,7 +3,6 @@ import 'package:chattrix_ui/features/chat/data/models/conversation_settings_mode
 import 'package:chattrix_ui/features/chat/data/models/message_model.dart';
 import 'package:chattrix_ui/features/chat/data/models/participant_model.dart';
 import 'package:chattrix_ui/features/chat/domain/entities/conversation.dart';
-import 'package:flutter/material.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'conversation_model.freezed.dart';

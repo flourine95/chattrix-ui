@@ -86,8 +86,8 @@ class NewChatPage extends HookConsumerWidget {
       },
       (conversation) {
         // Handle conversation creation success
-        // Refresh conversations list to show the new conversation
-        ref.invalidate(conversationsProvider);
+        // Optimistically add conversation to list immediately
+        ref.read(conversationsProvider.notifier).addConversation(conversation);
 
         // Navigate to chat view
         if (context.mounted) {

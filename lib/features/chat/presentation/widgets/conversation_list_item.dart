@@ -1,12 +1,11 @@
-import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart';
-import 'package:chattrix_ui/core/widgets/user_avatar.dart';
 import 'package:chattrix_ui/core/domain/enums/enums.dart';
+import 'package:chattrix_ui/core/widgets/user_avatar.dart';
 import 'package:chattrix_ui/features/auth/domain/entities/user.dart';
 import 'package:chattrix_ui/features/chat/domain/entities/conversation.dart';
 import 'package:chattrix_ui/features/chat/domain/entities/message.dart';
 import 'package:chattrix_ui/features/chat/presentation/utils/conversation_utils.dart';
 import 'package:chattrix_ui/features/chat/presentation/widgets/seen_status_widget.dart';
+import 'package:flutter/material.dart';
 
 /// Widget to display a conversation item in the list
 ///
@@ -79,10 +78,18 @@ class ConversationListItem extends StatelessWidget {
         highlightColor: theme.colorScheme.primary.withValues(alpha: 0.05),
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          // Subtle background highlight for marked unread
-          decoration: hasUnreadIndicator && isMarkedUnread
-              ? BoxDecoration(color: isDark ? Colors.blue.withValues(alpha: 0.05) : Colors.blue.withValues(alpha: 0.03))
-              : null,
+          // Subtle background highlight for marked unread + bottom divider
+          decoration: BoxDecoration(
+            color: hasUnreadIndicator && isMarkedUnread
+                ? (isDark ? Colors.blue.withValues(alpha: 0.05) : Colors.blue.withValues(alpha: 0.03))
+                : null,
+            border: Border(
+              bottom: BorderSide(
+                color: isDark ? Colors.grey.withValues(alpha: 0.2) : Colors.grey.withValues(alpha: 0.1),
+                width: 0.5,
+              ),
+            ),
+          ),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
@@ -214,9 +221,11 @@ class ConversationListItem extends StatelessWidget {
     );
   }
 
-  /// Build avatar with badge (online indicator or last seen time)
+  /// Build avatar with badge (online indicator, last seen time, or group badge)
   Widget _buildAvatarWithBadge(String title, bool isOnline, ThemeData theme) {
-    // Get last seen badge text for offline users
+    final isDark = theme.brightness == Brightness.dark;
+
+    // Get last seen badge text for offline users in DIRECT conversations
     final lastSeenBadge = conversation.type == ConversationType.direct && !isOnline
         ? ConversationUtils.formatLastSeenBadge(false, ConversationUtils.getLastSeen(conversation, currentUser))
         : null;
@@ -263,6 +272,23 @@ class ConversationListItem extends StatelessWidget {
                   height: 1.2,
                 ),
               ),
+            ),
+          ),
+
+        // Group badge - only for GROUP conversations
+        if (conversation.type == ConversationType.group)
+          Positioned(
+            bottom: 0,
+            right: 0,
+            child: Container(
+              width: 16,
+              height: 16,
+              decoration: BoxDecoration(
+                color: isDark ? Colors.grey[700] : Colors.grey[400],
+                shape: BoxShape.circle,
+                border: Border.all(color: theme.scaffoldBackgroundColor, width: 2),
+              ),
+              child: Icon(Icons.group, size: 10, color: isDark ? Colors.grey[300] : Colors.white),
             ),
           ),
       ],

@@ -2,12 +2,14 @@ import 'dart:async';
 
 import 'package:chattrix_ui/core/constants/app_constants.dart';
 import 'package:chattrix_ui/core/domain/enums/conversation_filter.dart';
+import 'package:chattrix_ui/core/domain/enums/conversation_type.dart';
 import 'package:chattrix_ui/core/errors/failures.dart';
 import 'package:chattrix_ui/core/utils/retry_helper.dart';
 import 'package:chattrix_ui/features/auth/presentation/providers/auth_providers.dart';
 import 'package:chattrix_ui/features/chat/domain/entities/conversation.dart';
 import 'package:chattrix_ui/features/chat/domain/entities/conversation_update.dart';
 import 'package:chattrix_ui/features/chat/domain/entities/message.dart';
+import 'package:chattrix_ui/features/chat/domain/entities/participant.dart';
 import 'package:chattrix_ui/features/chat/domain/entities/typing_indicator.dart';
 import 'package:chattrix_ui/features/chat/domain/entities/user_status_update.dart';
 import 'package:chattrix_ui/features/chat/presentation/providers/chat_usecase_provider.dart';
@@ -18,13 +20,14 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'conversations_notifier.g.dart';
 
-@riverpod
+@Riverpod(keepAlive: true)
 class ConversationsNotifier extends _$ConversationsNotifier {
   late final _getConversationsUsecase = ref.read(getConversationsUsecaseProvider);
   Timer? _pollingTimer;
   Timer? _uiRefreshTimer;
   StreamSubscription<bool>? _connectionSubscription;
   StreamSubscription<Message>? _messageSubscription;
+  StreamSubscription<Map<String, dynamic>>? _conversationCreatedSubscription;
   StreamSubscription<ConversationUpdate>? _conversationUpdateSubscription;
   StreamSubscription<UserStatusUpdate>? _userStatusSubscription;
   StreamSubscription<TypingIndicator>? _typingSubscription;
@@ -38,6 +41,7 @@ class ConversationsNotifier extends _$ConversationsNotifier {
     if (!isLoggedIn) {
       return [];
     }
+    
     ref.keepAlive();
 
     final wsDataSource = ref.watch(chatWebSocketDataSourceProvider);
@@ -45,6 +49,11 @@ class ConversationsNotifier extends _$ConversationsNotifier {
     // Listen to WebSocket message events
     _messageSubscription = wsDataSource.messageStream.listen((message) {
       _handleMessageEvent(message);
+    });
+
+    // Listen to WebSocket conversation created events
+    _conversationCreatedSubscription = wsDataSource.conversationCreatedStream.listen((data) {
+      _handleConversationCreatedEvent(data);
     });
 
     // Listen to WebSocket conversation updates
@@ -89,6 +98,7 @@ class ConversationsNotifier extends _$ConversationsNotifier {
 
     ref.onDispose(() {
       _messageSubscription?.cancel();
+      _conversationCreatedSubscription?.cancel();
       _conversationUpdateSubscription?.cancel();
       _userStatusSubscription?.cancel();
       _typingSubscription?.cancel();
@@ -323,8 +333,139 @@ class ConversationsNotifier extends _$ConversationsNotifier {
       return;
     }
 
-    // For now, just refresh the entire list to get updated data
-    refresh();
+    final conversation = currentState[conversationIndex];
+
+    // Update conversation with new lastMessage if provided
+    if (update.lastMessage != null) {
+      final lastMessageInfo = update.lastMessage!;
+      final updatedMessage = Message(
+        id: lastMessageInfo.id,
+        conversationId: update.conversationId,
+        senderId: lastMessageInfo.senderId,
+        senderUsername: lastMessageInfo.senderUsername,
+        content: lastMessageInfo.content,
+        type: lastMessageInfo.type,
+        createdAt: DateTime.parse(lastMessageInfo.sentAt),
+        sentAt: DateTime.parse(lastMessageInfo.sentAt),
+      );
+
+      final updatedConversation = conversation.copyWith(
+        lastMessage: updatedMessage,
+        updatedAt: DateTime.parse(update.updatedAt),
+      );
+
+      // Update list with new conversation
+      final updatedList = currentState.map((c) {
+        if (c.id == update.conversationId) {
+          return updatedConversation;
+        }
+        return c;
+      }).toList();
+
+      // Apply sorting (move to top if has new message)
+      final filtered = _filterAndSortConversations(updatedList);
+      state = AsyncValue.data(filtered);
+    } else {
+      // No lastMessage info, refresh to get full data
+      refresh();
+    }
+  }
+
+  /// Handle conversation created events from WebSocket
+  void _handleConversationCreatedEvent(Map<String, dynamic> data) {
+    try {
+      final conversationData = data['conversation'] as Map<String, dynamic>?;
+      if (conversationData == null) {
+        return;
+      }
+
+      // Parse conversation manually to avoid importing data layer models
+      final conversation = _parseConversationFromWebSocket(conversationData);
+      
+      if (conversation != null) {
+        addConversation(conversation);
+      } else {
+        refresh();
+      }
+    } catch (e) {
+      // Fallback: refresh entire list
+      refresh();
+    }
+  }
+
+  /// Parse conversation from WebSocket data without importing data layer
+  Conversation? _parseConversationFromWebSocket(Map<String, dynamic> json) {
+    try {
+      // Parse basic fields
+      final id = json['id'] as int?;
+      if (id == null) return null;
+
+      final typeStr = (json['type'] as String?)?.toUpperCase();
+      final type = typeStr == 'DIRECT' ? ConversationType.direct : ConversationType.group;
+
+      // Parse participants
+      final participantsJson = json['participants'] as List?;
+      final participants = <Participant>[];
+      
+      if (participantsJson != null) {
+        for (final p in participantsJson) {
+          if (p is Map<String, dynamic>) {
+            final participant = Participant(
+              userId: p['userId'] as int? ?? p['id'] as int? ?? 0,
+              username: p['username'] as String? ?? '',
+              fullName: p['fullName'] as String? ?? '',
+              role: p['role'] as String? ?? 'MEMBER',
+              email: p['email'] as String?,
+              nickname: p['nickname'] as String?,
+              avatarUrl: p['avatarUrl'] as String?,
+              lastSeen: p['lastSeen'] != null ? DateTime.tryParse(p['lastSeen'] as String) : null,
+            );
+            participants.add(participant);
+          }
+        }
+      }
+
+      // Parse last message if exists
+      Message? lastMessage;
+      final lastMessageJson = json['lastMessage'];
+      if (lastMessageJson != null && lastMessageJson is Map<String, dynamic>) {
+        lastMessage = Message(
+          id: lastMessageJson['id'] as int? ?? 0,
+          conversationId: id,
+          senderId: lastMessageJson['senderId'] as int? ?? 0,
+          senderUsername: lastMessageJson['senderUsername'] as String?,
+          senderFullName: lastMessageJson['senderFullName'] as String?,
+          content: lastMessageJson['content'] as String? ?? '',
+          type: lastMessageJson['type'] as String? ?? 'TEXT',
+          createdAt: lastMessageJson['createdAt'] != null 
+              ? DateTime.parse(lastMessageJson['createdAt'] as String)
+              : DateTime.now(),
+          sentAt: lastMessageJson['sentAt'] != null
+              ? DateTime.parse(lastMessageJson['sentAt'] as String)
+              : null,
+        );
+      }
+
+      // Create conversation entity
+      return Conversation(
+        id: id,
+        name: json['name'] as String?,
+        type: type,
+        avatarUrl: json['avatarUrl'] as String?,
+        createdAt: json['createdAt'] != null 
+            ? DateTime.parse(json['createdAt'] as String)
+            : DateTime.now(),
+        updatedAt: json['updatedAt'] != null
+            ? DateTime.parse(json['updatedAt'] as String)
+            : DateTime.now(),
+        participants: participants,
+        lastMessage: lastMessage,
+        unreadCount: json['unreadCount'] as int? ?? 0,
+        settings: null, // Settings will be loaded on refresh
+      );
+    } catch (e) {
+      return null;
+    }
   }
 
   void _handleUserStatusEvent(UserStatusUpdate statusUpdate) {
@@ -427,5 +568,34 @@ class ConversationsNotifier extends _$ConversationsNotifier {
     }).toList();
 
     state = AsyncValue.data(updatedList);
+  }
+
+  /// Add a new conversation to the list (optimistic update)
+  void addConversation(Conversation conversation) {
+    final currentState = state.value;
+    if (currentState == null) {
+      state = AsyncValue.data([conversation]);
+      return;
+    }
+
+    // Check if conversation already exists
+    final exists = currentState.any((c) => c.id == conversation.id);
+    if (exists) {
+      // Update existing conversation
+      final updatedList = currentState.map((c) {
+        if (c.id == conversation.id) {
+          return conversation;
+        }
+        return c;
+      }).toList();
+      
+      final filtered = _filterAndSortConversations(updatedList);
+      state = AsyncValue.data(filtered);
+    } else {
+      // Add new conversation at the top
+      final updatedList = [conversation, ...currentState];
+      final filtered = _filterAndSortConversations(updatedList);
+      state = AsyncValue.data(filtered);
+    }
   }
 }

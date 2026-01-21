@@ -53,6 +53,7 @@ class _AllMembersPageState extends ConsumerState<AllMembersPage> {
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final me = ref.watch(currentUserProvider);
     final isAdmin =
         _currentConversation.participants
@@ -139,8 +140,13 @@ class _AllMembersPageState extends ConsumerState<AllMembersPage> {
 
           // Members list
           Expanded(
-            child: ListView.builder(
+            child: ListView.separated(
               itemCount: _filteredMembers.length,
+              separatorBuilder: (context, index) => Divider(
+                height: 1,
+                thickness: 0.5,
+                color: isDark ? Colors.grey.withValues(alpha: 0.2) : Colors.grey.withValues(alpha: 0.1),
+              ),
               itemBuilder: (context, index) {
                 final member = _filteredMembers[index];
                 final isMemberAdmin = member.role == 'ADMIN';

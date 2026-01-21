@@ -101,8 +101,8 @@ class NewGroupChatPage extends HookConsumerWidget {
       },
       (conversation) {
         // Handle group creation success
-        // Refresh conversations list to show the new group
-        ref.invalidate(conversationsProvider);
+        // Optimistically add conversation to list immediately
+        ref.read(conversationsProvider.notifier).addConversation(conversation);
 
         // Navigate to chat view
         if (context.mounted) {

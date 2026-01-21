@@ -257,15 +257,13 @@ class _ConversationList extends ConsumerWidget {
 
     return conversationsAsync.when(
       data: (conversations) {
-        // Filter out conversations without last message
-        final conversationsWithMessages = conversations.where((c) => c.lastMessage != null).toList();
-
-        if (conversationsWithMessages.isEmpty) {
+        if (conversations.isEmpty) {
           return const SliverFillRemaining(child: Center(child: Text('No conversations yet')));
         }
+        
         return SliverList(
           delegate: SliverChildBuilderDelegate((context, index) {
-            final conversation = conversationsWithMessages[index];
+            final conversation = conversations[index];
             final isMarkedUnread = markedUnreadSet.contains(conversation.id);
 
             return ConversationListItem(
@@ -283,7 +281,7 @@ class _ConversationList extends ConsumerWidget {
                 _showConversationOptions(context, ref, conversation, isMarkedUnread);
               },
             );
-          }, childCount: conversationsWithMessages.length),
+          }, childCount: conversations.length),
         );
       },
       loading: () => const SliverFillRemaining(child: Center(child: CircularProgressIndicator())),

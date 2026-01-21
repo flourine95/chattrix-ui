@@ -1,7 +1,7 @@
-import '../constants/app_constants.dart';
+import 'package:chattrix_ui/core/constants/app_constants.dart';
 
 /// Service to cache online status of users in memory
-/// 
+///
 /// Backend no longer provides `online` field in User entity.
 /// Instead, online status is tracked via WebSocket events:
 /// - `user.status` events for real-time updates
@@ -9,7 +9,9 @@ import '../constants/app_constants.dart';
 class OnlineStatusCache {
   // Singleton pattern
   static final OnlineStatusCache _instance = OnlineStatusCache._internal();
+
   factory OnlineStatusCache() => _instance;
+
   OnlineStatusCache._internal();
 
   /// Map of userId -> online status
@@ -19,7 +21,7 @@ class OnlineStatusCache {
   final Map<int, DateTime> _lastSeen = {};
 
   /// Get online status for a user
-  /// 
+  ///
   /// Returns:
   /// - true if user is in online cache
   /// - false if user is offline or not in cache
@@ -28,7 +30,7 @@ class OnlineStatusCache {
   }
 
   /// Check if we have explicit status for a user
-  /// 
+  ///
   /// Returns:
   /// - true if user status has been set (either online or offline)
   /// - false if user status has never been set
@@ -42,7 +44,6 @@ class OnlineStatusCache {
     if (lastSeen != null) {
       _lastSeen[userId] = lastSeen;
     }
-    // debugPrint('✅ [OnlineCache] User $userId is now ONLINE');
   }
 
   /// Set user offline status
@@ -51,7 +52,6 @@ class OnlineStatusCache {
     if (lastSeen != null) {
       _lastSeen[userId] = lastSeen;
     }
-    // debugPrint('❌ [OnlineCache] User $userId is now OFFLINE');
   }
 
   /// Update user status from WebSocket event
@@ -64,9 +64,9 @@ class OnlineStatusCache {
   }
 
   /// Calculate online status from lastSeen timestamp
-  /// 
+  ///
   /// User is considered online if lastSeen < grace period (configured in AppConstants)
-  /// 
+  ///
   /// Grace period: Configurable via AppConstants.onlineGracePeriod
   bool isOnlineFromLastSeen(DateTime? lastSeen) {
     if (lastSeen == null) return false;
@@ -75,9 +75,7 @@ class OnlineStatusCache {
     final secondsAgo = now.difference(lastSeen).inSeconds;
     final gracePeriodSeconds = AppConstants.onlineGracePeriod.inSeconds;
     final isOnline = secondsAgo < gracePeriodSeconds;
-    
-    // debugPrint('⏰ [OnlineCache] isOnlineFromLastSeen: now=$now, lastSeen=$lastSeen, diff=${secondsAgo}s, gracePeriod=${gracePeriodSeconds}s, result=$isOnline');
-    
+
     return isOnline;
   }
 
@@ -93,10 +91,7 @@ class OnlineStatusCache {
 
   /// Get all online user IDs
   List<int> getOnlineUserIds() {
-    return _onlineStatus.entries
-        .where((entry) => entry.value == true)
-        .map((entry) => entry.key)
-        .toList();
+    return _onlineStatus.entries.where((entry) => entry.value == true).map((entry) => entry.key).toList();
   }
 
   /// Get count of online users
@@ -108,27 +103,16 @@ class OnlineStatusCache {
   void clear() {
     _onlineStatus.clear();
     _lastSeen.clear();
-    // debugPrint('🧹 [OnlineCache] Cleared all cached data');
   }
 
   /// Remove specific user from cache
   void remove(int userId) {
     _onlineStatus.remove(userId);
     _lastSeen.remove(userId);
-    // debugPrint('🗑️ [OnlineCache] Removed user $userId from cache');
   }
 
   /// Bulk update online status (e.g., from initial API load)
   void bulkUpdate(Map<int, bool> statusMap) {
     _onlineStatus.addAll(statusMap);
-    // debugPrint('📦 [OnlineCache] Bulk updated ${statusMap.length} users');
-  }
-
-  /// Debug: Print current cache state
-  void printDebugInfo() {
-    // debugPrint('📊 [OnlineCache] Current state:');
-    // debugPrint('   Online users: ${getOnlineCount()}');
-    // debugPrint('   Total cached: ${_onlineStatus.length}');
-    // debugPrint('   Online IDs: ${getOnlineUserIds()}');
   }
 }
