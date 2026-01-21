@@ -106,9 +106,8 @@ class NewGroupChatPage extends HookConsumerWidget {
 
         // Navigate to chat view
         if (context.mounted) {
-          // Pop current page and navigate to chat
-          context.pop();
-          context.push(
+          // Use go instead of pop + push to avoid navigation conflicts
+          context.go(
             '/chat/${conversation.id}',
             extra: {'name': groupName.trim(), 'color': _avatarColor(context, conversation.id)},
           );
@@ -119,14 +118,16 @@ class NewGroupChatPage extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final textTheme = Theme.of(context).textTheme;
     final searchController = useTextEditingController();
+    final searchFocusNode = useFocusNode();
     final groupNameController = useTextEditingController();
     final searchQuery = useState('');
     final searchResults = useState<List<SearchUser>>([]);
     final selectedUsers = useState<List<SearchUser>>([]);
     final isSearching = useState(false);
     final searchError = useState<String?>(null);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final bgColor = isDark ? const Color(0xFF2C2C2E) : const Color(0xFFF3F4F6);
 
     // Debounce timer for search
     useEffect(() {
@@ -176,89 +177,149 @@ class NewGroupChatPage extends HookConsumerWidget {
     }, [searchController]);
 
     return Scaffold(
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
-        title: Text('New Group', style: textTheme.titleLarge),
-        leading: IconButton(icon: const Icon(Icons.arrow_back), onPressed: () => context.pop()),
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        surfaceTintColor: Colors.transparent,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => context.pop(),
+        ),
+        title: const Text('New Group', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600)),
         actions: [
           TextButton(
             onPressed: () => _createGroup(context, ref, groupNameController.text, selectedUsers.value),
             child: Text(
               'Create',
-              style: textTheme.titleMedium?.copyWith(
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
                 color: Theme.of(context).colorScheme.primary,
-                fontWeight: FontWeight.bold,
               ),
             ),
           ),
         ],
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(1),
+          child: Container(
+            height: 0.5,
+            color: isDark ? Colors.grey.withValues(alpha: 0.2) : Colors.grey.withValues(alpha: 0.1),
+          ),
+        ),
       ),
       body: Column(
         children: [
           // Group Name Input
           Padding(
             padding: const EdgeInsets.all(16.0),
-            child: TextField(
-              controller: groupNameController,
-              decoration: InputDecoration(
-                hintText: 'Group name',
-                prefixIcon: const Icon(Icons.group),
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                filled: true,
-                fillColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+            child: Container(
+              decoration: BoxDecoration(
+                color: bgColor,
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: TextField(
+                controller: groupNameController,
+                decoration: InputDecoration(
+                  hintText: 'Group name',
+                  prefixIcon: const Icon(Icons.group, size: 20),
+                  border: InputBorder.none,
+                  enabledBorder: InputBorder.none,
+                  focusedBorder: InputBorder.none,
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                ),
+                style: const TextStyle(fontSize: 15),
               ),
             ),
           ),
 
           // Selected Users Chips
           if (selectedUsers.value.isNotEmpty)
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              height: 60,
-              child: ListView.builder(
-                scrollDirection: Axis.horizontal,
-                itemCount: selectedUsers.value.length,
-                itemBuilder: (context, index) {
-                  final user = selectedUsers.value[index];
-                  final userName = user.fullName.isNotEmpty ? user.fullName : user.username;
-                  return Padding(
-                    padding: const EdgeInsets.only(right: 8.0),
-                    child: Chip(
-                      avatar: CircleAvatar(
-                        backgroundColor: _avatarColor(context, user.id),
-                        child: Text(
-                          userName.substring(0, 1),
-                          style: textTheme.labelSmall?.copyWith(color: Colors.white),
+            Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                height: 60,
+                child: ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: selectedUsers.value.length,
+                  itemBuilder: (context, index) {
+                    final user = selectedUsers.value[index];
+                    final userName = user.fullName.isNotEmpty ? user.fullName : user.username;
+                    return Padding(
+                      padding: const EdgeInsets.only(right: 8.0),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).colorScheme.primaryContainer,
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            UserAvatar(
+                              displayName: userName,
+                              avatarUrl: user.avatarUrl,
+                              radius: 14,
+                              backgroundColor: Theme.of(context).colorScheme.primary,
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              userName,
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                                color: Theme.of(context).colorScheme.onPrimaryContainer,
+                              ),
+                            ),
+                            const SizedBox(width: 4),
+                            GestureDetector(
+                              onTap: () {
+                                selectedUsers.value = List.from(selectedUsers.value)..removeAt(index);
+                              },
+                              child: Icon(
+                                Icons.close,
+                                size: 18,
+                                color: Theme.of(context).colorScheme.onPrimaryContainer,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                      label: Text(userName),
-                      onDeleted: () {
-                        selectedUsers.value = List.from(selectedUsers.value)..removeAt(index);
-                      },
-                    ),
-                  );
-                },
+                    );
+                  },
+                ),
               ),
             ),
 
-          // Search TextField
+          // Search Box
           Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: TextField(
-              controller: searchController,
-              decoration: InputDecoration(
-                hintText: 'Search users to add...',
-                prefixIcon: const Icon(Icons.search),
-                suffixIcon: searchController.text.isNotEmpty
-                    ? IconButton(
-                        icon: const Icon(Icons.clear),
-                        onPressed: () {
-                          searchController.clear();
-                        },
-                      )
-                    : null,
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                filled: true,
-                fillColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+            child: Container(
+              height: 40,
+              decoration: BoxDecoration(
+                color: bgColor,
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: TextField(
+                controller: searchController,
+                focusNode: searchFocusNode,
+                decoration: InputDecoration(
+                  hintText: 'Search users to add',
+                  border: InputBorder.none,
+                  enabledBorder: InputBorder.none,
+                  focusedBorder: InputBorder.none,
+                  prefixIcon: Icon(Icons.search, size: 20, color: isDark ? Colors.grey[400] : Colors.grey[600]),
+                  suffixIcon: searchController.text.isNotEmpty
+                      ? IconButton(
+                          icon: const Icon(Icons.clear, size: 20),
+                          onPressed: () => searchController.clear(),
+                        )
+                      : null,
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                ),
+                style: const TextStyle(fontSize: 15),
               ),
             ),
           ),
@@ -268,12 +329,12 @@ class NewGroupChatPage extends HookConsumerWidget {
             child: _buildSearchResults(
               context,
               ref,
-              textTheme,
               searchQuery.value,
               searchResults.value,
               selectedUsers.value,
               isSearching.value,
               searchError.value,
+              isDark,
               (user) {
                 if (selectedUsers.value.contains(user)) {
                   selectedUsers.value = List.from(selectedUsers.value)..remove(user);
@@ -291,12 +352,12 @@ class NewGroupChatPage extends HookConsumerWidget {
   Widget _buildSearchResults(
     BuildContext context,
     WidgetRef ref,
-    TextTheme textTheme,
     String query,
     List<SearchUser> results,
     List<SearchUser> selectedUsers,
     bool isSearching,
     String? error,
+    bool isDark,
     void Function(SearchUser) onUserToggle,
   ) {
     // Loading state
@@ -311,13 +372,9 @@ class NewGroupChatPage extends HookConsumerWidget {
           children: [
             Icon(Icons.error_outline, size: 64, color: Colors.red[300]),
             const SizedBox(height: 16),
-            Text('Search failed', style: textTheme.titleMedium?.copyWith(color: Colors.red[700])),
+            Text('Search failed', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: Colors.red[700])),
             const SizedBox(height: 8),
-            Text(
-              error,
-              style: textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
-              textAlign: TextAlign.center,
-            ),
+            Text(error, style: TextStyle(fontSize: 14, color: Colors.grey[600]), textAlign: TextAlign.center),
           ],
         ),
       );
@@ -331,9 +388,9 @@ class NewGroupChatPage extends HookConsumerWidget {
           children: [
             Icon(Icons.group_add, size: 64, color: Colors.grey[400]),
             const SizedBox(height: 16),
-            Text('Add members to your group', style: textTheme.titleMedium?.copyWith(color: Colors.grey[600])),
+            Text('Add members to your group', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.grey[600])),
             const SizedBox(height: 8),
-            Text('Search for users to add', style: textTheme.bodySmall?.copyWith(color: Colors.grey[500])),
+            Text('Search for users to add', style: TextStyle(fontSize: 14, color: Colors.grey[500])),
           ],
         ),
       );
@@ -347,9 +404,9 @@ class NewGroupChatPage extends HookConsumerWidget {
           children: [
             Icon(Icons.person_search, size: 64, color: Colors.grey[400]),
             const SizedBox(height: 16),
-            Text('No users found', style: textTheme.titleMedium?.copyWith(color: Colors.grey[600])),
+            Text('No users found', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.grey[600])),
             const SizedBox(height: 8),
-            Text('Try a different search term', style: textTheme.bodySmall?.copyWith(color: Colors.grey[500])),
+            Text('Try a different search term', style: TextStyle(fontSize: 14, color: Colors.grey[500])),
           ],
         ),
       );
@@ -358,11 +415,16 @@ class NewGroupChatPage extends HookConsumerWidget {
     // Results list
     return ListView.separated(
       itemCount: results.length,
-      separatorBuilder: (_, _) => const Divider(height: 1),
+      separatorBuilder: (_, _) => Divider(
+        height: 1,
+        thickness: 0.5,
+        color: isDark ? Colors.grey.withValues(alpha: 0.2) : Colors.grey.withValues(alpha: 0.1),
+        indent: 76,
+      ),
       itemBuilder: (context, index) {
         final user = results[index];
         final isSelected = selectedUsers.contains(user);
-        return _buildUserTile(context, ref, textTheme, user, isSelected, onUserToggle);
+        return _buildUserTile(context, ref, user, isSelected, isDark, onUserToggle);
       },
     );
   }
@@ -370,9 +432,9 @@ class NewGroupChatPage extends HookConsumerWidget {
   Widget _buildUserTile(
     BuildContext context,
     WidgetRef ref,
-    TextTheme textTheme,
     SearchUser user,
     bool isSelected,
+    bool isDark,
     void Function(SearchUser) onUserToggle,
   ) {
     final userName = user.fullName.isNotEmpty ? user.fullName : user.username;
@@ -380,10 +442,21 @@ class NewGroupChatPage extends HookConsumerWidget {
 
     return ListTile(
       onTap: () => onUserToggle(user),
-      leading: UserAvatar(displayName: userName, avatarUrl: user.avatarUrl, radius: 20, backgroundColor: avatarColor),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      leading: UserAvatar(
+        displayName: userName,
+        avatarUrl: user.avatarUrl,
+        radius: 24,
+        backgroundColor: avatarColor,
+      ),
       title: Row(
         children: [
-          Expanded(child: Text(userName, style: textTheme.titleMedium)),
+          Expanded(
+            child: Text(
+              userName,
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+            ),
+          ),
           if (user.isContact)
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
@@ -393,13 +466,31 @@ class NewGroupChatPage extends HookConsumerWidget {
               ),
               child: Text(
                 'Contact',
-                style: textTheme.labelSmall?.copyWith(color: Theme.of(context).colorScheme.onPrimaryContainer),
+                style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w600,
+                  color: Theme.of(context).colorScheme.onPrimaryContainer,
+                ),
               ),
             ),
         ],
       ),
-      subtitle: Text('@${user.username}', style: textTheme.bodySmall?.copyWith(color: Colors.grey[600])),
-      trailing: Checkbox(value: isSelected, onChanged: (_) => onUserToggle(user)),
+      subtitle: Text('@${user.username}', style: TextStyle(fontSize: 13, color: Colors.grey[600])),
+      trailing: Container(
+        width: 24,
+        height: 24,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          border: Border.all(
+            color: isSelected ? Theme.of(context).colorScheme.primary : Colors.grey[400]!,
+            width: 2,
+          ),
+          color: isSelected ? Theme.of(context).colorScheme.primary : Colors.transparent,
+        ),
+        child: isSelected
+            ? const Icon(Icons.check, size: 16, color: Colors.white)
+            : null,
+      ),
     );
   }
 }

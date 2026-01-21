@@ -20,12 +20,6 @@ Future<List<MediaItem>> conversationMedia(
   final dio = ref.watch(dioProvider);
 
   try {
-    debugPrint('🔄 Fetching media for conversation $conversationId');
-    debugPrint('   - limit: $limit');
-    debugPrint('   - types: $types');
-    debugPrint('   - startDate: $startDate');
-    debugPrint('   - endDate: $endDate');
-
     // Build query parameters
     final queryParams = <String, dynamic>{'limit': limit, 'cursor': 0};
 
@@ -45,25 +39,17 @@ Future<List<MediaItem>> conversationMedia(
     // Call API
     final response = await dio.get('/v1/conversations/$conversationId/search/media', queryParameters: queryParams);
 
-    debugPrint('📦 Media API response: ${response.data}');
-
     if (response.data['success'] == true && response.data['data'] != null) {
       final items = response.data['data']['items'] as List;
-      debugPrint('✅ API returned ${items.length} media items');
 
       if (items.isNotEmpty) {
-        debugPrint('📸 First item: ${items.first}');
         final mediaItems = items.map((item) => MediaItem.fromJson(item)).toList();
-        debugPrint('✅ Parsed ${mediaItems.length} media items from API');
         return mediaItems;
       }
     }
 
-    debugPrint('⚠️ API returned empty items');
     return [];
   } catch (e, stackTrace) {
-    debugPrint('❌ Error fetching media: $e');
-    debugPrint('Stack trace: $stackTrace');
     return [];
   }
 }
@@ -93,8 +79,6 @@ class MediaItem {
   });
 
   factory MediaItem.fromJson(Map<String, dynamic> json) {
-    debugPrint('🔍 Parsing MediaItem from JSON: $json');
-
     return MediaItem(
       id: json['id'] ?? json['messageId'] ?? 0,
       type: (json['type'] ?? 'FILE').toString().toUpperCase(),

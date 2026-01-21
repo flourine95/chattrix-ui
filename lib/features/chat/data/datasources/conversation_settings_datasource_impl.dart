@@ -11,17 +11,9 @@ class ConversationSettingsDatasourceImpl implements ConversationSettingsDatasour
 
   @override
   Future<ConversationSettingsModel> getSettings({required int conversationId}) async {
-    try {
-      final response = await dio.get(ApiConstants.conversationSettings(conversationId));
-
-      if (response.statusCode == 200) {
-        return ConversationSettingsModel.fromJson(response.data['data'] as Map<String, dynamic>);
-      }
-
-      throw ServerException(message: 'Failed to get settings');
-    } on DioException catch (e) {
-      throw ServerException(message: e.response?.data['message'] ?? 'Failed to get settings');
-    }
+    // Settings endpoint removed in new API
+    // Return default settings - actual state comes from conversation object
+    return ConversationSettingsModel(conversationId: conversationId);
   }
 
   @override
@@ -29,17 +21,9 @@ class ConversationSettingsDatasourceImpl implements ConversationSettingsDatasour
     required int conversationId,
     required UpdateConversationSettingsRequest request,
   }) async {
-    try {
-      final response = await dio.put(ApiConstants.conversationSettings(conversationId), data: request.toJson());
-
-      if (response.statusCode == 200) {
-        return ConversationSettingsModel.fromJson(response.data['data'] as Map<String, dynamic>);
-      }
-
-      throw ServerException(message: 'Failed to update settings');
-    } on DioException catch (e) {
-      throw ServerException(message: e.response?.data['message'] ?? 'Failed to update settings');
-    }
+    // Settings endpoint removed in new API
+    // Use specific action endpoints instead (mute, pin, archive, etc.)
+    throw UnimplementedError('Use specific action endpoints: mute, pin, archive, etc.');
   }
 
   @override
@@ -48,7 +32,12 @@ class ConversationSettingsDatasourceImpl implements ConversationSettingsDatasour
       final response = await dio.post(ApiConstants.muteConversation(conversationId));
 
       if (response.statusCode == 200) {
-        return ConversationSettingsModel.fromJson(response.data['data'] as Map<String, dynamic>);
+        // New API returns conversation object, extract settings
+        final data = response.data['data'] as Map<String, dynamic>;
+        return ConversationSettingsModel(
+          conversationId: conversationId,
+          muted: true,
+        );
       }
 
       throw ServerException(message: 'Failed to mute conversation');
@@ -63,7 +52,11 @@ class ConversationSettingsDatasourceImpl implements ConversationSettingsDatasour
       final response = await dio.post(ApiConstants.unmuteConversation(conversationId));
 
       if (response.statusCode == 200) {
-        return ConversationSettingsModel.fromJson(response.data['data'] as Map<String, dynamic>);
+        final data = response.data['data'] as Map<String, dynamic>;
+        return ConversationSettingsModel(
+          conversationId: conversationId,
+          muted: false,
+        );
       }
 
       throw ServerException(message: 'Failed to unmute conversation');
@@ -78,7 +71,11 @@ class ConversationSettingsDatasourceImpl implements ConversationSettingsDatasour
       final response = await dio.post(ApiConstants.pinConversation(conversationId));
 
       if (response.statusCode == 200) {
-        return ConversationSettingsModel.fromJson(response.data['data'] as Map<String, dynamic>);
+        final data = response.data['data'] as Map<String, dynamic>;
+        return ConversationSettingsModel(
+          conversationId: conversationId,
+          pinned: true,
+        );
       }
 
       throw ServerException(message: 'Failed to pin conversation');
@@ -93,7 +90,11 @@ class ConversationSettingsDatasourceImpl implements ConversationSettingsDatasour
       final response = await dio.post(ApiConstants.unpinConversation(conversationId));
 
       if (response.statusCode == 200) {
-        return ConversationSettingsModel.fromJson(response.data['data'] as Map<String, dynamic>);
+        final data = response.data['data'] as Map<String, dynamic>;
+        return ConversationSettingsModel(
+          conversationId: conversationId,
+          pinned: false,
+        );
       }
 
       throw ServerException(message: 'Failed to unpin conversation');
@@ -104,32 +105,15 @@ class ConversationSettingsDatasourceImpl implements ConversationSettingsDatasour
 
   @override
   Future<ConversationSettingsModel> hideConversation({required int conversationId}) async {
-    try {
-      final response = await dio.post(ApiConstants.hideConversation(conversationId));
-
-      if (response.statusCode == 200) {
-        return ConversationSettingsModel.fromJson(response.data['data'] as Map<String, dynamic>);
-      }
-
-      throw ServerException(message: 'Failed to hide conversation');
-    } on DioException catch (e) {
-      throw ServerException(message: e.response?.data['message'] ?? 'Failed to hide conversation');
-    }
+    // Hide endpoint not in new API spec
+    // May need to be handled differently or removed
+    throw UnimplementedError('Hide conversation not available in new API');
   }
 
   @override
   Future<ConversationSettingsModel> unhideConversation({required int conversationId}) async {
-    try {
-      final response = await dio.post(ApiConstants.unhideConversation(conversationId));
-
-      if (response.statusCode == 200) {
-        return ConversationSettingsModel.fromJson(response.data['data'] as Map<String, dynamic>);
-      }
-
-      throw ServerException(message: 'Failed to unhide conversation');
-    } on DioException catch (e) {
-      throw ServerException(message: e.response?.data['message'] ?? 'Failed to unhide conversation');
-    }
+    // Unhide endpoint not in new API spec
+    throw UnimplementedError('Unhide conversation not available in new API');
   }
 
   @override
@@ -138,7 +122,11 @@ class ConversationSettingsDatasourceImpl implements ConversationSettingsDatasour
       final response = await dio.post(ApiConstants.archiveConversation(conversationId));
 
       if (response.statusCode == 200) {
-        return ConversationSettingsModel.fromJson(response.data['data'] as Map<String, dynamic>);
+        final data = response.data['data'] as Map<String, dynamic>;
+        return ConversationSettingsModel(
+          conversationId: conversationId,
+          archived: true,
+        );
       }
 
       throw ServerException(message: 'Failed to archive conversation');
@@ -153,7 +141,11 @@ class ConversationSettingsDatasourceImpl implements ConversationSettingsDatasour
       final response = await dio.post(ApiConstants.unarchiveConversation(conversationId));
 
       if (response.statusCode == 200) {
-        return ConversationSettingsModel.fromJson(response.data['data'] as Map<String, dynamic>);
+        final data = response.data['data'] as Map<String, dynamic>;
+        return ConversationSettingsModel(
+          conversationId: conversationId,
+          archived: false,
+        );
       }
 
       throw ServerException(message: 'Failed to unarchive conversation');
@@ -164,32 +156,14 @@ class ConversationSettingsDatasourceImpl implements ConversationSettingsDatasour
 
   @override
   Future<ConversationSettingsModel> blockUser({required int conversationId}) async {
-    try {
-      final response = await dio.post(ApiConstants.blockUser(conversationId));
-
-      if (response.statusCode == 200) {
-        return ConversationSettingsModel.fromJson(response.data['data'] as Map<String, dynamic>);
-      }
-
-      throw ServerException(message: 'Failed to block user');
-    } on DioException catch (e) {
-      throw ServerException(message: e.response?.data['message'] ?? 'Failed to block user');
-    }
+    // Block endpoint not in new API spec
+    throw UnimplementedError('Block user not available in new API');
   }
 
   @override
   Future<ConversationSettingsModel> unblockUser({required int conversationId}) async {
-    try {
-      final response = await dio.post(ApiConstants.unblockUser(conversationId));
-
-      if (response.statusCode == 200) {
-        return ConversationSettingsModel.fromJson(response.data['data'] as Map<String, dynamic>);
-      }
-
-      throw ServerException(message: 'Failed to unblock user');
-    } on DioException catch (e) {
-      throw ServerException(message: e.response?.data['message'] ?? 'Failed to unblock user');
-    }
+    // Unblock endpoint not in new API spec
+    throw UnimplementedError('Unblock user not available in new API');
   }
 
   @override
@@ -198,32 +172,14 @@ class ConversationSettingsDatasourceImpl implements ConversationSettingsDatasour
     required int userId,
     required MuteMemberRequest request,
   }) async {
-    try {
-      final response = await dio.post(ApiConstants.muteMember(conversationId, userId), data: request.toJson());
-
-      if (response.statusCode == 200) {
-        return MutedMemberModel.fromJson(response.data['data'] as Map<String, dynamic>);
-      }
-
-      throw ServerException(message: 'Failed to mute member');
-    } on DioException catch (e) {
-      throw ServerException(message: e.response?.data['message'] ?? 'Failed to mute member');
-    }
+    // Member mute endpoint not in new API spec
+    throw UnimplementedError('Mute member not available in new API');
   }
 
   @override
   Future<MutedMemberModel> unmuteMember({required int conversationId, required int userId}) async {
-    try {
-      final response = await dio.post(ApiConstants.unmuteMember(conversationId, userId));
-
-      if (response.statusCode == 200) {
-        return MutedMemberModel.fromJson(response.data['data'] as Map<String, dynamic>);
-      }
-
-      throw ServerException(message: 'Failed to unmute member');
-    } on DioException catch (e) {
-      throw ServerException(message: e.response?.data['message'] ?? 'Failed to unmute member');
-    }
+    // Member unmute endpoint not in new API spec
+    throw UnimplementedError('Unmute member not available in new API');
   }
 
   @override

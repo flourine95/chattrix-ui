@@ -43,10 +43,19 @@ class ChatInfoPage extends HookConsumerWidget {
     final me = ref.watch(currentUserProvider);
     final messagesAsync = ref.watch(messagesProvider(conversation.id));
 
-    final isGroup = conversation.type == ConversationType.group;
+    // Watch conversations list to get updated conversation data
+    final conversationsAsync = ref.watch(conversationsProvider);
+    final updatedConversation = conversationsAsync.whenOrNull(
+      data: (conversations) => conversations.firstWhere(
+        (c) => c.id == conversation.id,
+        orElse: () => conversation,
+      ),
+    ) ?? conversation;
+
+    final isGroup = updatedConversation.type == ConversationType.group;
     final displayName = isGroup
-        ? (conversation.name ?? 'Group ${conversation.id}')
-        : ConversationUtils.getConversationTitle(conversation, me);
+        ? (updatedConversation.name ?? 'Group ${updatedConversation.id}')
+        : ConversationUtils.getConversationTitle(updatedConversation, me);
 
     return Scaffold(
       backgroundColor: colors.surfaceContainerLowest,
@@ -69,7 +78,7 @@ class ChatInfoPage extends HookConsumerWidget {
                 const SizedBox(height: 24),
 
                 // Avatar Section
-                _buildAvatarSection(context, ref, displayName, isGroup, colors),
+                _buildAvatarSection(context, ref, displayName, isGroup, colors, updatedConversation),
 
                 const SizedBox(height: 16),
 
@@ -85,9 +94,9 @@ class ChatInfoPage extends HookConsumerWidget {
 
                 // Different layouts for 1-1 vs Group
                 if (isGroup)
-                  _buildGroupLayout(context, ref, messagesAsync, colors, textTheme)
+                  _buildGroupLayout(context, ref, messagesAsync, colors, textTheme, updatedConversation)
                 else
-                  _buildOneToOneLayout(context, ref, messagesAsync, colors, textTheme),
+                  _buildOneToOneLayout(context, ref, messagesAsync, colors, textTheme, updatedConversation),
 
                 const SizedBox(height: 32),
               ],
@@ -109,6 +118,7 @@ class ChatInfoPage extends HookConsumerWidget {
     AsyncValue messagesAsync,
     ColorScheme colors,
     TextTheme textTheme,
+    Conversation currentConversation,
   ) {
     return Column(
       children: [
@@ -121,7 +131,7 @@ class ChatInfoPage extends HookConsumerWidget {
             title: 'Change Nickname',
             colors: colors,
             textTheme: textTheme,
-            onTap: () => showChangeNicknameBottomSheet(context, ref, conversation.id, colors, textTheme),
+            onTap: () => showChangeNicknameBottomSheet(context, ref, currentConversation.id, colors, textTheme),
           ),
         ),
 
@@ -163,7 +173,7 @@ class ChatInfoPage extends HookConsumerWidget {
             colors: colors,
             textTheme: textTheme,
             onTap: () {
-              context.push('/chat/${conversation.id}/scheduled-messages');
+              context.push('/chat/${currentConversation.id}/scheduled-messages');
             },
           ),
         ),
@@ -181,7 +191,7 @@ class ChatInfoPage extends HookConsumerWidget {
             textTheme: textTheme,
             iconColor: Colors.red,
             textColor: Colors.red,
-            onTap: () => showBlockUserBottomSheet(context, ref, conversation.id, colors, textTheme),
+            onTap: () => showBlockUserBottomSheet(context, ref, currentConversation.id, colors, textTheme),
           ),
         ),
 
@@ -200,6 +210,7 @@ class ChatInfoPage extends HookConsumerWidget {
     AsyncValue messagesAsync,
     ColorScheme colors,
     TextTheme textTheme,
+    Conversation currentConversation,
   ) {
     return Column(
       children: [
@@ -220,13 +231,13 @@ class ChatInfoPage extends HookConsumerWidget {
           child: _buildActionTile(
             icon: Icons.people,
             title: 'View Members',
-            subtitle: '${conversation.participants.length} members',
+            subtitle: '${currentConversation.participants.length} members',
             colors: colors,
             textTheme: textTheme,
             onTap: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => AllMembersPage(conversation: conversation)),
+                MaterialPageRoute(builder: (context) => AllMembersPage(conversation: currentConversation)),
               );
             },
           ),
@@ -247,7 +258,7 @@ class ChatInfoPage extends HookConsumerWidget {
             onTap: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => InviteLinksPage(conversationId: conversation.id)),
+                MaterialPageRoute(builder: (context) => InviteLinksPage(conversationId: currentConversation.id)),
               );
             },
           ),
@@ -256,7 +267,7 @@ class ChatInfoPage extends HookConsumerWidget {
         const SizedBox(height: 8),
 
         // Admin Permissions (only if user is admin)
-        if (_isUserAdmin(ref))
+        if (_isUserAdmin(ref, currentConversation))
           _buildRoundedSection(
             context,
             colors,
@@ -269,13 +280,13 @@ class ChatInfoPage extends HookConsumerWidget {
               onTap: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => GroupPermissionsPage(conversationId: conversation.id)),
+                  MaterialPageRoute(builder: (context) => GroupPermissionsPage(conversationId: currentConversation.id)),
                 );
               },
             ),
           ),
 
-        if (_isUserAdmin(ref)) const SizedBox(height: 8),
+        if (_isUserAdmin(ref, currentConversation)) const SizedBox(height: 8),
 
         // Polls
         _buildPollsSection(context, ref, colors, textTheme),
@@ -312,7 +323,7 @@ class ChatInfoPage extends HookConsumerWidget {
             colors: colors,
             textTheme: textTheme,
             onTap: () {
-              context.push('/chat/${conversation.id}/scheduled-messages');
+              context.push('/chat/${currentConversation.id}/scheduled-messages');
             },
           ),
         ),
@@ -344,14 +355,14 @@ class ChatInfoPage extends HookConsumerWidget {
   // HELPER METHODS
   // ============================================================================
 
-  bool _isUserAdmin(WidgetRef ref) {
+  bool _isUserAdmin(WidgetRef ref, Conversation currentConversation) {
     final me = ref.watch(currentUserProvider);
     if (me == null) return false;
 
     // Check if current user is admin in this conversation
-    final myParticipant = conversation.participants.firstWhere(
+    final myParticipant = currentConversation.participants.firstWhere(
       (p) => p.userId == me.id,
-      orElse: () => conversation.participants.first,
+      orElse: () => currentConversation.participants.first,
     );
 
     return myParticipant.role == 'ADMIN';
@@ -361,7 +372,7 @@ class ChatInfoPage extends HookConsumerWidget {
   Widget _buildRoundedSection(BuildContext context, ColorScheme colors, {required Widget child}) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16),
-      decoration: BoxDecoration(color: colors.surface, borderRadius: BorderRadius.circular(16)),
+      decoration: BoxDecoration(color: colors.surface, borderRadius: BorderRadius.circular(20)),
       child: child,
     );
   }
@@ -448,20 +459,21 @@ class ChatInfoPage extends HookConsumerWidget {
     String displayName,
     bool isGroup,
     ColorScheme colors,
+    Conversation currentConversation,
   ) {
     return Stack(
       clipBehavior: Clip.none,
       children: [
-        // Avatar
+        // Avatar - always use UserAvatar for consistent display
         isGroup
             ? UserAvatar(
                 displayName: displayName,
-                avatarUrl: conversation.avatarUrl,
+                avatarUrl: currentConversation.avatarUrl,
                 radius: 60,
               )
             : UserAvatar(
                 displayName: displayName,
-                avatarUrl: conversation.participants.firstOrNull?.avatarUrl,
+                avatarUrl: currentConversation.participants.firstOrNull?.avatarUrl,
                 radius: 60,
               ),
         // Edit Photo Icon (only for groups)

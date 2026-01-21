@@ -383,6 +383,28 @@ class ConversationsNotifier extends _$ConversationsNotifier {
       final conversation = _parseConversationFromWebSocket(conversationData);
       
       if (conversation != null) {
+        // Check if this is an update (conversation already exists)
+        final currentState = state.value;
+        if (currentState != null) {
+          final existingIndex = currentState.indexWhere((c) => c.id == conversation.id);
+          if (existingIndex != -1) {
+            // This is an update - merge with existing conversation
+            final existing = currentState[existingIndex];
+            final updated = existing.copyWith(
+              name: conversation.name ?? existing.name,
+              avatarUrl: conversation.avatarUrl ?? existing.avatarUrl,
+              updatedAt: conversation.updatedAt,
+            );
+            
+            // Update the conversation in the list
+            final updatedList = currentState.map((c) => c.id == conversation.id ? updated : c).toList();
+            final filtered = _filterAndSortConversations(updatedList);
+            state = AsyncValue.data(filtered);
+            return;
+          }
+        }
+        
+        // New conversation - add it
         addConversation(conversation);
       } else {
         refresh();
@@ -446,7 +468,7 @@ class ConversationsNotifier extends _$ConversationsNotifier {
         );
       }
 
-      // Create conversation entity
+      // Create conversation entity (description is not part of Conversation entity)
       return Conversation(
         id: id,
         name: json['name'] as String?,

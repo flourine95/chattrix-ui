@@ -9,6 +9,7 @@ class WebSocketEvents {
   // Conversation Events
   static const String conversationCreated = 'conversation.created';
   static const String conversationUpdate = 'conversation.update';
+  static const String conversationUpdated = 'conversation.updated'; // When conversation metadata changes (name, avatar, etc.)
   static const String typingIndicator = 'typing.indicator';
   static const String typingStart = 'typing.start';
   static const String typingStop = 'typing.stop';

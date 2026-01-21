@@ -18,7 +18,8 @@ class SearchConversationsPage extends HookConsumerWidget {
     final searchFocusNode = useFocusNode();
     final asyncState = ref.watch(searchConversationsProvider);
     final currentUser = ref.watch(currentUserProvider);
-    final colors = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final bgColor = isDark ? const Color(0xFF2C2C2E) : const Color(0xFFF3F4F6);
 
     // Auto-focus search field on mount
     useEffect(() {
@@ -48,16 +49,31 @@ class SearchConversationsPage extends HookConsumerWidget {
       appBar: AppBar(
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         elevation: 0,
-        leading: IconButton(icon: const Icon(Icons.arrow_back), onPressed: () => context.pop()),
-        title: TextField(
-          controller: searchController,
-          focusNode: searchFocusNode,
-          decoration: InputDecoration(
-            hintText: 'Tìm kiếm tin nhắn...',
-            border: InputBorder.none,
-            hintStyle: TextStyle(color: colors.onSurface.withValues(alpha: 0.5)),
+        scrolledUnderElevation: 0,
+        surfaceTintColor: Colors.transparent,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => context.pop(),
+        ),
+        title: Container(
+          height: 40,
+          decoration: BoxDecoration(
+            color: bgColor,
+            borderRadius: BorderRadius.circular(20),
           ),
-          style: const TextStyle(fontSize: 16),
+          child: TextField(
+            controller: searchController,
+            focusNode: searchFocusNode,
+            decoration: InputDecoration(
+              hintText: 'Search messages',
+              border: InputBorder.none,
+              enabledBorder: InputBorder.none,
+              focusedBorder: InputBorder.none,
+              prefixIcon: Icon(Icons.search, size: 20, color: isDark ? Colors.grey[400] : Colors.grey[600]),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+            ),
+            style: const TextStyle(fontSize: 15),
+          ),
         ),
         actions: [
           if (searchController.text.isNotEmpty)
@@ -69,26 +85,51 @@ class SearchConversationsPage extends HookConsumerWidget {
               },
             ),
         ],
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(1),
+          child: Container(
+            height: 0.5,
+            color: isDark ? Colors.grey.withValues(alpha: 0.2) : Colors.grey.withValues(alpha: 0.1),
+          ),
+        ),
       ),
-      body: _buildBody(context, ref, asyncState, currentUser),
+      body: _buildBody(context, ref, asyncState, currentUser, isDark),
     );
   }
 
-  Widget _buildBody(BuildContext context, WidgetRef ref, AsyncValue<List<dynamic>> asyncState, dynamic currentUser) {
+  Widget _buildBody(
+    BuildContext context,
+    WidgetRef ref,
+    AsyncValue<List<dynamic>> asyncState,
+    dynamic currentUser,
+    bool isDark,
+  ) {
     return switch (asyncState) {
-      AsyncData(:final value) => _buildResults(context, ref, value, currentUser),
+      AsyncData(:final value) => _buildResults(context, ref, value, currentUser, isDark),
       AsyncError(:final error) => _buildError(context, error),
       _ => const Center(child: CircularProgressIndicator()),
     };
   }
 
-  Widget _buildResults(BuildContext context, WidgetRef ref, List<dynamic> conversations, dynamic currentUser) {
+  Widget _buildResults(
+    BuildContext context,
+    WidgetRef ref,
+    List<dynamic> conversations,
+    dynamic currentUser,
+    bool isDark,
+  ) {
     if (conversations.isEmpty) {
-      return _buildEmptyState(context, 'Không tìm thấy tin nhắn nào');
+      return _buildEmptyState(context, 'No messages found');
     }
 
-    return ListView.builder(
+    return ListView.separated(
       itemCount: conversations.length,
+      separatorBuilder: (_, _) => Divider(
+        height: 1,
+        thickness: 0.5,
+        color: isDark ? Colors.grey.withValues(alpha: 0.2) : Colors.grey.withValues(alpha: 0.1),
+        indent: 76,
+      ),
       itemBuilder: (context, index) {
         final conversation = conversations[index];
         return ConversationListItem(
@@ -103,22 +144,20 @@ class SearchConversationsPage extends HookConsumerWidget {
   }
 
   Widget _buildError(BuildContext context, Object error) {
-    final colors = Theme.of(context).colorScheme;
-
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           const Icon(Icons.error_outline, size: 64, color: Colors.red),
           const SizedBox(height: 16),
-          Text(
-            'Đã xảy ra lỗi',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: colors.onSurface),
+          const Text(
+            'An error occurred',
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
           ),
           const SizedBox(height: 8),
           Text(
             error.toString(),
-            style: TextStyle(fontSize: 14, color: colors.onSurface.withValues(alpha: 0.7)),
+            style: TextStyle(fontSize: 14, color: Colors.grey[600]),
             textAlign: TextAlign.center,
           ),
         ],
@@ -127,17 +166,15 @@ class SearchConversationsPage extends HookConsumerWidget {
   }
 
   Widget _buildEmptyState(BuildContext context, String message) {
-    final colors = Theme.of(context).colorScheme;
-
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.search, size: 64, color: colors.onSurface.withValues(alpha: 0.3)),
+          Icon(Icons.search, size: 64, color: Colors.grey[400]),
           const SizedBox(height: 16),
           Text(
             message,
-            style: TextStyle(fontSize: 16, color: colors.onSurface.withValues(alpha: 0.7)),
+            style: TextStyle(fontSize: 16, color: Colors.grey[600]),
             textAlign: TextAlign.center,
           ),
         ],

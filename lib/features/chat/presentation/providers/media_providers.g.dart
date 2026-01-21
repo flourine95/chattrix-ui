@@ -103,7 +103,7 @@ final class ConversationMediaProvider
   }
 }
 
-String _$conversationMediaHash() => r'55f1d3882429b2ff56bf75c0c28d38d81b4742ad';
+String _$conversationMediaHash() => r'df26da068e601c78316b2291f0ec42b680de4953';
 
 /// Provider to fetch media from a conversation
 ///

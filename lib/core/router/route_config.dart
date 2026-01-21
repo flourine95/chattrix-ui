@@ -86,8 +86,6 @@ class RouteConfig {
         pageBuilder: (context, state) => const NoTransitionPage(child: ProfilePage()),
       ),
       GoRoute(path: RoutePaths.chatView, name: 'chat-view', builder: (context, state) => _buildChatViewPage(state)),
-      GoRoute(path: RoutePaths.newChat, name: 'new-chat', builder: (context, state) => const NewChatPage()),
-      GoRoute(path: RoutePaths.newGroup, name: 'new-group', builder: (context, state) => const NewGroupChatPage()),
       GoRoute(
         path: RoutePaths.friendRequests,
         name: 'friend-requests',
@@ -107,13 +105,26 @@ class RouteConfig {
           return RouterSetup(child: ForwardMessagePage(message: message));
         },
       ),
-      GoRoute(
-        path: RoutePaths.searchConversations,
-        name: 'search-conversations',
-        builder: (context, state) => const SearchConversationsPage(),
-      ),
     ],
   );
+
+  static List<RouteBase> get searchRoutes => [
+    GoRoute(
+      path: RoutePaths.newChat,
+      name: 'new-chat',
+      builder: (context, state) => RouterSetup(child: const NewChatPage()),
+    ),
+    GoRoute(
+      path: RoutePaths.newGroup,
+      name: 'new-group',
+      builder: (context, state) => RouterSetup(child: const NewGroupChatPage()),
+    ),
+    GoRoute(
+      path: RoutePaths.searchConversations,
+      name: 'search-conversations',
+      builder: (context, state) => RouterSetup(child: const SearchConversationsPage()),
+    ),
+  ];
 
   static List<RouteBase> get scheduleRoutes => [
     GoRoute(
@@ -205,6 +216,7 @@ class RouteConfig {
     ...scheduleRoutes,
     ...pollRoutes,
     ...inviteLinkRoutes,
+    ...searchRoutes,
     mainRoutes,
   ];
 

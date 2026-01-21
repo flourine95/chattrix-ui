@@ -77,8 +77,6 @@ class PollsList extends _$PollsList {
 
   @override
   Future<List<Poll>> build(int conversationId) async {
-    debugPrint('🗳️ PollsList.build() called for conversationId: $conversationId');
-
     // Listen to WebSocket poll events
     _listenToPollEvents();
 
@@ -88,8 +86,6 @@ class PollsList extends _$PollsList {
 
   /// Fetch polls from new list API
   Future<List<Poll>> _fetchPolls({required String status, String? cursor}) async {
-    debugPrint('🗳️ Fetching polls with status: $status, cursor: $cursor');
-
     final apiService = ref.watch(pollApiServiceProvider);
 
     try {
@@ -102,8 +98,6 @@ class PollsList extends _$PollsList {
       _nextCursor = meta['nextCursor'] as String?;
       _hasNextPage = meta['hasNextPage'] as bool? ?? false;
 
-      debugPrint('🗳️ Fetched ${items.length} polls, hasNextPage: $_hasNextPage');
-
       // Get members cache to enrich user info
       List<dynamic> members = [];
       try {
@@ -115,39 +109,25 @@ class PollsList extends _$PollsList {
 
       final membersMap = {for (var m in members) m.id: m};
 
-      debugPrint('👥 Members cache: ${membersMap.length} members');
-      debugPrint('👥 Member IDs: ${membersMap.keys.toList()}');
-
       // Parse polls using PollListItemDto
       final polls = items.map((item) {
         final itemMap = item as Map<String, dynamic>;
         var dto = PollListItemDto.fromJson(itemMap);
 
-        debugPrint('🗳️ Poll creator ID: ${dto.createdBy}, username: ${dto.createdByUsername}');
-        debugPrint('🗳️ Before enrich - fullName: ${dto.createdByFullName}, avatarUrl: ${dto.createdByAvatarUrl}');
-
         // Enrich with member info from cache if available
         final creatorId = dto.createdBy;
         final member = membersMap[creatorId];
         if (member != null) {
-          debugPrint('✅ Found member in cache: ${member.fullName}, avatar: ${member.avatarUrl}');
           dto = dto.copyWith(createdByFullName: member.fullName, createdByAvatarUrl: member.avatarUrl);
-          debugPrint('✅ After enrich - fullName: ${dto.createdByFullName}, avatarUrl: ${dto.createdByAvatarUrl}');
-        } else {
-          debugPrint('⚠️ Creator $creatorId not found in members cache');
         }
 
         final pollModel = dto.toPollModel(conversationId);
-        debugPrint('🗳️ PollModel creator: ${pollModel.creator.fullName}, avatar: ${pollModel.creator.avatarUrl}');
 
         return pollModel.toEntity();
       }).toList();
 
-      debugPrint('🗳️ Successfully parsed ${polls.length} polls');
       return polls;
     } catch (e, stackTrace) {
-      debugPrint('❌ Failed to fetch polls: $e');
-      debugPrint('❌ Stack trace: $stackTrace');
       throw Exception('Failed to fetch polls: $e');
     }
   }
@@ -210,7 +190,6 @@ class PollsList extends _$PollsList {
   /// Load more polls (pagination)
   Future<void> loadMore({required String status}) async {
     if (!_hasNextPage || _nextCursor == null) {
-      debugPrint('🗳️ No more polls to load');
       return;
     }
 
@@ -221,7 +200,6 @@ class PollsList extends _$PollsList {
       final morePolls = await _fetchPolls(status: status, cursor: _nextCursor);
       state = AsyncValue.data([...currentState, ...morePolls]);
     } catch (e) {
-      debugPrint('❌ Failed to load more polls: $e');
       // Keep current state on error
     }
   }

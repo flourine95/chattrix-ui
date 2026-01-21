@@ -46,8 +46,6 @@ class EventsList extends _$EventsList {
 
   /// Fetch events from new list API
   Future<List<EventEntity>> _fetchEvents({required String status, String? cursor}) async {
-    debugPrint('📅 Fetching events with status: $status, cursor: $cursor');
-
     // Use the implementation provider to access listEvents method
     final datasource = ref.watch(chatRemoteDatasourceImplProvider);
 
@@ -57,7 +55,6 @@ class EventsList extends _$EventsList {
 
       // Check if provider is still mounted after async operation
       if (!ref.mounted) {
-        debugPrint('📅 Provider disposed, returning empty list');
         return [];
       }
 
@@ -68,20 +65,15 @@ class EventsList extends _$EventsList {
       _nextCursor = meta['nextCursor'] as String?;
       _hasNextPage = meta['hasNextPage'] as bool? ?? false;
 
-      debugPrint('📅 Fetched ${items.length} events, hasNextPage: $_hasNextPage');
-
       // Get conversation members for user info enrichment
       final membersAsync = await ref.read(conversationMembersProvider(conversationId).future);
 
       // Check again after async operation
       if (!ref.mounted) {
-        debugPrint('📅 Provider disposed after fetching members, returning empty list');
         return [];
       }
 
       final membersMap = {for (var m in membersAsync) m.id: m};
-
-      debugPrint('📅 Enriching ${items.length} events with user info from ${membersMap.length} members');
 
       // Parse events from list items
       final events = <EventEntity>[];
@@ -97,23 +89,16 @@ class EventsList extends _$EventsList {
                   username: searchUser.username,
                   email: searchUser.email,
                   emailVerified: false,
-                  // Not available in SearchUser
                   fullName: searchUser.fullName,
                   avatarUrl: searchUser.avatarUrl,
                   bio: null,
-                  // Not available in SearchUser
                   gender: null,
-                  // Not available in SearchUser
                   dateOfBirth: null,
-                  // Not available in SearchUser
                   location: null,
-                  // Not available in SearchUser
                   profileVisibility: ProfileVisibility.public,
-                  // Default value
                   lastSeen: searchUser.lastSeen,
                   createdAt: DateTime.now(),
-                  // Not available in SearchUser
-                  updatedAt: DateTime.now(), // Not available in SearchUser
+                  updatedAt: DateTime.now(),
                 )
               : null;
 
@@ -122,18 +107,13 @@ class EventsList extends _$EventsList {
 
           // Set conversationId
           events.add(enrichedEvent.copyWith(conversationId: conversationId));
-
-          debugPrint(
-            '📅 Enriched event "${eventDto.title}" - creator: ${creator?.fullName ?? eventDto.createdByUsername}',
-          );
         } catch (e) {
-          debugPrint('⚠️ Failed to parse event: $e');
+          // Ignore parse errors
         }
       }
 
       return events;
     } catch (e) {
-      debugPrint('❌ Failed to fetch events: $e');
       throw Exception('Failed to fetch events: $e');
     }
   }
@@ -160,7 +140,6 @@ class EventsList extends _$EventsList {
           case 'EVENT_CREATED':
             // Add new event to the list
             state = AsyncValue.data([eventEntity, ...currentState]);
-            debugPrint('📅 Event created: ${eventEntity.title}');
             break;
 
           case 'EVENT_UPDATED':
@@ -168,14 +147,12 @@ class EventsList extends _$EventsList {
             // Update existing event
             final updatedEvents = currentState.map((e) => e.id == eventEntity.id ? eventEntity : e).toList();
             state = AsyncValue.data(updatedEvents);
-            debugPrint('📅 Event updated: ${eventEntity.title}');
             break;
 
           case 'EVENT_DELETED':
             // Remove event from list
             final filteredEvents = currentState.where((e) => e.id != eventEntity.id).toList();
             state = AsyncValue.data(filteredEvents);
-            debugPrint('📅 Event deleted: ${eventEntity.title}');
             break;
         }
       } catch (e) {
@@ -199,7 +176,6 @@ class EventsList extends _$EventsList {
   /// Load more events (pagination)
   Future<void> loadMore({required String status}) async {
     if (!_hasNextPage || _nextCursor == null) {
-      debugPrint('📅 No more events to load');
       return;
     }
 
@@ -210,7 +186,6 @@ class EventsList extends _$EventsList {
       final moreEvents = await _fetchEvents(status: status, cursor: _nextCursor);
       state = AsyncValue.data([...currentState, ...moreEvents]);
     } catch (e) {
-      debugPrint('❌ Failed to load more events: $e');
       // Keep current state on error
     }
   }
@@ -246,7 +221,6 @@ class EventsList extends _$EventsList {
     result.fold((failure) => throw Exception(failure.message), (event) {
       // Don't add to list here - WebSocket will handle it
       // This prevents duplicate events
-      debugPrint('✅ Event created successfully: ${event.title}');
     });
   }
 
@@ -273,7 +247,6 @@ class EventsList extends _$EventsList {
 
     result.fold((failure) => throw Exception(failure.message), (updatedEvent) {
       // Don't update list here - WebSocket will handle it
-      debugPrint('✅ Event updated successfully: ${updatedEvent.title}');
     });
   }
 
@@ -285,7 +258,6 @@ class EventsList extends _$EventsList {
 
     result.fold((failure) => throw Exception(failure.message), (updatedEvent) {
       // Don't update list here - WebSocket will handle it
-      debugPrint('✅ RSVP updated successfully for event: ${updatedEvent.title}');
     });
   }
 
@@ -297,7 +269,6 @@ class EventsList extends _$EventsList {
 
     result.fold((failure) => throw Exception(failure.message), (_) {
       // Don't remove from list here - WebSocket will handle it
-      debugPrint('✅ Event deleted successfully');
     });
   }
 }

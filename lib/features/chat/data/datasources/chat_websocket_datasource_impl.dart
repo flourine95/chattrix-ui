@@ -45,6 +45,7 @@ class ChatWebSocketDataSourceImpl implements ChatWebSocketDataSource {
       WebSocketEvents.userStatus,
       WebSocketEvents.conversationCreated,
       WebSocketEvents.conversationUpdate,
+      WebSocketEvents.conversationUpdated,
       WebSocketEvents.scheduledMessageSent,
       WebSocketEvents.scheduledMessageFailed,
       WebSocketEvents.messageReaction,
@@ -80,9 +81,6 @@ class ChatWebSocketDataSourceImpl implements ChatWebSocketDataSource {
         return;
       }
 
-      // Log all incoming messages for debugging
-      debugPrint('📨 [WS] Received: type=$type');
-
       // Dùng switch case trực tiếp với WebSocketEvents
       switch (type) {
         case WebSocketEvents.chatMessage:
@@ -103,10 +101,7 @@ class ChatWebSocketDataSourceImpl implements ChatWebSocketDataSource {
           break;
 
         case WebSocketEvents.userStatus:
-          debugPrint('👤 [UserStatus] Raw payload: $payload');
           final statusEntity = UserStatusUpdateModel.fromJson(payload as Map<String, dynamic>).toEntity();
-
-          debugPrint('👤 [UserStatus] Received status update: userId=${statusEntity.userId}, status=${statusEntity.isOnline ? "ONLINE" : "OFFLINE"}');
 
           final cache = OnlineStatusCache();
           final userId = int.tryParse(statusEntity.userId);
@@ -116,28 +111,44 @@ class ChatWebSocketDataSourceImpl implements ChatWebSocketDataSource {
             if (statusEntity.lastSeen != null) {
               try {
                 lastSeen = DateTime.parse(statusEntity.lastSeen!).toLocal();
-                debugPrint('📅 [UserStatus] Parsed lastSeen: ${statusEntity.lastSeen} → $lastSeen (local)');
               } catch (e) {
-                debugPrint('❌ [UserStatus] Failed to parse lastSeen: ${statusEntity.lastSeen}, error: $e');
+                // Ignore parse errors
               }
             }
             cache.updateStatus(userId, statusEntity.isOnline, lastSeen: lastSeen);
-            debugPrint('✅ [UserStatus] Updated cache for user $userId: ${statusEntity.isOnline ? "ONLINE" : "OFFLINE"}');
-          } else {
-            debugPrint('❌ [UserStatus] Failed to parse userId: ${statusEntity.userId}');
           }
 
           _userStatusController.add(statusEntity);
           break;
 
         case WebSocketEvents.conversationCreated:
-          debugPrint('🆕 [WS] New conversation created');
           _conversationCreatedController.add(payload as Map<String, dynamic>);
           break;
 
         case WebSocketEvents.conversationUpdate:
           final updateEntity = ConversationUpdateModel.fromJson(payload as Map<String, dynamic>).toEntity();
           _conversationUpdateController.add(updateEntity);
+          break;
+
+        case WebSocketEvents.conversationUpdated:
+          // Handle conversation metadata updates (name, avatar, description changes)
+          // Parse and update the conversation in the list immediately
+          final conversationData = payload as Map<String, dynamic>;
+          final conversationId = conversationData['conversationId'] as int?;
+          
+          if (conversationId != null) {
+            // Create a minimal update to trigger UI refresh
+            final updateData = {
+              'conversation': {
+                'id': conversationId,
+                'name': conversationData['name'],
+                'avatarUrl': conversationData['avatarUrl'],
+                'description': conversationData['description'],
+                'updatedAt': conversationData['updatedAt'],
+              }
+            };
+            _conversationCreatedController.add(updateData);
+          }
           break;
 
         case WebSocketEvents.scheduledMessageSent:
@@ -162,7 +173,6 @@ class ChatWebSocketDataSourceImpl implements ChatWebSocketDataSource {
           break;
 
         case WebSocketEvents.heartbeatAck:
-          debugPrint('💚 [WS] Heartbeat acknowledged');
           _heartbeatAckController.add(null);
           break;
 

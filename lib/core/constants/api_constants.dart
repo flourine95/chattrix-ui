@@ -162,41 +162,25 @@ class ApiConstants {
 
   static String callHistoryWithFilter(String filter) => '$_baseUrl/$_v1/calls/history?filter=$filter';
 
-  // Conversation Settings endpoints
-  static String conversationSettings(int conversationId) => '$_baseUrl/$_v1/conversations/$conversationId/settings';
+  // Conversation Actions endpoints (NEW API)
+  static String muteConversation(int conversationId) => '$_baseUrl/$_v1/conversations/$conversationId/mute';
 
-  static String muteConversation(int conversationId) => '$_baseUrl/$_v1/conversations/$conversationId/settings/mute';
+  static String unmuteConversation(int conversationId) => '$_baseUrl/$_v1/conversations/$conversationId/unmute';
 
-  static String unmuteConversation(int conversationId) =>
-      '$_baseUrl/$_v1/conversations/$conversationId/settings/unmute';
+  static String pinConversation(int conversationId) => '$_baseUrl/$_v1/conversations/$conversationId/pin';
 
-  static String pinConversation(int conversationId) => '$_baseUrl/$_v1/conversations/$conversationId/settings/pin';
+  static String unpinConversation(int conversationId) => '$_baseUrl/$_v1/conversations/$conversationId/unpin';
 
-  static String unpinConversation(int conversationId) => '$_baseUrl/$_v1/conversations/$conversationId/settings/unpin';
+  static String reorderPinnedConversation(int conversationId) => '$_baseUrl/$_v1/conversations/$conversationId/reorder';
 
-  static String hideConversation(int conversationId) => '$_baseUrl/$_v1/conversations/$conversationId/settings/hide';
+  static String archiveConversation(int conversationId) => '$_baseUrl/$_v1/conversations/$conversationId/archive';
 
-  static String unhideConversation(int conversationId) =>
-      '$_baseUrl/$_v1/conversations/$conversationId/settings/unhide';
+  static String unarchiveConversation(int conversationId) => '$_baseUrl/$_v1/conversations/$conversationId/unarchive';
 
-  static String archiveConversation(int conversationId) =>
-      '$_baseUrl/$_v1/conversations/$conversationId/settings/archive';
+  // Note: Block/unblock and hide/unhide are not in the new API spec
+  // These may need to be handled differently or removed
 
-  static String unarchiveConversation(int conversationId) =>
-      '$_baseUrl/$_v1/conversations/$conversationId/settings/unarchive';
-
-  static String blockUser(int conversationId) => '$_baseUrl/$_v1/conversations/$conversationId/settings/block';
-
-  static String unblockUser(int conversationId) => '$_baseUrl/$_v1/conversations/$conversationId/settings/unblock';
-
-  static String muteMember(int conversationId, int userId) =>
-      '$_baseUrl/$_v1/conversations/$conversationId/settings/members/$userId/mute';
-
-  static String unmuteMember(int conversationId, int userId) =>
-      '$_baseUrl/$_v1/conversations/$conversationId/settings/members/$userId/unmute';
-
-  static String conversationPermissions(int conversationId) =>
-      '$_baseUrl/$_v1/conversations/$conversationId/settings/permissions';
+  static String conversationPermissions(int conversationId) => '$_baseUrl/$_v1/conversations/$conversationId/permissions';
 
   static String conversationAvatar(int conversationId) => '$_baseUrl/$_v1/conversations/$conversationId/avatar';
 

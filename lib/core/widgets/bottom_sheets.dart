@@ -196,7 +196,25 @@ Future<String?> showInputBottomSheet({
                 hintText: hintText,
                 errorText: errorText,
                 prefixIcon: prefixIcon != null ? Icon(prefixIcon) : null,
-                border: const OutlineInputBorder(),
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(20)),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(20),
+                  borderSide: BorderSide(color: colors.outline),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(20),
+                  borderSide: BorderSide(color: colors.primary, width: 2),
+                ),
+                errorBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(20),
+                  borderSide: BorderSide(color: colors.error),
+                ),
+                focusedErrorBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(20),
+                  borderSide: BorderSide(color: colors.error, width: 2),
+                ),
+                filled: true,
+                fillColor: colors.surfaceContainerHighest,
               ),
               onChanged: (value) {
                 if (validator != null) {
@@ -216,7 +234,7 @@ Future<String?> showInputBottomSheet({
                     onPressed: () => Navigator.pop(context),
                     style: OutlinedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 14),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                     ),
                     child: Text(cancelText),
                   ),
@@ -239,7 +257,7 @@ Future<String?> showInputBottomSheet({
                     },
                     style: FilledButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 14),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                     ),
                     child: Text(confirmText),
                   ),
