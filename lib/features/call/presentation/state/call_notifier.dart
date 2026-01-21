@@ -2,10 +2,8 @@ import 'dart:async';
 
 import 'package:agora_rtc_engine/agora_rtc_engine.dart';
 import 'package:chattrix_ui/core/errors/failures.dart';
-import 'package:chattrix_ui/core/toast/toast_controller.dart';
-import 'package:chattrix_ui/core/toast/toast_type.dart';
 import 'package:chattrix_ui/core/utils/app_logger.dart';
-import 'package:chattrix_ui/features/auth/presentation/providers/auth_providers.dart';
+import 'package:chattrix_ui/features/auth/presentation/providers/auth_notifier.dart';
 import 'package:chattrix_ui/features/call/domain/entities/call_end_reason.dart';
 import 'package:chattrix_ui/features/call/domain/entities/call_invitation.dart';
 import 'package:chattrix_ui/features/call/domain/entities/call_reject_reason.dart';
@@ -286,7 +284,6 @@ class CallNotifier extends _$CallNotifier {
         (failure) {
           final message = _getFailureMessage(failure);
           AppLogger.error('Failed to initiate call: $message', tag: 'Call');
-          ref.read(toastControllerProvider).show(title: message, type: ToastType.error);
           state = CallState.error(message: message);
         },
         (connection) async {
@@ -321,7 +318,6 @@ class CallNotifier extends _$CallNotifier {
           } catch (agoraError, stack) {
             AppLogger.error('Agora error during call initiation', error: agoraError, stackTrace: stack, tag: 'Call');
             final errorMessage = 'Failed to join call. Please check your connection and try again.';
-            ref.read(toastControllerProvider).show(title: errorMessage, type: ToastType.error);
             state = CallState.error(message: errorMessage);
 
             try {
@@ -334,7 +330,6 @@ class CallNotifier extends _$CallNotifier {
     } catch (e, stack) {
       AppLogger.error('Error initiating call', error: e, stackTrace: stack, tag: 'Call');
       final errorMessage = 'Failed to start call. Please try again.';
-      ref.read(toastControllerProvider).show(title: errorMessage, type: ToastType.error);
       state = CallState.error(message: errorMessage);
     }
   }
@@ -350,7 +345,6 @@ class CallNotifier extends _$CallNotifier {
             (failure) {
               final message = _getFailureMessage(failure);
               AppLogger.error('Failed to accept call: $message', tag: 'Call');
-              ref.read(toastControllerProvider).show(title: message, type: ToastType.error);
               state = CallState.error(message: message);
             },
             (connection) async {
@@ -382,7 +376,6 @@ class CallNotifier extends _$CallNotifier {
                   tag: 'Call',
                 );
                 final errorMessage = 'Failed to join call. Please check your connection and try again.';
-                ref.read(toastControllerProvider).show(title: errorMessage, type: ToastType.error);
                 state = CallState.error(message: errorMessage);
 
                 try {
@@ -395,7 +388,6 @@ class CallNotifier extends _$CallNotifier {
         } catch (e, stack) {
           AppLogger.error('Error accepting call', error: e, stackTrace: stack, tag: 'Call');
           final errorMessage = 'Failed to accept call. Please try again.';
-          ref.read(toastControllerProvider).show(title: errorMessage, type: ToastType.error);
           state = CallState.error(message: errorMessage);
         }
       },
@@ -415,7 +407,6 @@ class CallNotifier extends _$CallNotifier {
         (failure) {
           final message = _getFailureMessage(failure);
           AppLogger.error('Failed to join call: $message', tag: 'Call');
-          ref.read(toastControllerProvider).show(title: message, type: ToastType.error);
           state = CallState.error(message: message);
         },
         (connection) async {
@@ -443,7 +434,6 @@ class CallNotifier extends _$CallNotifier {
           } catch (agoraError, stack) {
             AppLogger.error('Agora error during call join', error: agoraError, stackTrace: stack, tag: 'Call');
             final errorMessage = 'Failed to join call. Please check your connection and try again.';
-            ref.read(toastControllerProvider).show(title: errorMessage, type: ToastType.error);
             state = CallState.error(message: errorMessage);
 
             try {
@@ -456,7 +446,6 @@ class CallNotifier extends _$CallNotifier {
     } catch (e, stack) {
       AppLogger.error('Error joining call', error: e, stackTrace: stack, tag: 'Call');
       final errorMessage = 'Failed to join call. Please try again.';
-      ref.read(toastControllerProvider).show(title: errorMessage, type: ToastType.error);
       state = CallState.error(message: errorMessage);
     }
   }

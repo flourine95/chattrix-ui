@@ -1,4 +1,4 @@
-import 'package:chattrix_ui/features/auth/presentation/providers/auth_providers.dart';
+import 'package:chattrix_ui/features/auth/presentation/providers/auth_notifier.dart';
 import 'package:chattrix_ui/features/birthday/data/datasources/birthday_api_service.dart';
 import 'package:chattrix_ui/features/birthday/data/repositories/birthday_repository_impl.dart';
 import 'package:chattrix_ui/features/birthday/domain/entities/birthday_user_entity.dart';
@@ -6,7 +6,6 @@ import 'package:chattrix_ui/features/birthday/domain/repositories/birthday_repos
 import 'package:chattrix_ui/features/birthday/domain/usecases/get_today_birthdays_usecase.dart';
 import 'package:chattrix_ui/features/birthday/domain/usecases/get_upcoming_birthdays_usecase.dart';
 import 'package:chattrix_ui/features/birthday/domain/usecases/send_birthday_wishes_usecase.dart';
-import 'package:flutter/foundation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'birthday_providers.g.dart';
@@ -45,57 +44,32 @@ SendBirthdayWishesUseCase sendBirthdayWishesUseCase(Ref ref) {
 class TodayBirthdays extends _$TodayBirthdays {
   @override
   Future<List<BirthdayUserEntity>> build() async {
-    // ✅ Check if user is logged in before fetching
+    // Check if user is logged in before fetching
     final currentUser = ref.watch(currentUserProvider);
     if (currentUser == null) {
-      debugPrint('🎂 [TodayBirthdays] User not logged in, returning empty list');
       return [];
     }
 
-    debugPrint('🎂 [TodayBirthdays] Fetching today\'s birthdays...');
     final useCase = ref.read(getTodayBirthdaysUseCaseProvider);
     final result = await useCase();
 
-    return result.fold(
-      (failure) {
-        debugPrint('❌ [TodayBirthdays] Failed to fetch: ${failure.message}');
-        throw Exception(failure.message);
-      },
-      (birthdays) {
-        debugPrint('✅ [TodayBirthdays] Found ${birthdays.length} birthdays today');
-        for (final birthday in birthdays) {
-          debugPrint('   🎂 ${birthday.fullName} (${birthday.username})');
-        }
-        return birthdays;
-      },
-    );
+    return result.fold((failure) => throw Exception(failure.message), (birthdays) => birthdays);
   }
 
   Future<void> refresh() async {
-    // ✅ Check if user is logged in before refreshing
+    // Check if user is logged in before refreshing
     final currentUser = ref.read(currentUserProvider);
     if (currentUser == null) {
-      debugPrint('🎂 [TodayBirthdays] User not logged in, skipping refresh');
       state = const AsyncValue.data([]);
       return;
     }
 
-    debugPrint('🔄 [TodayBirthdays] Refreshing...');
     state = const AsyncValue.loading();
     state = await AsyncValue.guard(() async {
       final useCase = ref.read(getTodayBirthdaysUseCaseProvider);
       final result = await useCase();
 
-      return result.fold(
-        (failure) {
-          debugPrint('❌ [TodayBirthdays] Refresh failed: ${failure.message}');
-          throw Exception(failure.message);
-        },
-        (birthdays) {
-          debugPrint('✅ [TodayBirthdays] Refresh successful: ${birthdays.length} birthdays');
-          return birthdays;
-        },
-      );
+      return result.fold((failure) => throw Exception(failure.message), (birthdays) => birthdays);
     });
   }
 }
@@ -104,10 +78,9 @@ class TodayBirthdays extends _$TodayBirthdays {
 class UpcomingBirthdays extends _$UpcomingBirthdays {
   @override
   Future<List<BirthdayUserEntity>> build({int days = 7}) async {
-    // ✅ Check if user is logged in before fetching
+    // Check if user is logged in before fetching
     final currentUser = ref.watch(currentUserProvider);
     if (currentUser == null) {
-      debugPrint('🎂 [UpcomingBirthdays] User not logged in, returning empty list');
       return [];
     }
 
@@ -118,10 +91,9 @@ class UpcomingBirthdays extends _$UpcomingBirthdays {
   }
 
   Future<void> refresh() async {
-    // ✅ Check if user is logged in before refreshing
+    // Check if user is logged in before refreshing
     final currentUser = ref.read(currentUserProvider);
     if (currentUser == null) {
-      debugPrint('🎂 [UpcomingBirthdays] User not logged in, skipping refresh');
       state = const AsyncValue.data([]);
       return;
     }

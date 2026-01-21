@@ -42,17 +42,17 @@ class RouteConfig {
     GoRoute(
       path: RoutePaths.incomingCall,
       name: 'incoming-call',
-      builder: (context, state) => RouterSetup(child: const IncomingCallPage()),
+      builder: (context, state) => const IncomingCallPage(),
     ),
     GoRoute(
       path: RoutePaths.outgoingCall,
       name: 'outgoing-call',
-      builder: (context, state) => RouterSetup(child: const OutgoingCallPage()),
+      builder: (context, state) => const OutgoingCallPage(),
     ),
     GoRoute(
       path: RoutePaths.activeCall,
       name: 'call',
-      builder: (context, state) => RouterSetup(child: const CallPage()),
+      builder: (context, state) => const CallPage(),
     ),
   ];
 
@@ -102,7 +102,7 @@ class RouteConfig {
         name: 'forward-message',
         builder: (context, state) {
           final message = state.extra as Message;
-          return RouterSetup(child: ForwardMessagePage(message: message));
+          return ForwardMessagePage(message: message);
         },
       ),
     ],
@@ -112,17 +112,17 @@ class RouteConfig {
     GoRoute(
       path: RoutePaths.newChat,
       name: 'new-chat',
-      builder: (context, state) => RouterSetup(child: const NewChatPage()),
+      builder: (context, state) => const NewChatPage(),
     ),
     GoRoute(
       path: RoutePaths.newGroup,
       name: 'new-group',
-      builder: (context, state) => RouterSetup(child: const NewGroupChatPage()),
+      builder: (context, state) => const NewGroupChatPage(),
     ),
     GoRoute(
       path: RoutePaths.searchConversations,
       name: 'search-conversations',
-      builder: (context, state) => RouterSetup(child: const SearchConversationsPage()),
+      builder: (context, state) => const SearchConversationsPage(),
     ),
   ];
 
@@ -132,7 +132,7 @@ class RouteConfig {
       name: 'pinned-messages',
       builder: (context, state) {
         final conversationId = int.parse(state.pathParameters['id']!);
-        return RouterSetup(child: PinnedMessagesPage(conversationId: conversationId));
+        return PinnedMessagesPage(conversationId: conversationId);
       },
     ),
     GoRoute(
@@ -140,13 +140,13 @@ class RouteConfig {
       name: 'scheduled-messages',
       builder: (context, state) {
         final conversationId = int.parse(state.pathParameters['id']!);
-        return RouterSetup(child: ScheduledMessagesPage(conversationId: conversationId));
+        return ScheduledMessagesPage(conversationId: conversationId);
       },
     ),
     GoRoute(
       path: RoutePaths.scheduleMessage,
       name: 'schedule-message',
-      builder: (context, state) => RouterSetup(child: _buildScheduleMessagePage(state)),
+      builder: (context, state) => _buildScheduleMessagePage(state),
     ),
   ];
 
@@ -156,7 +156,7 @@ class RouteConfig {
     GoRoute(
       path: RoutePaths.hiddenConversations,
       name: 'hidden-conversations',
-      builder: (context, state) => RouterSetup(child: const HiddenConversationsPage()),
+      builder: (context, state) => const HiddenConversationsPage(),
     ),
     // Demo routes removed - production pages are now used in mainRoutes
     GoRoute(
@@ -170,17 +170,17 @@ class RouteConfig {
     GoRoute(
       path: RoutePaths.createPoll,
       name: 'create-poll',
-      builder: (context, state) => RouterSetup(child: _buildCreatePollPage(state)),
+      builder: (context, state) => _buildCreatePollPage(state),
     ),
     GoRoute(
       path: RoutePaths.pollDetail,
       name: 'poll-detail',
-      builder: (context, state) => RouterSetup(child: _buildPollDetailPage(state)),
+      builder: (context, state) => _buildPollDetailPage(state),
     ),
     GoRoute(
       path: RoutePaths.createEvent,
       name: 'create-event',
-      builder: (context, state) => RouterSetup(child: _buildCreateEventPage(state)),
+      builder: (context, state) => _buildCreateEventPage(state),
     ),
   ];
 
@@ -188,12 +188,12 @@ class RouteConfig {
     GoRoute(
       path: RoutePaths.inviteLinks,
       name: 'invite-links',
-      builder: (context, state) => RouterSetup(child: _buildInviteLinksPage(state)),
+      builder: (context, state) => _buildInviteLinksPage(state),
     ),
     GoRoute(
       path: RoutePaths.inviteLinkInfo,
       name: 'invite-link-info',
-      builder: (context, state) => RouterSetup(child: _buildInviteLinkInfoPage(state)),
+      builder: (context, state) => _buildInviteLinkInfoPage(state),
     ),
     // QR Scanner - Fullscreen (no shell/bottom nav)
     GoRoute(
@@ -201,7 +201,7 @@ class RouteConfig {
       name: 'qr-scanner',
       pageBuilder: (context, state) => CustomTransitionPage(
         key: state.pageKey,
-        child: RouterSetup(child: const QrScannerPage()),
+        child: const QrScannerPage(),
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
           return FadeTransition(opacity: animation, child: child);
         },

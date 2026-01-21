@@ -1,5 +1,6 @@
 import 'package:agora_rtc_engine/agora_rtc_engine.dart';
 import 'package:chattrix_ui/core/widgets/user_avatar.dart';
+import 'package:chattrix_ui/features/auth/presentation/providers/auth_notifier.dart';
 import 'package:chattrix_ui/features/call/domain/entities/call_type.dart';
 import 'package:chattrix_ui/features/call/presentation/providers/call_control_state_providers.dart';
 import 'package:chattrix_ui/features/call/presentation/providers/call_service_provider.dart';
@@ -14,7 +15,6 @@ import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-import '../../../auth/presentation/providers/auth_providers.dart';
 import '../widgets/call_controls_panel.dart';
 
 class CallPage extends ConsumerWidget {

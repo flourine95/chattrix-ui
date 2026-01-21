@@ -1,4 +1,4 @@
-import 'package:chattrix_ui/features/auth/presentation/providers/auth_providers.dart';
+import 'package:chattrix_ui/features/auth/presentation/providers/auth_notifier.dart';
 import 'package:chattrix_ui/features/call/presentation/providers/pip_state_provider.dart';
 import 'package:chattrix_ui/features/call/presentation/state/call_notifier.dart';
 import 'package:chattrix_ui/features/call/presentation/state/call_state.dart';

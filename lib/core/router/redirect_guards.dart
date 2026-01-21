@@ -1,5 +1,5 @@
 import 'package:chattrix_ui/core/router/route_paths.dart';
-import 'package:chattrix_ui/features/auth/presentation/providers/auth_providers.dart';
+import 'package:chattrix_ui/features/auth/presentation/providers/auth_notifier.dart';
 import 'package:chattrix_ui/features/call/presentation/providers/pip_state_provider.dart';
 import 'package:chattrix_ui/features/call/presentation/state/call_notifier.dart';
 import 'package:chattrix_ui/features/call/presentation/state/call_state.dart';
@@ -10,7 +10,10 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 class AuthRedirectGuard {
   static Future<String?> redirect(WidgetRef ref, GoRouterState state) async {
     final currentLocation = state.matchedLocation;
-    final isLoggedIn = await ref.read(isLoggedInUseCaseProvider)();
+    
+    // Check if user is logged in by checking if user profile is loaded
+    final currentUser = ref.read(currentUserProvider);
+    final isLoggedIn = currentUser != null;
 
     final authRoutes = {RoutePaths.login, RoutePaths.register, RoutePaths.forgotPassword, RoutePaths.otpVerification};
 

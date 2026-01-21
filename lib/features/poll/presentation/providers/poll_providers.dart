@@ -1,4 +1,4 @@
-import 'package:chattrix_ui/features/auth/presentation/providers/auth_providers.dart';
+import 'package:chattrix_ui/features/auth/presentation/providers/auth_notifier.dart';
 import 'package:chattrix_ui/features/poll/data/datasources/poll_api_service.dart';
 import 'package:chattrix_ui/features/poll/data/repositories/poll_repository_impl.dart';
 import 'package:chattrix_ui/features/poll/domain/repositories/poll_repository.dart';

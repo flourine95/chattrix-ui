@@ -1,6 +1,6 @@
 import 'package:chattrix_ui/core/domain/enums/enums.dart';
 import 'package:chattrix_ui/core/errors/failures.dart';
-import 'package:chattrix_ui/features/auth/presentation/providers/auth_providers.dart';
+import 'package:chattrix_ui/features/auth/presentation/providers/auth_notifier.dart';
 import 'package:chattrix_ui/features/birthday/presentation/providers/birthday_providers.dart';
 import 'package:chattrix_ui/features/birthday/presentation/widgets/birthday_banner.dart';
 import 'package:chattrix_ui/features/birthday/presentation/widgets/birthday_list_sheet.dart';
@@ -28,12 +28,75 @@ class ChatListPage extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     ref.watch(webSocketConnectionProvider);
+    final conversationsAsync = ref.watch(conversationsProvider);
 
     return Scaffold(
       appBar: _buildAppBar(context, ref),
-      body: const CustomScrollView(
-        physics: ClampingScrollPhysics(),
-        slivers: [_HeaderSearch(), _BirthdayBannerSliver(), _FilterBar(), _OnlineStoryList(), _ConversationList()],
+      body: conversationsAsync.when(
+        data: (_) => const CustomScrollView(
+          physics: ClampingScrollPhysics(),
+          slivers: [
+            _HeaderSearch(),
+            _BirthdayBannerSliver(),
+            _FilterBar(),
+            _OnlineStoryList(),
+            _ConversationList(),
+          ],
+        ),
+        loading: () => Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              CircularProgressIndicator(
+                color: Theme.of(context).colorScheme.primary,
+              ),
+              const SizedBox(height: 16),
+              Text(
+                'Loading chats...',
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+                  fontSize: 14,
+                ),
+              ),
+            ],
+          ),
+        ),
+        error: (error, _) => Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.error_outline,
+                size: 48,
+                color: Colors.red.withValues(alpha: 0.7),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                'Failed to load chats',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                error.toString(),
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 24),
+              ElevatedButton.icon(
+                onPressed: () => ref.invalidate(conversationsProvider),
+                icon: const Icon(Icons.refresh),
+                label: const Text('Retry'),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -284,7 +347,13 @@ class _ConversationList extends ConsumerWidget {
           }, childCount: conversations.length),
         );
       },
-      loading: () => const SliverFillRemaining(child: Center(child: CircularProgressIndicator())),
+      loading: () => SliverFillRemaining(
+        child: Center(
+          child: CircularProgressIndicator(
+            color: Theme.of(context).colorScheme.primary,
+          ),
+        ),
+      ),
       error: (error, _) => SliverFillRemaining(child: _ErrorView(error: error)),
     );
   }

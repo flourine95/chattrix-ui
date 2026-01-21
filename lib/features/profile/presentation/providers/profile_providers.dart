@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:chattrix_ui/core/errors/failures.dart';
 import 'package:chattrix_ui/core/services/online_status_cache.dart';
-import 'package:chattrix_ui/features/auth/presentation/providers/auth_providers.dart';
+import 'package:chattrix_ui/features/auth/presentation/providers/auth_notifier.dart';
 import 'package:chattrix_ui/features/chat/services/cloudinary_provider.dart';
 import 'package:chattrix_ui/features/profile/data/datasources/profile_remote_datasource_impl.dart';
 import 'package:chattrix_ui/features/profile/data/repositories/profile_repository_impl.dart';
@@ -84,7 +84,7 @@ class ProfileController extends _$ProfileController {
       debugPrint('🧹 [Profile] Cleared online status cache on force logout');
 
       // Reset auth state
-      ref.invalidate(authNotifierProvider);
+      ref.invalidate(authProvider);
     } catch (e) {
       debugPrint('❌ [Profile] Error during force logout: $e');
     }

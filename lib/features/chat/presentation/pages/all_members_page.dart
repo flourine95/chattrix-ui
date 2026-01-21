@@ -1,7 +1,7 @@
 import 'package:chattrix_ui/core/constants/api_constants.dart';
-import 'package:chattrix_ui/core/widgets/user_avatar.dart';
 import 'package:chattrix_ui/core/widgets/bottom_sheets.dart';
-import 'package:chattrix_ui/features/auth/presentation/providers/auth_providers.dart';
+import 'package:chattrix_ui/core/widgets/user_avatar.dart';
+import 'package:chattrix_ui/features/auth/presentation/providers/auth_notifier.dart';
 import 'package:chattrix_ui/features/chat/data/models/conversation_model.dart';
 import 'package:chattrix_ui/features/chat/domain/entities/conversation.dart';
 import 'package:chattrix_ui/features/chat/presentation/pages/add_members_page.dart';
@@ -84,9 +84,7 @@ class _AllMembersPageState extends ConsumerState<AllMembersPage> {
               onPressed: () async {
                 final result = await Navigator.push(
                   context,
-                  MaterialPageRoute(
-                    builder: (context) => AddMembersPage(conversationId: _currentConversation.id),
-                  ),
+                  MaterialPageRoute(builder: (context) => AddMembersPage(conversationId: _currentConversation.id)),
                 );
                 // Refresh conversation data after adding members
                 if (result == true && mounted) {

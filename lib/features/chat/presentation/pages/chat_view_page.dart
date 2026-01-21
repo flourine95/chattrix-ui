@@ -1,6 +1,6 @@
 import 'package:chattrix_ui/core/domain/enums/enums.dart';
 import 'package:chattrix_ui/core/widgets/user_avatar.dart';
-import 'package:chattrix_ui/features/auth/presentation/providers/auth_providers.dart';
+import 'package:chattrix_ui/features/auth/presentation/providers/auth_notifier.dart';
 import 'package:chattrix_ui/features/call/presentation/providers/active_call_provider.dart';
 import 'package:chattrix_ui/features/call/presentation/state/call_notifier.dart';
 import 'package:chattrix_ui/features/call/presentation/widgets/active_call_banner.dart';

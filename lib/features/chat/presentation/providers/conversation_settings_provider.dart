@@ -1,5 +1,5 @@
 import 'package:chattrix_ui/core/constants/api_constants.dart';
-import 'package:chattrix_ui/features/auth/presentation/providers/auth_providers.dart';
+import 'package:chattrix_ui/features/auth/presentation/providers/auth_notifier.dart';
 import 'package:chattrix_ui/features/chat/data/datasources/conversation_settings_datasource_impl.dart';
 import 'package:chattrix_ui/features/chat/data/repositories/conversation_settings_repository_impl.dart';
 import 'package:chattrix_ui/features/chat/domain/entities/conversation_settings.dart';

@@ -7,7 +7,7 @@ import 'package:chattrix_ui/features/poll/data/mappers/poll_mapper.dart';
 import 'package:chattrix_ui/features/poll/data/models/poll_dto.dart';
 import 'package:chattrix_ui/features/chat/data/models/event_dto.dart';
 import 'package:chattrix_ui/features/chat/data/datasources/chat_websocket_datasource_impl.dart';
-import 'package:chattrix_ui/features/auth/presentation/providers/auth_providers.dart';
+import 'package:chattrix_ui/features/auth/presentation/providers/auth_notifier.dart';
 import 'package:flutter/foundation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 

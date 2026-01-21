@@ -1,6 +1,5 @@
-import 'package:flutter/material.dart';
+import 'package:chattrix_ui/features/auth/presentation/providers/auth_notifier.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:chattrix_ui/features/auth/presentation/providers/auth_providers.dart';
 
 part 'media_providers.g.dart';
 

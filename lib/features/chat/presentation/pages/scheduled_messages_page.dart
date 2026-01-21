@@ -3,7 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl/intl.dart';
 import '../../../../core/domain/enums/enums.dart';
-import '../../../auth/presentation/providers/auth_providers.dart';
+import '../../../auth/presentation/providers/auth_notifier.dart';
 import '../../domain/entities/scheduled_message.dart';
 import '../../domain/entities/conversation.dart';
 import '../state/scheduled_messages_notifier.dart';

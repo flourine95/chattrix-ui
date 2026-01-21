@@ -1,4 +1,4 @@
-import 'package:chattrix_ui/features/auth/presentation/providers/auth_providers.dart';
+import 'package:chattrix_ui/features/auth/presentation/providers/auth_notifier.dart';
 import 'package:chattrix_ui/features/chat/data/datasources/chat_remote_datasource_impl.dart';
 import 'package:chattrix_ui/features/chat/data/repositories/chat_repository_impl.dart';
 import 'package:chattrix_ui/features/chat/domain/entities/conversation.dart';

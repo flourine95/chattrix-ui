@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:chattrix_ui/core/constants/api_constants.dart';
 import 'package:chattrix_ui/core/network/websocket_providers.dart';
-import 'package:chattrix_ui/features/auth/presentation/providers/auth_providers.dart';
+import 'package:chattrix_ui/features/auth/presentation/providers/auth_notifier.dart';
 import 'package:chattrix_ui/features/chat/data/datasources/chat_websocket_datasource_impl.dart';
 import 'package:chattrix_ui/features/chat/domain/datasources/chat_websocket_datasource.dart';
 import 'package:flutter/foundation.dart';

@@ -17,7 +17,6 @@ class RouterSetup extends HookConsumerWidget {
     useEffect(() {
       final router = GoRouter.of(context);
       ref.read(pipStateProvider.notifier).setRouter(router);
-      debugPrint('[RouterSetup] Router configured for PiP navigation');
       return null;
     }, []);
 

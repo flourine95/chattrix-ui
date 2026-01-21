@@ -1,8 +1,8 @@
 import 'package:chattrix_ui/core/constants/api_constants.dart';
 import 'package:chattrix_ui/core/domain/enums/enums.dart';
-import 'package:chattrix_ui/core/widgets/user_avatar.dart';
 import 'package:chattrix_ui/core/widgets/bottom_sheets.dart';
-import 'package:chattrix_ui/features/auth/presentation/providers/auth_providers.dart';
+import 'package:chattrix_ui/core/widgets/user_avatar.dart';
+import 'package:chattrix_ui/features/auth/presentation/providers/auth_notifier.dart';
 import 'package:chattrix_ui/features/chat/domain/entities/conversation.dart';
 import 'package:chattrix_ui/features/chat/presentation/pages/add_members_page.dart';
 import 'package:chattrix_ui/features/chat/presentation/pages/all_members_page.dart';
@@ -45,12 +45,11 @@ class ChatInfoPage extends HookConsumerWidget {
 
     // Watch conversations list to get updated conversation data
     final conversationsAsync = ref.watch(conversationsProvider);
-    final updatedConversation = conversationsAsync.whenOrNull(
-      data: (conversations) => conversations.firstWhere(
-        (c) => c.id == conversation.id,
-        orElse: () => conversation,
-      ),
-    ) ?? conversation;
+    final updatedConversation =
+        conversationsAsync.whenOrNull(
+          data: (conversations) => conversations.firstWhere((c) => c.id == conversation.id, orElse: () => conversation),
+        ) ??
+        conversation;
 
     final isGroup = updatedConversation.type == ConversationType.group;
     final displayName = isGroup
@@ -466,11 +465,7 @@ class ChatInfoPage extends HookConsumerWidget {
       children: [
         // Avatar - always use UserAvatar for consistent display
         isGroup
-            ? UserAvatar(
-                displayName: displayName,
-                avatarUrl: currentConversation.avatarUrl,
-                radius: 60,
-              )
+            ? UserAvatar(displayName: displayName, avatarUrl: currentConversation.avatarUrl, radius: 60)
             : UserAvatar(
                 displayName: displayName,
                 avatarUrl: currentConversation.participants.firstOrNull?.avatarUrl,
@@ -693,9 +688,7 @@ class ChatInfoPage extends HookConsumerWidget {
                       // Navigate to full media view
                       Navigator.push(
                         context,
-                        MaterialPageRoute(
-                          builder: (context) => FilesLinksPage(conversationId: conversation.id),
-                        ),
+                        MaterialPageRoute(builder: (context) => FilesLinksPage(conversationId: conversation.id)),
                       );
                     },
                     child: Container(
@@ -1407,8 +1400,7 @@ class ChatInfoPage extends HookConsumerWidget {
           subtitle: value.isEmpty ? 'No events yet' : '${value.length} ${value.length == 1 ? 'event' : 'events'}',
           colors: colors,
           textTheme: textTheme,
-          onTap: () =>
-              Navigator.push(context, MaterialPageRoute(builder: (_) => EventsPage(conversationId: convId))),
+          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => EventsPage(conversationId: convId))),
         ),
       ),
       AsyncLoading() => _buildRoundedSection(
@@ -1432,8 +1424,7 @@ class ChatInfoPage extends HookConsumerWidget {
           subtitle: 'Error loading events',
           colors: colors,
           textTheme: textTheme,
-          onTap: () =>
-              Navigator.push(context, MaterialPageRoute(builder: (_) => EventsPage(conversationId: convId))),
+          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => EventsPage(conversationId: convId))),
         ),
       ),
     };
@@ -1456,8 +1447,7 @@ class ChatInfoPage extends HookConsumerWidget {
               : '${value.where((p) => p.active).length} active, ${value.length} total',
           colors: colors,
           textTheme: textTheme,
-          onTap: () =>
-              Navigator.push(context, MaterialPageRoute(builder: (_) => PollsPage(conversationId: convId))),
+          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => PollsPage(conversationId: convId))),
         ),
       ),
       AsyncLoading() => _buildRoundedSection(
@@ -1481,8 +1471,7 @@ class ChatInfoPage extends HookConsumerWidget {
           subtitle: 'Error: $error',
           colors: colors,
           textTheme: textTheme,
-          onTap: () =>
-              Navigator.push(context, MaterialPageRoute(builder: (_) => PollsPage(conversationId: convId))),
+          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => PollsPage(conversationId: convId))),
         ),
       ),
     };

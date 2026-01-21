@@ -1,5 +1,5 @@
 import 'package:chattrix_ui/core/extensions/user_online_extension.dart';
-import 'package:chattrix_ui/features/auth/presentation/providers/auth_providers.dart';
+import 'package:chattrix_ui/features/auth/presentation/providers/auth_notifier.dart';
 import 'package:chattrix_ui/features/profile/presentation/providers/profile_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -422,7 +422,7 @@ class ProfilePage extends ConsumerWidget {
         await ref.read(profileControllerProvider.notifier).forceLogout();
       } else {
         // Normal logout - call API
-        await ref.read(authNotifierProvider.notifier).logout();
+        await ref.read(authProvider.notifier).logout();
       }
 
       if (context.mounted) {

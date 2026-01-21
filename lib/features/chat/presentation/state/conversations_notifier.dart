@@ -5,7 +5,7 @@ import 'package:chattrix_ui/core/domain/enums/conversation_filter.dart';
 import 'package:chattrix_ui/core/domain/enums/conversation_type.dart';
 import 'package:chattrix_ui/core/errors/failures.dart';
 import 'package:chattrix_ui/core/utils/retry_helper.dart';
-import 'package:chattrix_ui/features/auth/presentation/providers/auth_providers.dart';
+import 'package:chattrix_ui/features/auth/presentation/providers/auth_notifier.dart';
 import 'package:chattrix_ui/features/chat/domain/entities/conversation.dart';
 import 'package:chattrix_ui/features/chat/domain/entities/conversation_update.dart';
 import 'package:chattrix_ui/features/chat/domain/entities/message.dart';
@@ -15,7 +15,6 @@ import 'package:chattrix_ui/features/chat/domain/entities/user_status_update.dar
 import 'package:chattrix_ui/features/chat/presentation/providers/chat_usecase_provider.dart';
 import 'package:chattrix_ui/features/chat/presentation/providers/chat_websocket_provider_new.dart';
 import 'package:chattrix_ui/features/chat/presentation/state/filter_notifier.dart';
-import 'package:flutter/material.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'conversations_notifier.g.dart';
@@ -36,13 +35,16 @@ class ConversationsNotifier extends _$ConversationsNotifier {
 
   @override
   FutureOr<List<Conversation>> build() async {
-    // Check if user is logged in first
-    final isLoggedIn = await ref.read(isLoggedInUseCaseProvider)();
-    if (!isLoggedIn) {
+    ref.keepAlive();
+
+    // Check if user is logged in
+    final currentUser = ref.read(currentUserProvider);
+
+    if (currentUser == null) {
+      // No user logged in - return empty list
+      // Router guard should prevent accessing this page without login
       return [];
     }
-    
-    ref.keepAlive();
 
     final wsDataSource = ref.watch(chatWebSocketDataSourceProvider);
 
@@ -149,14 +151,14 @@ class ConversationsNotifier extends _$ConversationsNotifier {
   void _refreshUi() {
     final currentState = state.value;
     if (currentState == null) return;
-    
+
     state = AsyncValue.data(List.of(currentState));
   }
 
   Future<List<Conversation>> _fetchConversations() async {
     // Double check if user is still logged in before fetching
-    final isLoggedIn = await ref.read(isLoggedInUseCaseProvider)();
-    if (!isLoggedIn) {
+    final currentUser = ref.read(currentUserProvider);
+    if (currentUser == null) {
       return [];
     }
 
@@ -381,7 +383,7 @@ class ConversationsNotifier extends _$ConversationsNotifier {
 
       // Parse conversation manually to avoid importing data layer models
       final conversation = _parseConversationFromWebSocket(conversationData);
-      
+
       if (conversation != null) {
         // Check if this is an update (conversation already exists)
         final currentState = state.value;
@@ -395,7 +397,7 @@ class ConversationsNotifier extends _$ConversationsNotifier {
               avatarUrl: conversation.avatarUrl ?? existing.avatarUrl,
               updatedAt: conversation.updatedAt,
             );
-            
+
             // Update the conversation in the list
             final updatedList = currentState.map((c) => c.id == conversation.id ? updated : c).toList();
             final filtered = _filterAndSortConversations(updatedList);
@@ -403,7 +405,7 @@ class ConversationsNotifier extends _$ConversationsNotifier {
             return;
           }
         }
-        
+
         // New conversation - add it
         addConversation(conversation);
       } else {
@@ -428,7 +430,7 @@ class ConversationsNotifier extends _$ConversationsNotifier {
       // Parse participants
       final participantsJson = json['participants'] as List?;
       final participants = <Participant>[];
-      
+
       if (participantsJson != null) {
         for (final p in participantsJson) {
           if (p is Map<String, dynamic>) {
@@ -459,12 +461,10 @@ class ConversationsNotifier extends _$ConversationsNotifier {
           senderFullName: lastMessageJson['senderFullName'] as String?,
           content: lastMessageJson['content'] as String? ?? '',
           type: lastMessageJson['type'] as String? ?? 'TEXT',
-          createdAt: lastMessageJson['createdAt'] != null 
+          createdAt: lastMessageJson['createdAt'] != null
               ? DateTime.parse(lastMessageJson['createdAt'] as String)
               : DateTime.now(),
-          sentAt: lastMessageJson['sentAt'] != null
-              ? DateTime.parse(lastMessageJson['sentAt'] as String)
-              : null,
+          sentAt: lastMessageJson['sentAt'] != null ? DateTime.parse(lastMessageJson['sentAt'] as String) : null,
         );
       }
 
@@ -474,12 +474,8 @@ class ConversationsNotifier extends _$ConversationsNotifier {
         name: json['name'] as String?,
         type: type,
         avatarUrl: json['avatarUrl'] as String?,
-        createdAt: json['createdAt'] != null 
-            ? DateTime.parse(json['createdAt'] as String)
-            : DateTime.now(),
-        updatedAt: json['updatedAt'] != null
-            ? DateTime.parse(json['updatedAt'] as String)
-            : DateTime.now(),
+        createdAt: json['createdAt'] != null ? DateTime.parse(json['createdAt'] as String) : DateTime.now(),
+        updatedAt: json['updatedAt'] != null ? DateTime.parse(json['updatedAt'] as String) : DateTime.now(),
         participants: participants,
         lastMessage: lastMessage,
         unreadCount: json['unreadCount'] as int? ?? 0,
@@ -610,7 +606,7 @@ class ConversationsNotifier extends _$ConversationsNotifier {
         }
         return c;
       }).toList();
-      
+
       final filtered = _filterAndSortConversations(updatedList);
       state = AsyncValue.data(filtered);
     } else {

@@ -1,5 +1,5 @@
 import 'package:chattrix_ui/core/errors/failures.dart';
-import 'package:chattrix_ui/features/auth/presentation/providers/auth_providers.dart';
+import 'package:chattrix_ui/features/auth/presentation/providers/auth_notifier.dart';
 import 'package:chattrix_ui/features/notes/data/datasources/notes_remote_datasource_impl.dart';
 import 'package:chattrix_ui/features/notes/data/repositories/notes_repository_impl.dart';
 import 'package:chattrix_ui/features/notes/domain/datasources/notes_remote_datasource.dart';

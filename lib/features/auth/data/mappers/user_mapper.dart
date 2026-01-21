@@ -1,6 +1,6 @@
-import '../models/user_dto.dart';
-import '../../domain/entities/user.dart';
-import '../../../../core/domain/enums/enums.dart';
+import 'package:chattrix_ui/core/domain/enums/enums.dart';
+import 'package:chattrix_ui/features/auth/data/models/user_dto.dart';
+import 'package:chattrix_ui/features/auth/domain/entities/user.dart';
 
 extension UserDtoMapper on UserDto {
   User toEntity() {
@@ -17,7 +17,6 @@ extension UserDtoMapper on UserDto {
       dateOfBirth: dateOfBirth != null ? DateTime.tryParse(dateOfBirth!) : null,
       location: location,
       profileVisibility: _parseProfileVisibility(profileVisibility),
-      // ❌ REMOVED: online field (now tracked in OnlineStatusCache)
       lastSeen: lastSeen != null ? DateTime.tryParse(lastSeen!) : null,
       createdAt: DateTime.parse(createdAt),
       updatedAt: updatedAt != null ? DateTime.tryParse(updatedAt!) : null,
@@ -68,11 +67,9 @@ extension UserEntityMapper on User {
       dateOfBirth: dateOfBirth?.toIso8601String(),
       location: location,
       profileVisibility: profileVisibility?.name.toUpperCase(),
-      // ❌ REMOVED: online field (now tracked in OnlineStatusCache)
       lastSeen: lastSeen?.toIso8601String(),
       createdAt: createdAt.toIso8601String(),
       updatedAt: updatedAt?.toIso8601String(),
     );
   }
 }
-

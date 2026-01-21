@@ -1,5 +1,5 @@
-import '../models/auth_tokens_dto.dart';
-import '../../domain/entities/auth_tokens.dart';
+import 'package:chattrix_ui/features/auth/data/models/auth_tokens_dto.dart';
+import 'package:chattrix_ui/features/auth/domain/entities/auth_tokens.dart';
 
 extension AuthTokensDtoMapper on AuthTokensDto {
   AuthTokens toEntity() {

@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:chattrix_ui/features/auth/presentation/providers/auth_providers.dart';
+import 'package:chattrix_ui/features/auth/presentation/providers/auth_notifier.dart';
 import 'package:chattrix_ui/features/chat/data/datasources/chat_websocket_datasource_impl.dart';
 import 'package:chattrix_ui/features/chat/data/datasources/poll_datasource_impl.dart';
 import 'package:chattrix_ui/features/chat/data/models/poll_model.dart';
