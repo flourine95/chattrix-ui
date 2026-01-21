@@ -1,4 +1,5 @@
 import 'package:audioplayers/audioplayers.dart';
+import 'package:chattrix_ui/core/toast/toastification_helper.dart';
 import 'package:chattrix_ui/features/chat/domain/entities/message.dart';
 import 'package:chattrix_ui/features/chat/domain/entities/reply_to_message.dart';
 import 'package:chattrix_ui/features/chat/presentation/utils/format_utils.dart';
@@ -124,7 +125,7 @@ class _AudioMessageBubbleState extends State<AudioMessageBubble> with AutomaticK
     } catch (e) {
       debugPrint('❌ Failed to play/pause audio: $e');
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to play audio: $e')));
+        AppToast.error(context, title: 'Failed to play audio', description: e.toString());
       }
     }
   }

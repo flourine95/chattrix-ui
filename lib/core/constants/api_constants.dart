@@ -219,7 +219,7 @@ class ApiConstants {
   // Search endpoints
   static String searchMessages(int conversationId) => '$_baseUrl/$_v1/conversations/$conversationId/search/messages';
 
-  static String searchMedia(int conversationId) => '$_baseUrl/$_v1/conversations/$conversationId/search/media';
+  static String searchMedia(int conversationId) => '$_baseUrl/$_v1/search/conversations/$conversationId/media';
 
   // Poll & Event endpoints (New)
   static String createPoll(int conversationId) => '$_baseUrl/$_v1/conversations/$conversationId/messages/poll';
@@ -235,15 +235,18 @@ class ApiConstants {
   static String eventRsvps(int conversationId, int eventId) =>
       '$_baseUrl/$_v1/conversations/$conversationId/events/$eventId/rsvps';
 
-  // Invite Link endpoints
-  static String inviteLinks(int conversationId) => '$_baseUrl/$_v1/conversations/$conversationId/invite-links';
+  // Invite Link endpoints (NEW API - Updated Jan 2026)
+  static String createInviteLink(int conversationId) => '$_baseUrl/$_v1/conversations/$conversationId/invite-link';
 
-  static String inviteLinkById(int conversationId, int linkId) =>
-      '$_baseUrl/$_v1/conversations/$conversationId/invite-links/$linkId';
+  static String getInviteLink(int conversationId) => '$_baseUrl/$_v1/conversations/$conversationId/invite-link';
 
-  static String inviteLinkInfo(String token) => '$_baseUrl/$_v1/invite-links/$token';
+  static String getInviteLinksHistory(int conversationId) => '$_baseUrl/$_v1/conversations/$conversationId/invite-links';
 
-  static String joinViaInviteLink(String token) => '$_baseUrl/$_v1/invite-links/$token/join';
+  static String revokeInviteLink(int conversationId) => '$_baseUrl/$_v1/conversations/$conversationId/invite-link';
+
+  static String inviteLinkPreview(String token) => '$_baseUrl/$_v1/invite/$token';
+
+  static String joinViaInviteLink(String token) => '$_baseUrl/$_v1/invite/$token/join';
 
   // Birthday endpoints
   static String get birthdaysToday => '$_baseUrl/$_v1/birthdays/today';

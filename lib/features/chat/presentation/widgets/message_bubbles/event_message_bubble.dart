@@ -1,3 +1,4 @@
+import 'package:chattrix_ui/core/toast/toastification_helper.dart';
 import 'package:chattrix_ui/features/chat/domain/entities/message.dart';
 import 'package:chattrix_ui/features/chat/presentation/providers/events_providers.dart';
 import 'package:flutter/material.dart';
@@ -191,43 +192,18 @@ class EventMessageBubble extends HookConsumerWidget {
 
       if (!context.mounted) return;
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Row(
-            children: [
-              Icon(
-                status == 'GOING'
-                    ? Icons.check_circle
-                    : status == 'MAYBE'
-                    ? Icons.help_outline
-                    : Icons.cancel,
-                color: Colors.white,
-              ),
-              const SizedBox(width: 8),
-              Text('RSVP updated to ${status.toLowerCase()}'),
-            ],
-          ),
-          backgroundColor: Colors.grey.shade900,
-          behavior: SnackBarBehavior.floating,
-        ),
+      AppToast.success(
+        context,
+        title: 'RSVP Updated',
+        description: 'Status changed to ${status.toLowerCase()}',
       );
     } catch (e) {
       if (!context.mounted) return;
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Row(
-            children: [
-              const Icon(Icons.error_outline, color: Colors.white),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text('Failed to update RSVP: $e'),
-              ),
-            ],
-          ),
-          backgroundColor: Colors.red.shade900,
-          behavior: SnackBarBehavior.floating,
-        ),
+      AppToast.error(
+        context,
+        title: 'Failed to update RSVP',
+        description: e.toString(),
       );
     }
   }
@@ -420,41 +396,18 @@ class _EventDetailsBottomSheet extends HookConsumerWidget {
 
       if (!context.mounted) return;
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Row(
-            children: [
-              Icon(
-                status == 'GOING'
-                    ? Icons.check_circle
-                    : status == 'MAYBE'
-                    ? Icons.help_outline
-                    : Icons.cancel,
-                color: Colors.white,
-              ),
-              const SizedBox(width: 8),
-              Text('RSVP updated to ${status.toLowerCase().replaceAll('_', ' ')}'),
-            ],
-          ),
-          backgroundColor: Colors.grey.shade900,
-          behavior: SnackBarBehavior.floating,
-        ),
+      AppToast.success(
+        context,
+        title: 'RSVP Updated',
+        description: 'Status changed to ${status.toLowerCase().replaceAll('_', ' ')}',
       );
     } catch (e) {
       if (!context.mounted) return;
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Row(
-            children: [
-              const Icon(Icons.error_outline, color: Colors.white),
-              const SizedBox(width: 8),
-              Text('Failed to update RSVP: $e'),
-            ],
-          ),
-          backgroundColor: Colors.red.shade900,
-          behavior: SnackBarBehavior.floating,
-        ),
+      AppToast.error(
+        context,
+        title: 'Failed to update RSVP',
+        description: e.toString(),
       );
     }
   }
@@ -486,36 +439,14 @@ class _EventDetailsBottomSheet extends HookConsumerWidget {
 
       Navigator.pop(context); // Close bottom sheet
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Row(
-            children: [
-              Icon(Icons.check_circle, color: Colors.white),
-              SizedBox(width: 8),
-              Text('Event deleted successfully'),
-            ],
-          ),
-          backgroundColor: Colors.grey.shade900,
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
+      AppToast.success(context, title: 'Event deleted successfully');
     } catch (e) {
       if (!context.mounted) return;
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Row(
-            children: [
-              const Icon(Icons.error_outline, color: Colors.white),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text('Failed to delete event: $e'),
-              ),
-            ],
-          ),
-          backgroundColor: Colors.red.shade900,
-          behavior: SnackBarBehavior.floating,
-        ),
+      AppToast.error(
+        context,
+        title: 'Failed to delete event',
+        description: e.toString(),
       );
     }
   }

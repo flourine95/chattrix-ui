@@ -1,13 +1,13 @@
 import 'package:chattrix_ui/features/chat/domain/entities/message.dart';
 import 'package:chattrix_ui/features/chat/domain/entities/reply_to_message.dart';
 import 'package:chattrix_ui/features/chat/presentation/widgets/message_bubbles/audio_message_bubble.dart';
+import 'package:chattrix_ui/features/chat/presentation/widgets/message_bubbles/call_message_bubble.dart';
 import 'package:chattrix_ui/features/chat/presentation/widgets/message_bubbles/document_message_bubble.dart';
 import 'package:chattrix_ui/features/chat/presentation/widgets/message_bubbles/emoji_message_bubble.dart';
 import 'package:chattrix_ui/features/chat/presentation/widgets/message_bubbles/event_message_bubble.dart';
 import 'package:chattrix_ui/features/chat/presentation/widgets/message_bubbles/image_message_bubble.dart';
 import 'package:chattrix_ui/features/chat/presentation/widgets/message_bubbles/link_message_bubble.dart';
 import 'package:chattrix_ui/features/chat/presentation/widgets/message_bubbles/location_message_bubble.dart';
-import 'package:chattrix_ui/features/chat/presentation/widgets/message_bubbles/scheduled_message_bubble.dart';
 import 'package:chattrix_ui/features/chat/presentation/widgets/message_bubbles/sticker_message_bubble.dart';
 import 'package:chattrix_ui/features/chat/presentation/widgets/message_bubbles/system_message_bubble.dart';
 import 'package:chattrix_ui/features/chat/presentation/widgets/message_bubbles/text_message_bubble.dart';
@@ -58,12 +58,8 @@ class MessageBubble extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Check if this is a scheduled message - render as centered system-like message
-    if (message.scheduled) {
-      return ScheduledMessageBubble(message: message, isMe: isMe, isHighlighted: isHighlighted);
-    }
-
     // Determine message type and render appropriate bubble
+    // Note: Scheduled messages are rendered as their original type (TEXT, IMAGE, etc.)
     var messageType = message.type.toUpperCase();
     
     // 🔧 FIX: Backend sometimes returns wrong type for media messages
@@ -96,6 +92,22 @@ class MessageBubble extends StatelessWidget {
     return RepaintBoundary(
       child: switch (messageType) {
         'SYSTEM' => SystemMessageBubble(message: message),
+        'CALL' => CallMessageBubble(
+          message: message,
+          isMe: isMe,
+          onReply: onReply,
+          onPin: onPin,
+          onReactionTap: onReactionTap,
+          onAddReaction: onAddReaction,
+          currentUserId: currentUserId,
+          replyToMessage: replyToMessage,
+          onEdit: onEdit,
+          onDelete: onDelete,
+          onForward: onForward,
+          onScrollToMessage: onScrollToMessage,
+          isGroup: isGroup,
+          isLastMessage: isLastMessage,
+        ),
         'POLL' => PollMessageBubble(message: message, currentUserId: currentUserId ?? 0),
         'EVENT' => EventMessageBubble(message: message, currentUserId: currentUserId ?? 0),
         'LINK' => LinkMessageBubble(

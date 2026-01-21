@@ -5,6 +5,7 @@ import 'package:chattrix_ui/features/chat/data/repositories/conversation_setting
 import 'package:chattrix_ui/features/chat/domain/entities/conversation_settings.dart';
 import 'package:chattrix_ui/features/chat/domain/repositories/conversation_settings_repository.dart';
 import 'package:chattrix_ui/features/chat/presentation/state/conversations_notifier.dart';
+import 'package:flutter/foundation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'conversation_settings_provider.g.dart';
@@ -43,13 +44,45 @@ class ConversationSettingsNotifier extends _$ConversationSettingsNotifier {
           ? await repository.unpinConversation(conversationId: conversationId)
           : await repository.pinConversation(conversationId: conversationId);
 
-      result.fold((failure) => state = AsyncValue.error(failure, StackTrace.current), (settings) {
+      result.fold((failure) {
+        // Check if it's an "already pinned/unpinned" error
+        final errorMessage = failure.message.toLowerCase();
+        final isAlreadyPinnedError = errorMessage.contains('already pinned') || 
+                                      errorMessage.contains('already unpinned') ||
+                                      errorMessage.contains('not pinned');
+        
+        if (isAlreadyPinnedError) {
+          // Silently refresh conversations without showing error
+          debugPrint('ℹ️ Conversation pin state already matches desired state');
+          ref.invalidate(conversationsProvider);
+          // Keep current state
+          state = AsyncValue.data(current);
+        } else {
+          // Real error
+          state = AsyncValue.error(failure, StackTrace.current);
+        }
+      }, (settings) {
         state = AsyncValue.data(settings);
         ref.invalidate(conversationsProvider);
       });
     } catch (e, st) {
-      state = AsyncValue.error(e, st);
-      rethrow;
+      // Check if it's an "already pinned/unpinned" error
+      final errorMessage = e.toString().toLowerCase();
+      final isAlreadyPinnedError = errorMessage.contains('already pinned') || 
+                                    errorMessage.contains('already unpinned') ||
+                                    errorMessage.contains('not pinned');
+      
+      if (isAlreadyPinnedError) {
+        // Silently refresh conversations without showing error
+        debugPrint('ℹ️ Conversation pin state already matches desired state');
+        ref.invalidate(conversationsProvider);
+        // Keep current state
+        state = AsyncValue.data(current);
+      } else {
+        // Real error
+        state = AsyncValue.error(e, st);
+        rethrow;
+      }
     }
   }
 

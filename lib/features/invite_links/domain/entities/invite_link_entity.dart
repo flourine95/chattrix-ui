@@ -83,3 +83,58 @@ abstract class JoinGroupResultEntity with _$JoinGroupResultEntity {
     String? groupName,
   }) = _JoinGroupResultEntity;
 }
+
+/// User info in history
+@freezed
+abstract class InviteLinkUserEntity with _$InviteLinkUserEntity {
+  const factory InviteLinkUserEntity({
+    required int id,
+    required String username,
+    required String fullName,
+    String? avatarUrl,
+    DateTime? lastSeen,
+  }) = _InviteLinkUserEntity;
+}
+
+/// Single link in history
+@freezed
+abstract class InviteLinkHistoryItemEntity with _$InviteLinkHistoryItemEntity {
+  const factory InviteLinkHistoryItemEntity({
+    required String token,
+    required InviteLinkUserEntity createdBy,
+    required DateTime createdAt,
+    required int maxUses,
+    required int currentUses,
+    required bool isActive,
+    required bool isRevoked,
+    required bool isExpired,
+    required String status,
+  }) = _InviteLinkHistoryItemEntity;
+
+  const InviteLinkHistoryItemEntity._();
+
+  String get inviteUrl => 'https://chattrix.app/invite/$token';
+
+  String get deepLinkUrl => 'chattrix://invite/$token';
+
+  bool get canUse => isActive && !isExpired && !isRevoked && (maxUses == 0 || currentUses < maxUses);
+}
+
+/// Pagination metadata with cursor
+@freezed
+abstract class InviteLinksMetaEntity with _$InviteLinksMetaEntity {
+  const factory InviteLinksMetaEntity({
+    String? nextCursor,
+    required bool hasNextPage,
+    required int itemsPerPage,
+  }) = _InviteLinksMetaEntity;
+}
+
+/// History response with cursor-based pagination
+@freezed
+abstract class InviteLinksHistoryEntity with _$InviteLinksHistoryEntity {
+  const factory InviteLinksHistoryEntity({
+    required List<InviteLinkHistoryItemEntity> items,
+    required InviteLinksMetaEntity meta,
+  }) = _InviteLinksHistoryEntity;
+}

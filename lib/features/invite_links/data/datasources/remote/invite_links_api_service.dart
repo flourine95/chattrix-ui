@@ -1,3 +1,4 @@
+import 'package:chattrix_ui/core/constants/api_constants.dart';
 import 'package:chattrix_ui/core/network/api_response.dart';
 import 'package:chattrix_ui/features/invite_links/data/models/invite_link_dto.dart';
 import 'package:dio/dio.dart';
@@ -7,14 +8,26 @@ class InviteLinksApiService {
 
   InviteLinksApiService(this._dio);
 
+  /// Create invite link
+  /// 
+  /// **Endpoint**: `POST /v1/conversations/{conversationId}/invite-link`
+  /// 
+  /// **Errors:**
+  /// - 400: Invalid parameters
+  /// - 401: Unauthorized
+  /// - 403: Not admin/owner
+  /// - 404: Conversation not found
   Future<ApiResponse<InviteLinkDto>> createInviteLink({
     required int conversationId,
     int? expiresIn,
     int? maxUses,
   }) async {
     final response = await _dio.post(
-      '/v1/invite-links/conversations/$conversationId',
-      data: {if (expiresIn != null) 'expiresIn': expiresIn, if (maxUses != null) 'maxUses': maxUses},
+      ApiConstants.createInviteLink(conversationId),
+      data: {
+        if (expiresIn != null) 'expiresIn': expiresIn,
+        if (maxUses != null) 'maxUses': maxUses,
+      },
     );
 
     return ApiResponse<InviteLinkDto>.fromJson(
@@ -23,22 +36,47 @@ class InviteLinksApiService {
     );
   }
 
-  Future<ApiResponse<Map<String, dynamic>>> getInviteLinks({
+  /// Get invite link history with cursor-based pagination
+  /// 
+  /// **Endpoint**: `GET /v1/conversations/{conversationId}/invite-links`
+  /// 
+  /// **Errors:**
+  /// - 401: Unauthorized
+  /// - 403: Not a member
+  /// - 404: Conversation not found
+  Future<ApiResponse<InviteLinksHistoryDto>> getInviteLinksHistory({
     required int conversationId,
     String? cursor,
     int limit = 20,
-    bool includeRevoked = false,
   }) async {
     final response = await _dio.get(
-      '/v1/invite-links/conversations/$conversationId',
-      queryParameters: {if (cursor != null) 'cursor': cursor, 'limit': limit, 'includeRevoked': includeRevoked},
+      ApiConstants.getInviteLinksHistory(conversationId),
+      queryParameters: {
+        if (cursor != null) 'cursor': cursor,
+        'limit': limit,
+      },
     );
 
-    return ApiResponse<Map<String, dynamic>>.fromJson(response.data, (json) => json as Map<String, dynamic>);
+    return ApiResponse<InviteLinksHistoryDto>.fromJson(
+      response.data,
+      (json) => InviteLinksHistoryDto.fromJson(json as Map<String, dynamic>),
+    );
   }
 
-  Future<ApiResponse<InviteLinkDto>> revokeInviteLink({required int conversationId, required int linkId}) async {
-    final response = await _dio.delete('/v1/invite-links/conversations/$conversationId/links/$linkId');
+  /// Get current invite link
+  /// 
+  /// **Endpoint**: `GET /v1/conversations/{conversationId}/invite-link`
+  /// 
+  /// **Errors:**
+  /// - 401: Unauthorized
+  /// - 403: Not a member
+  /// - 404: Conversation not found or no active link
+  Future<ApiResponse<InviteLinkDto>> getInviteLink({
+    required int conversationId,
+  }) async {
+    final response = await _dio.get(
+      ApiConstants.getInviteLink(conversationId),
+    );
 
     return ApiResponse<InviteLinkDto>.fromJson(
       response.data,
@@ -46,23 +84,40 @@ class InviteLinksApiService {
     );
   }
 
-  Future<List<int>> getQRCode({
+  /// Revoke invite link
+  /// 
+  /// **Endpoint**: `DELETE /v1/conversations/{conversationId}/invite-link`
+  /// 
+  /// **Errors:**
+  /// - 401: Unauthorized
+  /// - 403: Not admin/owner
+  /// - 404: Conversation not found or no active link
+  Future<ApiResponse<InviteLinkDto>> revokeInviteLink({
     required int conversationId,
-    required int linkId,
-    int size = 300,
-    String? apiUrl,
   }) async {
-    final response = await _dio.get(
-      '/v1/invite-links/conversations/$conversationId/links/$linkId/qr',
-      queryParameters: {'size': size, if (apiUrl != null) 'apiUrl': apiUrl},
-      options: Options(responseType: ResponseType.bytes),
+    final response = await _dio.delete(
+      ApiConstants.revokeInviteLink(conversationId),
     );
 
-    return response.data as List<int>;
+    return ApiResponse<InviteLinkDto>.fromJson(
+      response.data,
+      (json) => InviteLinkDto.fromJson(json as Map<String, dynamic>),
+    );
   }
 
-  Future<ApiResponse<InviteLinkInfoDto>> getInviteLinkInfo({required String token}) async {
-    final response = await _dio.get('/v1/invite-links/$token');
+  /// Get invite link info (preview) - No auth required
+  /// 
+  /// **Endpoint**: `GET /v1/invite/{token}`
+  /// 
+  /// **Errors:**
+  /// - 404: Invalid token
+  /// - 410: Link expired or revoked
+  Future<ApiResponse<InviteLinkInfoDto>> getInviteLinkInfo({
+    required String token,
+  }) async {
+    final response = await _dio.get(
+      ApiConstants.inviteLinkPreview(token),
+    );
 
     return ApiResponse<InviteLinkInfoDto>.fromJson(
       response.data,
@@ -70,8 +125,22 @@ class InviteLinksApiService {
     );
   }
 
-  Future<ApiResponse<JoinGroupResponseDto>> joinGroupViaLink({required String token}) async {
-    final response = await _dio.post('/v1/invite-links/$token');
+  /// Join group via invite link
+  /// 
+  /// **Endpoint**: `POST /v1/invite/{token}/join`
+  /// 
+  /// **Errors:**
+  /// - 400: Already a member
+  /// - 401: Unauthorized
+  /// - 404: Invalid token
+  /// - 410: Link expired or revoked
+  /// - 429: Max uses reached
+  Future<ApiResponse<JoinGroupResponseDto>> joinGroupViaLink({
+    required String token,
+  }) async {
+    final response = await _dio.post(
+      ApiConstants.joinViaInviteLink(token),
+    );
 
     return ApiResponse<JoinGroupResponseDto>.fromJson(
       response.data,

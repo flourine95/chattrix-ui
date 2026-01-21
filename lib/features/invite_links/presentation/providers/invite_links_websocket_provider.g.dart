@@ -47,7 +47,7 @@ final class InviteLinksWebSocketListenerProvider
 }
 
 String _$inviteLinksWebSocketListenerHash() =>
-    r'6e0e8a586dc5763d881fae5ea711ec2cd795618e';
+    r'409e5dca3a2e5a0c64c3ea4572cb1a58f144c564';
 
 abstract class _$InviteLinksWebSocketListener extends $Notifier<bool> {
   bool build();

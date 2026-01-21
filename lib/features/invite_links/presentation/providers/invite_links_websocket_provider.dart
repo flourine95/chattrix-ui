@@ -3,7 +3,7 @@ import 'package:chattrix_ui/core/network/websocket_providers.dart';
 import 'package:flutter/foundation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-import 'invite_links_list_provider.dart';
+import 'invite_links_history_provider.dart';
 
 part 'invite_links_websocket_provider.g.dart';
 
@@ -38,7 +38,8 @@ class InviteLinksWebSocketListener extends _$InviteLinksWebSocketListener {
     try {
       final conversationId = data['conversationId'] as int?;
       if (conversationId != null) {
-        ref.invalidate(inviteLinksListProvider(conversationId));
+        // Refresh the history list to show the new link
+        ref.invalidate(inviteLinksHistoryProvider(conversationId));
       }
     } catch (e) {
       debugPrint('Error handling invite link created event: $e');
@@ -49,7 +50,8 @@ class InviteLinksWebSocketListener extends _$InviteLinksWebSocketListener {
     try {
       final conversationId = data['conversationId'] as int?;
       if (conversationId != null) {
-        ref.invalidate(inviteLinksListProvider(conversationId));
+        // Refresh the history list to update the revoked link
+        ref.invalidate(inviteLinksHistoryProvider(conversationId));
       }
     } catch (e) {
       debugPrint('Error handling invite link revoked event: $e');
@@ -60,10 +62,12 @@ class InviteLinksWebSocketListener extends _$InviteLinksWebSocketListener {
     try {
       final conversationId = data['conversationId'] as int?;
       if (conversationId != null) {
-        ref.invalidate(inviteLinksListProvider(conversationId));
+        // Refresh the history list to update usage count
+        ref.invalidate(inviteLinksHistoryProvider(conversationId));
       }
     } catch (e) {
       debugPrint('Error handling invite link used event: $e');
     }
   }
 }
+

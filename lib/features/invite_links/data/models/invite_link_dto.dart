@@ -63,3 +63,61 @@ abstract class JoinGroupResponseDto with _$JoinGroupResponseDto {
 
   factory JoinGroupResponseDto.fromJson(Map<String, dynamic> json) => _$JoinGroupResponseDtoFromJson(json);
 }
+
+/// User info in history response
+@freezed
+abstract class InviteLinkUserDto with _$InviteLinkUserDto {
+  const factory InviteLinkUserDto({
+    required int id,
+    required String username,
+    required String fullName,
+    String? avatarUrl,
+    String? lastSeen,
+  }) = _InviteLinkUserDto;
+
+  factory InviteLinkUserDto.fromJson(Map<String, dynamic> json) => _$InviteLinkUserDtoFromJson(json);
+}
+
+/// Single link in history
+@freezed
+abstract class InviteLinkHistoryItemDto with _$InviteLinkHistoryItemDto {
+  const factory InviteLinkHistoryItemDto({
+    required String token,
+    required InviteLinkUserDto createdBy,
+    required String createdAt,
+    required int maxUses,
+    required int currentUses,
+    required bool isActive,
+    required bool isRevoked,
+    required bool isExpired,
+    required String status,
+  }) = _InviteLinkHistoryItemDto;
+
+  factory InviteLinkHistoryItemDto.fromJson(Map<String, dynamic> json) =>
+      _$InviteLinkHistoryItemDtoFromJson(json);
+}
+
+/// Pagination metadata with cursor
+@freezed
+abstract class InviteLinksMetaDto with _$InviteLinksMetaDto {
+  const factory InviteLinksMetaDto({
+    String? nextCursor,
+    required bool hasNextPage,
+    required int itemsPerPage,
+  }) = _InviteLinksMetaDto;
+
+  factory InviteLinksMetaDto.fromJson(Map<String, dynamic> json) =>
+      _$InviteLinksMetaDtoFromJson(json);
+}
+
+/// History response with cursor-based pagination
+@freezed
+abstract class InviteLinksHistoryDto with _$InviteLinksHistoryDto {
+  const factory InviteLinksHistoryDto({
+    required List<InviteLinkHistoryItemDto> items,
+    required InviteLinksMetaDto meta,
+  }) = _InviteLinksHistoryDto;
+
+  factory InviteLinksHistoryDto.fromJson(Map<String, dynamic> json) =>
+      _$InviteLinksHistoryDtoFromJson(json);
+}

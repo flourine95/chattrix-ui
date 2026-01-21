@@ -1,4 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:chattrix_ui/core/toast/toastification_helper.dart';
 import 'package:chattrix_ui/features/chat/domain/entities/message.dart';
 import 'package:chattrix_ui/features/chat/domain/entities/reply_to_message.dart';
 import 'package:chattrix_ui/features/chat/presentation/utils/format_utils.dart';
@@ -231,17 +232,13 @@ class _LinkMessageBubbleState extends State<LinkMessageBubble> {
         debugPrint('❌ Cannot launch URL: $uri');
         // Show error to user
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Không thể mở link: $url')),
-          );
+          AppToast.error(context, title: 'Cannot open link', description: url);
         }
       }
     } catch (e) {
       debugPrint('❌ Error opening URL: $e');
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Lỗi khi mở link: $e')),
-        );
+        AppToast.error(context, title: 'Error opening link', description: e.toString());
       }
     }
   }

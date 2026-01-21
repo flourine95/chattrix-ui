@@ -6,6 +6,9 @@ import 'invite_links_providers.dart';
 
 part 'revoke_invite_link_provider.g.dart';
 
+/// Provider for revoking the current active invite link
+/// 
+/// **API**: DELETE /v1/conversations/{conversationId}/invite-link
 @riverpod
 class RevokeInviteLink extends _$RevokeInviteLink {
   @override
@@ -13,18 +16,22 @@ class RevokeInviteLink extends _$RevokeInviteLink {
     return null;
   }
 
-  Future<void> revoke({required int conversationId, required int linkId}) async {
+  /// Revoke the current invite link
+  Future<void> revoke({required int conversationId}) async {
     state = const AsyncValue.loading();
 
     final useCase = ref.read(revokeInviteLinkUseCaseProvider);
 
-    final result = await useCase(conversationId: conversationId, linkId: linkId);
+    final result = await useCase(conversationId: conversationId);
 
     if (ref.mounted) {
-      state = result.fold((failure) {
-        final f = failure;
-        return AsyncValue.error(Exception(f.userMessage), StackTrace.current);
-      }, (link) => AsyncValue.data(link));
+      state = result.fold(
+        (failure) {
+          final f = failure;
+          return AsyncValue.error(Exception(f.userMessage), StackTrace.current);
+        },
+        (link) => AsyncValue.data(link),
+      );
     }
   }
 

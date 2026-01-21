@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'dart:async';
 import '../providers/search_messages_provider.dart';
 
 class SearchMessagesPage extends HookConsumerWidget {
@@ -16,6 +17,8 @@ class SearchMessagesPage extends HookConsumerWidget {
     final searchController = useTextEditingController();
     final searchFocus = useFocusNode();
     final searchQuery = useState('');
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final bgColor = isDark ? const Color(0xFF2C2C2E) : const Color(0xFFF3F4F6);
 
     // Auto focus search field
     useEffect(() {
@@ -25,50 +28,109 @@ class SearchMessagesPage extends HookConsumerWidget {
       return null;
     }, []);
 
+    // Debounce timer for search
+    useEffect(() {
+      Timer? debounceTimer;
+
+      void onSearchChanged() {
+        debounceTimer?.cancel();
+        debounceTimer = Timer(const Duration(milliseconds: 500), () {
+          searchQuery.value = searchController.text.trim();
+        });
+      }
+
+      searchController.addListener(onSearchChanged);
+
+      return () {
+        debounceTimer?.cancel();
+        searchController.removeListener(onSearchChanged);
+      };
+    }, [searchController]);
+
     final colors = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
 
     return Scaffold(
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
-        title: TextField(
-          controller: searchController,
-          focusNode: searchFocus,
-          decoration: InputDecoration(
-            hintText: 'Search messages...',
-            border: InputBorder.none,
-            hintStyle: TextStyle(color: colors.onSurface.withValues(alpha: 0.5)),
-          ),
-          style: textTheme.bodyLarge,
-          onChanged: (value) {
-            searchQuery.value = value;
-          },
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        surfaceTintColor: Colors.transparent,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => context.pop(),
         ),
-        actions: [
-          if (searchController.text.isNotEmpty)
-            IconButton(
-              icon: const Icon(Icons.clear),
-              onPressed: () {
-                searchController.clear();
-                searchQuery.value = '';
-              },
+        title: const Text('Search Messages', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600)),
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(1),
+          child: Container(
+            height: 0.5,
+            color: isDark ? Colors.grey.withValues(alpha: 0.2) : Colors.grey.withValues(alpha: 0.1),
+          ),
+        ),
+      ),
+      body: Column(
+        children: [
+          // Search Box
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
+            child: Container(
+              height: 40,
+              decoration: BoxDecoration(
+                color: bgColor,
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: TextField(
+                controller: searchController,
+                focusNode: searchFocus,
+                decoration: InputDecoration(
+                  hintText: 'Search messages...',
+                  border: InputBorder.none,
+                  enabledBorder: InputBorder.none,
+                  focusedBorder: InputBorder.none,
+                  prefixIcon: Icon(Icons.search, size: 20, color: isDark ? Colors.grey[400] : Colors.grey[600]),
+                  suffixIcon: searchController.text.isNotEmpty
+                      ? IconButton(
+                          icon: const Icon(Icons.clear, size: 20),
+                          onPressed: () {
+                            searchController.clear();
+                            searchQuery.value = '';
+                          },
+                        )
+                      : null,
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                ),
+                style: const TextStyle(fontSize: 15),
+              ),
             ),
+          ),
+
+          // Results
+          Expanded(
+            child: _buildBody(context, ref, searchQuery.value, colors, textTheme, isDark),
+          ),
         ],
       ),
-      body: _buildBody(context, ref, searchQuery.value, colors, textTheme),
     );
   }
 
-  Widget _buildBody(BuildContext context, WidgetRef ref, String query, ColorScheme colors, TextTheme textTheme) {
+  Widget _buildBody(BuildContext context, WidgetRef ref, String query, ColorScheme colors, TextTheme textTheme, bool isDark) {
     if (query.trim().isEmpty) {
       return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.search, size: 64, color: colors.onSurface.withValues(alpha: 0.3)),
+            Icon(Icons.search, size: 64, color: Colors.grey[400]),
             const SizedBox(height: 16),
             Text(
               'Search for messages',
-              style: textTheme.titleMedium?.copyWith(color: colors.onSurface.withValues(alpha: 0.5)),
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.grey[600]),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Type to search in this conversation',
+              style: TextStyle(fontSize: 14, color: Colors.grey[500]),
             ),
           ],
         ),
@@ -85,19 +147,30 @@ class SearchMessagesPage extends HookConsumerWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Icons.search_off, size: 64, color: colors.onSurface.withValues(alpha: 0.3)),
+                Icon(Icons.search_off, size: 64, color: Colors.grey[400]),
                 const SizedBox(height: 16),
                 Text(
                   'No messages found',
-                  style: textTheme.titleMedium?.copyWith(color: colors.onSurface.withValues(alpha: 0.5)),
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.grey[600]),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Try a different search term',
+                  style: TextStyle(fontSize: 14, color: Colors.grey[500]),
                 ),
               ],
             ),
           );
         }
 
-        return ListView.builder(
+        return ListView.separated(
           itemCount: messages.length,
+          separatorBuilder: (_, _) => Divider(
+            height: 1,
+            thickness: 0.5,
+            color: isDark ? Colors.grey.withValues(alpha: 0.2) : Colors.grey.withValues(alpha: 0.1),
+            indent: 64,
+          ),
           itemBuilder: (context, index) => _buildResultItem(context, ref, messages[index], query, colors, textTheme),
         );
       },
@@ -106,11 +179,16 @@ class SearchMessagesPage extends HookConsumerWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.error_outline, size: 64, color: colors.error),
+            Icon(Icons.error_outline, size: 64, color: Colors.red[300]),
             const SizedBox(height: 16),
             Text(
-              'Error: ${error.toString()}',
-              style: textTheme.bodyMedium?.copyWith(color: colors.error),
+              'Search failed',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: Colors.red[700]),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              error.toString(),
+              style: TextStyle(fontSize: 14, color: Colors.grey[600]),
               textAlign: TextAlign.center,
             ),
           ],

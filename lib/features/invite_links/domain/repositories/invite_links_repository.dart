@@ -3,29 +3,43 @@ import 'package:chattrix_ui/features/invite_links/domain/entities/invite_link_en
 import 'package:fpdart/fpdart.dart';
 
 abstract class InviteLinksRepository {
+  /// Create invite link for a conversation
+  /// Returns the created invite link
   Future<Either<Failure, InviteLinkEntity>> createInviteLink({
     required int conversationId,
     int? expiresIn,
     int? maxUses,
   });
 
-  Future<Either<Failure, ({List<InviteLinkEntity> items, String? nextCursor, bool hasNextPage})>> getInviteLinks({
+  /// Get invite links history with cursor-based pagination
+  /// Returns paginated list of all links (active, expired, revoked)
+  Future<Either<Failure, InviteLinksHistoryEntity>> getInviteLinksHistory({
     required int conversationId,
     String? cursor,
     int limit = 20,
-    bool includeRevoked = false,
   });
 
-  Future<Either<Failure, InviteLinkEntity>> revokeInviteLink({required int conversationId, required int linkId});
-
-  Future<Either<Failure, List<int>>> getQRCode({
+  /// Get current active invite link for a conversation
+  /// Returns null if no active link exists
+  Future<Either<Failure, InviteLinkEntity?>> getInviteLink({
     required int conversationId,
-    required int linkId,
-    int size = 300,
-    String? apiUrl,
   });
 
-  Future<Either<Failure, InviteLinkInfoEntity>> getInviteLinkInfo({required String token});
+  /// Revoke the current invite link
+  /// Returns the revoked link
+  Future<Either<Failure, InviteLinkEntity>> revokeInviteLink({
+    required int conversationId,
+  });
 
-  Future<Either<Failure, JoinGroupResultEntity>> joinGroupViaLink({required String token});
+  /// Get invite link info (preview) - No auth required
+  /// Returns group info for the invite link
+  Future<Either<Failure, InviteLinkInfoEntity>> getInviteLinkInfo({
+    required String token,
+  });
+
+  /// Join group via invite link
+  /// Returns the conversation ID
+  Future<Either<Failure, JoinGroupResultEntity>> joinGroupViaLink({
+    required String token,
+  });
 }

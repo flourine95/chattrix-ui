@@ -51,3 +51,50 @@ extension JoinGroupResponseDtoMapper on JoinGroupResponseDto {
     );
   }
 }
+
+extension InviteLinkUserDtoMapper on InviteLinkUserDto {
+  InviteLinkUserEntity toEntity() {
+    return InviteLinkUserEntity(
+      id: id,
+      username: username,
+      fullName: fullName,
+      avatarUrl: avatarUrl,
+      lastSeen: lastSeen != null ? DateTime.parse(lastSeen!) : null,
+    );
+  }
+}
+
+extension InviteLinkHistoryItemDtoMapper on InviteLinkHistoryItemDto {
+  InviteLinkHistoryItemEntity toEntity() {
+    return InviteLinkHistoryItemEntity(
+      token: token,
+      createdBy: createdBy.toEntity(),
+      createdAt: DateTime.parse(createdAt),
+      maxUses: maxUses,
+      currentUses: currentUses,
+      isActive: isActive,
+      isRevoked: isRevoked,
+      isExpired: isExpired,
+      status: status,
+    );
+  }
+}
+
+extension InviteLinksMetaDtoMapper on InviteLinksMetaDto {
+  InviteLinksMetaEntity toEntity() {
+    return InviteLinksMetaEntity(
+      nextCursor: nextCursor,
+      hasNextPage: hasNextPage,
+      itemsPerPage: itemsPerPage,
+    );
+  }
+}
+
+extension InviteLinksHistoryDtoMapper on InviteLinksHistoryDto {
+  InviteLinksHistoryEntity toEntity() {
+    return InviteLinksHistoryEntity(
+      items: items.map((item) => item.toEntity()).toList(),
+      meta: meta.toEntity(),
+    );
+  }
+}

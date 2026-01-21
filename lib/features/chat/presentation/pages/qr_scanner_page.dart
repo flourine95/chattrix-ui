@@ -1,5 +1,5 @@
-import 'package:chattrix_ui/features/chat/domain/entities/invite_link.dart';
-import 'package:chattrix_ui/features/chat/presentation/providers/invite_link_providers.dart';
+import 'package:chattrix_ui/features/invite_links/domain/entities/invite_link_entity.dart';
+import 'package:chattrix_ui/features/invite_links/presentation/providers/invite_links_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -329,7 +329,7 @@ class QrScannerPage extends HookConsumerWidget {
     BuildContext context,
     WidgetRef ref,
     String token,
-    InviteLinkInfo linkInfo,
+    InviteLinkInfoEntity linkInfo,
     MobileScannerController controller,
     ValueNotifier<bool> hasScanned,
   ) {

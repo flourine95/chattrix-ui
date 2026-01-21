@@ -1,8 +1,8 @@
 import 'package:chattrix_ui/features/call/domain/entities/call_info.dart';
+import 'package:chattrix_ui/features/call/domain/entities/call_participant_status.dart';
 import 'package:chattrix_ui/features/call/domain/entities/call_type.dart';
 import 'package:flutter/material.dart';
 
-/// Banner widget to show when there's an active call in the conversation
 class ActiveCallBanner extends StatelessWidget {
   final CallInfo callInfo;
   final VoidCallback onJoinPressed;
@@ -12,7 +12,7 @@ class ActiveCallBanner extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final participantsCount = callInfo.participants.where((p) => p.status.name == 'JOINED').length;
+    final participantsCount = callInfo.participants.where((p) => p.status == CallParticipantStatus.joined).length;
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -34,7 +34,7 @@ class ActiveCallBanner extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  'Cuộc gọi đang diễn ra',
+                  'Call in progress', // Đã đổi
                   style: theme.textTheme.titleSmall?.copyWith(
                     color: theme.colorScheme.onPrimaryContainer,
                     fontWeight: FontWeight.w600,
@@ -42,7 +42,7 @@ class ActiveCallBanner extends StatelessWidget {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  '$participantsCount người đang tham gia',
+                  '$participantsCount participants joined', // Đã đổi
                   style: theme.textTheme.bodySmall?.copyWith(
                     color: theme.colorScheme.onPrimaryContainer.withValues(alpha: 0.7),
                   ),
@@ -54,7 +54,7 @@ class ActiveCallBanner extends StatelessWidget {
           TextButton.icon(
             onPressed: onJoinPressed,
             icon: const Icon(Icons.phone, size: 16),
-            label: const Text('Tham gia'),
+            label: const Text('Join'), // Đã đổi
             style: TextButton.styleFrom(
               backgroundColor: theme.colorScheme.primary,
               foregroundColor: theme.colorScheme.onPrimary,

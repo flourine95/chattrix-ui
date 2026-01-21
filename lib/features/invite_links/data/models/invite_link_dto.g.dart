@@ -109,3 +109,78 @@ Map<String, dynamic> _$JoinGroupResponseDtoToJson(
   'message': instance.message,
   'groupName': instance.groupName,
 };
+
+_InviteLinkUserDto _$InviteLinkUserDtoFromJson(Map<String, dynamic> json) =>
+    _InviteLinkUserDto(
+      id: (json['id'] as num).toInt(),
+      username: json['username'] as String,
+      fullName: json['fullName'] as String,
+      avatarUrl: json['avatarUrl'] as String?,
+      lastSeen: json['lastSeen'] as String?,
+    );
+
+Map<String, dynamic> _$InviteLinkUserDtoToJson(_InviteLinkUserDto instance) =>
+    <String, dynamic>{
+      'id': instance.id,
+      'username': instance.username,
+      'fullName': instance.fullName,
+      'avatarUrl': instance.avatarUrl,
+      'lastSeen': instance.lastSeen,
+    };
+
+_InviteLinkHistoryItemDto _$InviteLinkHistoryItemDtoFromJson(
+  Map<String, dynamic> json,
+) => _InviteLinkHistoryItemDto(
+  token: json['token'] as String,
+  createdBy: InviteLinkUserDto.fromJson(
+    json['createdBy'] as Map<String, dynamic>,
+  ),
+  createdAt: json['createdAt'] as String,
+  maxUses: (json['maxUses'] as num).toInt(),
+  currentUses: (json['currentUses'] as num).toInt(),
+  isActive: json['isActive'] as bool,
+  isRevoked: json['isRevoked'] as bool,
+  isExpired: json['isExpired'] as bool,
+  status: json['status'] as String,
+);
+
+Map<String, dynamic> _$InviteLinkHistoryItemDtoToJson(
+  _InviteLinkHistoryItemDto instance,
+) => <String, dynamic>{
+  'token': instance.token,
+  'createdBy': instance.createdBy,
+  'createdAt': instance.createdAt,
+  'maxUses': instance.maxUses,
+  'currentUses': instance.currentUses,
+  'isActive': instance.isActive,
+  'isRevoked': instance.isRevoked,
+  'isExpired': instance.isExpired,
+  'status': instance.status,
+};
+
+_InviteLinksMetaDto _$InviteLinksMetaDtoFromJson(Map<String, dynamic> json) =>
+    _InviteLinksMetaDto(
+      nextCursor: json['nextCursor'] as String?,
+      hasNextPage: json['hasNextPage'] as bool,
+      itemsPerPage: (json['itemsPerPage'] as num).toInt(),
+    );
+
+Map<String, dynamic> _$InviteLinksMetaDtoToJson(_InviteLinksMetaDto instance) =>
+    <String, dynamic>{
+      'nextCursor': instance.nextCursor,
+      'hasNextPage': instance.hasNextPage,
+      'itemsPerPage': instance.itemsPerPage,
+    };
+
+_InviteLinksHistoryDto _$InviteLinksHistoryDtoFromJson(
+  Map<String, dynamic> json,
+) => _InviteLinksHistoryDto(
+  items: (json['items'] as List<dynamic>)
+      .map((e) => InviteLinkHistoryItemDto.fromJson(e as Map<String, dynamic>))
+      .toList(),
+  meta: InviteLinksMetaDto.fromJson(json['meta'] as Map<String, dynamic>),
+);
+
+Map<String, dynamic> _$InviteLinksHistoryDtoToJson(
+  _InviteLinksHistoryDto instance,
+) => <String, dynamic>{'items': instance.items, 'meta': instance.meta};

@@ -15,8 +15,23 @@ class SystemMessageBubble extends StatelessWidget {
     final isDark = theme.brightness == Brightness.dark;
 
     String? systemMessageType;
+    Map<String, dynamic>? metadata;
 
-    if (message.content.startsWith('{')) {
+    // For CALL type messages, get info from metadata instead of content
+    if (message.type.toUpperCase() == 'CALL' && message.metadata != null) {
+      metadata = message.metadata;
+      final callStatus = metadata?['callStatus']?.toString().toUpperCase();
+      
+      // Map call status to system message type
+      if (callStatus == 'ENDED') {
+        systemMessageType = 'CALL_ENDED';
+      } else if (callStatus == 'MISSED') {
+        systemMessageType = 'CALL_MISSED';
+      } else if (callStatus == 'STARTED') {
+        systemMessageType = 'CALL_STARTED';
+      }
+    } else if (message.content.startsWith('{')) {
+      // For SYSTEM type messages, parse content JSON
       try {
         final jsonData = jsonDecode(message.content);
         systemMessageType = jsonData['type'] as String?;
@@ -28,7 +43,7 @@ class SystemMessageBubble extends StatelessWidget {
     final formattedContent = systemMessageType != null
         ? SystemMessageFormatter.format(
             type: systemMessageType,
-            content: message.content,
+            content: metadata != null ? jsonEncode(metadata) : message.content,
             actorName: message.senderFullName ?? message.senderUsername,
           )
         : message.content;

@@ -9,10 +9,6 @@ class JoinGroupViaLinkUseCase {
   JoinGroupViaLinkUseCase(this._repository);
 
   Future<Either<Failure, JoinGroupResultEntity>> call({required String token}) async {
-    if (token.isEmpty) {
-      return left(const Failure.validation(message: 'Token cannot be empty', code: 'INVALID_TOKEN'));
-    }
-
     return await _repository.joinGroupViaLink(token: token);
   }
 }

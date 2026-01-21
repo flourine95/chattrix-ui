@@ -1,4 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:chattrix_ui/core/toast/toastification_helper.dart';
 import 'package:chattrix_ui/features/chat/domain/entities/message.dart';
 import 'package:chattrix_ui/features/chat/domain/entities/reply_to_message.dart';
 import 'package:chattrix_ui/features/chat/presentation/utils/format_utils.dart';
@@ -108,12 +109,12 @@ class DocumentMessageBubble extends StatelessWidget {
         await launchUrl(uri, mode: LaunchMode.externalApplication);
       } else {
         if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Cannot open document')));
+          AppToast.error(context, title: 'Cannot open document');
         }
       }
     } catch (e) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to open document: $e')));
+        AppToast.error(context, title: 'Failed to open document', description: e.toString());
       }
     }
   }

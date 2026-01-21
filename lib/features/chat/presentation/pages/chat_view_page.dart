@@ -7,6 +7,7 @@ import 'package:chattrix_ui/features/call/presentation/widgets/active_call_banne
 import 'package:chattrix_ui/features/chat/domain/entities/message.dart';
 import 'package:chattrix_ui/features/chat/domain/entities/typing_indicator.dart';
 import 'package:chattrix_ui/features/chat/presentation/hooks/chat_actions_controller.dart';
+import 'package:chattrix_ui/features/chat/presentation/hooks/use_websocket_error_listener.dart';
 import 'package:chattrix_ui/features/chat/presentation/providers/chat_providers.dart';
 import 'package:chattrix_ui/features/chat/presentation/providers/pinned_messages_provider.dart';
 import 'package:chattrix_ui/features/chat/presentation/providers/typing_indicator_provider.dart';
@@ -97,6 +98,7 @@ class ChatViewPage extends HookConsumerWidget {
     useScrollButtonEffect(scrollController, showScrollButton);
     useVoiceRecordingEffect(isRecording, recordingDuration, ref, chatActions);
     useHidePickersOnKeyboardEffect(focusNode, showEmojiPicker, showStickerPicker, showAttachmentPicker);
+    useWebSocketErrorListener(context, ref); // Listen for WebSocket errors
 
     // --- UI ---
     return PopScope(

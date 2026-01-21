@@ -188,18 +188,30 @@ class SystemMessageFormatter {
 
       case 'CALL_STARTED':
         final actor = jsonData?['actorName'] ?? actorName ?? 'Someone';
-        return '$actor started a call';
+        final callType = jsonData?['callType']?.toString().toLowerCase() ?? 'voice';
+        final callTypeText = callType == 'video' ? 'video call' : 'call';
+        return '$actor started a $callTypeText';
 
       case 'CALL_ENDED':
-        final duration = jsonData?['duration'] ?? additionalInfo;
-        if (duration != null) {
-          return 'Call ended • $duration';
+        final durationSeconds = jsonData?['durationSeconds'] as int?;
+        final callType = jsonData?['callType']?.toString().toUpperCase() ?? 'VOICE';
+        final callTypeIcon = callType == 'VIDEO' ? '📹' : '📞';
+        
+        if (durationSeconds != null && durationSeconds > 0) {
+          final minutes = durationSeconds ~/ 60;
+          final seconds = durationSeconds % 60;
+          final durationText = minutes > 0 
+              ? '${minutes}m ${seconds}s' 
+              : '${seconds}s';
+          return '$callTypeIcon Call ended • $durationText';
         }
-        return 'Call ended';
+        return '$callTypeIcon Call ended';
 
       case 'CALL_MISSED':
         final actor = jsonData?['actorName'] ?? actorName ?? 'someone';
-        return 'Missed call from $actor';
+        final callType = jsonData?['callType']?.toString().toUpperCase() ?? 'VOICE';
+        final callTypeIcon = callType == 'VIDEO' ? '📹' : '📞';
+        return '$callTypeIcon Missed call from $actor';
 
       default:
         if (jsonData != null && jsonData['message'] != null) {

@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:chattrix_ui/core/toast/toastification_helper.dart';
 import 'package:chattrix_ui/features/call/domain/entities/call_type.dart';
 import 'package:chattrix_ui/features/call/presentation/state/call_notifier.dart';
 import 'package:chattrix_ui/features/chat/domain/entities/message.dart';
@@ -258,8 +259,10 @@ void toggleGallery(
   BuildContext context,
 ) {
   if (kIsWeb) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Thư viện ảnh chưa hỗ trợ trên web. Vui lòng sử dụng nút Camera hoặc Files.')),
+    AppToast.warning(
+      context,
+      title: 'Gallery not supported on web',
+      description: 'Please use Camera or Files button instead',
     );
     return;
   }
@@ -406,8 +409,12 @@ Future<void> handlePinMessage(Message message, WidgetRef ref, int chatId, BuildC
       await ref.read(pinMessageUsecaseProvider)(conversationId: chatId, messageId: message.id);
     }
 
+    // Refresh message list and pinned messages
     ref.read(messagesProvider(chatId).notifier).refresh();
     ref.invalidate(pinnedMessagesProvider(chatId));
+    
+    // ✅ Also refresh conversations list to update pin indicator
+    ref.invalidate(conversationsProvider);
 
     if (!context.mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
@@ -422,11 +429,27 @@ Future<void> handlePinMessage(Message message, WidgetRef ref, int chatId, BuildC
         backgroundColor: Colors.grey.shade900,
         behavior: SnackBarBehavior.floating,
         margin: const EdgeInsets.all(16),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         duration: const Duration(seconds: 2),
       ),
     );
   } catch (e) {
+    // Check if it's an "already pinned/unpinned" error (expected behavior)
+    final errorMessage = e.toString().toLowerCase();
+    final isAlreadyPinnedError = errorMessage.contains('already pinned') || 
+                                  errorMessage.contains('already unpinned') ||
+                                  errorMessage.contains('not pinned');
+    
+    if (isAlreadyPinnedError) {
+      // Silently refresh state without showing error
+      debugPrint('ℹ️ Message pin state already matches desired state');
+      ref.read(messagesProvider(chatId).notifier).refresh();
+      ref.invalidate(pinnedMessagesProvider(chatId));
+      ref.invalidate(conversationsProvider); // ✅ Also refresh conversations
+      return;
+    }
+    
+    // Show error for unexpected failures
     if (!context.mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -439,10 +462,10 @@ Future<void> handlePinMessage(Message message, WidgetRef ref, int chatId, BuildC
             ),
           ],
         ),
-        backgroundColor: Colors.grey.shade900,
+        backgroundColor: Colors.red.shade900,
         behavior: SnackBarBehavior.floating,
         margin: const EdgeInsets.all(16),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
     );
   }

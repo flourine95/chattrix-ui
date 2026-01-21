@@ -233,7 +233,7 @@ class InviteLinkCard extends ConsumerWidget {
   Future<void> _revokeLink(BuildContext context, WidgetRef ref) async {
     final notifier = ref.read(revokeInviteLinkProvider.notifier);
 
-    await notifier.revoke(conversationId: conversationId, linkId: link.id);
+    await notifier.revoke(conversationId: conversationId);
 
     final state = ref.read(revokeInviteLinkProvider);
 

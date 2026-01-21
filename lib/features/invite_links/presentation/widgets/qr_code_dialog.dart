@@ -1,16 +1,22 @@
 import 'dart:io';
 import 'dart:typed_data';
+import 'dart:ui' as ui;
 
-import 'package:chattrix_ui/core/errors/failures.dart';
-import 'package:chattrix_ui/features/invite_links/presentation/providers/invite_links_providers.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:gal/gal.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:qr_flutter/qr_flutter.dart';
 import 'package:share_plus/share_plus.dart';
 
 class QRCodeDialog extends ConsumerWidget {
-  const QRCodeDialog({super.key, required this.conversationId, required this.linkId, required this.token});
+  const QRCodeDialog({
+    super.key,
+    required this.conversationId,
+    required this.linkId,
+    required this.token,
+  });
 
   final int conversationId;
   final int linkId;
@@ -20,6 +26,7 @@ class QRCodeDialog extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final textTheme = Theme.of(context).textTheme;
     final colors = Theme.of(context).colorScheme;
+    final qrKey = GlobalKey();
 
     return Dialog(
       child: Padding(
@@ -33,59 +40,47 @@ class QRCodeDialog extends ConsumerWidget {
                 const SizedBox(width: 12),
                 Text('QR Code', style: textTheme.titleLarge),
                 const Spacer(),
-                IconButton(icon: const Icon(Icons.close), onPressed: () => Navigator.pop(context)),
+                IconButton(
+                  icon: const Icon(Icons.close),
+                  onPressed: () => Navigator.pop(context),
+                ),
               ],
             ),
-
             const SizedBox(height: 24),
 
-            FutureBuilder<Uint8List>(
-              future: _loadQRCode(ref),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const SizedBox(height: 300, child: Center(child: CircularProgressIndicator()));
-                }
-
-                if (snapshot.hasError) {
-                  return SizedBox(
-                    height: 300,
-                    child: Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(Icons.error_outline, size: 48, color: colors.error),
-                          const SizedBox(height: 16),
-                          Text('Failed to load QR code', style: textTheme.bodyMedium),
-                          const SizedBox(height: 8),
-                          Text(
-                            snapshot.error.toString(),
-                            style: textTheme.bodySmall?.copyWith(color: colors.onSurface.withValues(alpha: 0.6)),
-                            textAlign: TextAlign.center,
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
-                }
-
-                final imageBytes = snapshot.data!;
-
-                return Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12)),
-                  child: Image.memory(imageBytes, width: 300, height: 300, fit: BoxFit.contain),
-                );
-              },
+            // QR Code generated client-side
+            RepaintBoundary(
+              key: qrKey,
+              child: Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: QrImageView(
+                  data: token,
+                  version: QrVersions.auto,
+                  size: 300,
+                  backgroundColor: Colors.white,
+                  errorCorrectionLevel: QrErrorCorrectLevel.H,
+                ),
+              ),
             ),
 
             const SizedBox(height: 16),
 
             Container(
               padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(color: colors.surfaceContainerHighest, borderRadius: BorderRadius.circular(8)),
+              decoration: BoxDecoration(
+                color: colors.surfaceContainerHighest,
+                borderRadius: BorderRadius.circular(8),
+              ),
               child: Text(
                 token,
-                style: textTheme.bodyMedium?.copyWith(fontFamily: 'monospace', fontWeight: FontWeight.bold),
+                style: textTheme.bodyMedium?.copyWith(
+                  fontFamily: 'monospace',
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
 
@@ -95,7 +90,7 @@ class QRCodeDialog extends ConsumerWidget {
               children: [
                 Expanded(
                   child: OutlinedButton.icon(
-                    onPressed: () => _saveQRCode(context, ref),
+                    onPressed: () => _saveQRCode(context, qrKey),
                     icon: const Icon(Icons.download),
                     label: const Text('Save'),
                   ),
@@ -103,7 +98,7 @@ class QRCodeDialog extends ConsumerWidget {
                 const SizedBox(width: 12),
                 Expanded(
                   child: FilledButton.icon(
-                    onPressed: () => _shareQRCode(context, ref),
+                    onPressed: () => _shareQRCode(context, qrKey),
                     icon: const Icon(Icons.share),
                     label: const Text('Share'),
                   ),
@@ -116,20 +111,20 @@ class QRCodeDialog extends ConsumerWidget {
     );
   }
 
-  Future<Uint8List> _loadQRCode(WidgetRef ref) async {
-    final useCase = ref.read(getQRCodeUseCaseProvider);
-
-    final result = await useCase(conversationId: conversationId, linkId: linkId, size: 600);
-
-    return result.fold((failure) {
-      final f = failure;
-      throw Exception(f.userMessage);
-    }, (bytes) => Uint8List.fromList(bytes));
+  Future<Uint8List> _captureQRCode(GlobalKey qrKey) async {
+    try {
+      final boundary = qrKey.currentContext!.findRenderObject() as RenderRepaintBoundary;
+      final image = await boundary.toImage(pixelRatio: 3.0);
+      final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
+      return byteData!.buffer.asUint8List();
+    } catch (e) {
+      throw Exception('Failed to capture QR code: $e');
+    }
   }
 
-  Future<void> _saveQRCode(BuildContext context, WidgetRef ref) async {
+  Future<void> _saveQRCode(BuildContext context, GlobalKey qrKey) async {
     try {
-      final imageBytes = await _loadQRCode(ref);
+      final imageBytes = await _captureQRCode(qrKey);
 
       final tempDir = await getTemporaryDirectory();
       final file = File('${tempDir.path}/invite_link_$token.png');
@@ -139,25 +134,34 @@ class QRCodeDialog extends ConsumerWidget {
 
       if (!context.mounted) return;
 
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('QR code saved to gallery')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('QR code saved to gallery')),
+      );
     } catch (e) {
       if (!context.mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: $e')),
+      );
     }
   }
 
-  Future<void> _shareQRCode(BuildContext context, WidgetRef ref) async {
+  Future<void> _shareQRCode(BuildContext context, GlobalKey qrKey) async {
     try {
-      final imageBytes = await _loadQRCode(ref);
+      final imageBytes = await _captureQRCode(qrKey);
 
       final tempDir = await getTemporaryDirectory();
       final file = File('${tempDir.path}/invite_qr_$token.png');
       await file.writeAsBytes(imageBytes);
 
-      await Share.shareXFiles([XFile(file.path)], text: 'Group invite QR Code');
+      await Share.shareXFiles(
+        [XFile(file.path)],
+        text: 'Group invite QR Code',
+      );
     } catch (e) {
       if (!context.mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: $e')),
+      );
     }
   }
 }

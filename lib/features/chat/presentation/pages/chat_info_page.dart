@@ -9,7 +9,7 @@ import 'package:chattrix_ui/features/chat/presentation/pages/all_members_page.da
 import 'package:chattrix_ui/features/chat/presentation/pages/events_page.dart';
 import 'package:chattrix_ui/features/chat/presentation/pages/files_links_page.dart';
 import 'package:chattrix_ui/features/chat/presentation/pages/group_permissions_page.dart';
-import 'package:chattrix_ui/features/chat/presentation/pages/invite_links_page.dart';
+import 'package:chattrix_ui/features/invite_links/presentation/pages/invite_links_page.dart';
 import 'package:chattrix_ui/features/chat/presentation/pages/polls_page.dart';
 import 'package:chattrix_ui/features/chat/presentation/pages/search_messages_page.dart';
 import 'package:chattrix_ui/features/chat/presentation/providers/chat_providers.dart';
@@ -257,7 +257,12 @@ class ChatInfoPage extends HookConsumerWidget {
             onTap: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => InviteLinksPage(conversationId: currentConversation.id)),
+                MaterialPageRoute(
+                  builder: (context) => InviteLinksPage(
+                    conversationId: currentConversation.id,
+                    conversationName: currentConversation.name ?? 'Group',
+                  ),
+                ),
               );
             },
           ),
@@ -650,7 +655,9 @@ class ChatInfoPage extends HookConsumerWidget {
           const SizedBox(height: 12),
           // Media grid
           mediaAsync.when(
-            data: (mediaItems) {
+            data: (result) {
+              final mediaItems = result.messages;
+              
               if (mediaItems.isEmpty) {
                 return Center(
                   child: Padding(
@@ -681,7 +688,7 @@ class ChatInfoPage extends HookConsumerWidget {
                 itemBuilder: (context, index) {
                   final item = mediaItems[index];
                   final isVideo = item.type == 'VIDEO';
-                  final imageUrl = item.thumbnailUrl ?? item.url;
+                  final imageUrl = item.metadata?.thumbnailUrl ?? item.metadata?.mediaUrl;
 
                   return GestureDetector(
                     onTap: () {
@@ -791,7 +798,12 @@ class ChatInfoPage extends HookConsumerWidget {
       onTap: () {
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => InviteLinksPage(conversationId: conversation.id)),
+          MaterialPageRoute(
+            builder: (context) => InviteLinksPage(
+              conversationId: conversation.id,
+              conversationName: conversation.name ?? 'Group',
+            ),
+          ),
         );
       },
       colors: colors,

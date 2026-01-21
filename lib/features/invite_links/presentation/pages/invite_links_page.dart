@@ -1,111 +1,134 @@
-import 'package:chattrix_ui/features/invite_links/presentation/providers/invite_links_list_provider.dart';
+import 'package:chattrix_ui/features/invite_links/presentation/providers/invite_links_history_provider.dart';
 import 'package:chattrix_ui/features/invite_links/presentation/providers/invite_links_websocket_provider.dart';
 import 'package:chattrix_ui/features/invite_links/presentation/widgets/create_invite_link_bottom_sheet.dart';
-import 'package:chattrix_ui/features/invite_links/presentation/widgets/invite_link_card.dart';
+import 'package:chattrix_ui/features/invite_links/presentation/widgets/invite_link_history_card.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 class InviteLinksPage extends HookConsumerWidget {
-  const InviteLinksPage({super.key, required this.conversationId, required this.conversationName});
+  const InviteLinksPage({
+    super.key,
+    required this.conversationId,
+    required this.conversationName,
+  });
 
   final int conversationId;
   final String conversationName;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    debugPrint('🔵 [InviteLinksPage] Building page for conversation $conversationId');
     final textTheme = Theme.of(context).textTheme;
     final colors = Theme.of(context).colorScheme;
-    final scrollController = useScrollController();
 
     ref.watch(inviteLinksWebSocketListenerProvider);
 
-    final linksAsync = ref.watch(inviteLinksListProvider(conversationId));
-    final linksNotifier = ref.read(inviteLinksListProvider(conversationId).notifier);
-
-    useEffect(() {
-      void onScroll() {
-        if (scrollController.position.pixels >= scrollController.position.maxScrollExtent - 200) {
-          if (linksNotifier.hasNextPage && !linksAsync.isLoading) {
-            linksNotifier.loadMore(conversationId);
-          }
-        }
-      }
-
-      scrollController.addListener(onScroll);
-      return () => scrollController.removeListener(onScroll);
-    }, [scrollController]);
+    final historyAsync = ref.watch(inviteLinksHistoryProvider(conversationId));
+    debugPrint('🔵 [InviteLinksPage] historyAsync state: ${historyAsync.runtimeType}');
 
     return Scaffold(
       appBar: AppBar(
-        leading: IconButton(icon: const Icon(Icons.arrow_back), onPressed: () => context.pop()),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => context.pop(),
+        ),
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text('Invite Links', style: textTheme.titleMedium),
             Text(
               conversationName,
-              style: textTheme.bodySmall?.copyWith(color: colors.onSurface.withValues(alpha: 0.6)),
+              style: textTheme.bodySmall?.copyWith(
+                color: colors.onSurface.withValues(alpha: 0.6),
+              ),
             ),
           ],
         ),
-        actions: [
-          IconButton(
-            icon: Icon(
-              linksNotifier.includeRevoked ? Icons.visibility : Icons.visibility_off,
-              color: linksNotifier.includeRevoked ? colors.primary : null,
-            ),
-            tooltip: linksNotifier.includeRevoked ? 'Hide revoked links' : 'Show revoked links',
-            onPressed: () => linksNotifier.toggleIncludeRevoked(conversationId),
-          ),
-        ],
       ),
-      body: linksAsync.when(
-        data: (links) {
-          if (links.isEmpty) {
-            return _buildEmptyState(context);
+      body: historyAsync.when(
+        data: (history) {
+          if (history.items.isEmpty) {
+            return _buildEmptyState(context, ref);
           }
 
+          final hasActiveLink = history.items.any((link) => link.isActive);
+
           return RefreshIndicator(
-            onRefresh: () => linksNotifier.refresh(conversationId),
+            onRefresh: () async {
+              await ref.read(inviteLinksHistoryProvider(conversationId).notifier).refresh();
+            },
             child: ListView.builder(
-              controller: scrollController,
               padding: const EdgeInsets.all(16),
-              itemCount: links.length + (linksNotifier.hasNextPage ? 1 : 0),
+              itemCount: history.items.length + (history.meta.hasNextPage ? 1 : 0),
               itemBuilder: (context, index) {
-                if (index == links.length) {
-                  return const Center(
-                    child: Padding(padding: EdgeInsets.all(16), child: CircularProgressIndicator()),
+                if (index == history.items.length) {
+                  // Load more indicator
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    child: Center(
+                      child: FilledButton.icon(
+                        onPressed: () {
+                          ref.read(inviteLinksHistoryProvider(conversationId).notifier).loadMore();
+                        },
+                        style: FilledButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        icon: const Icon(Icons.refresh),
+                        label: const Text('Load More'),
+                      ),
+                    ),
                   );
                 }
 
-                final link = links[index];
-                return InviteLinkCard(
-                  link: link,
-                  conversationId: conversationId,
-                  onRevoked: () {
-                    linksNotifier.refresh(conversationId);
-                  },
+                final link = history.items[index];
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: InviteLinkHistoryCard(
+                    link: link,
+                    conversationId: conversationId,
+                    onRevoked: () {
+                      ref.read(inviteLinksHistoryProvider(conversationId).notifier).refresh();
+                    },
+                  ),
                 );
               },
             ),
           );
         },
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (error, stack) => _buildErrorState(context, error.toString(), () {
-          linksNotifier.refresh(conversationId);
-        }),
+        error: (error, stack) => _buildErrorState(
+          context,
+          error.toString(),
+          () => ref.read(inviteLinksHistoryProvider(conversationId).notifier).refresh(),
+        ),
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => _showCreateLinkBottomSheet(context, ref),
-        icon: const Icon(Icons.add_link),
-        label: const Text('Create Link'),
+      floatingActionButton: historyAsync.maybeWhen(
+        data: (history) {
+          final hasActiveLink = history.items.any((link) => link.isActive);
+          // Only show create button if no active link exists
+          return !hasActiveLink
+              ? FloatingActionButton.extended(
+                  onPressed: () => _showCreateLinkBottomSheet(context, ref),
+                  icon: const Icon(Icons.add_link),
+                  label: const Text('Create Link'),
+                  elevation: 2,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                )
+              : null;
+        },
+        orElse: () => null,
       ),
     );
   }
 
-  Widget _buildEmptyState(BuildContext context) {
+  Widget _buildEmptyState(BuildContext context, WidgetRef ref) {
     final textTheme = Theme.of(context).textTheme;
     final colors = Theme.of(context).colorScheme;
 
@@ -113,24 +136,48 @@ class InviteLinksPage extends HookConsumerWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.link_off, size: 80, color: colors.onSurface.withValues(alpha: 0.3)),
+          Icon(
+            Icons.link_off,
+            size: 80,
+            color: colors.onSurface.withValues(alpha: 0.3),
+          ),
           const SizedBox(height: 16),
           Text(
-            'No invite links yet',
-            style: textTheme.titleMedium?.copyWith(color: colors.onSurface.withValues(alpha: 0.6)),
+            'No invite links',
+            style: textTheme.titleMedium?.copyWith(
+              color: colors.onSurface.withValues(alpha: 0.6),
+            ),
           ),
           const SizedBox(height: 8),
           Text(
             'Create an invite link to share with others',
-            style: textTheme.bodySmall?.copyWith(color: colors.onSurface.withValues(alpha: 0.5)),
+            style: textTheme.bodySmall?.copyWith(
+              color: colors.onSurface.withValues(alpha: 0.5),
+            ),
             textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 24),
+          FilledButton.icon(
+            onPressed: () => _showCreateLinkBottomSheet(context, ref),
+            style: FilledButton.styleFrom(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+            icon: const Icon(Icons.add_link),
+            label: const Text('Create Link'),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildErrorState(BuildContext context, String error, VoidCallback onRetry) {
+  Widget _buildErrorState(
+    BuildContext context,
+    String error,
+    VoidCallback onRetry,
+  ) {
     final textTheme = Theme.of(context).textTheme;
     final colors = Theme.of(context).colorScheme;
 
@@ -144,11 +191,23 @@ class InviteLinksPage extends HookConsumerWidget {
           const SizedBox(height: 8),
           Text(
             error,
-            style: textTheme.bodySmall?.copyWith(color: colors.onSurface.withValues(alpha: 0.6)),
+            style: textTheme.bodySmall?.copyWith(
+              color: colors.onSurface.withValues(alpha: 0.6),
+            ),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 16),
-          FilledButton.icon(onPressed: onRetry, icon: const Icon(Icons.refresh), label: const Text('Try Again')),
+          FilledButton.icon(
+            onPressed: onRetry,
+            style: FilledButton.styleFrom(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+            icon: const Icon(Icons.refresh),
+            label: const Text('Try Again'),
+          ),
         ],
       ),
     );
@@ -161,15 +220,24 @@ class InviteLinksPage extends HookConsumerWidget {
       builder: (context) => CreateInviteLinkBottomSheet(
         conversationId: conversationId,
         onCreated: (link) {
-          ref.read(inviteLinksListProvider(conversationId).notifier).addLink(link);
+          // Refresh the history list to show the new link
+          ref.read(inviteLinksHistoryProvider(conversationId).notifier).refresh();
 
           if (context.mounted) {
-            ScaffoldMessenger.of(
-              context,
-            ).showSnackBar(const SnackBar(content: Text('Invite link created successfully')));
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: const Text('Invite link created successfully'),
+                backgroundColor: Colors.green.shade600,
+                behavior: SnackBarBehavior.floating,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                margin: const EdgeInsets.all(16),
+                duration: const Duration(seconds: 2),
+              ),
+            );
           }
         },
       ),
     );
   }
 }
+

@@ -1,6 +1,4 @@
-import 'package:chattrix_ui/core/widgets/bottom_sheets.dart';
 import 'package:chattrix_ui/features/chat/presentation/providers/media_providers.dart';
-import 'package:chattrix_ui/features/chat/presentation/providers/chat_providers.dart';
 import 'package:chattrix_ui/features/chat/presentation/widgets/media_date_filter_bottom_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -21,12 +19,18 @@ class _FilesLinksPageState extends ConsumerState<FilesLinksPage> with SingleTick
   String _selectedMediaFilter = 'All'; // All, Today, This Week, This Month
   String _selectedFilesFilter = 'All';
   String _selectedLinksFilter = 'All';
-  String _selectedVoiceFilter = 'All';
+  String _selectedAudioFilter = 'All';
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 4, vsync: this);
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
   }
 
   // Helper: Get file icon and color based on extension
@@ -66,18 +70,12 @@ class _FilesLinksPageState extends ConsumerState<FilesLinksPage> with SingleTick
     return '${(bytes / (1024 * 1024 * 1024)).toStringAsFixed(1)} GB';
   }
 
-  // Helper: Format duration for voice messages
+  // Helper: Format duration for audio
   String _formatDuration(int? seconds) {
     if (seconds == null) return '0:00';
     final minutes = seconds ~/ 60;
     final secs = seconds % 60;
     return '$minutes:${secs.toString().padLeft(2, '0')}';
-  }
-
-  // Helper: Extract URLs from message content
-  List<String> _extractUrls(String content) {
-    final urlPattern = RegExp(r'https?://[^\s]+', caseSensitive: false);
-    return urlPattern.allMatches(content).map((m) => m.group(0)!).toList();
   }
 
   // Helper: Get time ago string
@@ -93,66 +91,13 @@ class _FilesLinksPageState extends ConsumerState<FilesLinksPage> with SingleTick
     return 'Just now';
   }
 
-  @override
-  Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
-    final textTheme = Theme.of(context).textTheme;
-
-    return Scaffold(
-      backgroundColor: colors.surfaceContainerLowest,
-      appBar: AppBar(
-        backgroundColor: colors.surface,
-        surfaceTintColor: Colors.transparent,
-        elevation: 0,
-        shadowColor: Colors.black.withValues(alpha: 0.15),
-        scrolledUnderElevation: 1,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: colors.onSurface),
-          onPressed: () => context.pop(),
-        ),
-        title: Text('Files & Links', style: textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w600)),
-        bottom: TabBar(
-          controller: _tabController,
-          labelStyle: const TextStyle(fontWeight: FontWeight.w600),
-          unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.normal),
-          tabs: const [
-            Tab(icon: Icon(Icons.photo), text: 'Media'),
-            Tab(icon: Icon(Icons.insert_drive_file), text: 'Files'),
-            Tab(icon: Icon(Icons.link), text: 'Links'),
-            Tab(icon: Icon(Icons.mic), text: 'Voice'),
-          ],
-        ),
-      ),
-      body: TabBarView(
-        controller: _tabController,
-        children: [
-          // Media Tab (Photos & Videos)
-          _buildMediaTab(colors, textTheme),
-
-          // Files Tab
-          _buildFilesTab(colors, textTheme),
-
-          // Links Tab
-          _buildLinksTab(colors, textTheme),
-
-          // Voice Tab
-          _buildVoiceTab(colors, textTheme),
-        ],
-      ),
-    );
-  }
-
-  // Media Tab Builder
-  Widget _buildMediaTab(ColorScheme colors, TextTheme textTheme) {
-    // Cache the types list to avoid provider recreation
-    const types = ['IMAGE', 'VIDEO'];
-
-    // Calculate date range based on filter
+  // Helper: Calculate date range based on filter
+  Map<String, DateTime?> _getDateRange(String filter) {
     DateTime? startDate;
     DateTime? endDate;
     final now = DateTime.now();
 
-    switch (_selectedMediaFilter) {
+    switch (filter) {
       case 'Today':
         startDate = DateTime(now.year, now.month, now.day);
         endDate = DateTime(now.year, now.month, now.day, 23, 59, 59);
@@ -171,23 +116,92 @@ class _FilesLinksPageState extends ConsumerState<FilesLinksPage> with SingleTick
         endDate = null;
     }
 
-    // Fetch media from API with date filter
+    return {'startDate': startDate, 'endDate': endDate};
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return Scaffold(
+      backgroundColor: colors.surfaceContainerLowest,
+      appBar: AppBar(
+        backgroundColor: colors.surface,
+        surfaceTintColor: Colors.transparent,
+        elevation: 0,
+        shadowColor: Colors.black.withValues(alpha: 0.15),
+        scrolledUnderElevation: 1,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back, color: colors.onSurface),
+          onPressed: () => context.pop(),
+        ),
+        title: Text('Files & Links', style: textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w600)),
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(49),
+          child: Column(
+            children: [
+              TabBar(
+                controller: _tabController,
+                labelStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+                unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.normal, fontSize: 14),
+                tabs: const [
+                  Tab(icon: Icon(Icons.photo, size: 20), text: 'Media'),
+                  Tab(icon: Icon(Icons.insert_drive_file, size: 20), text: 'Files'),
+                  Tab(icon: Icon(Icons.link, size: 20), text: 'Links'),
+                  Tab(icon: Icon(Icons.mic, size: 20), text: 'Audio'),
+                ],
+              ),
+              Container(
+                height: 0.5,
+                color: isDark ? Colors.grey.withValues(alpha: 0.2) : Colors.grey.withValues(alpha: 0.1),
+              ),
+            ],
+          ),
+        ),
+      ),
+      body: TabBarView(
+        controller: _tabController,
+        children: [
+          // Media Tab (Photos & Videos)
+          _buildMediaTab(colors, textTheme, isDark),
+
+          // Files Tab
+          _buildFilesTab(colors, textTheme, isDark),
+
+          // Links Tab
+          _buildLinksTab(colors, textTheme, isDark),
+
+          // Audio Tab
+          _buildAudioTab(colors, textTheme, isDark),
+        ],
+      ),
+    );
+  }
+
+  // Media Tab Builder
+  Widget _buildMediaTab(ColorScheme colors, TextTheme textTheme, bool isDark) {
+    const types = ['IMAGE', 'VIDEO'];
+    final dateRange = _getDateRange(_selectedMediaFilter);
+
     final mediaAsync = ref.watch(
       conversationMediaProvider(
         widget.conversationId,
         limit: 100,
         types: types,
-        startDate: startDate,
-        endDate: endDate,
+        startDate: dateRange['startDate'],
+        endDate: dateRange['endDate'],
       ),
     );
 
     return mediaAsync.when(
-      data: (mediaItems) {
+      data: (result) {
+        final mediaItems = result.messages;
+
         if (mediaItems.isEmpty) {
           return Column(
             children: [
-              // Filter button
               _buildFilterButton(
                 context,
                 colors,
@@ -209,7 +223,6 @@ class _FilesLinksPageState extends ConsumerState<FilesLinksPage> with SingleTick
 
         return Column(
           children: [
-            // Filter button
             _buildFilterButton(
               context,
               colors,
@@ -217,8 +230,6 @@ class _FilesLinksPageState extends ConsumerState<FilesLinksPage> with SingleTick
               _selectedMediaFilter,
               (filter) => setState(() => _selectedMediaFilter = filter),
             ),
-
-            // Media grid (no need to filter again, API already filtered)
             Expanded(
               child: GridView.builder(
                 padding: const EdgeInsets.all(4),
@@ -231,7 +242,7 @@ class _FilesLinksPageState extends ConsumerState<FilesLinksPage> with SingleTick
                 itemBuilder: (context, index) {
                   final item = mediaItems[index];
                   final isVideo = item.type == 'VIDEO';
-                  final imageUrl = item.thumbnailUrl ?? item.url;
+                  final imageUrl = item.metadata?.thumbnailUrl ?? item.metadata?.mediaUrl;
 
                   return GestureDetector(
                     onTap: () {
@@ -291,28 +302,27 @@ class _FilesLinksPageState extends ConsumerState<FilesLinksPage> with SingleTick
   }
 
   // Files Tab Builder
-  Widget _buildFilesTab(ColorScheme colors, TextTheme textTheme) {
-    final messagesAsync = ref.watch(messagesProvider(widget.conversationId));
+  Widget _buildFilesTab(ColorScheme colors, TextTheme textTheme, bool isDark) {
+    const types = ['FILE'];
+    final dateRange = _getDateRange(_selectedFilesFilter);
 
-    return messagesAsync.when(
-      data: (messages) {
-        // Extract file messages (type: FILE or messages with fileName but not IMAGE/VIDEO/AUDIO)
-        final fileMessages = messages.where((msg) {
-          if (msg.type.toUpperCase() == 'FILE') return true;
-          if (msg.fileName != null && msg.fileName!.isNotEmpty) {
-            final type = msg.type.toUpperCase();
-            return type != 'IMAGE' && type != 'VIDEO' && type != 'AUDIO';
-          }
-          return false;
-        }).toList();
+    final filesAsync = ref.watch(
+      conversationMediaProvider(
+        widget.conversationId,
+        limit: 100,
+        types: types,
+        startDate: dateRange['startDate'],
+        endDate: dateRange['endDate'],
+      ),
+    );
 
-        // Apply date filter
-        final filteredFiles = _applyDateFilter(fileMessages, _selectedFilesFilter);
+    return filesAsync.when(
+      data: (result) {
+        final fileItems = result.messages;
 
-        if (filteredFiles.isEmpty) {
+        if (fileItems.isEmpty) {
           return Column(
             children: [
-              // Filter button
               _buildFilterButton(
                 context,
                 colors,
@@ -323,9 +333,7 @@ class _FilesLinksPageState extends ConsumerState<FilesLinksPage> with SingleTick
               Expanded(
                 child: _buildEmptyState(
                   icon: Icons.folder_outlined,
-                  message: filteredFiles.isEmpty && fileMessages.isNotEmpty
-                      ? 'No files in $_selectedFilesFilter'
-                      : 'No files shared yet',
+                  message: _selectedFilesFilter == 'All' ? 'No files shared yet' : 'No files in $_selectedFilesFilter',
                   colors: colors,
                   textTheme: textTheme,
                 ),
@@ -336,7 +344,6 @@ class _FilesLinksPageState extends ConsumerState<FilesLinksPage> with SingleTick
 
         return Column(
           children: [
-            // Filter button
             _buildFilterButton(
               context,
               colors,
@@ -345,48 +352,60 @@ class _FilesLinksPageState extends ConsumerState<FilesLinksPage> with SingleTick
               (filter) => setState(() => _selectedFilesFilter = filter),
             ),
             Expanded(
-              child: ListView.builder(
+              child: ListView.separated(
                 padding: const EdgeInsets.all(16),
-                itemCount: filteredFiles.length,
+                itemCount: fileItems.length,
+                separatorBuilder: (_, __) => Divider(
+                  height: 1,
+                  thickness: 0.5,
+                  color: isDark ? Colors.grey.withValues(alpha: 0.2) : Colors.grey.withValues(alpha: 0.1),
+                ),
                 itemBuilder: (context, index) {
-                  final msg = filteredFiles[index];
-                  final iconData = _getFileIconAndColor(msg.fileName);
+                  final item = fileItems[index];
+                  final iconData = _getFileIconAndColor(item.metadata?.fileName);
 
-                  return Card(
-                    margin: const EdgeInsets.only(bottom: 12),
-                    child: ListTile(
-                      leading: Container(
-                        width: 48,
-                        height: 48,
-                        decoration: BoxDecoration(
-                          color: (iconData['color'] as Color).withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Icon(iconData['icon'] as IconData, color: iconData['color'] as Color),
+                  return ListTile(
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 0, vertical: 8),
+                    leading: Container(
+                      width: 48,
+                      height: 48,
+                      decoration: BoxDecoration(
+                        color: (iconData['color'] as Color).withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(8),
                       ),
-                      title: Text(
-                        msg.fileName ?? 'Unknown file',
-                        style: textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w500),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      subtitle: Text(
-                        '${_formatFileSize(msg.fileSize)} • ${msg.senderFullName ?? msg.senderUsername ?? 'Unknown'} • ${_getTimeAgo(msg.createdAt)}',
-                        style: textTheme.bodySmall,
-                      ),
-                      trailing: IconButton(
-                        icon: Icon(Icons.more_vert, color: colors.onSurface),
-                        onPressed: () => _showFileOptionsFromMessage(context, msg, colors, textTheme),
-                      ),
-                      onTap: () async {
-                        if (msg.mediaUrl != null) {
-                          final uri = Uri.parse(msg.mediaUrl!);
+                      child: Icon(iconData['icon'] as IconData, color: iconData['color'] as Color),
+                    ),
+                    title: Text(
+                      item.metadata?.fileName ?? 'Unknown file',
+                      style: textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w500),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    subtitle: Text(
+                      '${_formatFileSize(item.metadata?.fileSize)} • ${item.senderFullName ?? item.senderUsername ?? 'Unknown'} • ${_getTimeAgo(item.createdAt)}',
+                      style: textTheme.bodySmall,
+                    ),
+                    trailing: IconButton(
+                      icon: Icon(Icons.open_in_new, color: colors.primary),
+                      onPressed: () async {
+                        final url = item.metadata?.mediaUrl;
+                        if (url != null) {
+                          final uri = Uri.parse(url);
                           if (await canLaunchUrl(uri)) {
                             await launchUrl(uri, mode: LaunchMode.externalApplication);
                           }
                         }
                       },
                     ),
+                    onTap: () async {
+                      final url = item.metadata?.mediaUrl;
+                      if (url != null) {
+                        final uri = Uri.parse(url);
+                        if (await canLaunchUrl(uri)) {
+                          await launchUrl(uri, mode: LaunchMode.externalApplication);
+                        }
+                      }
+                    },
                   );
                 },
               ),
@@ -409,24 +428,27 @@ class _FilesLinksPageState extends ConsumerState<FilesLinksPage> with SingleTick
   }
 
   // Links Tab Builder
-  Widget _buildLinksTab(ColorScheme colors, TextTheme textTheme) {
-    final messagesAsync = ref.watch(messagesProvider(widget.conversationId));
+  Widget _buildLinksTab(ColorScheme colors, TextTheme textTheme, bool isDark) {
+    const types = ['LINK'];
+    final dateRange = _getDateRange(_selectedLinksFilter);
 
-    return messagesAsync.when(
-      data: (messages) {
-        // Extract messages with URLs in content
-        final linkMessages = messages.where((msg) {
-          final urls = _extractUrls(msg.content);
-          return urls.isNotEmpty;
-        }).toList();
+    final linksAsync = ref.watch(
+      conversationMediaProvider(
+        widget.conversationId,
+        limit: 100,
+        types: types,
+        startDate: dateRange['startDate'],
+        endDate: dateRange['endDate'],
+      ),
+    );
 
-        // Apply date filter
-        final filteredLinks = _applyDateFilter(linkMessages, _selectedLinksFilter);
+    return linksAsync.when(
+      data: (result) {
+        final linkItems = result.messages;
 
-        if (filteredLinks.isEmpty) {
+        if (linkItems.isEmpty) {
           return Column(
             children: [
-              // Filter button
               _buildFilterButton(
                 context,
                 colors,
@@ -437,9 +459,7 @@ class _FilesLinksPageState extends ConsumerState<FilesLinksPage> with SingleTick
               Expanded(
                 child: _buildEmptyState(
                   icon: Icons.link_outlined,
-                  message: filteredLinks.isEmpty && linkMessages.isNotEmpty
-                      ? 'No links in $_selectedLinksFilter'
-                      : 'No links shared yet',
+                  message: _selectedLinksFilter == 'All' ? 'No links shared yet' : 'No links in $_selectedLinksFilter',
                   colors: colors,
                   textTheme: textTheme,
                 ),
@@ -450,7 +470,6 @@ class _FilesLinksPageState extends ConsumerState<FilesLinksPage> with SingleTick
 
         return Column(
           children: [
-            // Filter button
             _buildFilterButton(
               context,
               colors,
@@ -459,59 +478,63 @@ class _FilesLinksPageState extends ConsumerState<FilesLinksPage> with SingleTick
               (filter) => setState(() => _selectedLinksFilter = filter),
             ),
             Expanded(
-              child: ListView.builder(
+              child: ListView.separated(
                 padding: const EdgeInsets.all(16),
-                itemCount: filteredLinks.length,
+                itemCount: linkItems.length,
+                separatorBuilder: (_, __) => Divider(
+                  height: 1,
+                  thickness: 0.5,
+                  color: isDark ? Colors.grey.withValues(alpha: 0.2) : Colors.grey.withValues(alpha: 0.1),
+                ),
                 itemBuilder: (context, index) {
-                  final msg = filteredLinks[index];
-                  final urls = _extractUrls(msg.content);
-                  final url = urls.first;
+                  final item = linkItems[index];
+                  final url = item.metadata?.url ?? item.content;
+                  final title = item.metadata?.title;
+                  final description = item.metadata?.description;
 
-                  return Card(
-                    margin: const EdgeInsets.only(bottom: 12),
-                    child: ListTile(
-                      leading: Container(
-                        width: 48,
-                        height: 48,
-                        decoration: BoxDecoration(
-                          color: colors.primaryContainer,
-                          borderRadius: BorderRadius.circular(8),
+                  return ListTile(
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 0, vertical: 8),
+                    leading: Container(
+                      width: 48,
+                      height: 48,
+                      decoration: BoxDecoration(
+                        color: colors.primaryContainer,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Icon(Icons.link, color: colors.onPrimaryContainer),
+                    ),
+                    title: Text(
+                      title ?? url,
+                      style: textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w500),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    subtitle: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        if (description != null)
+                          Text(description, style: textTheme.bodySmall, maxLines: 1, overflow: TextOverflow.ellipsis),
+                        Text(
+                          '${item.senderFullName ?? item.senderUsername ?? 'Unknown'} • ${_getTimeAgo(item.createdAt)}',
+                          style: textTheme.bodySmall,
                         ),
-                        child: Icon(Icons.link, color: colors.onPrimaryContainer),
-                      ),
-                      title: Text(
-                        url,
-                        style: textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w500),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      subtitle: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          if (msg.content != url)
-                            Text(msg.content, style: textTheme.bodySmall, maxLines: 1, overflow: TextOverflow.ellipsis),
-                          Text(
-                            '${msg.senderFullName ?? msg.senderUsername ?? 'Unknown'} • ${_getTimeAgo(msg.createdAt)}',
-                            style: textTheme.bodySmall,
-                          ),
-                        ],
-                      ),
-                      trailing: IconButton(
-                        icon: Icon(Icons.open_in_new, color: colors.primary),
-                        onPressed: () async {
-                          final uri = Uri.parse(url);
-                          if (await canLaunchUrl(uri)) {
-                            await launchUrl(uri, mode: LaunchMode.externalApplication);
-                          }
-                        },
-                      ),
-                      onTap: () async {
+                      ],
+                    ),
+                    trailing: IconButton(
+                      icon: Icon(Icons.open_in_new, color: colors.primary),
+                      onPressed: () async {
                         final uri = Uri.parse(url);
                         if (await canLaunchUrl(uri)) {
                           await launchUrl(uri, mode: LaunchMode.externalApplication);
                         }
                       },
                     ),
+                    onTap: () async {
+                      final uri = Uri.parse(url);
+                      if (await canLaunchUrl(uri)) {
+                        await launchUrl(uri, mode: LaunchMode.externalApplication);
+                      }
+                    },
                   );
                 },
               ),
@@ -533,37 +556,39 @@ class _FilesLinksPageState extends ConsumerState<FilesLinksPage> with SingleTick
     );
   }
 
-  // Voice Tab Builder
-  Widget _buildVoiceTab(ColorScheme colors, TextTheme textTheme) {
-    final messagesAsync = ref.watch(messagesProvider(widget.conversationId));
+  // Audio Tab Builder
+  Widget _buildAudioTab(ColorScheme colors, TextTheme textTheme, bool isDark) {
+    const types = ['AUDIO'];
+    final dateRange = _getDateRange(_selectedAudioFilter);
 
-    return messagesAsync.when(
-      data: (messages) {
-        // Extract voice/audio messages
-        final voiceMessages = messages.where((msg) {
-          return msg.type.toUpperCase() == 'AUDIO' || msg.type.toUpperCase() == 'VOICE';
-        }).toList();
+    final audioAsync = ref.watch(
+      conversationMediaProvider(
+        widget.conversationId,
+        limit: 100,
+        types: types,
+        startDate: dateRange['startDate'],
+        endDate: dateRange['endDate'],
+      ),
+    );
 
-        // Apply date filter
-        final filteredVoice = _applyDateFilter(voiceMessages, _selectedVoiceFilter);
+    return audioAsync.when(
+      data: (result) {
+        final audioItems = result.messages;
 
-        if (filteredVoice.isEmpty) {
+        if (audioItems.isEmpty) {
           return Column(
             children: [
-              // Filter button
               _buildFilterButton(
                 context,
                 colors,
                 textTheme,
-                _selectedVoiceFilter,
-                (filter) => setState(() => _selectedVoiceFilter = filter),
+                _selectedAudioFilter,
+                (filter) => setState(() => _selectedAudioFilter = filter),
               ),
               Expanded(
                 child: _buildEmptyState(
                   icon: Icons.mic,
-                  message: filteredVoice.isEmpty && voiceMessages.isNotEmpty
-                      ? 'No voice messages in $_selectedVoiceFilter'
-                      : 'No voice messages yet',
+                  message: _selectedAudioFilter == 'All' ? 'No audio messages yet' : 'No audio in $_selectedAudioFilter',
                   colors: colors,
                   textTheme: textTheme,
                 ),
@@ -574,43 +599,46 @@ class _FilesLinksPageState extends ConsumerState<FilesLinksPage> with SingleTick
 
         return Column(
           children: [
-            // Filter button
             _buildFilterButton(
               context,
               colors,
               textTheme,
-              _selectedVoiceFilter,
-              (filter) => setState(() => _selectedVoiceFilter = filter),
+              _selectedAudioFilter,
+              (filter) => setState(() => _selectedAudioFilter = filter),
             ),
             Expanded(
-              child: ListView.builder(
+              child: ListView.separated(
                 padding: const EdgeInsets.all(16),
-                itemCount: filteredVoice.length,
+                itemCount: audioItems.length,
+                separatorBuilder: (_, __) => Divider(
+                  height: 1,
+                  thickness: 0.5,
+                  color: isDark ? Colors.grey.withValues(alpha: 0.2) : Colors.grey.withValues(alpha: 0.1),
+                ),
                 itemBuilder: (context, index) {
-                  final msg = filteredVoice[index];
-                  return Card(
-                    margin: const EdgeInsets.only(bottom: 12),
-                    child: ListTile(
-                      leading: CircleAvatar(
-                        backgroundColor: colors.primaryContainer,
-                        child: Icon(Icons.mic, color: colors.onPrimaryContainer),
-                      ),
-                      title: Text(
-                        msg.senderFullName ?? msg.senderUsername ?? 'Unknown',
-                        style: textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w500),
-                      ),
-                      subtitle: Text('${_formatDuration(msg.duration)} • ${_getTimeAgo(msg.createdAt)}'),
-                      trailing: IconButton(
-                        icon: const Icon(Icons.play_arrow),
-                        onPressed: () async {
-                          if (msg.mediaUrl != null) {
-                            final uri = Uri.parse(msg.mediaUrl!);
-                            if (await canLaunchUrl(uri)) {
-                              await launchUrl(uri, mode: LaunchMode.externalApplication);
-                            }
+                  final item = audioItems[index];
+                  return ListTile(
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 0, vertical: 8),
+                    leading: CircleAvatar(
+                      backgroundColor: colors.primaryContainer,
+                      child: Icon(Icons.mic, color: colors.onPrimaryContainer),
+                    ),
+                    title: Text(
+                      item.senderFullName ?? item.senderUsername ?? 'Unknown',
+                      style: textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w500),
+                    ),
+                    subtitle: Text('${_formatDuration(item.metadata?.duration)} • ${_getTimeAgo(item.createdAt)}'),
+                    trailing: IconButton(
+                      icon: const Icon(Icons.play_arrow),
+                      onPressed: () async {
+                        final url = item.metadata?.mediaUrl;
+                        if (url != null) {
+                          final uri = Uri.parse(url);
+                          if (await canLaunchUrl(uri)) {
+                            await launchUrl(uri, mode: LaunchMode.externalApplication);
                           }
-                        },
-                      ),
+                        }
+                      },
                     ),
                   );
                 },
@@ -626,40 +654,11 @@ class _FilesLinksPageState extends ConsumerState<FilesLinksPage> with SingleTick
           children: [
             Icon(Icons.error_outline, size: 64, color: colors.error),
             const SizedBox(height: 16),
-            Text('Failed to load voice messages', style: TextStyle(color: colors.error)),
+            Text('Failed to load audio', style: TextStyle(color: colors.error)),
           ],
         ),
       ),
     );
-  }
-
-  // Helper: Apply date filter to messages
-  List<dynamic> _applyDateFilter(List<dynamic> messages, String filter) {
-    final now = DateTime.now();
-
-    switch (filter) {
-      case 'Today':
-        return messages.where((msg) {
-          final diff = now.difference(msg.createdAt);
-          return diff.inDays == 0;
-        }).toList();
-
-      case 'This Week':
-        return messages.where((msg) {
-          final diff = now.difference(msg.createdAt);
-          return diff.inDays <= 7;
-        }).toList();
-
-      case 'This Month':
-        return messages.where((msg) {
-          final diff = now.difference(msg.createdAt);
-          return diff.inDays <= 30;
-        }).toList();
-
-      case 'All':
-      default:
-        return messages;
-    }
   }
 
   // Helper: Build filter button
@@ -724,204 +723,5 @@ class _FilesLinksPageState extends ConsumerState<FilesLinksPage> with SingleTick
         ],
       ),
     );
-  }
-
-  // Unused old method - kept for reference
-  // ignore: unused_element
-  void _showFileOptions(BuildContext context, Map<String, dynamic> file, ColorScheme colors, TextTheme textTheme) {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: colors.surface,
-      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
-      builder: (context) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: 40,
-              height: 4,
-              margin: const EdgeInsets.only(top: 12, bottom: 20),
-              decoration: BoxDecoration(
-                color: colors.onSurface.withValues(alpha: 0.3),
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
-            ListTile(
-              leading: Icon(Icons.download, color: colors.onSurface),
-              title: Text('Download', style: textTheme.bodyLarge),
-              onTap: () {
-                Navigator.pop(context);
-                // TODO: Implement download
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.share, color: colors.onSurface),
-              title: Text('Share', style: textTheme.bodyLarge),
-              onTap: () {
-                Navigator.pop(context);
-                // TODO: Implement share
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.info_outline, color: colors.onSurface),
-              title: Text('File Info', style: textTheme.bodyLarge),
-              onTap: () {
-                Navigator.pop(context);
-                // TODO: Show file info
-              },
-            ),
-            const SizedBox(height: 8),
-          ],
-        ),
-      ),
-    );
-  }
-
-  void _showFileOptionsFromMessage(BuildContext context, dynamic message, ColorScheme colors, TextTheme textTheme) {
-    final options = <BottomSheetOption>[
-      BottomSheetOption(
-        icon: Icons.open_in_new,
-        label: 'Open File',
-        onTap: () async {
-          if (message.mediaUrl != null) {
-            final uri = Uri.parse(message.mediaUrl!);
-            if (await canLaunchUrl(uri)) {
-              await launchUrl(uri, mode: LaunchMode.externalApplication);
-            }
-          }
-        },
-      ),
-      BottomSheetOption(
-        icon: Icons.download,
-        label: 'Download',
-        onTap: () {
-          // TODO: Implement download
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Row(
-                children: [
-                  Icon(Icons.info_outline, color: Colors.white, size: 20),
-                  const SizedBox(width: 12),
-                  Text('Download coming soon', style: TextStyle(color: Colors.white)),
-                ],
-              ),
-              backgroundColor: Colors.grey.shade900,
-              behavior: SnackBarBehavior.floating,
-              margin: const EdgeInsets.all(16),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-            ),
-          );
-        },
-      ),
-      BottomSheetOption(
-        icon: Icons.share,
-        label: 'Share',
-        onTap: () {
-          // TODO: Implement share
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Row(
-                children: [
-                  Icon(Icons.info_outline, color: Colors.white, size: 20),
-                  const SizedBox(width: 12),
-                  Text('Share coming soon', style: TextStyle(color: Colors.white)),
-                ],
-              ),
-              backgroundColor: Colors.grey.shade900,
-              behavior: SnackBarBehavior.floating,
-              margin: const EdgeInsets.all(16),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-            ),
-          );
-        },
-      ),
-      BottomSheetOption(
-        icon: Icons.info_outline,
-        label: 'File Info',
-        onTap: () => _showFileInfoDialog(context, message, colors, textTheme),
-      ),
-    ];
-
-    showOptionsBottomSheet(context: context, title: 'File Options', options: options);
-  }
-
-  void _showFileInfoDialog(BuildContext context, dynamic message, ColorScheme colors, TextTheme textTheme) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('File Info'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Name: ${message.fileName ?? 'Unknown'}'),
-            const SizedBox(height: 8),
-            Text('Size: ${_formatFileSize(message.fileSize)}'),
-            const SizedBox(height: 8),
-            Text('Sender: ${message.senderFullName ?? message.senderUsername ?? 'Unknown'}'),
-            const SizedBox(height: 8),
-            Text('Date: ${_getTimeAgo(message.createdAt)}'),
-          ],
-        ),
-        actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text('Close'))],
-      ),
-    );
-  }
-
-  // Unused old method - kept for reference
-  // ignore: unused_element
-  void _showLinkOptions(BuildContext context, Map<String, dynamic> link, ColorScheme colors, TextTheme textTheme) {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: colors.surface,
-      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
-      builder: (context) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: 40,
-              height: 4,
-              margin: const EdgeInsets.only(top: 12, bottom: 20),
-              decoration: BoxDecoration(
-                color: colors.onSurface.withValues(alpha: 0.3),
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
-            ListTile(
-              leading: Icon(Icons.open_in_new, color: colors.onSurface),
-              title: Text('Open Link', style: textTheme.bodyLarge),
-              onTap: () {
-                Navigator.pop(context);
-                // TODO: Open link
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.copy, color: colors.onSurface),
-              title: Text('Copy Link', style: textTheme.bodyLarge),
-              onTap: () {
-                Navigator.pop(context);
-                // TODO: Copy to clipboard
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.share, color: colors.onSurface),
-              title: Text('Share', style: textTheme.bodyLarge),
-              onTap: () {
-                Navigator.pop(context);
-                // TODO: Implement share
-              },
-            ),
-            const SizedBox(height: 8),
-          ],
-        ),
-      ),
-    );
-  }
-
-  @override
-  void dispose() {
-    _tabController.dispose();
-    super.dispose();
   }
 }

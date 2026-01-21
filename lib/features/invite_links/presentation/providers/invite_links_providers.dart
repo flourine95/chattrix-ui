@@ -4,8 +4,7 @@ import 'package:chattrix_ui/features/invite_links/data/repositories/invite_links
 import 'package:chattrix_ui/features/invite_links/domain/repositories/invite_links_repository.dart';
 import 'package:chattrix_ui/features/invite_links/domain/usecases/create_invite_link_usecase.dart';
 import 'package:chattrix_ui/features/invite_links/domain/usecases/get_invite_link_info_usecase.dart';
-import 'package:chattrix_ui/features/invite_links/domain/usecases/get_invite_links_usecase.dart';
-import 'package:chattrix_ui/features/invite_links/domain/usecases/get_qr_code_usecase.dart';
+import 'package:chattrix_ui/features/invite_links/domain/usecases/get_invite_link_usecase.dart';
 import 'package:chattrix_ui/features/invite_links/domain/usecases/join_group_via_link_usecase.dart';
 import 'package:chattrix_ui/features/invite_links/domain/usecases/revoke_invite_link_usecase.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -31,9 +30,9 @@ CreateInviteLinkUseCase createInviteLinkUseCase(Ref ref) {
 }
 
 @riverpod
-GetInviteLinksUseCase getInviteLinksUseCase(Ref ref) {
+GetInviteLinkUseCase getInviteLinkUseCase(Ref ref) {
   final repository = ref.watch(inviteLinksRepositoryProvider);
-  return GetInviteLinksUseCase(repository);
+  return GetInviteLinkUseCase(repository);
 }
 
 @riverpod
@@ -43,15 +42,15 @@ RevokeInviteLinkUseCase revokeInviteLinkUseCase(Ref ref) {
 }
 
 @riverpod
-GetQRCodeUseCase getQRCodeUseCase(Ref ref) {
-  final repository = ref.watch(inviteLinksRepositoryProvider);
-  return GetQRCodeUseCase(repository);
-}
-
-@riverpod
 GetInviteLinkInfoUseCase getInviteLinkInfoUseCase(Ref ref) {
   final repository = ref.watch(inviteLinksRepositoryProvider);
   return GetInviteLinkInfoUseCase(repository);
+}
+
+@riverpod
+JoinGroupViaLinkUseCase joinViaInviteLinkUseCase(Ref ref) {
+  final repository = ref.watch(inviteLinksRepositoryProvider);
+  return JoinGroupViaLinkUseCase(repository);
 }
 
 @riverpod

@@ -3,9 +3,10 @@ import 'package:chattrix_ui/core/errors/failures.dart';
 import 'package:chattrix_ui/core/repositories/base_repository.dart';
 import 'package:chattrix_ui/features/invite_links/data/datasources/remote/invite_links_api_service.dart';
 import 'package:chattrix_ui/features/invite_links/data/mappers/invite_link_mapper.dart';
-import 'package:chattrix_ui/features/invite_links/data/models/invite_link_dto.dart';
 import 'package:chattrix_ui/features/invite_links/domain/entities/invite_link_entity.dart';
 import 'package:chattrix_ui/features/invite_links/domain/repositories/invite_links_repository.dart';
+import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:fpdart/fpdart.dart';
 
 class InviteLinksRepositoryImpl extends BaseRepository implements InviteLinksRepository {
@@ -35,41 +36,140 @@ class InviteLinksRepositoryImpl extends BaseRepository implements InviteLinksRep
   }
 
   @override
-  Future<Either<Failure, ({List<InviteLinkEntity> items, String? nextCursor, bool hasNextPage})>> getInviteLinks({
+  Future<Either<Failure, InviteLinksHistoryEntity>> getInviteLinksHistory({
     required int conversationId,
     String? cursor,
     int limit = 20,
-    bool includeRevoked = false,
   }) async {
+    debugPrint('🔵 [InviteLinksRepo] Getting history for conversation $conversationId, cursor: $cursor, limit: $limit');
     return executeApiCall(() async {
-      final response = await _apiService.getInviteLinks(
+      final response = await _apiService.getInviteLinksHistory(
         conversationId: conversationId,
         cursor: cursor,
         limit: limit,
-        includeRevoked: includeRevoked,
       );
 
+      debugPrint('🟢 [InviteLinksRepo] API response success: ${response.success}, data: ${response.data != null}');
+
       if (response.success && response.data != null) {
-        final data = response.data!;
-        final items = (data['items'] as List)
-            .map((json) => InviteLinkDto.fromJson(json as Map<String, dynamic>).toEntity())
-            .toList();
-
-        final meta = data['meta'] as Map<String, dynamic>;
-        final nextCursor = meta['nextCursor'] as String?;
-        final hasNextPage = meta['hasNextPage'] as bool;
-
-        return (items: items, nextCursor: nextCursor, hasNextPage: hasNextPage);
+        return response.data!.toEntity();
       } else {
-        throw ApiException(message: response.message, code: 'GET_LINKS_ERROR', statusCode: 500);
+        throw ApiException(
+          message: response.message,
+          code: 'GET_HISTORY_ERROR',
+          statusCode: 500,
+        );
       }
     });
   }
 
   @override
-  Future<Either<Failure, InviteLinkEntity>> revokeInviteLink({required int conversationId, required int linkId}) async {
+  Future<Either<Failure, InviteLinkEntity?>> getInviteLink({
+    required int conversationId,
+  }) async {
+    try {
+      final response = await _apiService.getInviteLink(
+        conversationId: conversationId,
+      );
+
+      if (response.success && response.data != null) {
+        return right(response.data!.toEntity());
+      } else if (response.success && response.data == null) {
+        // No active link
+        return right(null);
+      } else {
+        throw ApiException(
+          message: response.message,
+          code: 'GET_LINK_ERROR',
+          statusCode: 500,
+        );
+      }
+    } on ApiException catch (e) {
+      // Handle NO_ACTIVE_INVITE_LINK as success with null data
+      if (e.code == 'NO_ACTIVE_INVITE_LINK') {
+        return right(null);
+      }
+      return left(_handleApiException(e));
+    } on DioException catch (e) {
+      return left(_handleDioException(e));
+    } catch (e) {
+      return left(ServerFailure(
+        message: 'Unexpected error: $e',
+        code: 'UNEXPECTED_ERROR',
+      ));
+    }
+  }
+
+  // Helper methods from BaseRepository
+  Failure _handleApiException(ApiException e) {
+    switch (e.code) {
+      case 'VALIDATION_ERROR':
+        return ValidationFailure(
+          message: e.message,
+          code: e.code,
+          details: e.details,
+        );
+      case 'UNAUTHORIZED':
+        return AuthFailure(
+          message: e.message,
+          code: e.code,
+        );
+      case 'FORBIDDEN':
+        return AuthFailure(
+          message: e.message,
+          code: e.code,
+        );
+      case 'RESOURCE_NOT_FOUND':
+        return NotFoundFailure(
+          message: e.message,
+          code: e.code,
+        );
+      case 'CONFLICT':
+        return ConflictFailure(
+          message: e.message,
+          code: e.code,
+        );
+      case 'RATE_LIMIT_EXCEEDED':
+        return RateLimitFailure(
+          message: e.message,
+          code: e.code,
+        );
+      default:
+        return ServerFailure(
+          message: e.message,
+          code: e.code,
+        );
+    }
+  }
+
+  Failure _handleDioException(DioException e) {
+    if (e.type == DioExceptionType.connectionTimeout ||
+        e.type == DioExceptionType.receiveTimeout) {
+      return NetworkFailure(
+        message: 'Connection timeout',
+        code: 'TIMEOUT',
+      );
+    } else if (e.type == DioExceptionType.connectionError) {
+      return NetworkFailure(
+        message: 'No internet connection',
+        code: 'NO_CONNECTION',
+      );
+    } else {
+      return ServerFailure(
+        message: e.message ?? 'Server error',
+        code: 'SERVER_ERROR',
+      );
+    }
+  }
+
+  @override
+  Future<Either<Failure, InviteLinkEntity>> revokeInviteLink({
+    required int conversationId,
+  }) async {
     return executeApiCall(() async {
-      final response = await _apiService.revokeInviteLink(conversationId: conversationId, linkId: linkId);
+      final response = await _apiService.revokeInviteLink(
+        conversationId: conversationId,
+      );
 
       if (response.success && response.data != null) {
         return response.data!.toEntity();
@@ -80,19 +180,9 @@ class InviteLinksRepositoryImpl extends BaseRepository implements InviteLinksRep
   }
 
   @override
-  Future<Either<Failure, List<int>>> getQRCode({
-    required int conversationId,
-    required int linkId,
-    int size = 300,
-    String? apiUrl,
+  Future<Either<Failure, InviteLinkInfoEntity>> getInviteLinkInfo({
+    required String token,
   }) async {
-    return executeApiCall(() async {
-      return await _apiService.getQRCode(conversationId: conversationId, linkId: linkId, size: size, apiUrl: apiUrl);
-    });
-  }
-
-  @override
-  Future<Either<Failure, InviteLinkInfoEntity>> getInviteLinkInfo({required String token}) async {
     return executeApiCall(() async {
       final response = await _apiService.getInviteLinkInfo(token: token);
 
@@ -105,7 +195,9 @@ class InviteLinksRepositoryImpl extends BaseRepository implements InviteLinksRep
   }
 
   @override
-  Future<Either<Failure, JoinGroupResultEntity>> joinGroupViaLink({required String token}) async {
+  Future<Either<Failure, JoinGroupResultEntity>> joinGroupViaLink({
+    required String token,
+  }) async {
     return executeApiCall(() async {
       final response = await _apiService.joinGroupViaLink(token: token);
 

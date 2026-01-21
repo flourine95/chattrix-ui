@@ -1147,4 +1147,1143 @@ as String?,
 
 }
 
+
+/// @nodoc
+mixin _$InviteLinkUserDto {
+
+ int get id; String get username; String get fullName; String? get avatarUrl; String? get lastSeen;
+/// Create a copy of InviteLinkUserDto
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$InviteLinkUserDtoCopyWith<InviteLinkUserDto> get copyWith => _$InviteLinkUserDtoCopyWithImpl<InviteLinkUserDto>(this as InviteLinkUserDto, _$identity);
+
+  /// Serializes this InviteLinkUserDto to a JSON map.
+  Map<String, dynamic> toJson();
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is InviteLinkUserDto&&(identical(other.id, id) || other.id == id)&&(identical(other.username, username) || other.username == username)&&(identical(other.fullName, fullName) || other.fullName == fullName)&&(identical(other.avatarUrl, avatarUrl) || other.avatarUrl == avatarUrl)&&(identical(other.lastSeen, lastSeen) || other.lastSeen == lastSeen));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,id,username,fullName,avatarUrl,lastSeen);
+
+@override
+String toString() {
+  return 'InviteLinkUserDto(id: $id, username: $username, fullName: $fullName, avatarUrl: $avatarUrl, lastSeen: $lastSeen)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $InviteLinkUserDtoCopyWith<$Res>  {
+  factory $InviteLinkUserDtoCopyWith(InviteLinkUserDto value, $Res Function(InviteLinkUserDto) _then) = _$InviteLinkUserDtoCopyWithImpl;
+@useResult
+$Res call({
+ int id, String username, String fullName, String? avatarUrl, String? lastSeen
+});
+
+
+
+
+}
+/// @nodoc
+class _$InviteLinkUserDtoCopyWithImpl<$Res>
+    implements $InviteLinkUserDtoCopyWith<$Res> {
+  _$InviteLinkUserDtoCopyWithImpl(this._self, this._then);
+
+  final InviteLinkUserDto _self;
+  final $Res Function(InviteLinkUserDto) _then;
+
+/// Create a copy of InviteLinkUserDto
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? username = null,Object? fullName = null,Object? avatarUrl = freezed,Object? lastSeen = freezed,}) {
+  return _then(_self.copyWith(
+id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
+as int,username: null == username ? _self.username : username // ignore: cast_nullable_to_non_nullable
+as String,fullName: null == fullName ? _self.fullName : fullName // ignore: cast_nullable_to_non_nullable
+as String,avatarUrl: freezed == avatarUrl ? _self.avatarUrl : avatarUrl // ignore: cast_nullable_to_non_nullable
+as String?,lastSeen: freezed == lastSeen ? _self.lastSeen : lastSeen // ignore: cast_nullable_to_non_nullable
+as String?,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [InviteLinkUserDto].
+extension InviteLinkUserDtoPatterns on InviteLinkUserDto {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _InviteLinkUserDto value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _InviteLinkUserDto() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _InviteLinkUserDto value)  $default,){
+final _that = this;
+switch (_that) {
+case _InviteLinkUserDto():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _InviteLinkUserDto value)?  $default,){
+final _that = this;
+switch (_that) {
+case _InviteLinkUserDto() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int id,  String username,  String fullName,  String? avatarUrl,  String? lastSeen)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _InviteLinkUserDto() when $default != null:
+return $default(_that.id,_that.username,_that.fullName,_that.avatarUrl,_that.lastSeen);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int id,  String username,  String fullName,  String? avatarUrl,  String? lastSeen)  $default,) {final _that = this;
+switch (_that) {
+case _InviteLinkUserDto():
+return $default(_that.id,_that.username,_that.fullName,_that.avatarUrl,_that.lastSeen);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int id,  String username,  String fullName,  String? avatarUrl,  String? lastSeen)?  $default,) {final _that = this;
+switch (_that) {
+case _InviteLinkUserDto() when $default != null:
+return $default(_that.id,_that.username,_that.fullName,_that.avatarUrl,_that.lastSeen);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+@JsonSerializable()
+
+class _InviteLinkUserDto implements InviteLinkUserDto {
+  const _InviteLinkUserDto({required this.id, required this.username, required this.fullName, this.avatarUrl, this.lastSeen});
+  factory _InviteLinkUserDto.fromJson(Map<String, dynamic> json) => _$InviteLinkUserDtoFromJson(json);
+
+@override final  int id;
+@override final  String username;
+@override final  String fullName;
+@override final  String? avatarUrl;
+@override final  String? lastSeen;
+
+/// Create a copy of InviteLinkUserDto
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$InviteLinkUserDtoCopyWith<_InviteLinkUserDto> get copyWith => __$InviteLinkUserDtoCopyWithImpl<_InviteLinkUserDto>(this, _$identity);
+
+@override
+Map<String, dynamic> toJson() {
+  return _$InviteLinkUserDtoToJson(this, );
+}
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _InviteLinkUserDto&&(identical(other.id, id) || other.id == id)&&(identical(other.username, username) || other.username == username)&&(identical(other.fullName, fullName) || other.fullName == fullName)&&(identical(other.avatarUrl, avatarUrl) || other.avatarUrl == avatarUrl)&&(identical(other.lastSeen, lastSeen) || other.lastSeen == lastSeen));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,id,username,fullName,avatarUrl,lastSeen);
+
+@override
+String toString() {
+  return 'InviteLinkUserDto(id: $id, username: $username, fullName: $fullName, avatarUrl: $avatarUrl, lastSeen: $lastSeen)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$InviteLinkUserDtoCopyWith<$Res> implements $InviteLinkUserDtoCopyWith<$Res> {
+  factory _$InviteLinkUserDtoCopyWith(_InviteLinkUserDto value, $Res Function(_InviteLinkUserDto) _then) = __$InviteLinkUserDtoCopyWithImpl;
+@override @useResult
+$Res call({
+ int id, String username, String fullName, String? avatarUrl, String? lastSeen
+});
+
+
+
+
+}
+/// @nodoc
+class __$InviteLinkUserDtoCopyWithImpl<$Res>
+    implements _$InviteLinkUserDtoCopyWith<$Res> {
+  __$InviteLinkUserDtoCopyWithImpl(this._self, this._then);
+
+  final _InviteLinkUserDto _self;
+  final $Res Function(_InviteLinkUserDto) _then;
+
+/// Create a copy of InviteLinkUserDto
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? username = null,Object? fullName = null,Object? avatarUrl = freezed,Object? lastSeen = freezed,}) {
+  return _then(_InviteLinkUserDto(
+id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
+as int,username: null == username ? _self.username : username // ignore: cast_nullable_to_non_nullable
+as String,fullName: null == fullName ? _self.fullName : fullName // ignore: cast_nullable_to_non_nullable
+as String,avatarUrl: freezed == avatarUrl ? _self.avatarUrl : avatarUrl // ignore: cast_nullable_to_non_nullable
+as String?,lastSeen: freezed == lastSeen ? _self.lastSeen : lastSeen // ignore: cast_nullable_to_non_nullable
+as String?,
+  ));
+}
+
+
+}
+
+
+/// @nodoc
+mixin _$InviteLinkHistoryItemDto {
+
+ String get token; InviteLinkUserDto get createdBy; String get createdAt; int get maxUses; int get currentUses; bool get isActive; bool get isRevoked; bool get isExpired; String get status;
+/// Create a copy of InviteLinkHistoryItemDto
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$InviteLinkHistoryItemDtoCopyWith<InviteLinkHistoryItemDto> get copyWith => _$InviteLinkHistoryItemDtoCopyWithImpl<InviteLinkHistoryItemDto>(this as InviteLinkHistoryItemDto, _$identity);
+
+  /// Serializes this InviteLinkHistoryItemDto to a JSON map.
+  Map<String, dynamic> toJson();
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is InviteLinkHistoryItemDto&&(identical(other.token, token) || other.token == token)&&(identical(other.createdBy, createdBy) || other.createdBy == createdBy)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.maxUses, maxUses) || other.maxUses == maxUses)&&(identical(other.currentUses, currentUses) || other.currentUses == currentUses)&&(identical(other.isActive, isActive) || other.isActive == isActive)&&(identical(other.isRevoked, isRevoked) || other.isRevoked == isRevoked)&&(identical(other.isExpired, isExpired) || other.isExpired == isExpired)&&(identical(other.status, status) || other.status == status));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,token,createdBy,createdAt,maxUses,currentUses,isActive,isRevoked,isExpired,status);
+
+@override
+String toString() {
+  return 'InviteLinkHistoryItemDto(token: $token, createdBy: $createdBy, createdAt: $createdAt, maxUses: $maxUses, currentUses: $currentUses, isActive: $isActive, isRevoked: $isRevoked, isExpired: $isExpired, status: $status)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $InviteLinkHistoryItemDtoCopyWith<$Res>  {
+  factory $InviteLinkHistoryItemDtoCopyWith(InviteLinkHistoryItemDto value, $Res Function(InviteLinkHistoryItemDto) _then) = _$InviteLinkHistoryItemDtoCopyWithImpl;
+@useResult
+$Res call({
+ String token, InviteLinkUserDto createdBy, String createdAt, int maxUses, int currentUses, bool isActive, bool isRevoked, bool isExpired, String status
+});
+
+
+$InviteLinkUserDtoCopyWith<$Res> get createdBy;
+
+}
+/// @nodoc
+class _$InviteLinkHistoryItemDtoCopyWithImpl<$Res>
+    implements $InviteLinkHistoryItemDtoCopyWith<$Res> {
+  _$InviteLinkHistoryItemDtoCopyWithImpl(this._self, this._then);
+
+  final InviteLinkHistoryItemDto _self;
+  final $Res Function(InviteLinkHistoryItemDto) _then;
+
+/// Create a copy of InviteLinkHistoryItemDto
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? token = null,Object? createdBy = null,Object? createdAt = null,Object? maxUses = null,Object? currentUses = null,Object? isActive = null,Object? isRevoked = null,Object? isExpired = null,Object? status = null,}) {
+  return _then(_self.copyWith(
+token: null == token ? _self.token : token // ignore: cast_nullable_to_non_nullable
+as String,createdBy: null == createdBy ? _self.createdBy : createdBy // ignore: cast_nullable_to_non_nullable
+as InviteLinkUserDto,createdAt: null == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
+as String,maxUses: null == maxUses ? _self.maxUses : maxUses // ignore: cast_nullable_to_non_nullable
+as int,currentUses: null == currentUses ? _self.currentUses : currentUses // ignore: cast_nullable_to_non_nullable
+as int,isActive: null == isActive ? _self.isActive : isActive // ignore: cast_nullable_to_non_nullable
+as bool,isRevoked: null == isRevoked ? _self.isRevoked : isRevoked // ignore: cast_nullable_to_non_nullable
+as bool,isExpired: null == isExpired ? _self.isExpired : isExpired // ignore: cast_nullable_to_non_nullable
+as bool,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
+as String,
+  ));
+}
+/// Create a copy of InviteLinkHistoryItemDto
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$InviteLinkUserDtoCopyWith<$Res> get createdBy {
+  
+  return $InviteLinkUserDtoCopyWith<$Res>(_self.createdBy, (value) {
+    return _then(_self.copyWith(createdBy: value));
+  });
+}
+}
+
+
+/// Adds pattern-matching-related methods to [InviteLinkHistoryItemDto].
+extension InviteLinkHistoryItemDtoPatterns on InviteLinkHistoryItemDto {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _InviteLinkHistoryItemDto value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _InviteLinkHistoryItemDto() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _InviteLinkHistoryItemDto value)  $default,){
+final _that = this;
+switch (_that) {
+case _InviteLinkHistoryItemDto():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _InviteLinkHistoryItemDto value)?  $default,){
+final _that = this;
+switch (_that) {
+case _InviteLinkHistoryItemDto() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String token,  InviteLinkUserDto createdBy,  String createdAt,  int maxUses,  int currentUses,  bool isActive,  bool isRevoked,  bool isExpired,  String status)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _InviteLinkHistoryItemDto() when $default != null:
+return $default(_that.token,_that.createdBy,_that.createdAt,_that.maxUses,_that.currentUses,_that.isActive,_that.isRevoked,_that.isExpired,_that.status);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String token,  InviteLinkUserDto createdBy,  String createdAt,  int maxUses,  int currentUses,  bool isActive,  bool isRevoked,  bool isExpired,  String status)  $default,) {final _that = this;
+switch (_that) {
+case _InviteLinkHistoryItemDto():
+return $default(_that.token,_that.createdBy,_that.createdAt,_that.maxUses,_that.currentUses,_that.isActive,_that.isRevoked,_that.isExpired,_that.status);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String token,  InviteLinkUserDto createdBy,  String createdAt,  int maxUses,  int currentUses,  bool isActive,  bool isRevoked,  bool isExpired,  String status)?  $default,) {final _that = this;
+switch (_that) {
+case _InviteLinkHistoryItemDto() when $default != null:
+return $default(_that.token,_that.createdBy,_that.createdAt,_that.maxUses,_that.currentUses,_that.isActive,_that.isRevoked,_that.isExpired,_that.status);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+@JsonSerializable()
+
+class _InviteLinkHistoryItemDto implements InviteLinkHistoryItemDto {
+  const _InviteLinkHistoryItemDto({required this.token, required this.createdBy, required this.createdAt, required this.maxUses, required this.currentUses, required this.isActive, required this.isRevoked, required this.isExpired, required this.status});
+  factory _InviteLinkHistoryItemDto.fromJson(Map<String, dynamic> json) => _$InviteLinkHistoryItemDtoFromJson(json);
+
+@override final  String token;
+@override final  InviteLinkUserDto createdBy;
+@override final  String createdAt;
+@override final  int maxUses;
+@override final  int currentUses;
+@override final  bool isActive;
+@override final  bool isRevoked;
+@override final  bool isExpired;
+@override final  String status;
+
+/// Create a copy of InviteLinkHistoryItemDto
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$InviteLinkHistoryItemDtoCopyWith<_InviteLinkHistoryItemDto> get copyWith => __$InviteLinkHistoryItemDtoCopyWithImpl<_InviteLinkHistoryItemDto>(this, _$identity);
+
+@override
+Map<String, dynamic> toJson() {
+  return _$InviteLinkHistoryItemDtoToJson(this, );
+}
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _InviteLinkHistoryItemDto&&(identical(other.token, token) || other.token == token)&&(identical(other.createdBy, createdBy) || other.createdBy == createdBy)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.maxUses, maxUses) || other.maxUses == maxUses)&&(identical(other.currentUses, currentUses) || other.currentUses == currentUses)&&(identical(other.isActive, isActive) || other.isActive == isActive)&&(identical(other.isRevoked, isRevoked) || other.isRevoked == isRevoked)&&(identical(other.isExpired, isExpired) || other.isExpired == isExpired)&&(identical(other.status, status) || other.status == status));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,token,createdBy,createdAt,maxUses,currentUses,isActive,isRevoked,isExpired,status);
+
+@override
+String toString() {
+  return 'InviteLinkHistoryItemDto(token: $token, createdBy: $createdBy, createdAt: $createdAt, maxUses: $maxUses, currentUses: $currentUses, isActive: $isActive, isRevoked: $isRevoked, isExpired: $isExpired, status: $status)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$InviteLinkHistoryItemDtoCopyWith<$Res> implements $InviteLinkHistoryItemDtoCopyWith<$Res> {
+  factory _$InviteLinkHistoryItemDtoCopyWith(_InviteLinkHistoryItemDto value, $Res Function(_InviteLinkHistoryItemDto) _then) = __$InviteLinkHistoryItemDtoCopyWithImpl;
+@override @useResult
+$Res call({
+ String token, InviteLinkUserDto createdBy, String createdAt, int maxUses, int currentUses, bool isActive, bool isRevoked, bool isExpired, String status
+});
+
+
+@override $InviteLinkUserDtoCopyWith<$Res> get createdBy;
+
+}
+/// @nodoc
+class __$InviteLinkHistoryItemDtoCopyWithImpl<$Res>
+    implements _$InviteLinkHistoryItemDtoCopyWith<$Res> {
+  __$InviteLinkHistoryItemDtoCopyWithImpl(this._self, this._then);
+
+  final _InviteLinkHistoryItemDto _self;
+  final $Res Function(_InviteLinkHistoryItemDto) _then;
+
+/// Create a copy of InviteLinkHistoryItemDto
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? token = null,Object? createdBy = null,Object? createdAt = null,Object? maxUses = null,Object? currentUses = null,Object? isActive = null,Object? isRevoked = null,Object? isExpired = null,Object? status = null,}) {
+  return _then(_InviteLinkHistoryItemDto(
+token: null == token ? _self.token : token // ignore: cast_nullable_to_non_nullable
+as String,createdBy: null == createdBy ? _self.createdBy : createdBy // ignore: cast_nullable_to_non_nullable
+as InviteLinkUserDto,createdAt: null == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
+as String,maxUses: null == maxUses ? _self.maxUses : maxUses // ignore: cast_nullable_to_non_nullable
+as int,currentUses: null == currentUses ? _self.currentUses : currentUses // ignore: cast_nullable_to_non_nullable
+as int,isActive: null == isActive ? _self.isActive : isActive // ignore: cast_nullable_to_non_nullable
+as bool,isRevoked: null == isRevoked ? _self.isRevoked : isRevoked // ignore: cast_nullable_to_non_nullable
+as bool,isExpired: null == isExpired ? _self.isExpired : isExpired // ignore: cast_nullable_to_non_nullable
+as bool,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
+as String,
+  ));
+}
+
+/// Create a copy of InviteLinkHistoryItemDto
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$InviteLinkUserDtoCopyWith<$Res> get createdBy {
+  
+  return $InviteLinkUserDtoCopyWith<$Res>(_self.createdBy, (value) {
+    return _then(_self.copyWith(createdBy: value));
+  });
+}
+}
+
+
+/// @nodoc
+mixin _$InviteLinksMetaDto {
+
+ String? get nextCursor; bool get hasNextPage; int get itemsPerPage;
+/// Create a copy of InviteLinksMetaDto
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$InviteLinksMetaDtoCopyWith<InviteLinksMetaDto> get copyWith => _$InviteLinksMetaDtoCopyWithImpl<InviteLinksMetaDto>(this as InviteLinksMetaDto, _$identity);
+
+  /// Serializes this InviteLinksMetaDto to a JSON map.
+  Map<String, dynamic> toJson();
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is InviteLinksMetaDto&&(identical(other.nextCursor, nextCursor) || other.nextCursor == nextCursor)&&(identical(other.hasNextPage, hasNextPage) || other.hasNextPage == hasNextPage)&&(identical(other.itemsPerPage, itemsPerPage) || other.itemsPerPage == itemsPerPage));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,nextCursor,hasNextPage,itemsPerPage);
+
+@override
+String toString() {
+  return 'InviteLinksMetaDto(nextCursor: $nextCursor, hasNextPage: $hasNextPage, itemsPerPage: $itemsPerPage)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $InviteLinksMetaDtoCopyWith<$Res>  {
+  factory $InviteLinksMetaDtoCopyWith(InviteLinksMetaDto value, $Res Function(InviteLinksMetaDto) _then) = _$InviteLinksMetaDtoCopyWithImpl;
+@useResult
+$Res call({
+ String? nextCursor, bool hasNextPage, int itemsPerPage
+});
+
+
+
+
+}
+/// @nodoc
+class _$InviteLinksMetaDtoCopyWithImpl<$Res>
+    implements $InviteLinksMetaDtoCopyWith<$Res> {
+  _$InviteLinksMetaDtoCopyWithImpl(this._self, this._then);
+
+  final InviteLinksMetaDto _self;
+  final $Res Function(InviteLinksMetaDto) _then;
+
+/// Create a copy of InviteLinksMetaDto
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? nextCursor = freezed,Object? hasNextPage = null,Object? itemsPerPage = null,}) {
+  return _then(_self.copyWith(
+nextCursor: freezed == nextCursor ? _self.nextCursor : nextCursor // ignore: cast_nullable_to_non_nullable
+as String?,hasNextPage: null == hasNextPage ? _self.hasNextPage : hasNextPage // ignore: cast_nullable_to_non_nullable
+as bool,itemsPerPage: null == itemsPerPage ? _self.itemsPerPage : itemsPerPage // ignore: cast_nullable_to_non_nullable
+as int,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [InviteLinksMetaDto].
+extension InviteLinksMetaDtoPatterns on InviteLinksMetaDto {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _InviteLinksMetaDto value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _InviteLinksMetaDto() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _InviteLinksMetaDto value)  $default,){
+final _that = this;
+switch (_that) {
+case _InviteLinksMetaDto():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _InviteLinksMetaDto value)?  $default,){
+final _that = this;
+switch (_that) {
+case _InviteLinksMetaDto() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String? nextCursor,  bool hasNextPage,  int itemsPerPage)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _InviteLinksMetaDto() when $default != null:
+return $default(_that.nextCursor,_that.hasNextPage,_that.itemsPerPage);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String? nextCursor,  bool hasNextPage,  int itemsPerPage)  $default,) {final _that = this;
+switch (_that) {
+case _InviteLinksMetaDto():
+return $default(_that.nextCursor,_that.hasNextPage,_that.itemsPerPage);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String? nextCursor,  bool hasNextPage,  int itemsPerPage)?  $default,) {final _that = this;
+switch (_that) {
+case _InviteLinksMetaDto() when $default != null:
+return $default(_that.nextCursor,_that.hasNextPage,_that.itemsPerPage);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+@JsonSerializable()
+
+class _InviteLinksMetaDto implements InviteLinksMetaDto {
+  const _InviteLinksMetaDto({this.nextCursor, required this.hasNextPage, required this.itemsPerPage});
+  factory _InviteLinksMetaDto.fromJson(Map<String, dynamic> json) => _$InviteLinksMetaDtoFromJson(json);
+
+@override final  String? nextCursor;
+@override final  bool hasNextPage;
+@override final  int itemsPerPage;
+
+/// Create a copy of InviteLinksMetaDto
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$InviteLinksMetaDtoCopyWith<_InviteLinksMetaDto> get copyWith => __$InviteLinksMetaDtoCopyWithImpl<_InviteLinksMetaDto>(this, _$identity);
+
+@override
+Map<String, dynamic> toJson() {
+  return _$InviteLinksMetaDtoToJson(this, );
+}
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _InviteLinksMetaDto&&(identical(other.nextCursor, nextCursor) || other.nextCursor == nextCursor)&&(identical(other.hasNextPage, hasNextPage) || other.hasNextPage == hasNextPage)&&(identical(other.itemsPerPage, itemsPerPage) || other.itemsPerPage == itemsPerPage));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,nextCursor,hasNextPage,itemsPerPage);
+
+@override
+String toString() {
+  return 'InviteLinksMetaDto(nextCursor: $nextCursor, hasNextPage: $hasNextPage, itemsPerPage: $itemsPerPage)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$InviteLinksMetaDtoCopyWith<$Res> implements $InviteLinksMetaDtoCopyWith<$Res> {
+  factory _$InviteLinksMetaDtoCopyWith(_InviteLinksMetaDto value, $Res Function(_InviteLinksMetaDto) _then) = __$InviteLinksMetaDtoCopyWithImpl;
+@override @useResult
+$Res call({
+ String? nextCursor, bool hasNextPage, int itemsPerPage
+});
+
+
+
+
+}
+/// @nodoc
+class __$InviteLinksMetaDtoCopyWithImpl<$Res>
+    implements _$InviteLinksMetaDtoCopyWith<$Res> {
+  __$InviteLinksMetaDtoCopyWithImpl(this._self, this._then);
+
+  final _InviteLinksMetaDto _self;
+  final $Res Function(_InviteLinksMetaDto) _then;
+
+/// Create a copy of InviteLinksMetaDto
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? nextCursor = freezed,Object? hasNextPage = null,Object? itemsPerPage = null,}) {
+  return _then(_InviteLinksMetaDto(
+nextCursor: freezed == nextCursor ? _self.nextCursor : nextCursor // ignore: cast_nullable_to_non_nullable
+as String?,hasNextPage: null == hasNextPage ? _self.hasNextPage : hasNextPage // ignore: cast_nullable_to_non_nullable
+as bool,itemsPerPage: null == itemsPerPage ? _self.itemsPerPage : itemsPerPage // ignore: cast_nullable_to_non_nullable
+as int,
+  ));
+}
+
+
+}
+
+
+/// @nodoc
+mixin _$InviteLinksHistoryDto {
+
+ List<InviteLinkHistoryItemDto> get items; InviteLinksMetaDto get meta;
+/// Create a copy of InviteLinksHistoryDto
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$InviteLinksHistoryDtoCopyWith<InviteLinksHistoryDto> get copyWith => _$InviteLinksHistoryDtoCopyWithImpl<InviteLinksHistoryDto>(this as InviteLinksHistoryDto, _$identity);
+
+  /// Serializes this InviteLinksHistoryDto to a JSON map.
+  Map<String, dynamic> toJson();
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is InviteLinksHistoryDto&&const DeepCollectionEquality().equals(other.items, items)&&(identical(other.meta, meta) || other.meta == meta));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(items),meta);
+
+@override
+String toString() {
+  return 'InviteLinksHistoryDto(items: $items, meta: $meta)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $InviteLinksHistoryDtoCopyWith<$Res>  {
+  factory $InviteLinksHistoryDtoCopyWith(InviteLinksHistoryDto value, $Res Function(InviteLinksHistoryDto) _then) = _$InviteLinksHistoryDtoCopyWithImpl;
+@useResult
+$Res call({
+ List<InviteLinkHistoryItemDto> items, InviteLinksMetaDto meta
+});
+
+
+$InviteLinksMetaDtoCopyWith<$Res> get meta;
+
+}
+/// @nodoc
+class _$InviteLinksHistoryDtoCopyWithImpl<$Res>
+    implements $InviteLinksHistoryDtoCopyWith<$Res> {
+  _$InviteLinksHistoryDtoCopyWithImpl(this._self, this._then);
+
+  final InviteLinksHistoryDto _self;
+  final $Res Function(InviteLinksHistoryDto) _then;
+
+/// Create a copy of InviteLinksHistoryDto
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? items = null,Object? meta = null,}) {
+  return _then(_self.copyWith(
+items: null == items ? _self.items : items // ignore: cast_nullable_to_non_nullable
+as List<InviteLinkHistoryItemDto>,meta: null == meta ? _self.meta : meta // ignore: cast_nullable_to_non_nullable
+as InviteLinksMetaDto,
+  ));
+}
+/// Create a copy of InviteLinksHistoryDto
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$InviteLinksMetaDtoCopyWith<$Res> get meta {
+  
+  return $InviteLinksMetaDtoCopyWith<$Res>(_self.meta, (value) {
+    return _then(_self.copyWith(meta: value));
+  });
+}
+}
+
+
+/// Adds pattern-matching-related methods to [InviteLinksHistoryDto].
+extension InviteLinksHistoryDtoPatterns on InviteLinksHistoryDto {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _InviteLinksHistoryDto value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _InviteLinksHistoryDto() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _InviteLinksHistoryDto value)  $default,){
+final _that = this;
+switch (_that) {
+case _InviteLinksHistoryDto():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _InviteLinksHistoryDto value)?  $default,){
+final _that = this;
+switch (_that) {
+case _InviteLinksHistoryDto() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( List<InviteLinkHistoryItemDto> items,  InviteLinksMetaDto meta)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _InviteLinksHistoryDto() when $default != null:
+return $default(_that.items,_that.meta);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( List<InviteLinkHistoryItemDto> items,  InviteLinksMetaDto meta)  $default,) {final _that = this;
+switch (_that) {
+case _InviteLinksHistoryDto():
+return $default(_that.items,_that.meta);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( List<InviteLinkHistoryItemDto> items,  InviteLinksMetaDto meta)?  $default,) {final _that = this;
+switch (_that) {
+case _InviteLinksHistoryDto() when $default != null:
+return $default(_that.items,_that.meta);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+@JsonSerializable()
+
+class _InviteLinksHistoryDto implements InviteLinksHistoryDto {
+  const _InviteLinksHistoryDto({required final  List<InviteLinkHistoryItemDto> items, required this.meta}): _items = items;
+  factory _InviteLinksHistoryDto.fromJson(Map<String, dynamic> json) => _$InviteLinksHistoryDtoFromJson(json);
+
+ final  List<InviteLinkHistoryItemDto> _items;
+@override List<InviteLinkHistoryItemDto> get items {
+  if (_items is EqualUnmodifiableListView) return _items;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_items);
+}
+
+@override final  InviteLinksMetaDto meta;
+
+/// Create a copy of InviteLinksHistoryDto
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$InviteLinksHistoryDtoCopyWith<_InviteLinksHistoryDto> get copyWith => __$InviteLinksHistoryDtoCopyWithImpl<_InviteLinksHistoryDto>(this, _$identity);
+
+@override
+Map<String, dynamic> toJson() {
+  return _$InviteLinksHistoryDtoToJson(this, );
+}
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _InviteLinksHistoryDto&&const DeepCollectionEquality().equals(other._items, _items)&&(identical(other.meta, meta) || other.meta == meta));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_items),meta);
+
+@override
+String toString() {
+  return 'InviteLinksHistoryDto(items: $items, meta: $meta)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$InviteLinksHistoryDtoCopyWith<$Res> implements $InviteLinksHistoryDtoCopyWith<$Res> {
+  factory _$InviteLinksHistoryDtoCopyWith(_InviteLinksHistoryDto value, $Res Function(_InviteLinksHistoryDto) _then) = __$InviteLinksHistoryDtoCopyWithImpl;
+@override @useResult
+$Res call({
+ List<InviteLinkHistoryItemDto> items, InviteLinksMetaDto meta
+});
+
+
+@override $InviteLinksMetaDtoCopyWith<$Res> get meta;
+
+}
+/// @nodoc
+class __$InviteLinksHistoryDtoCopyWithImpl<$Res>
+    implements _$InviteLinksHistoryDtoCopyWith<$Res> {
+  __$InviteLinksHistoryDtoCopyWithImpl(this._self, this._then);
+
+  final _InviteLinksHistoryDto _self;
+  final $Res Function(_InviteLinksHistoryDto) _then;
+
+/// Create a copy of InviteLinksHistoryDto
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? items = null,Object? meta = null,}) {
+  return _then(_InviteLinksHistoryDto(
+items: null == items ? _self._items : items // ignore: cast_nullable_to_non_nullable
+as List<InviteLinkHistoryItemDto>,meta: null == meta ? _self.meta : meta // ignore: cast_nullable_to_non_nullable
+as InviteLinksMetaDto,
+  ));
+}
+
+/// Create a copy of InviteLinksHistoryDto
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$InviteLinksMetaDtoCopyWith<$Res> get meta {
+  
+  return $InviteLinksMetaDtoCopyWith<$Res>(_self.meta, (value) {
+    return _then(_self.copyWith(meta: value));
+  });
+}
+}
+
 // dart format on

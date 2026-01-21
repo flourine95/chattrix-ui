@@ -1,3 +1,4 @@
+import 'package:chattrix_ui/core/toast/toastification_helper.dart';
 import 'package:chattrix_ui/features/chat/domain/entities/message.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -103,14 +104,10 @@ class MessageLongPressOverlay extends HookWidget {
         Clipboard.setData(ClipboardData(text: textToCopy));
         Navigator.of(context).pop();
 
-        // Show snackbar
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Copied'),
-            duration: Duration(seconds: 1),
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
+        // Show toast
+        if (context.mounted) {
+          AppToast.success(context, title: 'Copied to clipboard');
+        }
       }
     }
 

@@ -81,6 +81,10 @@ class BirthdayWishesBottomSheet extends HookConsumerWidget {
 
         await usecase(conversationId: directConversation.id, request: request);
 
+        // Force refresh conversations to show updated lastMessage immediately
+        // This ensures the conversation list updates even if WebSocket is slow
+        ref.read(conversationsProvider.notifier).refresh();
+
         // Navigate to conversation
         if (!context.mounted) return;
         context.push('/chat/${directConversation.id}');

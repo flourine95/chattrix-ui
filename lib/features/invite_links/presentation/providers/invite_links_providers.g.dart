@@ -157,53 +157,53 @@ final class CreateInviteLinkUseCaseProvider
 String _$createInviteLinkUseCaseHash() =>
     r'778b17e9e331c1daa3e980a8cb4f66ab1e1d3729';
 
-@ProviderFor(getInviteLinksUseCase)
-final getInviteLinksUseCaseProvider = GetInviteLinksUseCaseProvider._();
+@ProviderFor(getInviteLinkUseCase)
+final getInviteLinkUseCaseProvider = GetInviteLinkUseCaseProvider._();
 
-final class GetInviteLinksUseCaseProvider
+final class GetInviteLinkUseCaseProvider
     extends
         $FunctionalProvider<
-          GetInviteLinksUseCase,
-          GetInviteLinksUseCase,
-          GetInviteLinksUseCase
+          GetInviteLinkUseCase,
+          GetInviteLinkUseCase,
+          GetInviteLinkUseCase
         >
-    with $Provider<GetInviteLinksUseCase> {
-  GetInviteLinksUseCaseProvider._()
+    with $Provider<GetInviteLinkUseCase> {
+  GetInviteLinkUseCaseProvider._()
     : super(
         from: null,
         argument: null,
         retry: null,
-        name: r'getInviteLinksUseCaseProvider',
+        name: r'getInviteLinkUseCaseProvider',
         isAutoDispose: true,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
 
   @override
-  String debugGetCreateSourceHash() => _$getInviteLinksUseCaseHash();
+  String debugGetCreateSourceHash() => _$getInviteLinkUseCaseHash();
 
   @$internal
   @override
-  $ProviderElement<GetInviteLinksUseCase> $createElement(
+  $ProviderElement<GetInviteLinkUseCase> $createElement(
     $ProviderPointer pointer,
   ) => $ProviderElement(pointer);
 
   @override
-  GetInviteLinksUseCase create(Ref ref) {
-    return getInviteLinksUseCase(ref);
+  GetInviteLinkUseCase create(Ref ref) {
+    return getInviteLinkUseCase(ref);
   }
 
   /// {@macro riverpod.override_with_value}
-  Override overrideWithValue(GetInviteLinksUseCase value) {
+  Override overrideWithValue(GetInviteLinkUseCase value) {
     return $ProviderOverride(
       origin: this,
-      providerOverride: $SyncValueProvider<GetInviteLinksUseCase>(value),
+      providerOverride: $SyncValueProvider<GetInviteLinkUseCase>(value),
     );
   }
 }
 
-String _$getInviteLinksUseCaseHash() =>
-    r'fabb393e4c7390db5502af8161ce600fc4840817';
+String _$getInviteLinkUseCaseHash() =>
+    r'dfef4889cde01dcc246408cdb70be367a1cd2fc6';
 
 @ProviderFor(revokeInviteLinkUseCase)
 final revokeInviteLinkUseCaseProvider = RevokeInviteLinkUseCaseProvider._();
@@ -253,52 +253,6 @@ final class RevokeInviteLinkUseCaseProvider
 String _$revokeInviteLinkUseCaseHash() =>
     r'84118726b90b552a8726c462e9c6b8e2a4b6f59e';
 
-@ProviderFor(getQRCodeUseCase)
-final getQRCodeUseCaseProvider = GetQRCodeUseCaseProvider._();
-
-final class GetQRCodeUseCaseProvider
-    extends
-        $FunctionalProvider<
-          GetQRCodeUseCase,
-          GetQRCodeUseCase,
-          GetQRCodeUseCase
-        >
-    with $Provider<GetQRCodeUseCase> {
-  GetQRCodeUseCaseProvider._()
-    : super(
-        from: null,
-        argument: null,
-        retry: null,
-        name: r'getQRCodeUseCaseProvider',
-        isAutoDispose: true,
-        dependencies: null,
-        $allTransitiveDependencies: null,
-      );
-
-  @override
-  String debugGetCreateSourceHash() => _$getQRCodeUseCaseHash();
-
-  @$internal
-  @override
-  $ProviderElement<GetQRCodeUseCase> $createElement($ProviderPointer pointer) =>
-      $ProviderElement(pointer);
-
-  @override
-  GetQRCodeUseCase create(Ref ref) {
-    return getQRCodeUseCase(ref);
-  }
-
-  /// {@macro riverpod.override_with_value}
-  Override overrideWithValue(GetQRCodeUseCase value) {
-    return $ProviderOverride(
-      origin: this,
-      providerOverride: $SyncValueProvider<GetQRCodeUseCase>(value),
-    );
-  }
-}
-
-String _$getQRCodeUseCaseHash() => r'6acca188df345d8c85d034a258948392e215ecef';
-
 @ProviderFor(getInviteLinkInfoUseCase)
 final getInviteLinkInfoUseCaseProvider = GetInviteLinkInfoUseCaseProvider._();
 
@@ -346,6 +300,54 @@ final class GetInviteLinkInfoUseCaseProvider
 
 String _$getInviteLinkInfoUseCaseHash() =>
     r'1c24478e84c56718e9472bcc896110d758e3b0a0';
+
+@ProviderFor(joinViaInviteLinkUseCase)
+final joinViaInviteLinkUseCaseProvider = JoinViaInviteLinkUseCaseProvider._();
+
+final class JoinViaInviteLinkUseCaseProvider
+    extends
+        $FunctionalProvider<
+          JoinGroupViaLinkUseCase,
+          JoinGroupViaLinkUseCase,
+          JoinGroupViaLinkUseCase
+        >
+    with $Provider<JoinGroupViaLinkUseCase> {
+  JoinViaInviteLinkUseCaseProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'joinViaInviteLinkUseCaseProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$joinViaInviteLinkUseCaseHash();
+
+  @$internal
+  @override
+  $ProviderElement<JoinGroupViaLinkUseCase> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  JoinGroupViaLinkUseCase create(Ref ref) {
+    return joinViaInviteLinkUseCase(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(JoinGroupViaLinkUseCase value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<JoinGroupViaLinkUseCase>(value),
+    );
+  }
+}
+
+String _$joinViaInviteLinkUseCaseHash() =>
+    r'bdb50972f2ef8369ca650251ee9c46d6a2444692';
 
 @ProviderFor(joinGroupViaLinkUseCase)
 final joinGroupViaLinkUseCaseProvider = JoinGroupViaLinkUseCaseProvider._();
