@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:chattrix_ui/core/widgets/user_avatar.dart';
 import 'package:chattrix_ui/core/domain/enums/enums.dart';
 import 'package:chattrix_ui/features/auth/domain/entities/user.dart';

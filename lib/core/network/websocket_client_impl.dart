@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:chattrix_ui/core/network/websocket_client.dart';
 import 'package:chattrix_ui/core/utils/app_logger.dart';
+import 'package:flutter/foundation.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
 class WebSocketClientImpl implements WebSocketClient {
@@ -36,6 +37,8 @@ class WebSocketClientImpl implements WebSocketClient {
       _channel!.stream.listen(
         (message) {
           if (message is String) {
+            // Debug: Log ALL incoming WebSocket messages
+            debugPrint('📨 [WS-RAW] Received: ${message.substring(0, message.length > 200 ? 200 : message.length)}...');
             _messageController.add(message);
           }
         },

@@ -1,3 +1,5 @@
+import '../constants/app_constants.dart';
+
 /// Service to cache online status of users in memory
 /// 
 /// Backend no longer provides `online` field in User entity.
@@ -23,6 +25,15 @@ class OnlineStatusCache {
   /// - false if user is offline or not in cache
   bool isOnline(int userId) {
     return _onlineStatus[userId] ?? false;
+  }
+
+  /// Check if we have explicit status for a user
+  /// 
+  /// Returns:
+  /// - true if user status has been set (either online or offline)
+  /// - false if user status has never been set
+  bool hasStatus(int userId) {
+    return _onlineStatus.containsKey(userId);
   }
 
   /// Set user online status
@@ -54,12 +65,20 @@ class OnlineStatusCache {
 
   /// Calculate online status from lastSeen timestamp
   /// 
-  /// User is considered online if lastSeen < 60 seconds ago
+  /// User is considered online if lastSeen < grace period (configured in AppConstants)
+  /// 
+  /// Grace period: Configurable via AppConstants.onlineGracePeriod
   bool isOnlineFromLastSeen(DateTime? lastSeen) {
     if (lastSeen == null) return false;
 
-    final secondsAgo = DateTime.now().difference(lastSeen).inSeconds;
-    return secondsAgo < 60;
+    final now = DateTime.now();
+    final secondsAgo = now.difference(lastSeen).inSeconds;
+    final gracePeriodSeconds = AppConstants.onlineGracePeriod.inSeconds;
+    final isOnline = secondsAgo < gracePeriodSeconds;
+    
+    // debugPrint('⏰ [OnlineCache] isOnlineFromLastSeen: now=$now, lastSeen=$lastSeen, diff=${secondsAgo}s, gracePeriod=${gracePeriodSeconds}s, result=$isOnline');
+    
+    return isOnline;
   }
 
   /// Get last seen timestamp for a user

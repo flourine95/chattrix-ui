@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:chattrix_ui/core/constants/app_constants.dart';
 import 'package:chattrix_ui/core/domain/enums/conversation_filter.dart';
 import 'package:chattrix_ui/core/errors/failures.dart';
 import 'package:chattrix_ui/core/utils/retry_helper.dart';
@@ -12,6 +13,7 @@ import 'package:chattrix_ui/features/chat/domain/entities/user_status_update.dar
 import 'package:chattrix_ui/features/chat/presentation/providers/chat_usecase_provider.dart';
 import 'package:chattrix_ui/features/chat/presentation/providers/chat_websocket_provider_new.dart';
 import 'package:chattrix_ui/features/chat/presentation/state/filter_notifier.dart';
+import 'package:flutter/material.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'conversations_notifier.g.dart';
@@ -60,13 +62,15 @@ class ConversationsNotifier extends _$ConversationsNotifier {
       _handleTypingIndicatorEvent(typingIndicator);
     });
 
-    // Listen to WebSocket connection state to toggle polling
+    // Listen to WebSocket connection state to toggle fast polling
     _connectionSubscription = wsDataSource.connectionStream.listen((isConnected) {
       if (isConnected) {
-        // WebSocket connected - disable polling
+        // WebSocket connected - use slow polling (60s) as backup
         _stopPolling();
+        _startSlowPolling();
       } else {
-        // WebSocket disconnected - enable polling
+        // WebSocket disconnected - use fast polling (10s)
+        _stopPolling();
         _startPolling();
       }
     });
@@ -76,6 +80,8 @@ class ConversationsNotifier extends _$ConversationsNotifier {
 
     if (!isConnected) {
       _startPolling();
+    } else {
+      _startSlowPolling();
     }
 
     // Start UI refresh timer to update last seen badges every minute
@@ -97,7 +103,14 @@ class ConversationsNotifier extends _$ConversationsNotifier {
 
   void _startPolling() {
     _stopPolling();
-    _pollingTimer = Timer.periodic(const Duration(seconds: 10), (timer) {
+    _pollingTimer = Timer.periodic(AppConstants.fastPollingInterval, (timer) {
+      refresh();
+    });
+  }
+
+  void _startSlowPolling() {
+    _stopPolling();
+    _pollingTimer = Timer.periodic(AppConstants.slowPollingInterval, (timer) {
       refresh();
     });
   }
@@ -111,7 +124,7 @@ class ConversationsNotifier extends _$ConversationsNotifier {
 
   void _startUiRefreshTimer() {
     _stopUiRefreshTimer();
-    _uiRefreshTimer = Timer.periodic(const Duration(seconds: 60), (timer) {
+    _uiRefreshTimer = Timer.periodic(AppConstants.uiRefreshInterval, (timer) {
       _refreshUi();
     });
   }
@@ -123,14 +136,10 @@ class ConversationsNotifier extends _$ConversationsNotifier {
     }
   }
 
-  /// Trigger a lightweight UI refresh without fetching new data
-  /// This updates the UI to reflect time-based changes (e.g., "2m" → "3m")
   void _refreshUi() {
     final currentState = state.value;
     if (currentState == null) return;
-
-    // Trigger rebuild by creating a new list reference
-    // The UI will recalculate time-based displays (badges, timestamps)
+    
     state = AsyncValue.data(List.of(currentState));
   }
 
@@ -318,29 +327,21 @@ class ConversationsNotifier extends _$ConversationsNotifier {
     refresh();
   }
 
-  /// Handle user status events from WebSocket
   void _handleUserStatusEvent(UserStatusUpdate statusUpdate) {
     final currentState = state.value;
-    if (currentState == null) {
-      return;
-    }
+    if (currentState == null) return;
 
     final userId = int.tryParse(statusUpdate.userId);
-    if (userId == null) {
-      return;
-    }
+    if (userId == null) return;
 
     bool hasChanges = false;
 
     final updatedList = currentState.map((conversation) {
-      // Find if this user is a participant in this conversation
       final participantIndex = conversation.participants.indexWhere((p) => p.userId == userId);
       if (participantIndex == -1) return conversation;
 
-      // Update participant's lastSeen (online status is now in cache)
       final updatedParticipants = List.of(conversation.participants);
       updatedParticipants[participantIndex] = updatedParticipants[participantIndex].copyWith(
-        // ❌ REMOVED: online field (now tracked in OnlineStatusCache)
         lastSeen: statusUpdate.lastSeen != null ? DateTime.tryParse(statusUpdate.lastSeen!) : null,
       );
 
@@ -348,9 +349,7 @@ class ConversationsNotifier extends _$ConversationsNotifier {
       return conversation.copyWith(participants: updatedParticipants);
     }).toList();
 
-    if (hasChanges) {
-      state = AsyncValue.data(updatedList);
-    }
+    state = AsyncValue.data(updatedList);
   }
 
   /// Handle typing indicator events from WebSocket

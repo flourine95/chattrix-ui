@@ -25,14 +25,19 @@ class WebSocketMessageRouter {
 
     if (type == null) {
       AppLogger.websocket('Received message without type', isError: true);
+      debugPrint('❌ [WS-Router] Message without type: $message');
       return;
     }
 
+    debugPrint('🔀 [WS-Router] Routing message type: $type');
+
     final controller = _controllers[type];
     if (controller != null && !controller.isClosed) {
+      debugPrint('✅ [WS-Router] Handler found for type: $type');
       controller.add(message);
     } else {
-      debugPrint('No handler registered for type: $type');
+      debugPrint('⚠️ [WS-Router] No handler registered for type: $type');
+      debugPrint('⚠️ [WS-Router] Available handlers: ${_controllers.keys.toList()}');
     }
   }
 

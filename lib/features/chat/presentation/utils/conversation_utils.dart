@@ -4,6 +4,7 @@ import 'package:chattrix_ui/features/auth/domain/entities/user.dart';
 import 'package:chattrix_ui/features/chat/domain/entities/conversation.dart';
 import 'package:chattrix_ui/features/chat/domain/entities/message.dart';
 import 'package:chattrix_ui/features/chat/domain/entities/participant.dart';
+import 'package:flutter/foundation.dart';
 
 /// Utility functions for conversation display logic
 class ConversationUtils {
@@ -226,12 +227,12 @@ class ConversationUtils {
     return otherParticipant?.userId.toString();
   }
 
-  /// Check if user is online in DIRECT conversation
   static bool isUserOnline(Conversation conversation, User? currentUser) {
     final otherParticipant = getOtherParticipant(conversation, currentUser);
-    if (otherParticipant == null) return false;
+    if (otherParticipant == null) {
+      return false;
+    }
     
-    // Use extension method to check online status from cache
     return otherParticipant.isOnlineWithFallback;
   }
 

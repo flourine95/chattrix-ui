@@ -1,13 +1,13 @@
 import 'package:chattrix_ui/core/errors/failures.dart';
+import 'package:chattrix_ui/core/services/online_status_cache.dart';
 import 'package:chattrix_ui/features/auth/domain/entities/user.dart' as entities;
 import 'package:chattrix_ui/features/auth/presentation/providers/auth_repository_provider.dart';
 import 'package:chattrix_ui/features/auth/presentation/state/auth_state.dart';
+import 'package:flutter/foundation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'auth_state_provider.g.dart';
 
-/// Main auth state notifier using AsyncNotifier
-/// Manages authentication state with automatic loading/error handling
 @Riverpod(keepAlive: true)
 class Auth extends _$Auth {
   @override
@@ -35,16 +35,32 @@ class Auth extends _$Auth {
     state = await AsyncValue.guard(() async {
       final repository = ref.read(authRepositoryProvider);
 
+      debugPrint('🔐 [Auth] Starting login for: $usernameOrEmail');
+
       // Perform login
       final loginResult = await repository.login(usernameOrEmail: usernameOrEmail, password: password);
 
       // Handle login result
       loginResult.fold((failure) => throw _mapFailureToException(failure), (_) => null);
 
+      debugPrint('✅ [Auth] Login successful, loading user profile...');
+
       // Get current user after successful login
       final userResult = await repository.getCurrentUser();
 
       final user = userResult.fold((failure) => throw _mapFailureToException(failure), (user) => user);
+
+      debugPrint('✅ [Auth] User profile loaded: ${user.username}');
+
+      // Set current user as online in cache immediately after login
+      try {
+        final cache = OnlineStatusCache();
+        cache.setOnline(user.id, lastSeen: DateTime.now());
+        debugPrint('✅ [Auth] Set user ${user.id} as ONLINE in cache');
+      } catch (e, stack) {
+        debugPrint('❌ [Auth] Failed to set online status: $e');
+        debugPrint('Stack: $stack');
+      }
 
       return AuthState(user: user, isAuthenticated: true);
     });
@@ -132,6 +148,9 @@ class Auth extends _$Auth {
 
       result.fold((failure) => throw _mapFailureToException(failure), (_) => null);
 
+      // Clear online status cache on logout
+      _clearOnlineStatusCache();
+
       return const AuthState(isAuthenticated: false);
     });
   }
@@ -147,8 +166,23 @@ class Auth extends _$Auth {
 
       result.fold((failure) => throw _mapFailureToException(failure), (_) => null);
 
+      // Clear online status cache on logout
+      _clearOnlineStatusCache();
+
       return const AuthState(isAuthenticated: false);
     });
+  }
+
+  /// Clear online status cache
+  void _clearOnlineStatusCache() {
+    try {
+      // Import OnlineStatusCache and clear it
+      final cache = OnlineStatusCache();
+      cache.clear();
+      debugPrint('🧹 [Auth] Cleared online status cache on logout');
+    } catch (e) {
+      debugPrint('❌ [Auth] Failed to clear online status cache: $e');
+    }
   }
 
   /// Refresh current user data

@@ -18,7 +18,7 @@ class WebSocketConnectionManager {
   WebSocketConnectionManager({
     required WebSocketClient client,
     this.reconnectDelay = const Duration(seconds: 5),
-    this.heartbeatInterval = const Duration(seconds: 30),
+    this.heartbeatInterval = const Duration(seconds: 15),
   }) : _client = client {
     // Setup connection listener once in constructor to prevent memory leak
     _connectionSubscription = _client.connectionStream.listen((isConnected) {
@@ -68,12 +68,14 @@ class WebSocketConnectionManager {
 
   void _startHeartbeat() {
     _stopHeartbeat();
-    AppLogger.websocket('Starting heartbeat');
+    AppLogger.websocket('Starting heartbeat (every ${heartbeatInterval.inSeconds}s)');
 
     _heartbeatTimer = Timer.periodic(heartbeatInterval, (timer) {
       if (_client.isConnected) {
-        debugPrint('Sending heartbeat');
-        _client.send('{"type":"heartbeat","payload":{}}');
+        final timestamp = DateTime.now().toIso8601String();
+        final heartbeatMessage = '{"type":"heartbeat","payload":{},"timestamp":"$timestamp"}';
+        debugPrint('💓 Sending heartbeat at $timestamp');
+        _client.send(heartbeatMessage);
       }
     });
   }

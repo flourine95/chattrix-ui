@@ -42,6 +42,10 @@ class WebSocketConnectionNotifier extends Notifier<WebSocketConnectionState> {
 
   @override
   WebSocketConnectionState build() {
+    // Reset reconnection flag when provider is rebuilt (e.g., after login)
+    _shouldStopReconnecting = false;
+    _reconnectAttempts = 0;
+    
     _initializeConnection();
 
     ref.onDispose(() {

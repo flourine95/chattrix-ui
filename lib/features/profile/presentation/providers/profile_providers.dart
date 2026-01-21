@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:chattrix_ui/core/errors/failures.dart';
+import 'package:chattrix_ui/core/services/online_status_cache.dart';
 import 'package:chattrix_ui/features/auth/presentation/providers/auth_providers.dart';
 import 'package:chattrix_ui/features/chat/services/cloudinary_provider.dart';
 import 'package:chattrix_ui/features/profile/data/datasources/profile_remote_datasource_impl.dart';
@@ -11,6 +12,7 @@ import 'package:chattrix_ui/features/profile/domain/entities/update_profile_para
 import 'package:chattrix_ui/features/profile/domain/repositories/profile_repository.dart';
 import 'package:chattrix_ui/features/profile/domain/usecases/get_profile_usecase.dart';
 import 'package:chattrix_ui/features/profile/domain/usecases/update_profile_usecase.dart';
+import 'package:flutter/foundation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'profile_providers.g.dart';
@@ -76,10 +78,15 @@ class ProfileController extends _$ProfileController {
       final tokenCache = ref.read(tokenCacheServiceProvider);
       await tokenCache.clearTokens();
 
+      // Clear online status cache
+      final onlineCache = OnlineStatusCache();
+      onlineCache.clear();
+      debugPrint('🧹 [Profile] Cleared online status cache on force logout');
+
       // Reset auth state
       ref.invalidate(authNotifierProvider);
     } catch (e) {
-      // Silently handle error
+      debugPrint('❌ [Profile] Error during force logout: $e');
     }
   }
 

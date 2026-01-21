@@ -67,10 +67,19 @@ class ChatWebSocketDataSourceImpl implements ChatWebSocketDataSource {
     
     try {
       type = message['type'] as String?;
-      if (type == null) return;
+      if (type == null) {
+        debugPrint('🟡 WS Message without type: $message');
+        return;
+      }
 
       payload = message['payload'] ?? message['data'];
-      if (payload == null) return;
+      if (payload == null) {
+        debugPrint('🟡 WS Message without payload: type=$type');
+        return;
+      }
+
+      // Log all incoming messages for debugging
+      debugPrint('📨 [WS] Received: type=$type');
 
       // Dùng switch case trực tiếp với WebSocketEvents
       switch (type) {
@@ -92,13 +101,28 @@ class ChatWebSocketDataSourceImpl implements ChatWebSocketDataSource {
           break;
 
         case WebSocketEvents.userStatus:
+          debugPrint('👤 [UserStatus] Raw payload: $payload');
           final statusEntity = UserStatusUpdateModel.fromJson(payload as Map<String, dynamic>).toEntity();
+
+          debugPrint('👤 [UserStatus] Received status update: userId=${statusEntity.userId}, status=${statusEntity.isOnline ? "ONLINE" : "OFFLINE"}');
 
           final cache = OnlineStatusCache();
           final userId = int.tryParse(statusEntity.userId);
           if (userId != null) {
-            final lastSeen = statusEntity.lastSeen != null ? DateTime.tryParse(statusEntity.lastSeen!) : null;
+            // Parse lastSeen as UTC and convert to local time
+            DateTime? lastSeen;
+            if (statusEntity.lastSeen != null) {
+              try {
+                lastSeen = DateTime.parse(statusEntity.lastSeen!).toLocal();
+                debugPrint('📅 [UserStatus] Parsed lastSeen: ${statusEntity.lastSeen} → $lastSeen (local)');
+              } catch (e) {
+                debugPrint('❌ [UserStatus] Failed to parse lastSeen: ${statusEntity.lastSeen}, error: $e');
+              }
+            }
             cache.updateStatus(userId, statusEntity.isOnline, lastSeen: lastSeen);
+            debugPrint('✅ [UserStatus] Updated cache for user $userId: ${statusEntity.isOnline ? "ONLINE" : "OFFLINE"}');
+          } else {
+            debugPrint('❌ [UserStatus] Failed to parse userId: ${statusEntity.userId}');
           }
 
           _userStatusController.add(statusEntity);
@@ -131,8 +155,12 @@ class ChatWebSocketDataSourceImpl implements ChatWebSocketDataSource {
           break;
 
         case WebSocketEvents.heartbeatAck:
+          debugPrint('💚 [WS] Heartbeat acknowledged');
           _heartbeatAckController.add(null);
           break;
+
+        default:
+          debugPrint('🟡 [WS] Unknown message type: $type');
       }
     } catch (e, stack) {
       debugPrint('🟡 WS Handle Message Error: $e');

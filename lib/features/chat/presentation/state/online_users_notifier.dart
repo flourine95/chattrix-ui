@@ -5,6 +5,7 @@ import 'package:chattrix_ui/core/services/online_status_cache.dart';
 import 'package:chattrix_ui/features/auth/domain/entities/user.dart';
 import 'package:chattrix_ui/features/contacts/presentation/providers/contact_providers.dart';
 import 'package:chattrix_ui/features/chat/presentation/providers/chat_websocket_provider_new.dart';
+import 'package:flutter/foundation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'online_users_notifier.g.dart';
@@ -122,15 +123,19 @@ class OnlineUsersNotifier extends _$OnlineUsersNotifier {
     final userIdInt = int.tryParse(userId);
     if (userIdInt == null) return;
 
+    debugPrint('🔄 [OnlineUsers] Handling status update: userId=$userId, isOnline=$isOnline');
+
     // ✅ Update OnlineStatusCache
     _onlineCache.updateStatus(userIdInt, isOnline);
 
     if (isOnline) {
       // User came online - add to list if not already present
       if (!currentState.any((user) => user.id == userIdInt)) {
+        debugPrint('🔄 [OnlineUsers] User $userId not in list, refreshing...');
         // User not in list, need to fetch from contacts
         refresh();
       } else {
+        debugPrint('🔄 [OnlineUsers] User $userId already in list, updating...');
         // User already in list, just update lastSeen
         final updatedUsers = currentState.map((user) {
           if (user.id == userIdInt) {
@@ -142,6 +147,7 @@ class OnlineUsersNotifier extends _$OnlineUsersNotifier {
         state = AsyncValue.data(updatedUsers);
       }
     } else {
+      debugPrint('🔄 [OnlineUsers] User $userId went offline, removing from list');
       // User went offline - remove from list
       final updatedUsers = currentState.where((user) => user.id != userIdInt).toList();
 

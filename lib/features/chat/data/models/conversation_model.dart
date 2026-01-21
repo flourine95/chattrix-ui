@@ -41,12 +41,7 @@ abstract class ConversationModel with _$ConversationModel {
     ConversationSettingsModel? settingsModel;
     if (settingsJson != null && settingsJson is Map<String, dynamic>) {
       settingsModel = ConversationSettingsModel.fromJson(settingsJson);
-      debugPrint(
-        '🔍 Conversation ${json['id']} settings: pinned=${settingsModel.pinned}, muted=${settingsModel.muted}, hidden=${settingsModel.hidden}, pinOrder=${settingsModel.pinOrder}',
-      );
     } else {
-      debugPrint('⚠️ Conversation ${json['id']} has NO settings field - using defaults');
-      // Create default settings if backend doesn't return it
       settingsModel = const ConversationSettingsModel(
         conversationId: 0,
         muted: false,

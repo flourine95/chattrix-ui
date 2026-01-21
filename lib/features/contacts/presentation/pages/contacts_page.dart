@@ -2,10 +2,12 @@ import 'package:chattrix_ui/features/call/domain/entities/call_type.dart';
 import 'package:chattrix_ui/features/call/domain/entities/call_history_item.dart';
 import 'package:chattrix_ui/features/call/presentation/providers/call_history_provider.dart';
 import 'package:chattrix_ui/core/domain/enums/conversation_type.dart';
+import 'package:chattrix_ui/core/extensions/user_online_extension.dart';
 import 'package:chattrix_ui/core/widgets/user_avatar.dart';
 import 'package:chattrix_ui/features/call/presentation/state/call_notifier.dart';
 import 'package:chattrix_ui/features/chat/presentation/providers/chat_usecase_provider.dart';
 import 'package:chattrix_ui/features/chat/presentation/state/conversations_notifier.dart';
+import 'package:chattrix_ui/features/contacts/domain/entities/contact.dart';
 import 'package:chattrix_ui/features/contacts/presentation/pages/search_users_page.dart';
 import 'package:chattrix_ui/features/contacts/presentation/providers/contact_providers.dart';
 import 'package:flutter/material.dart';
@@ -348,7 +350,7 @@ class _ContactsTab extends ConsumerWidget {
 }
 
 class _ContactListItem extends ConsumerWidget {
-  final dynamic contact;
+  final Contact contact;
   final bool isDark;
 
   const _ContactListItem({required this.contact, required this.isDark});
@@ -380,6 +382,23 @@ class _ContactListItem extends ConsumerWidget {
                   displayName: contact.fullName,
                   avatarUrl: contact.avatarUrl,
                   radius: 28,
+                ),
+                // Online status indicator
+                Positioned(
+                  right: 0,
+                  top: 0,
+                  child: Container(
+                    width: 14,
+                    height: 14,
+                    decoration: BoxDecoration(
+                      color: contact.isOnline ? Colors.green : Colors.grey,
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: Theme.of(context).scaffoldBackgroundColor,
+                        width: 2,
+                      ),
+                    ),
+                  ),
                 ),
                 if (contact.favorite)
                   Positioned(
