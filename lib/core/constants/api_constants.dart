@@ -10,13 +10,25 @@ class ApiConstants {
   static const String _v1 = 'v1';
 
   static bool get _useSecureProtocol {
-    return !kDebugMode;
+    // Always use HTTP for localhost/development
+    // Use HTTPS only for production domains
+    final host = dotenv.env['API_HOST'] ?? 'localhost';
+    final isLocalhost = host == 'localhost' || 
+                       host.startsWith('192.168.') || 
+                       host.startsWith('10.0.');
+    
+    // If localhost/local IP → use HTTP
+    // If production domain → use HTTPS
+    return !isLocalhost;
   }
 
   static String get _baseUrl {
     final protocol = _useSecureProtocol ? 'https' : 'http';
     return '$protocol://$_host:$_port$_apiPath';
   }
+
+  /// Public getter for base URL (used by DioClient)
+  static String get baseUrl => _baseUrl;
 
   static String get _wsBaseUrl {
     final protocol = _useSecureProtocol ? 'wss' : 'ws';
