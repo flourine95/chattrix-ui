@@ -63,7 +63,7 @@ class PollOptionItem extends StatelessWidget {
                   height: 24,
                   decoration: BoxDecoration(
                     shape: allowMultiple ? BoxShape.rectangle : BoxShape.circle,
-                    borderRadius: allowMultiple ? BorderRadius.circular(4) : null,
+                    borderRadius: allowMultiple ? BorderRadius.circular(6) : null,
                     color: isSelected ? theme.colorScheme.primary : Colors.transparent,
                     border: Border.all(
                       color: isSelected
@@ -72,7 +72,7 @@ class PollOptionItem extends StatelessWidget {
                       width: 2,
                     ),
                   ),
-                  child: isSelected ? const Icon(Icons.check, size: 16, color: Colors.white) : null,
+                  child: isSelected ? Icon(Icons.check, size: allowMultiple ? 18 : 16, color: Colors.white) : null,
                 ),
                 const SizedBox(width: 12),
                 Expanded(

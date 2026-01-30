@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:chattrix_ui/features/chat/domain/entities/message.dart';
 import 'package:chattrix_ui/features/chat/domain/entities/reply_to_message.dart';
 import 'package:chattrix_ui/features/chat/presentation/widgets/message_bubble.dart';
@@ -51,7 +49,7 @@ class CallMessageBubble extends StatelessWidget {
     // Icons and colors based on call type and status
     final isVideo = callType == 'VIDEO';
     final isMissed = callStatus == 'MISSED';
-    
+
     IconData icon;
     Color iconColor;
     String statusText;
@@ -63,7 +61,7 @@ class CallMessageBubble extends StatelessWidget {
     } else {
       icon = isVideo ? Icons.videocam : Icons.phone;
       iconColor = isMe ? Colors.green : Colors.blue;
-      
+
       if (durationSeconds != null && durationSeconds > 0) {
         final minutes = durationSeconds ~/ 60;
         final seconds = durationSeconds % 60;
@@ -97,15 +95,8 @@ class CallMessageBubble extends StatelessWidget {
             // Call icon
             Container(
               padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: iconColor.withValues(alpha: 0.1),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                icon,
-                color: iconColor,
-                size: 20,
-              ),
+              decoration: BoxDecoration(color: iconColor.withValues(alpha: 0.1), shape: BoxShape.circle),
+              child: Icon(icon, color: iconColor, size: 20),
             ),
             const SizedBox(width: 12),
             // Call info
@@ -126,9 +117,7 @@ class CallMessageBubble extends StatelessWidget {
                   statusText,
                   style: GoogleFonts.inter(
                     fontSize: 12,
-                    color: isMe 
-                        ? Colors.black54 
-                        : Colors.white.withValues(alpha: 0.7),
+                    color: isMe ? Colors.black54 : Colors.white.withValues(alpha: 0.7),
                   ),
                 ),
               ],

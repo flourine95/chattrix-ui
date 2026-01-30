@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class ApiConstants {
@@ -13,10 +12,8 @@ class ApiConstants {
     // Always use HTTP for localhost/development
     // Use HTTPS only for production domains
     final host = dotenv.env['API_HOST'] ?? 'localhost';
-    final isLocalhost = host == 'localhost' || 
-                       host.startsWith('192.168.') || 
-                       host.startsWith('10.0.');
-    
+    final isLocalhost = host == 'localhost' || host.startsWith('192.168.') || host.startsWith('10.0.');
+
     // If localhost/local IP → use HTTP
     // If production domain → use HTTPS
     return !isLocalhost;
@@ -192,7 +189,8 @@ class ApiConstants {
   // Note: Block/unblock and hide/unhide are not in the new API spec
   // These may need to be handled differently or removed
 
-  static String conversationPermissions(int conversationId) => '$_baseUrl/$_v1/conversations/$conversationId/permissions';
+  static String conversationPermissions(int conversationId) =>
+      '$_baseUrl/$_v1/conversations/$conversationId/permissions';
 
   static String conversationAvatar(int conversationId) => '$_baseUrl/$_v1/conversations/$conversationId/avatar';
 
@@ -252,7 +250,8 @@ class ApiConstants {
 
   static String getInviteLink(int conversationId) => '$_baseUrl/$_v1/conversations/$conversationId/invite-link';
 
-  static String getInviteLinksHistory(int conversationId) => '$_baseUrl/$_v1/conversations/$conversationId/invite-links';
+  static String getInviteLinksHistory(int conversationId) =>
+      '$_baseUrl/$_v1/conversations/$conversationId/invite-links';
 
   static String revokeInviteLink(int conversationId) => '$_baseUrl/$_v1/conversations/$conversationId/invite-link';
 
@@ -277,13 +276,16 @@ class ApiConstants {
 
   static String polls(int conversationId) => '$_baseUrl/$_v1/conversations/$conversationId/polls';
 
-  static String pollById(int conversationId, int pollId) => '$_baseUrl/$_v1/conversations/$conversationId/polls/$pollId';
+  static String pollById(int conversationId, int pollId) =>
+      '$_baseUrl/$_v1/conversations/$conversationId/polls/$pollId';
 
-  static String closePoll(int conversationId, int pollId) => '$_baseUrl/$_v1/conversations/$conversationId/polls/$pollId/close';
+  static String closePoll(int conversationId, int pollId) =>
+      '$_baseUrl/$_v1/conversations/$conversationId/polls/$pollId/close';
 
   static String events(int conversationId) => '$_baseUrl/$_v1/conversations/$conversationId/events';
 
-  static String event(int conversationId, int eventId) => '$_baseUrl/$_v1/conversations/$conversationId/events/$eventId';
+  static String event(int conversationId, int eventId) =>
+      '$_baseUrl/$_v1/conversations/$conversationId/events/$eventId';
 
   // Utils
   static String forwardMessage(int conversationId, int messageId) =>

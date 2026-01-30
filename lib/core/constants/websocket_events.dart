@@ -4,6 +4,7 @@ class WebSocketEvents {
   static const String messageIdUpdate = 'message.id.update';
   static const String messageUpdated = 'message.updated';
   static const String messageDeleted = 'message.deleted';
+  static const String messagePin = 'message.pin';
   static const String messageReaction = 'message.reaction';
 
   // Conversation Events
@@ -26,10 +27,13 @@ class WebSocketEvents {
   static const String scheduledMessageFailed = 'scheduled.message.failed';
 
   // Poll Events
-  static const String pollEvent = 'poll.event';
+  static const String pollEvent = 'poll.event'; // Legacy - kept for backward compatibility
+  static const String pollCreated = 'poll.created'; // New event from backend
+  static const String pollVoted = 'poll.voted'; // New event from backend
 
   // Event Events (Calendar)
-  static const String eventEvent = 'event.event';
+  static const String eventEvent = 'event.event'; // Legacy - kept for backward compatibility
+  static const String eventRsvp = 'event.rsvp'; // New event from backend
 
   // Friend Request Events
   static const String friendRequestReceived = 'friend.request.received';

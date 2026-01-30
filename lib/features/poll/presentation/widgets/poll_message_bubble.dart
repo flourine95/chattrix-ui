@@ -58,12 +58,11 @@ class PollMessageBubble extends HookConsumerWidget {
               debugPrint('🗳️ [PollVote] Vote result: ${result != null ? 'SUCCESS' : 'FAILED'}');
               
               if (result != null) {
-                debugPrint('🗳️ [PollVote] Updating poll data in messages...');
-                debugPrint('🗳️ [PollVote] Result currentUserVotedOptionIds: ${result.currentUserVotedOptionIds}');
+                debugPrint('✅ [PollVote] API call successful - UI will be updated by WebSocket event');
                 
-                // ✅ Use the result from API which has correct currentUserVotedOptionIds
-                // Update poll data in messages immediately
-                ref.read(messagesProvider(message.conversationId).notifier).updatePollData(result);
+                // ✅ DO NOT update UI from API response
+                // WebSocket event will update UI with complete personalized data
+                // API response lacks currentUserVotedOptionIds and other user-specific data
                 
                 if (context.mounted) {
                   ScaffoldMessenger.of(
@@ -71,7 +70,7 @@ class PollMessageBubble extends HookConsumerWidget {
                   ).showSnackBar(const SnackBar(content: Text('Voted successfully'), duration: Duration(seconds: 1)));
                 }
               } else {
-                debugPrint('🗳️ [PollVote] Vote failed!');
+                debugPrint('❌ [PollVote] Vote failed!');
                 if (context.mounted) {
                   ScaffoldMessenger.of(
                     context,

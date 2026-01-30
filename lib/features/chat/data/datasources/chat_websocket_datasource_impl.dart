@@ -32,6 +32,10 @@ class ChatWebSocketDataSourceImpl implements ChatWebSocketDataSource {
   final _pollEventController = StreamController<Map<String, dynamic>>.broadcast();
   final _eventEventController = StreamController<Map<String, dynamic>>.broadcast();
   final _heartbeatAckController = StreamController<void>.broadcast();
+  final _messageDeletedController = StreamController<Map<String, dynamic>>.broadcast();
+  final _messageUpdatedController = StreamController<Map<String, dynamic>>.broadcast();
+  final _messagePinController = StreamController<Map<String, dynamic>>.broadcast();
+  final _messageReactionController = StreamController<Map<String, dynamic>>.broadcast();
 
   ChatWebSocketDataSourceImpl({required WebSocketService webSocketService}) : _webSocketService = webSocketService {
     _startListening();
@@ -41,6 +45,9 @@ class ChatWebSocketDataSourceImpl implements ChatWebSocketDataSource {
     final chatMessageTypes = [
       WebSocketEvents.chatMessage,
       WebSocketEvents.messageIdUpdate,
+      WebSocketEvents.messageDeleted,
+      WebSocketEvents.messageUpdated,
+      WebSocketEvents.messagePin,
       WebSocketEvents.typingIndicator,
       WebSocketEvents.userStatus,
       WebSocketEvents.conversationCreated,
@@ -50,7 +57,10 @@ class ChatWebSocketDataSourceImpl implements ChatWebSocketDataSource {
       WebSocketEvents.scheduledMessageFailed,
       WebSocketEvents.messageReaction,
       WebSocketEvents.pollEvent,
+      WebSocketEvents.pollCreated,
+      WebSocketEvents.pollVoted,
       WebSocketEvents.eventEvent,
+      WebSocketEvents.eventRsvp,
       WebSocketEvents.heartbeatAck,
     ];
 
@@ -93,6 +103,20 @@ class ChatWebSocketDataSourceImpl implements ChatWebSocketDataSource {
           final realId = payload['realId'] as int;
           final conversationId = payload['conversationId'] as int;
           _messageIdUpdateController.add({'tempId': tempId, 'realId': realId, 'conversationId': conversationId});
+          break;
+
+        case WebSocketEvents.messageDeleted:
+          final messageId = payload['messageId'] as int;
+          final conversationId = payload['conversationId'] as int;
+          _messageDeletedController.add({'messageId': messageId, 'conversationId': conversationId});
+          break;
+
+        case WebSocketEvents.messageUpdated:
+          _messageUpdatedController.add(payload as Map<String, dynamic>);
+          break;
+
+        case WebSocketEvents.messagePin:
+          _messagePinController.add(payload as Map<String, dynamic>);
           break;
 
         case WebSocketEvents.typingIndicator:
@@ -162,13 +186,29 @@ class ChatWebSocketDataSourceImpl implements ChatWebSocketDataSource {
           break;
 
         case WebSocketEvents.messageReaction:
+          _messageReactionController.add(payload as Map<String, dynamic>);
           break;
 
         case WebSocketEvents.pollEvent:
           _pollEventController.add(payload as Map<String, dynamic>);
           break;
 
+        case WebSocketEvents.pollCreated:
+          // Handle new poll.created event (same as poll.event but more specific)
+          _pollEventController.add(payload as Map<String, dynamic>);
+          break;
+
+        case WebSocketEvents.pollVoted:
+          // Handle new poll.voted event (same as poll.event but more specific)
+          _pollEventController.add(payload as Map<String, dynamic>);
+          break;
+
         case WebSocketEvents.eventEvent:
+          _eventEventController.add(payload as Map<String, dynamic>);
+          break;
+
+        case WebSocketEvents.eventRsvp:
+          // Handle new event.rsvp event (same as event.event but more specific)
           _eventEventController.add(payload as Map<String, dynamic>);
           break;
 
@@ -253,6 +293,14 @@ class ChatWebSocketDataSourceImpl implements ChatWebSocketDataSource {
   @override
   Stream<Map<String, dynamic>> get messageIdUpdateStream => _messageIdUpdateController.stream;
 
+  Stream<Map<String, dynamic>> get messageDeletedStream => _messageDeletedController.stream;
+
+  Stream<Map<String, dynamic>> get messageUpdatedStream => _messageUpdatedController.stream;
+
+  Stream<Map<String, dynamic>> get messagePinStream => _messagePinController.stream;
+
+  Stream<Map<String, dynamic>> get messageReactionStream => _messageReactionController.stream;
+
   @override
   Stream<void> get heartbeatAckStream => _heartbeatAckController.stream;
 
@@ -270,6 +318,10 @@ class ChatWebSocketDataSourceImpl implements ChatWebSocketDataSource {
     _subscription?.cancel();
     _messageController.close();
     _messageIdUpdateController.close();
+    _messageDeletedController.close();
+    _messageUpdatedController.close();
+    _messagePinController.close();
+    _messageReactionController.close();
     _typingController.close();
     _userStatusController.close();
     _conversationCreatedController.close();

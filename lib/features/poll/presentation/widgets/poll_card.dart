@@ -39,6 +39,12 @@ class PollCard extends HookConsumerWidget {
     final isCreator = poll.creator.id == currentUserId;
     final canVote = poll.canVote && !isVoting.value;
     final hasVoted = poll.hasVoted;
+    
+    // ✅ Show results if:
+    // 1. User has voted
+    // 2. Poll is not active (closed/expired)
+    // 3. Poll has any votes (so UserB can see UserA's votes)
+    final showResults = hasVoted || !poll.isActive || poll.totalVoters > 0;
 
     void handleOptionTap(int optionId) {
       if (!canVote && !hasVoted) return;
@@ -61,11 +67,18 @@ class PollCard extends HookConsumerWidget {
     }
 
     Future<void> handleVote() async {
-      if (selectedOptions.value.isEmpty || isVoting.value) return;
+      if (isVoting.value) return;
 
       isVoting.value = true;
       try {
-        await onVote?.call(selectedOptions.value.toList());
+        // ✅ If empty selection and user has voted → unvote (remove all votes)
+        // ✅ Otherwise → vote with selected options
+        if (selectedOptions.value.isEmpty && hasVoted) {
+          // Call unvote/removeVote API
+          await onVote?.call([]); // Pass empty to signal unvote
+        } else {
+          await onVote?.call(selectedOptions.value.toList());
+        }
       } catch (e) {
         debugPrint('❌ [PollCard] Vote failed: $e');
         if (context.mounted) {
@@ -107,7 +120,7 @@ class PollCard extends HookConsumerWidget {
                   child: PollOptionItem(
                     option: option,
                     isSelected: isSelected,
-                    showResults: hasVoted || !poll.isActive,
+                    showResults: showResults,
                     allowMultiple: poll.allowMultipleVotes,
                     canVote: canVote,
                     onTap: () => handleOptionTap(option.id),
@@ -117,7 +130,10 @@ class PollCard extends HookConsumerWidget {
             ),
           ),
 
-          if ((canVote && selectedOptions.value.isNotEmpty) ||
+          // ✅ Show vote button when:
+          // 1. Can vote and selection changed (including empty for unvote)
+          // 2. Has voted and wants to change vote
+          if ((canVote && selectedOptions.value != poll.currentUserVotedOptionIds.toSet()) ||
               (hasVoted && selectedOptions.value != poll.currentUserVotedOptionIds.toSet()))
             Padding(
               padding: const EdgeInsets.all(16),

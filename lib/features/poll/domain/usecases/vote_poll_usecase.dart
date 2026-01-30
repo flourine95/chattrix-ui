@@ -13,10 +13,10 @@ class VotePollUseCase {
     required int pollId,
     required List<int> optionIds,
   }) async {
-    if (optionIds.isEmpty) {
-      return left(const Failure.validation(message: 'Must select at least one option', code: 'NO_OPTIONS_SELECTED'));
-    }
-
+    // ✅ Allow empty array to unvote (remove all votes)
+    // Backend will handle empty array as unvote
+    // No validation needed - let backend decide
+    
     return await _repository.votePoll(conversationId: conversationId, pollId: pollId, optionIds: optionIds);
   }
 }

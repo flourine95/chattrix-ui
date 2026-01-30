@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:chattrix_ui/features/chat/domain/entities/message.dart';
 import 'package:chattrix_ui/features/chat/presentation/providers/chat_usecase_provider.dart';
 import 'package:chattrix_ui/features/chat/presentation/providers/chat_websocket_provider_new.dart';
+import 'package:chattrix_ui/features/chat/presentation/providers/pinned_messages_provider.dart';
 import 'package:chattrix_ui/features/poll/data/mappers/poll_mapper.dart';
 import 'package:chattrix_ui/features/poll/data/models/poll_dto.dart';
 import 'package:chattrix_ui/features/chat/data/models/event_dto.dart';
@@ -93,6 +94,105 @@ class MessagesNotifier extends _$MessagesNotifier {
       }
     });
 
+    // ✅ Listen to message deletions
+    final messageDeletedSubscription = wsDataSource.messageDeletedStream.listen((update) {
+      final messageId = update['messageId'] as int;
+      final deleteConversationId = update['conversationId'] as int;
+      
+      if (deleteConversationId == conversationId) {
+        state.whenData((messages) {
+          final updatedMessages = messages.where((msg) => msg.id != messageId).toList();
+          state = AsyncValue.data(updatedMessages);
+          debugPrint('🗑️ Deleted message $messageId from conversation $conversationId');
+        });
+      }
+    });
+
+    // ✅ Listen to message updates (edit)
+    final messageUpdatedSubscription = wsDataSource.messageUpdatedStream.listen((update) {
+      final messageId = update['messageId'] as int;
+      final updateConversationId = update['conversationId'] as int;
+      final content = update['content'] as String?;
+      final isEdited = update['isEdited'] as bool? ?? true;
+      
+      if (updateConversationId == conversationId && content != null) {
+        state.whenData((messages) {
+          final updatedMessages = messages.map((msg) {
+            if (msg.id == messageId) {
+              return msg.copyWith(
+                content: content,
+                edited: isEdited,
+                editedAt: DateTime.now(),
+              );
+            }
+            return msg;
+          }).toList();
+          state = AsyncValue.data(updatedMessages);
+          debugPrint('✏️ Updated message $messageId content');
+        });
+      }
+    });
+
+    // ✅ Listen to message pin/unpin
+    final messagePinSubscription = wsDataSource.messagePinStream.listen((update) {
+      final action = update['action'] as String?;
+      final messageData = update['message'] as Map<String, dynamic>?;
+      
+      if (messageData != null) {
+        final messageId = messageData['id'] as int;
+        final messageConversationId = messageData['conversationId'] as int;
+        final pinned = action == 'MESSAGE_PINNED';
+        
+        if (messageConversationId == conversationId) {
+          state.whenData((messages) {
+            final updatedMessages = messages.map((msg) {
+              if (msg.id == messageId) {
+                return msg.copyWith(pinned: pinned);
+              }
+              return msg;
+            }).toList();
+            state = AsyncValue.data(updatedMessages);
+            debugPrint('📌 ${pinned ? 'Pinned' : 'Unpinned'} message $messageId');
+            
+            // ✅ Refresh pinned messages provider to update banner
+            ref.invalidate(pinnedMessagesProvider(conversationId));
+          });
+        }
+      }
+    });
+
+    // ✅ Listen to message reactions
+    final messageReactionSubscription = wsDataSource.messageReactionStream.listen((update) {
+      final messageId = update['messageId'] as int;
+      final reactions = update['reactions'] as Map<String, dynamic>?;
+      
+      if (reactions != null) {
+        state.whenData((messages) {
+          // Check if message exists in current conversation
+          final messageExists = messages.any((m) => m.id == messageId);
+          
+          if (messageExists) {
+            // Convert reactions map to proper format
+            final reactionsMap = <String, List<int>>{};
+            reactions.forEach((emoji, userIds) {
+              if (userIds is List) {
+                reactionsMap[emoji] = List<int>.from(userIds);
+              }
+            });
+            
+            final updatedMessages = messages.map((msg) {
+              if (msg.id == messageId) {
+                return msg.copyWith(reactions: reactionsMap);
+              }
+              return msg;
+            }).toList();
+            state = AsyncValue.data(updatedMessages);
+            debugPrint('👍 Updated reactions for message $messageId');
+          }
+        });
+      }
+    });
+
     _connectionSubscription = wsDataSource.connectionStream.listen((isConnected) {
       isConnected ? _stopPolling() : _startPolling();
     });
@@ -104,6 +204,10 @@ class MessagesNotifier extends _$MessagesNotifier {
       pollEventSubscription.cancel();
       eventEventSubscription.cancel();
       messageIdUpdateSubscription.cancel();
+      messageDeletedSubscription.cancel();
+      messageUpdatedSubscription.cancel();
+      messagePinSubscription.cancel();
+      messageReactionSubscription.cancel();
       _connectionSubscription?.cancel();
       _stopPolling();
     });
@@ -139,10 +243,6 @@ class MessagesNotifier extends _$MessagesNotifier {
             // Only re-parse POLL messages
             if (msg.type == 'POLL' && msg.pollData != null) {
               // Re-calculate currentUserVotedOptionIds
-              final updatedOptions = msg.pollData!.options.map((opt) {
-                return opt;
-              }).toList();
-              
               final currentUserVotedOptionIds = <int>[];
               for (var option in msg.pollData!.options) {
                 if (option.voters.any((v) => v.id == currentUserId)) {
@@ -205,29 +305,48 @@ class MessagesNotifier extends _$MessagesNotifier {
 
   void _handlePollEvent(Map<String, dynamic> event) {
     try {
-      final eventType = event['type'] as String?;
-      final pollData = event['poll'] as Map<String, dynamic>?;
+      // Extract payload from WebSocket message
+      final payload = event['payload'] ?? event['data'] ?? event;
+      final eventType = payload['type'] as String?;
+      final pollData = payload['poll'] as Map<String, dynamic>?;
 
       if (eventType == null) return;
 
+      debugPrint('📊 [Poll Event] Received event type: $eventType');
+
       if (eventType == 'POLL_DELETED') {
-        final pollId = event['pollId'] as int?;
+        final pollId = payload['pollId'] as int?;
         if (pollId != null) _handlePollDeletedById(pollId);
+        return;
+      }
+
+      // For POLL_CREATED, refresh immediately to fetch complete poll data with votes
+      // Don't parse pollData because it contains hasVoted=null which causes parsing errors
+      if (eventType == 'POLL_CREATED') {
+        debugPrint('📊 [Poll Event] POLL_CREATED - refreshing messages immediately...');
+        // Refresh immediately to get poll with current vote data
+        Future.delayed(const Duration(milliseconds: 100), () {
+          refresh();
+          debugPrint('📊 [Poll Event] Messages refreshed after poll creation');
+        });
         return;
       }
 
       if (pollData == null) return;
 
+      // For POLL_VOTED events from WebSocket, use simplified parsing
+      if (eventType == 'POLL_VOTED') {
+        _handlePollVotedEvent(pollData);
+        return;
+      }
+
+      // For other events, use full PollDto parsing
       final pollEntity = PollDto.fromJson(pollData).toEntity();
 
       // Only process polls for this conversation
       if (pollEntity.conversationId != conversationId) return;
 
       switch (eventType) {
-        case 'POLL_CREATED':
-          Future.delayed(const Duration(milliseconds: 500), () => refresh());
-          break;
-        case 'POLL_VOTED':
         case 'POLL_CLOSED':
           _updatePollInState(pollEntity);
           break;
@@ -236,6 +355,101 @@ class MessagesNotifier extends _$MessagesNotifier {
       }
     } catch (e, st) {
       debugPrint('❌ [Poll Event] Error: $e \n $st');
+    }
+  }
+
+  void _handlePollVotedEvent(Map<String, dynamic> pollData) {
+    try {
+      debugPrint('🔍 [Poll Voted] Raw payload: $pollData');
+      
+      final messageId = pollData['messageId'] as int?;
+      final options = pollData['options'] as List<dynamic>?;
+      final totalVotes = pollData['totalVotes'] as int? ?? 0;
+
+      if (messageId == null || options == null) {
+        debugPrint('❌ [Poll Voted] Missing messageId or options');
+        return;
+      }
+
+      debugPrint('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      debugPrint('📊 [Poll Voted] WebSocket event received');
+      debugPrint('📊 [Poll Voted] Message ID: $messageId');
+      debugPrint('📊 [Poll Voted] Total votes from payload: $totalVotes');
+
+      // ✅ Extract currentUserVotedOptionIds from hasVoted flags
+      final currentUserVotedOptionIds = <int>[];
+      for (final wsOption in options) {
+        final optionId = wsOption['id'] as int?;
+        final hasVoted = wsOption['hasVoted'] as bool?;
+        final voteCount = wsOption['voteCount'] as int? ?? 0;
+        
+        debugPrint('   Option $optionId: $voteCount votes, hasVoted: $hasVoted');
+        
+        if (hasVoted == true && optionId != null) {
+          currentUserVotedOptionIds.add(optionId);
+        }
+      }
+
+      debugPrint('📊 [Poll Voted] Current user voted options: $currentUserVotedOptionIds');
+
+      state.whenData((messages) {
+        debugPrint('🔍 [Poll Voted] Searching for poll in ${messages.length} messages...');
+        
+        bool foundPoll = false;
+        final updatedMessages = messages.map((msg) {
+          if (msg.type == 'POLL' && msg.id == messageId && msg.pollData != null) {
+            foundPoll = true;
+            debugPrint('🔄 [Poll Voted] Found poll! Updating in state...');
+            
+            // Update vote counts AND calculate percentages
+            final updatedOptions = msg.pollData!.options.map((existingOption) {
+              // Find matching option in WebSocket data
+              final wsOption = options.firstWhere(
+                (opt) => opt['id'] == existingOption.id,
+                orElse: () => null,
+              );
+
+              if (wsOption != null) {
+                final voteCount = wsOption['voteCount'] as int? ?? existingOption.voteCount;
+                
+                // ✅ Calculate percentage on client side (backend sends 0.0)
+                final percentage = totalVotes > 0 ? (voteCount / totalVotes) * 100.0 : 0.0;
+                
+                debugPrint('   Updating option ${existingOption.id}: voteCount=$voteCount, percentage=${percentage.toStringAsFixed(1)}%');
+                
+                return existingOption.copyWith(
+                  voteCount: voteCount,
+                  percentage: percentage,
+                );
+              }
+              return existingOption;
+            }).toList();
+
+            // ✅ ALWAYS use WebSocket data - it has complete personalized info
+            // DO NOT fallback to old data - WebSocket is source of truth
+            final updatedPollData = msg.pollData!.copyWith(
+              options: updatedOptions,
+              totalVoters: totalVotes,
+              currentUserVotedOptionIds: currentUserVotedOptionIds,
+            );
+
+            debugPrint('✅ [Poll Voted] Poll updated successfully');
+            return msg.copyWith(pollData: updatedPollData);
+          }
+          return msg;
+        }).toList();
+
+        if (!foundPoll) {
+          debugPrint('⚠️ [Poll Voted] Poll $messageId NOT FOUND in current conversation!');
+          debugPrint('⚠️ [Poll Voted] Available message IDs: ${messages.map((m) => '${m.id}(${m.type})').join(', ')}');
+        }
+
+        state = AsyncValue.data(updatedMessages);
+        debugPrint('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      });
+    } catch (e, st) {
+      debugPrint('❌ [Poll Voted] Error: $e');
+      debugPrint('Stack: $st');
     }
   }
 
@@ -272,14 +486,6 @@ class MessagesNotifier extends _$MessagesNotifier {
       debugPrint('🔄 [MessagesNotifier] Updated messages, setting state...');
       state = AsyncValue.data(updatedMessages);
     });
-  }
-
-  /// Public method to update poll data in message (called after voting)
-  void updatePollData(dynamic pollEntity) {
-    debugPrint('🔄 [MessagesNotifier] Updating poll data for poll ${pollEntity.id}');
-    debugPrint('🔄 [MessagesNotifier] Poll options: ${pollEntity.options.length}');
-    debugPrint('🔄 [MessagesNotifier] Current user voted: ${pollEntity.currentUserVotedOptionIds}');
-    _updatePollInState(pollEntity);
   }
 
   void _handlePollDeletedById(int pollId) {

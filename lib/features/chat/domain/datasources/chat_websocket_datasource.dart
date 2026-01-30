@@ -31,6 +31,14 @@ abstract class ChatWebSocketDataSource {
 
   Stream<Map<String, dynamic>> get messageIdUpdateStream;
 
+  Stream<Map<String, dynamic>> get messageDeletedStream;
+
+  Stream<Map<String, dynamic>> get messageUpdatedStream;
+
+  Stream<Map<String, dynamic>> get messagePinStream;
+
+  Stream<Map<String, dynamic>> get messageReactionStream;
+
   Stream<void> get heartbeatAckStream;
 
   Stream<bool> get connectionStream;
