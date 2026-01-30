@@ -500,6 +500,11 @@ void handleConversationInfo(BuildContext context, dynamic conversation, int chat
   context.push('/chat/$chatId/info', extra: conversation);
 }
 
+/// Handle forward message - show conversation picker
+void handleForwardMessage(BuildContext context, Message message) {
+  context.push('/forward-message', extra: message);
+}
+
 /// Show reaction picker bottom sheet with search
 ///
 /// Uses emoji_picker_flutter v4.4.0 with custom styling for modern UI

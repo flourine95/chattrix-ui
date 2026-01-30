@@ -363,14 +363,25 @@ class _ActionBar extends StatelessWidget {
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
       decoration: BoxDecoration(
         color: colors.surface,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
         boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.1), blurRadius: 10, offset: const Offset(0, -2))],
       ),
       child: SafeArea(
-        child: Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: actions),
+        child: SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              for (int i = 0; i < actions.length; i++) ...[
+                actions[i],
+                if (i < actions.length - 1) const SizedBox(width: 4),
+              ],
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -400,8 +411,9 @@ class _ActionButton extends StatelessWidget {
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(12),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      child: Container(
+        width: 56,
+        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -409,7 +421,14 @@ class _ActionButton extends StatelessWidget {
             const SizedBox(height: 4),
             Text(
               label,
-              style: textTheme.labelSmall?.copyWith(color: color, fontWeight: FontWeight.w500),
+              style: textTheme.labelSmall?.copyWith(
+                color: color,
+                fontWeight: FontWeight.w500,
+                fontSize: 11,
+              ),
+              textAlign: TextAlign.center,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
             ),
           ],
         ),

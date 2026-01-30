@@ -220,7 +220,8 @@ class MessagesNotifier extends _$MessagesNotifier {
 
       final pollEntity = PollDto.fromJson(pollData).toEntity();
 
-      if (pollEntity.conversationId == conversationId) return;
+      // Only process polls for this conversation
+      if (pollEntity.conversationId != conversationId) return;
 
       switch (eventType) {
         case 'POLL_CREATED':
@@ -244,7 +245,26 @@ class MessagesNotifier extends _$MessagesNotifier {
       final updatedMessages = messages.map((msg) {
         if (msg.type == 'POLL' && msg.pollData?.id == pollEntity.id) {
           debugPrint('🔄 [MessagesNotifier] Found poll message ${msg.id}, updating...');
-          return msg.copyWith(pollData: pollEntity);
+          
+          // ⚠️ IMPORTANT: Preserve currentUserVotedOptionIds from existing poll data
+          // WebSocket broadcasts contain updated vote counts but may have empty currentUserVotedOptionIds
+          // We should only update if the new data explicitly has voted options
+          final existingVotedIds = msg.pollData?.currentUserVotedOptionIds ?? <int>[];
+          final newVotedIds = pollEntity.currentUserVotedOptionIds ?? <int>[];
+          
+          // Keep existing voted IDs if new data is empty (from WebSocket broadcast)
+          // Update only if new data has voted IDs (from API response after voting)
+          final finalVotedIds = newVotedIds.isNotEmpty ? newVotedIds : existingVotedIds;
+          
+          debugPrint('🔄 [MessagesNotifier] Existing voted IDs: $existingVotedIds');
+          debugPrint('🔄 [MessagesNotifier] New voted IDs: $newVotedIds');
+          debugPrint('🔄 [MessagesNotifier] Final voted IDs: $finalVotedIds');
+          
+          final updatedPoll = pollEntity.copyWith(
+            currentUserVotedOptionIds: finalVotedIds,
+          );
+          
+          return msg.copyWith(pollData: updatedPoll);
         }
         return msg;
       }).toList();

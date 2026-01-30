@@ -59,14 +59,11 @@ class PollMessageBubble extends HookConsumerWidget {
               
               if (result != null) {
                 debugPrint('🗳️ [PollVote] Updating poll data in messages...');
+                debugPrint('🗳️ [PollVote] Result currentUserVotedOptionIds: ${result.currentUserVotedOptionIds}');
                 
-                // ✅ Manually set currentUserVotedOptionIds after vote
-                final updatedPoll = result.copyWith(
-                  currentUserVotedOptionIds: optionIds,
-                );
-                
+                // ✅ Use the result from API which has correct currentUserVotedOptionIds
                 // Update poll data in messages immediately
-                ref.read(messagesProvider(message.conversationId).notifier).updatePollData(updatedPoll);
+                ref.read(messagesProvider(message.conversationId).notifier).updatePollData(result);
                 
                 if (context.mounted) {
                   ScaffoldMessenger.of(

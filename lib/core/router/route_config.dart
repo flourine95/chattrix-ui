@@ -97,14 +97,6 @@ class RouteConfig {
         builder: (context, state) => const SendFriendRequestPage(),
       ),
       GoRoute(path: RoutePaths.chatInfo, name: 'chat-info', builder: (context, state) => _buildChatInfoPage(state)),
-      GoRoute(
-        path: '/forward-message',
-        name: 'forward-message',
-        builder: (context, state) {
-          final message = state.extra as Message;
-          return ForwardMessagePage(message: message);
-        },
-      ),
     ],
   );
 
@@ -123,6 +115,15 @@ class RouteConfig {
       path: RoutePaths.searchConversations,
       name: 'search-conversations',
       builder: (context, state) => const SearchConversationsPage(),
+    ),
+    // Forward message - Fullscreen (no shell/bottom nav)
+    GoRoute(
+      path: '/forward-message',
+      name: 'forward-message',
+      builder: (context, state) {
+        final message = state.extra as Message;
+        return ForwardMessagePage(message: message);
+      },
     ),
   ];
 
