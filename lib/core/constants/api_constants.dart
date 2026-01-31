@@ -229,7 +229,7 @@ class ApiConstants {
   // Search endpoints
   static String searchMessages(int conversationId) => '$_baseUrl/$_v1/conversations/$conversationId/search/messages';
 
-  static String searchMedia(int conversationId) => '$_baseUrl/$_v1/search/conversations/$conversationId/media';
+  static String searchMedia(int conversationId) => '$_baseUrl/$_v1/conversations/$conversationId/search/media';
 
   // Poll & Event endpoints (New)
   static String createPoll(int conversationId) => '$_baseUrl/$_v1/conversations/$conversationId/messages/poll';

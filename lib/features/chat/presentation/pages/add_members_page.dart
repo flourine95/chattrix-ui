@@ -87,27 +87,67 @@ class AddMembersPage extends HookConsumerWidget {
           // Close loading dialog
           Navigator.of(context, rootNavigator: true).pop();
 
-          // Go back
-          context.pop();
+          // Go back with success result
+          context.pop(true);
 
-          // Show success toast
-          AppToast.success(
-            context,
-            title: 'Members Added',
-            description: '${selectedUsers.value.length} member(s) added successfully',
+          // Show success snackbar
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Row(
+                children: [
+                  const Icon(Icons.check_circle, color: Colors.white, size: 20),
+                  const SizedBox(width: 12),
+                  Text(
+                    '${selectedUsers.value.length} member(s) added successfully',
+                    style: const TextStyle(color: Colors.white),
+                  ),
+                ],
+              ),
+              backgroundColor: Colors.grey.shade900,
+              behavior: SnackBarBehavior.floating,
+              margin: const EdgeInsets.all(16),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              duration: const Duration(seconds: 3),
+            ),
           );
         }
       } catch (e) {
         debugPrint('❌ Error adding members: $e');
+        
+        // Extract error message
+        String errorMessage = 'Failed to add members';
+        if (e.toString().contains('Only admins can perform this action')) {
+          errorMessage = 'Only admins can add members to this group';
+        } else if (e.toString().contains('FORBIDDEN')) {
+          errorMessage = 'You don\'t have permission to add members';
+        } else if (e.toString().contains('NOT_FOUND')) {
+          errorMessage = 'Group not found';
+        } else if (e.toString().contains('ALREADY_MEMBER')) {
+          errorMessage = 'Some users are already members';
+        }
+        
         if (context.mounted) {
           // Close loading dialog
           Navigator.of(context, rootNavigator: true).pop();
 
-          // Show error toast
-          AppToast.error(
-            context,
-            title: 'Failed to add members',
-            description: e.toString(),
+          // Show error snackbar
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Row(
+                children: [
+                  const Icon(Icons.error_outline, color: Colors.white, size: 20),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(errorMessage, style: const TextStyle(color: Colors.white)),
+                  ),
+                ],
+              ),
+              backgroundColor: Colors.grey.shade900,
+              behavior: SnackBarBehavior.floating,
+              margin: const EdgeInsets.all(16),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              duration: const Duration(seconds: 3),
+            ),
           );
         }
       }

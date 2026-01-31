@@ -32,15 +32,10 @@ class SystemMessageBubble extends StatelessWidget {
       }
     } else if (message.type.toUpperCase() == 'SYSTEM') {
       // For SYSTEM type messages, try to parse content JSON
-      debugPrint('🔍 [SystemMessage] Parsing content: ${message.content}');
-      
       try {
         // Try to parse as JSON first
         final jsonData = jsonDecode(message.content);
         systemMessageType = jsonData['type'] as String?;
-        
-        debugPrint('🔍 [SystemMessage] Parsed type: $systemMessageType');
-        debugPrint('🔍 [SystemMessage] JSON data: $jsonData');
         
         // If no type in JSON, check if content itself is the type
         if (systemMessageType == null && jsonData is Map) {
@@ -49,8 +44,6 @@ class SystemMessageBubble extends StatelessWidget {
         }
       } catch (e) {
         // If not JSON, content might be plain text or the type itself
-        debugPrint('⚠️ System message content is not JSON: ${message.content}');
-        
         // Check if content looks like a system message type
         final upperContent = message.content.toUpperCase();
         if (upperContent.contains('PERMISSION') || 

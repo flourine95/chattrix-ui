@@ -1,9 +1,11 @@
 import 'package:chattrix_ui/core/constants/api_constants.dart';
+import 'package:chattrix_ui/core/extensions/user_online_extension.dart';
 import 'package:chattrix_ui/core/widgets/bottom_sheets.dart';
 import 'package:chattrix_ui/core/widgets/user_avatar.dart';
 import 'package:chattrix_ui/features/auth/presentation/providers/auth_notifier.dart';
 import 'package:chattrix_ui/features/chat/data/models/conversation_model.dart';
 import 'package:chattrix_ui/features/chat/domain/entities/conversation.dart';
+import 'package:chattrix_ui/features/chat/domain/entities/participant.dart';
 import 'package:chattrix_ui/features/chat/presentation/pages/add_members_page.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -29,7 +31,7 @@ class _AllMembersPageState extends ConsumerState<AllMembersPage> {
     _currentConversation = widget.conversation;
   }
 
-  List<dynamic> get _filteredMembers {
+  List<Participant> get _filteredMembers {
     var filtered = _currentConversation.participants;
 
     // Apply search filter
@@ -98,17 +100,57 @@ class _AllMembersPageState extends ConsumerState<AllMembersPage> {
         children: [
           // Search bar
           Padding(
-            padding: const EdgeInsets.all(16),
-            child: TextField(
-              controller: _searchController,
-              decoration: InputDecoration(
-                hintText: 'Search members...',
-                prefixIcon: const Icon(Icons.search),
-                filled: true,
-                fillColor: colors.surfaceContainerHighest,
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
+            child: Container(
+              height: 40,
+              decoration: BoxDecoration(
+                color: isDark ? const Color(0xFF2C2C2E) : const Color(0xFFF3F4F6),
+                borderRadius: BorderRadius.circular(20),
               ),
-              onChanged: (value) => setState(() {}),
+              child: TextField(
+                controller: _searchController,
+                style: TextStyle(
+                  fontSize: 15,
+                  color: colors.onSurface,
+                ),
+                decoration: InputDecoration(
+                  hintText: 'Search members...',
+                  hintStyle: TextStyle(
+                    fontSize: 15,
+                    color: isDark ? Colors.grey[400] : Colors.grey[600],
+                  ),
+                  border: InputBorder.none,
+                  enabledBorder: InputBorder.none,
+                  focusedBorder: InputBorder.none,
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                  prefixIcon: Padding(
+                    padding: const EdgeInsets.only(left: 12, right: 8),
+                    child: Icon(
+                      Icons.search,
+                      color: isDark ? Colors.grey[400] : Colors.grey[600],
+                      size: 20,
+                    ),
+                  ),
+                  prefixIconConstraints: const BoxConstraints(
+                    minWidth: 40,
+                    minHeight: 20,
+                  ),
+                  suffixIcon: _searchController.text.isNotEmpty
+                      ? IconButton(
+                          icon: Icon(
+                            Icons.clear,
+                            color: isDark ? Colors.grey[400] : Colors.grey[600],
+                            size: 18,
+                          ),
+                          onPressed: () {
+                            _searchController.clear();
+                            setState(() {});
+                          },
+                        )
+                      : null,
+                ),
+                onChanged: (value) => setState(() {}),
+              ),
             ),
           ),
 
@@ -148,7 +190,7 @@ class _AllMembersPageState extends ConsumerState<AllMembersPage> {
               itemBuilder: (context, index) {
                 final member = _filteredMembers[index];
                 final isMemberAdmin = member.role == 'ADMIN';
-                final isOnline = member.online ?? false;
+                final isOnline = member.isOnlineWithFallback;
                 final isMe = member.userId == me?.id;
 
                 return ListTile(
