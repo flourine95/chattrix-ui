@@ -1,5 +1,6 @@
 import 'package:chattrix_ui/core/constants/api_constants.dart';
 import 'package:chattrix_ui/features/auth/presentation/providers/auth_notifier.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -56,6 +57,10 @@ Future<MediaSearchResult> conversationMedia(
 
     return MediaSearchResult.empty();
   } catch (e, stackTrace) {
+    // Silently handle 404 errors (conversation may not have media yet)
+    if (e is DioException && e.response?.statusCode == 404) {
+      return MediaSearchResult.empty();
+    }
     debugPrint('❌ Error fetching media: $e');
     debugPrint('Stack trace: $stackTrace');
     return MediaSearchResult.empty();
@@ -80,6 +85,10 @@ Future<MediaStatistics> conversationMediaStatistics(
 
     return MediaStatistics.empty();
   } catch (e, stackTrace) {
+    // Silently handle 404 errors (conversation may not have media statistics yet)
+    if (e is DioException && e.response?.statusCode == 404) {
+      return MediaStatistics.empty();
+    }
     debugPrint('❌ Error fetching media statistics: $e');
     return MediaStatistics.empty();
   }

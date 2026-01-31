@@ -2,17 +2,12 @@ import 'package:chattrix_ui/features/invite_links/presentation/providers/invite_
 import 'package:chattrix_ui/features/invite_links/presentation/providers/invite_links_websocket_provider.dart';
 import 'package:chattrix_ui/features/invite_links/presentation/widgets/create_invite_link_bottom_sheet.dart';
 import 'package:chattrix_ui/features/invite_links/presentation/widgets/invite_link_history_card.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 class InviteLinksPage extends HookConsumerWidget {
-  const InviteLinksPage({
-    super.key,
-    required this.conversationId,
-    required this.conversationName,
-  });
+  const InviteLinksPage({super.key, required this.conversationId, required this.conversationName});
 
   final int conversationId;
   final String conversationName;
@@ -30,19 +25,14 @@ class InviteLinksPage extends HookConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => context.pop(),
-        ),
+        leading: IconButton(icon: const Icon(Icons.arrow_back), onPressed: () => context.pop()),
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text('Invite Links', style: textTheme.titleMedium),
             Text(
               conversationName,
-              style: textTheme.bodySmall?.copyWith(
-                color: colors.onSurface.withValues(alpha: 0.6),
-              ),
+              style: textTheme.bodySmall?.copyWith(color: colors.onSurface.withValues(alpha: 0.6)),
             ),
           ],
         ),
@@ -74,9 +64,7 @@ class InviteLinksPage extends HookConsumerWidget {
                         },
                         style: FilledButton.styleFrom(
                           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                         ),
                         icon: const Icon(Icons.refresh),
                         label: const Text('Load More'),
@@ -117,9 +105,7 @@ class InviteLinksPage extends HookConsumerWidget {
                   icon: const Icon(Icons.add_link),
                   label: const Text('Create Link'),
                   elevation: 2,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
-                  ),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                 )
               : null;
         },
@@ -136,24 +122,16 @@ class InviteLinksPage extends HookConsumerWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            Icons.link_off,
-            size: 80,
-            color: colors.onSurface.withValues(alpha: 0.3),
-          ),
+          Icon(Icons.link_off, size: 80, color: colors.onSurface.withValues(alpha: 0.3)),
           const SizedBox(height: 16),
           Text(
             'No invite links',
-            style: textTheme.titleMedium?.copyWith(
-              color: colors.onSurface.withValues(alpha: 0.6),
-            ),
+            style: textTheme.titleMedium?.copyWith(color: colors.onSurface.withValues(alpha: 0.6)),
           ),
           const SizedBox(height: 8),
           Text(
             'Create an invite link to share with others',
-            style: textTheme.bodySmall?.copyWith(
-              color: colors.onSurface.withValues(alpha: 0.5),
-            ),
+            style: textTheme.bodySmall?.copyWith(color: colors.onSurface.withValues(alpha: 0.5)),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 24),
@@ -161,9 +139,7 @@ class InviteLinksPage extends HookConsumerWidget {
             onPressed: () => _showCreateLinkBottomSheet(context, ref),
             style: FilledButton.styleFrom(
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             ),
             icon: const Icon(Icons.add_link),
             label: const Text('Create Link'),
@@ -173,11 +149,7 @@ class InviteLinksPage extends HookConsumerWidget {
     );
   }
 
-  Widget _buildErrorState(
-    BuildContext context,
-    String error,
-    VoidCallback onRetry,
-  ) {
+  Widget _buildErrorState(BuildContext context, String error, VoidCallback onRetry) {
     final textTheme = Theme.of(context).textTheme;
     final colors = Theme.of(context).colorScheme;
 
@@ -191,9 +163,7 @@ class InviteLinksPage extends HookConsumerWidget {
           const SizedBox(height: 8),
           Text(
             error,
-            style: textTheme.bodySmall?.copyWith(
-              color: colors.onSurface.withValues(alpha: 0.6),
-            ),
+            style: textTheme.bodySmall?.copyWith(color: colors.onSurface.withValues(alpha: 0.6)),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 16),
@@ -201,9 +171,7 @@ class InviteLinksPage extends HookConsumerWidget {
             onPressed: onRetry,
             style: FilledButton.styleFrom(
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             ),
             icon: const Icon(Icons.refresh),
             label: const Text('Try Again'),
@@ -240,4 +208,3 @@ class InviteLinksPage extends HookConsumerWidget {
     );
   }
 }
-

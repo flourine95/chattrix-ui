@@ -30,13 +30,35 @@ class SystemMessageBubble extends StatelessWidget {
       } else if (callStatus == 'STARTED') {
         systemMessageType = 'CALL_STARTED';
       }
-    } else if (message.content.startsWith('{')) {
-      // For SYSTEM type messages, parse content JSON
+    } else if (message.type.toUpperCase() == 'SYSTEM') {
+      // For SYSTEM type messages, try to parse content JSON
+      debugPrint('🔍 [SystemMessage] Parsing content: ${message.content}');
+      
       try {
+        // Try to parse as JSON first
         final jsonData = jsonDecode(message.content);
         systemMessageType = jsonData['type'] as String?;
+        
+        debugPrint('🔍 [SystemMessage] Parsed type: $systemMessageType');
+        debugPrint('🔍 [SystemMessage] JSON data: $jsonData');
+        
+        // If no type in JSON, check if content itself is the type
+        if (systemMessageType == null && jsonData is Map) {
+          // Content might be the metadata itself - cast properly
+          metadata = Map<String, dynamic>.from(jsonData as Map);
+        }
       } catch (e) {
-        debugPrint('❌ Failed to parse system message JSON: $e');
+        // If not JSON, content might be plain text or the type itself
+        debugPrint('⚠️ System message content is not JSON: ${message.content}');
+        
+        // Check if content looks like a system message type
+        final upperContent = message.content.toUpperCase();
+        if (upperContent.contains('PERMISSION') || 
+            upperContent.contains('ADMIN') ||
+            upperContent.contains('JOINED') ||
+            upperContent.contains('LEFT')) {
+          systemMessageType = upperContent;
+        }
       }
     }
 
@@ -188,6 +210,10 @@ class SystemMessageBubble extends StatelessWidget {
         return Icons.call_end_rounded;
       case 'CALL_MISSED':
         return Icons.phone_missed_rounded;
+      case 'PERMISSION_CHANGED':
+      case 'PERMISSIONS_CHANGED':
+      case 'PERMISSIONS_UPDATED':
+        return Icons.admin_panel_settings_rounded;
       default:
         return Icons.info_outline_rounded;
     }

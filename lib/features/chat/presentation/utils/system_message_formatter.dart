@@ -196,13 +196,11 @@ class SystemMessageFormatter {
         final durationSeconds = jsonData?['durationSeconds'] as int?;
         final callType = jsonData?['callType']?.toString().toUpperCase() ?? 'VOICE';
         final callTypeIcon = callType == 'VIDEO' ? '📹' : '📞';
-        
+
         if (durationSeconds != null && durationSeconds > 0) {
           final minutes = durationSeconds ~/ 60;
           final seconds = durationSeconds % 60;
-          final durationText = minutes > 0 
-              ? '${minutes}m ${seconds}s' 
-              : '${seconds}s';
+          final durationText = minutes > 0 ? '${minutes}m ${seconds}s' : '${seconds}s';
           return '$callTypeIcon Call ended • $durationText';
         }
         return '$callTypeIcon Call ended';
@@ -213,11 +211,73 @@ class SystemMessageFormatter {
         final callTypeIcon = callType == 'VIDEO' ? '📹' : '📞';
         return '$callTypeIcon Missed call from $actor';
 
+      // Permission changes
+      case 'PERMISSION_CHANGED':
+      case 'PERMISSIONS_CHANGED':
+      case 'PERMISSIONS_UPDATED':
+        final actor = jsonData?['userName'] ?? jsonData?['actorName'] ?? actorName ?? 'Someone';
+        final permissionsMap = jsonData?['permissions'] as Map<dynamic, dynamic>?;
+
+        if (permissionsMap != null && permissionsMap.isNotEmpty) {
+          // Get the first (and usually only) permission change
+          final entry = permissionsMap.entries.first;
+          final permission = entry.key.toString();
+          final newValue = entry.value.toString();
+
+          final permissionName = _formatPermissionName(permission);
+          final newValueText = _formatPermissionValue(newValue);
+
+          return '$actor changed "$permissionName" to $newValueText';
+        }
+        return '$actor updated group permissions';
+
       default:
         if (jsonData != null && jsonData['message'] != null) {
           return jsonData['message'].toString();
         }
         return content;
+    }
+  }
+
+  /// Format permission name for display
+  static String _formatPermissionName(String permission) {
+    switch (permission) {
+      case 'sendMessages':
+        return 'Send Messages';
+      case 'addMembers':
+        return 'Add Members';
+      case 'editGroupInfo':
+        return 'Edit Group Info';
+      case 'pinMessages':
+        return 'Pin Messages';
+      case 'deleteMessages':
+        return 'Delete Messages';
+      case 'createPolls':
+        return 'Create Polls';
+      case 'removeMembers':
+        return 'Remove Members';
+      default:
+        // Convert camelCase to Title Case
+        return permission
+            .replaceAllMapped(RegExp(r'([A-Z])'), (match) => ' ${match.group(1)}')
+            .trim()
+            .split(' ')
+            .map((word) => word[0].toUpperCase() + word.substring(1))
+            .join(' ');
+    }
+  }
+
+  /// Format permission value for display
+  static String _formatPermissionValue(String value) {
+    switch (value.toUpperCase()) {
+      case 'ALL':
+        return 'All Members';
+      case 'ADMIN_ONLY':
+        return 'Admins Only';
+      case 'OWNER':
+        return 'Owner Only';
+      default:
+        return value;
     }
   }
 }

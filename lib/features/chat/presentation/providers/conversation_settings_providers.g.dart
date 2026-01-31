@@ -314,6 +314,54 @@ final class UnmuteConversationUseCaseProvider
 String _$unmuteConversationUseCaseHash() =>
     r'61d8fd4fe7a65ae09393e726246ce64d626b0e9b';
 
+@ProviderFor(getPermissionsUseCase)
+final getPermissionsUseCaseProvider = GetPermissionsUseCaseProvider._();
+
+final class GetPermissionsUseCaseProvider
+    extends
+        $FunctionalProvider<
+          GetPermissionsUseCase,
+          GetPermissionsUseCase,
+          GetPermissionsUseCase
+        >
+    with $Provider<GetPermissionsUseCase> {
+  GetPermissionsUseCaseProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'getPermissionsUseCaseProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$getPermissionsUseCaseHash();
+
+  @$internal
+  @override
+  $ProviderElement<GetPermissionsUseCase> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  GetPermissionsUseCase create(Ref ref) {
+    return getPermissionsUseCase(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(GetPermissionsUseCase value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<GetPermissionsUseCase>(value),
+    );
+  }
+}
+
+String _$getPermissionsUseCaseHash() =>
+    r'f5c3ea75c869aec4379761da895608e94d4b94ae';
+
 @ProviderFor(updatePermissionsUseCase)
 final updatePermissionsUseCaseProvider = UpdatePermissionsUseCaseProvider._();
 

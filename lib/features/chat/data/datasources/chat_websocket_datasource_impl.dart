@@ -27,6 +27,7 @@ class ChatWebSocketDataSourceImpl implements ChatWebSocketDataSource {
   final _userStatusController = StreamController<UserStatusUpdate>.broadcast();
   final _conversationCreatedController = StreamController<Map<String, dynamic>>.broadcast();
   final _conversationUpdateController = StreamController<ConversationUpdate>.broadcast();
+  final _conversationPermissionsUpdatedController = StreamController<Map<String, dynamic>>.broadcast();
   final _scheduledMessageSentController = StreamController<ScheduledMessageSentDto>.broadcast();
   final _scheduledMessageFailedController = StreamController<ScheduledMessageFailedDto>.broadcast();
   final _pollEventController = StreamController<Map<String, dynamic>>.broadcast();
@@ -53,6 +54,7 @@ class ChatWebSocketDataSourceImpl implements ChatWebSocketDataSource {
       WebSocketEvents.conversationCreated,
       WebSocketEvents.conversationUpdate,
       WebSocketEvents.conversationUpdated,
+      WebSocketEvents.conversationPermissionsUpdated,
       WebSocketEvents.scheduledMessageSent,
       WebSocketEvents.scheduledMessageFailed,
       WebSocketEvents.messageReaction,
@@ -175,6 +177,12 @@ class ChatWebSocketDataSourceImpl implements ChatWebSocketDataSource {
           }
           break;
 
+        case WebSocketEvents.conversationPermissionsUpdated:
+          // Handle group permissions updates
+          _conversationPermissionsUpdatedController.add(payload as Map<String, dynamic>);
+          debugPrint('🔧 [WS] Permissions updated event received');
+          break;
+
         case WebSocketEvents.scheduledMessageSent:
           final dto = ScheduledMessageSentDto.fromJson(payload as Map<String, dynamic>);
           _scheduledMessageSentController.add(dto);
@@ -279,6 +287,9 @@ class ChatWebSocketDataSourceImpl implements ChatWebSocketDataSource {
   Stream<Map<String, dynamic>> get conversationCreatedStream => _conversationCreatedController.stream;
 
   @override
+  Stream<Map<String, dynamic>> get conversationPermissionsUpdatedStream => _conversationPermissionsUpdatedController.stream;
+
+  @override
   Stream<ScheduledMessageSentDto> get scheduledMessageSentStream => _scheduledMessageSentController.stream;
 
   @override
@@ -326,6 +337,7 @@ class ChatWebSocketDataSourceImpl implements ChatWebSocketDataSource {
     _userStatusController.close();
     _conversationCreatedController.close();
     _conversationUpdateController.close();
+    _conversationPermissionsUpdatedController.close();
     _scheduledMessageSentController.close();
     _scheduledMessageFailedController.close();
     _pollEventController.close();

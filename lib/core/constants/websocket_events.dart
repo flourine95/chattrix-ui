@@ -11,6 +11,7 @@ class WebSocketEvents {
   static const String conversationCreated = 'conversation.created';
   static const String conversationUpdate = 'conversation.update';
   static const String conversationUpdated = 'conversation.updated'; // When conversation metadata changes (name, avatar, etc.)
+  static const String conversationPermissionsUpdated = 'conversation.permissions_updated'; // When group permissions change
   static const String typingIndicator = 'typing.indicator';
   static const String typingStart = 'typing.start';
   static const String typingStop = 'typing.stop';

@@ -27,6 +27,8 @@ abstract class ChatWebSocketDataSource {
 
   Stream<ConversationUpdate> get conversationUpdateStream;
 
+  Stream<Map<String, dynamic>> get conversationPermissionsUpdatedStream;
+
   Stream<Map<String, dynamic>> get pollEventStream;
 
   Stream<Map<String, dynamic>> get messageIdUpdateStream;

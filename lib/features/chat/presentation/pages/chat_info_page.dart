@@ -8,7 +8,6 @@ import 'package:chattrix_ui/features/chat/presentation/pages/add_members_page.da
 import 'package:chattrix_ui/features/chat/presentation/pages/all_members_page.dart';
 import 'package:chattrix_ui/features/chat/presentation/pages/events_page.dart';
 import 'package:chattrix_ui/features/chat/presentation/pages/files_links_page.dart';
-import 'package:chattrix_ui/features/chat/presentation/pages/group_permissions_page.dart';
 import 'package:chattrix_ui/features/invite_links/presentation/pages/invite_links_page.dart';
 import 'package:chattrix_ui/features/chat/presentation/pages/polls_page.dart';
 import 'package:chattrix_ui/features/chat/presentation/pages/search_messages_page.dart';
@@ -270,7 +269,7 @@ class ChatInfoPage extends HookConsumerWidget {
 
         const SizedBox(height: 8),
 
-        // Admin Permissions (only if user is admin)
+        // Group Permissions (only if user is admin)
         if (_isUserAdmin(ref, currentConversation))
           _buildRoundedSection(
             context,
@@ -281,12 +280,7 @@ class ChatInfoPage extends HookConsumerWidget {
               subtitle: 'Manage who can perform actions',
               colors: colors,
               textTheme: textTheme,
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => GroupPermissionsPage(conversationId: currentConversation.id)),
-                );
-              },
+              onTap: () => _navigateToPermissions(context, currentConversation.id),
             ),
           ),
 
@@ -776,58 +770,6 @@ class ChatInfoPage extends HookConsumerWidget {
   }
 
   // View Members Section
-  Widget _buildViewMembersSection(BuildContext context, ColorScheme colors, TextTheme textTheme) {
-    return _buildListTile(
-      icon: Icons.people,
-      title: 'View Members',
-      subtitle: '${conversation.participants.length} members',
-      onTap: () {
-        Navigator.push(context, MaterialPageRoute(builder: (context) => AllMembersPage(conversation: conversation)));
-      },
-      colors: colors,
-      textTheme: textTheme,
-    );
-  }
-
-  // Community Link Section
-  Widget _buildCommunityLinkSection(BuildContext context, ColorScheme colors, TextTheme textTheme) {
-    return _buildListTile(
-      icon: Icons.link,
-      title: 'Invite Links',
-      subtitle: 'Manage group invite links',
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => InviteLinksPage(
-              conversationId: conversation.id,
-              conversationName: conversation.name ?? 'Group',
-            ),
-          ),
-        );
-      },
-      colors: colors,
-      textTheme: textTheme,
-    );
-  }
-
-  // Admin Permissions Section
-  Widget _buildAdminPermissionsSection(BuildContext context, ColorScheme colors, TextTheme textTheme) {
-    return _buildListTile(
-      icon: Icons.admin_panel_settings,
-      title: 'Group Permissions',
-      subtitle: 'Manage who can perform actions',
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => GroupPermissionsPage(conversationId: conversation.id)),
-        );
-      },
-      colors: colors,
-      textTheme: textTheme,
-    );
-  }
-
   void _showLeaveGroupBottomSheet(BuildContext context, WidgetRef ref, ColorScheme colors, TextTheme textTheme) {
     showConfirmationBottomSheet(
       context: context,
@@ -1733,27 +1675,6 @@ class ChatInfoPage extends HookConsumerWidget {
   // HELPER WIDGETS
   // ============================================================================
 
-  Widget _buildListTile({
-    required IconData icon,
-    required String title,
-    required String subtitle,
-    required VoidCallback onTap,
-    required ColorScheme colors,
-    required TextTheme textTheme,
-    bool isDestructive = false,
-  }) {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-      decoration: BoxDecoration(color: colors.surfaceContainerHighest, borderRadius: BorderRadius.circular(12)),
-      child: ListTile(
-        leading: Icon(icon, color: isDestructive ? Colors.red : colors.primary),
-        title: Text(title, style: textTheme.bodyLarge?.copyWith(color: isDestructive ? Colors.red : null)),
-        subtitle: Text(subtitle),
-        trailing: Icon(Icons.chevron_right, color: colors.onSurface.withValues(alpha: 0.5)),
-        onTap: onTap,
-      ),
-    );
-  }
 }
 
 // ============================================================================
@@ -1791,4 +1712,16 @@ class _QuickActionButton extends StatelessWidget {
       ),
     );
   }
+}
+
+// ============================================================================
+// HELPER FUNCTIONS
+// ============================================================================
+
+/// Navigate to Group Permissions page
+/// Using dynamic import to avoid Dart compiler bug with GroupPermissionsPage
+void _navigateToPermissions(BuildContext context, int conversationId) {
+  // Use named route to avoid direct import
+  // The route is defined in route_config.dart where the import works
+  context.push('/chat/$conversationId/permissions');
 }

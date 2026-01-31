@@ -13,7 +13,9 @@ import 'package:chattrix_ui/features/chat/domain/entities/message.dart';
 import 'package:chattrix_ui/features/chat/presentation/pages/chat_info_page.dart';
 import 'package:chattrix_ui/features/chat/presentation/pages/chat_list_page.dart';
 import 'package:chattrix_ui/features/chat/presentation/pages/chat_view_page.dart';
+import 'package:chattrix_ui/features/chat/presentation/pages/create_event_page.dart';
 import 'package:chattrix_ui/features/chat/presentation/pages/forward_message_page.dart';
+import 'package:chattrix_ui/features/chat/presentation/pages/group_permissions_page_bridge.dart';
 import 'package:chattrix_ui/features/chat/presentation/pages/hidden_conversations_page.dart';
 import 'package:chattrix_ui/features/chat/presentation/pages/new_chat_page.dart';
 import 'package:chattrix_ui/features/chat/presentation/pages/new_group_chat_page.dart';
@@ -30,7 +32,6 @@ import 'package:chattrix_ui/features/invite_links/presentation/pages/invite_link
 import 'package:chattrix_ui/features/invite_links/presentation/pages/invite_links_page.dart';
 import 'package:chattrix_ui/features/poll/presentation/pages/create_poll_page.dart';
 import 'package:chattrix_ui/features/poll/presentation/pages/poll_detail_page.dart';
-import 'package:chattrix_ui/features/chat/presentation/pages/create_event_page.dart';
 import 'package:chattrix_ui/features/profile/presentation/pages/edit_profile_page.dart';
 import 'package:chattrix_ui/features/profile/presentation/pages/profile_page.dart';
 import 'package:chattrix_ui/features/profile/presentation/pages/settings_page.dart';
@@ -49,11 +50,7 @@ class RouteConfig {
       name: 'outgoing-call',
       builder: (context, state) => const OutgoingCallPage(),
     ),
-    GoRoute(
-      path: RoutePaths.activeCall,
-      name: 'call',
-      builder: (context, state) => const CallPage(),
-    ),
+    GoRoute(path: RoutePaths.activeCall, name: 'call', builder: (context, state) => const CallPage()),
   ];
 
   static List<RouteBase> get authRoutes => [
@@ -101,16 +98,8 @@ class RouteConfig {
   );
 
   static List<RouteBase> get searchRoutes => [
-    GoRoute(
-      path: RoutePaths.newChat,
-      name: 'new-chat',
-      builder: (context, state) => const NewChatPage(),
-    ),
-    GoRoute(
-      path: RoutePaths.newGroup,
-      name: 'new-group',
-      builder: (context, state) => const NewGroupChatPage(),
-    ),
+    GoRoute(path: RoutePaths.newChat, name: 'new-chat', builder: (context, state) => const NewChatPage()),
+    GoRoute(path: RoutePaths.newGroup, name: 'new-group', builder: (context, state) => const NewGroupChatPage()),
     GoRoute(
       path: RoutePaths.searchConversations,
       name: 'search-conversations',
@@ -149,6 +138,11 @@ class RouteConfig {
       name: 'schedule-message',
       builder: (context, state) => _buildScheduleMessagePage(state),
     ),
+    GoRoute(
+      path: RoutePaths.groupPermissions,
+      name: 'group-permissions',
+      builder: (context, state) => _buildGroupPermissionsPage(state),
+    ),
   ];
 
   static List<RouteBase> get profileRoutes => [
@@ -168,16 +162,8 @@ class RouteConfig {
   ];
 
   static List<RouteBase> get pollRoutes => [
-    GoRoute(
-      path: RoutePaths.createPoll,
-      name: 'create-poll',
-      builder: (context, state) => _buildCreatePollPage(state),
-    ),
-    GoRoute(
-      path: RoutePaths.pollDetail,
-      name: 'poll-detail',
-      builder: (context, state) => _buildPollDetailPage(state),
-    ),
+    GoRoute(path: RoutePaths.createPoll, name: 'create-poll', builder: (context, state) => _buildCreatePollPage(state)),
+    GoRoute(path: RoutePaths.pollDetail, name: 'poll-detail', builder: (context, state) => _buildPollDetailPage(state)),
     GoRoute(
       path: RoutePaths.createEvent,
       name: 'create-event',
@@ -296,5 +282,11 @@ class RouteConfig {
   static Widget _buildInviteLinkInfoPage(GoRouterState state) {
     final token = state.pathParameters['token']!;
     return InviteLinkInfoPage(token: token);
+  }
+
+  static Widget _buildGroupPermissionsPage(GoRouterState state) {
+    final conversationId = int.parse(state.pathParameters['id']!);
+    // Use bridge to avoid compiler bug with direct import
+    return buildGroupPermissionsPage(conversationId);
   }
 }

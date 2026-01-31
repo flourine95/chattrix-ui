@@ -28,6 +28,7 @@ class ConversationsNotifier extends _$ConversationsNotifier {
   StreamSubscription<Message>? _messageSubscription;
   StreamSubscription<Map<String, dynamic>>? _conversationCreatedSubscription;
   StreamSubscription<ConversationUpdate>? _conversationUpdateSubscription;
+  StreamSubscription<Map<String, dynamic>>? _permissionsUpdateSubscription;
   StreamSubscription<UserStatusUpdate>? _userStatusSubscription;
   StreamSubscription<TypingIndicator>? _typingSubscription;
 
@@ -61,6 +62,11 @@ class ConversationsNotifier extends _$ConversationsNotifier {
     // Listen to WebSocket conversation updates
     _conversationUpdateSubscription = wsDataSource.conversationUpdateStream.listen((update) {
       _handleConversationUpdateEvent(update);
+    });
+
+    // Listen to WebSocket permissions updates
+    _permissionsUpdateSubscription = wsDataSource.conversationPermissionsUpdatedStream.listen((data) {
+      _handlePermissionsUpdatedEvent(data);
     });
 
     // Listen to WebSocket user status events
@@ -102,6 +108,7 @@ class ConversationsNotifier extends _$ConversationsNotifier {
       _messageSubscription?.cancel();
       _conversationCreatedSubscription?.cancel();
       _conversationUpdateSubscription?.cancel();
+      _permissionsUpdateSubscription?.cancel();
       _userStatusSubscription?.cancel();
       _typingSubscription?.cancel();
       _connectionSubscription?.cancel();
@@ -483,6 +490,30 @@ class ConversationsNotifier extends _$ConversationsNotifier {
       );
     } catch (e) {
       return null;
+    }
+  }
+
+  /// Handle permissions updated events from WebSocket
+  void _handlePermissionsUpdatedEvent(Map<String, dynamic> data) {
+    try {
+      final conversationId = data['conversationId'] as int?;
+      final permissions = data['permissions'] as Map<String, dynamic>?;
+      final updatedBy = data['updatedBy'] as int?;
+      final updatedByUsername = data['updatedByUsername'] as String?;
+
+      if (conversationId == null || permissions == null) {
+        print('⚠️ [Permissions] Invalid permissions update event');
+        return;
+      }
+
+      print('🔧 [Permissions] Conversation $conversationId permissions updated by $updatedByUsername');
+      print('🔧 [Permissions] New permissions: $permissions');
+
+      // Notify permissions notifier if it's watching this conversation
+      // The permissions notifier will handle the update via its own listener
+      // We don't need to do anything here since permissions are not part of Conversation entity
+    } catch (e) {
+      print('❌ [Permissions] Error handling permissions update: $e');
     }
   }
 

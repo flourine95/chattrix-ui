@@ -8,6 +8,7 @@ import '../../domain/usecases/conversation_settings/get_conversation_settings_us
 import '../../domain/usecases/conversation_settings/update_conversation_settings_usecase.dart';
 import '../../domain/usecases/conversation_settings/mute_conversation_usecase.dart';
 import '../../domain/usecases/conversation_settings/unmute_conversation_usecase.dart';
+import '../../domain/usecases/conversation_settings/get_permissions_usecase.dart';
 import '../../domain/usecases/conversation_settings/update_permissions_usecase.dart';
 
 part 'conversation_settings_providers.g.dart';
@@ -49,6 +50,12 @@ MuteConversationUseCase muteConversationUseCase(Ref ref) {
 UnmuteConversationUseCase unmuteConversationUseCase(Ref ref) {
   final repository = ref.watch(conversationSettingsRepositoryProvider);
   return UnmuteConversationUseCase(repository);
+}
+
+@riverpod
+GetPermissionsUseCase getPermissionsUseCase(Ref ref) {
+  final repository = ref.watch(conversationSettingsRepositoryProvider);
+  return GetPermissionsUseCase(repository);
 }
 
 @riverpod

@@ -496,8 +496,8 @@ return $default(_that.conversationId,_that.sendMessages,_that.addMembers,_that.r
 /// @nodoc
 
 
-class _ConversationPermissions implements ConversationPermissions {
-  const _ConversationPermissions({required this.conversationId, required this.sendMessages, required this.addMembers, required this.removeMembers, required this.editGroupInfo, required this.pinMessages, required this.deleteMessages, required this.createPolls});
+class _ConversationPermissions extends ConversationPermissions {
+  const _ConversationPermissions({required this.conversationId, required this.sendMessages, required this.addMembers, required this.removeMembers, required this.editGroupInfo, required this.pinMessages, required this.deleteMessages, required this.createPolls}): super._();
   
 
 @override final  int conversationId;

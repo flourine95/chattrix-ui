@@ -35,6 +35,9 @@ class RoutePaths {
   // Event routes
   static const String createEvent = '/chat/:id/create-event';
 
+  // Group permissions route
+  static const String groupPermissions = '/chat/:id/permissions';
+
   // Invite links routes
   static const String inviteLinks = '/invite-links';
   static const String inviteLinkInfo = '/invite/:token';
