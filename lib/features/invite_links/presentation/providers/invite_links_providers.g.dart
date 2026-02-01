@@ -301,54 +301,6 @@ final class GetInviteLinkInfoUseCaseProvider
 String _$getInviteLinkInfoUseCaseHash() =>
     r'1c24478e84c56718e9472bcc896110d758e3b0a0';
 
-@ProviderFor(joinViaInviteLinkUseCase)
-final joinViaInviteLinkUseCaseProvider = JoinViaInviteLinkUseCaseProvider._();
-
-final class JoinViaInviteLinkUseCaseProvider
-    extends
-        $FunctionalProvider<
-          JoinGroupViaLinkUseCase,
-          JoinGroupViaLinkUseCase,
-          JoinGroupViaLinkUseCase
-        >
-    with $Provider<JoinGroupViaLinkUseCase> {
-  JoinViaInviteLinkUseCaseProvider._()
-    : super(
-        from: null,
-        argument: null,
-        retry: null,
-        name: r'joinViaInviteLinkUseCaseProvider',
-        isAutoDispose: true,
-        dependencies: null,
-        $allTransitiveDependencies: null,
-      );
-
-  @override
-  String debugGetCreateSourceHash() => _$joinViaInviteLinkUseCaseHash();
-
-  @$internal
-  @override
-  $ProviderElement<JoinGroupViaLinkUseCase> $createElement(
-    $ProviderPointer pointer,
-  ) => $ProviderElement(pointer);
-
-  @override
-  JoinGroupViaLinkUseCase create(Ref ref) {
-    return joinViaInviteLinkUseCase(ref);
-  }
-
-  /// {@macro riverpod.override_with_value}
-  Override overrideWithValue(JoinGroupViaLinkUseCase value) {
-    return $ProviderOverride(
-      origin: this,
-      providerOverride: $SyncValueProvider<JoinGroupViaLinkUseCase>(value),
-    );
-  }
-}
-
-String _$joinViaInviteLinkUseCaseHash() =>
-    r'bdb50972f2ef8369ca650251ee9c46d6a2444692';
-
 @ProviderFor(joinGroupViaLinkUseCase)
 final joinGroupViaLinkUseCaseProvider = JoinGroupViaLinkUseCaseProvider._();
 
@@ -396,3 +348,61 @@ final class JoinGroupViaLinkUseCaseProvider
 
 String _$joinGroupViaLinkUseCaseHash() =>
     r'aefbd0837ba7d69f3f3b9277e3b3ba584acd1b12';
+
+/// State provider for current filter selection
+
+@ProviderFor(InviteLinksFilter)
+final inviteLinksFilterProvider = InviteLinksFilterProvider._();
+
+/// State provider for current filter selection
+final class InviteLinksFilterProvider
+    extends $NotifierProvider<InviteLinksFilter, String?> {
+  /// State provider for current filter selection
+  InviteLinksFilterProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'inviteLinksFilterProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$inviteLinksFilterHash();
+
+  @$internal
+  @override
+  InviteLinksFilter create() => InviteLinksFilter();
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(String? value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<String?>(value),
+    );
+  }
+}
+
+String _$inviteLinksFilterHash() => r'1c732742501624b0e0bf58995f614a6e61c517bc';
+
+/// State provider for current filter selection
+
+abstract class _$InviteLinksFilter extends $Notifier<String?> {
+  String? build();
+  @$mustCallSuper
+  @override
+  void runBuild() {
+    final ref = this.ref as $Ref<String?, String?>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<String?, String?>,
+              String?,
+              Object?,
+              Object?
+            >;
+    element.handleCreate(ref, build);
+  }
+}

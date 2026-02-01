@@ -10,21 +10,23 @@ part 'invite_links_history_provider.g.dart';
 @riverpod
 class InviteLinksHistory extends _$InviteLinksHistory {
   String? _nextCursor;
+  String? _currentStatusFilter;
   static const int _pageSize = 20;
 
   @override
   Future<InviteLinksHistoryEntity> build(int conversationId) async {
     debugPrint('🔵 [InviteLinksHistory] Building for conversation $conversationId');
-    return _loadPage(null);
+    return _loadPage(null, null);
   }
 
-  Future<InviteLinksHistoryEntity> _loadPage(String? cursor) async {
-    debugPrint('🔵 [InviteLinksHistory] Loading page with cursor: $cursor');
+  Future<InviteLinksHistoryEntity> _loadPage(String? cursor, String? status) async {
+    debugPrint('🔵 [InviteLinksHistory] Loading page with cursor: $cursor, status: $status');
     final repository = ref.read(inviteLinksRepositoryProvider);
     final result = await repository.getInviteLinksHistory(
       conversationId: conversationId,
       cursor: cursor,
       limit: _pageSize,
+      status: status,
     );
 
     return result.fold(
@@ -50,7 +52,7 @@ class InviteLinksHistory extends _$InviteLinksHistory {
     state = const AsyncValue.loading();
 
     try {
-      final newHistory = await _loadPage(_nextCursor);
+      final newHistory = await _loadPage(_nextCursor, _currentStatusFilter);
 
       // Merge with existing data
       final mergedItems = [
@@ -64,6 +66,20 @@ class InviteLinksHistory extends _$InviteLinksHistory {
           meta: newHistory.meta,
         ),
       );
+    } catch (e, stack) {
+      state = AsyncValue.error(e, stack);
+    }
+  }
+
+  /// Filter by status
+  Future<void> filterByStatus(String? status) async {
+    _currentStatusFilter = status;
+    _nextCursor = null;
+    state = const AsyncValue.loading();
+
+    try {
+      final history = await _loadPage(null, status);
+      state = AsyncValue.data(history);
     } catch (e, stack) {
       state = AsyncValue.error(e, stack);
     }

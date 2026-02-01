@@ -59,7 +59,7 @@ final class InviteLinksHistoryProvider
 }
 
 String _$inviteLinksHistoryHash() =>
-    r'8563c25413dbd128fd46c6b3ff94a8f8983d00f2';
+    r'82232b6a1a0ef49eb1ae07c0f7fad0781ec29241';
 
 /// Provider for invite links history with cursor-based pagination
 

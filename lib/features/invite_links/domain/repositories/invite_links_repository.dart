@@ -13,10 +13,12 @@ abstract class InviteLinksRepository {
 
   /// Get invite links history with cursor-based pagination
   /// Returns paginated list of all links (active, expired, revoked)
+  /// Optional status filter: active, inactive, revoked, expired, max_uses_reached
   Future<Either<Failure, InviteLinksHistoryEntity>> getInviteLinksHistory({
     required int conversationId,
     String? cursor,
     int limit = 20,
+    String? status,
   });
 
   /// Get current active invite link for a conversation

@@ -197,7 +197,7 @@ class _AllMembersPageState extends ConsumerState<AllMembersPage> {
                   leading: Stack(
                     clipBehavior: Clip.none,
                     children: [
-                      UserAvatar(displayName: member.fullName ?? 'User', avatarUrl: member.avatarUrl, radius: 24),
+                      UserAvatar(displayName: member.fullName, avatarUrl: member.avatarUrl, radius: 24),
                       if (isOnline)
                         Positioned(
                           right: 0,
@@ -218,7 +218,7 @@ class _AllMembersPageState extends ConsumerState<AllMembersPage> {
                     children: [
                       Flexible(
                         child: Text(
-                          member.fullName ?? 'User',
+                          member.fullName,
                           style: textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w500),
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -302,7 +302,7 @@ class _AllMembersPageState extends ConsumerState<AllMembersPage> {
     final action = await showOptionsBottomSheet<String>(
       context: context,
       title: 'Member Options',
-      subtitle: member.fullName ?? 'User',
+      subtitle: member.fullName,
       options: [
         if (isMemberAdmin)
           BottomSheetOption(label: 'Remove Admin', icon: Icons.remove_moderator_outlined, value: 'remove_admin')
@@ -328,7 +328,7 @@ class _AllMembersPageState extends ConsumerState<AllMembersPage> {
         _handleUpdateRole(member.userId, 'MEMBER');
         break;
       case 'remove':
-        _handleRemoveMember(member.userId, member.fullName ?? 'User');
+        _handleRemoveMember(member.userId, member.fullName);
         break;
     }
   }

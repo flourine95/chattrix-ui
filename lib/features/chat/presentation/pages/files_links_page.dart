@@ -20,6 +20,16 @@ class _FilesLinksPageState extends ConsumerState<FilesLinksPage> with SingleTick
   String _selectedFilesFilter = 'All';
   String _selectedLinksFilter = 'All';
   String _selectedAudioFilter = 'All';
+  
+  // Custom date ranges for each tab
+  DateTime? _customMediaStartDate;
+  DateTime? _customMediaEndDate;
+  DateTime? _customFilesStartDate;
+  DateTime? _customFilesEndDate;
+  DateTime? _customLinksStartDate;
+  DateTime? _customLinksEndDate;
+  DateTime? _customAudioStartDate;
+  DateTime? _customAudioEndDate;
 
   @override
   void initState() {
@@ -92,7 +102,7 @@ class _FilesLinksPageState extends ConsumerState<FilesLinksPage> with SingleTick
   }
 
   // Helper: Calculate date range based on filter
-  Map<String, DateTime?> _getDateRange(String filter) {
+  Map<String, DateTime?> _getDateRange(String filter, {DateTime? customStart, DateTime? customEnd}) {
     DateTime? startDate;
     DateTime? endDate;
     final now = DateTime.now();
@@ -109,6 +119,14 @@ class _FilesLinksPageState extends ConsumerState<FilesLinksPage> with SingleTick
       case 'This Month':
         startDate = now.subtract(const Duration(days: 30));
         endDate = now;
+        break;
+      case 'This Year':
+        startDate = DateTime(now.year, 1, 1);
+        endDate = now;
+        break;
+      case 'Custom':
+        startDate = customStart;
+        endDate = customEnd;
         break;
       case 'All':
       default:
@@ -183,7 +201,17 @@ class _FilesLinksPageState extends ConsumerState<FilesLinksPage> with SingleTick
   // Media Tab Builder
   Widget _buildMediaTab(ColorScheme colors, TextTheme textTheme, bool isDark) {
     const types = ['IMAGE', 'VIDEO'];
-    final dateRange = _getDateRange(_selectedMediaFilter);
+    final dateRange = _getDateRange(
+      _selectedMediaFilter,
+      customStart: _customMediaStartDate,
+      customEnd: _customMediaEndDate,
+    );
+
+    debugPrint('🔍 Media Tab - Filter: $_selectedMediaFilter');
+    debugPrint('🔍 Media Tab - Custom Start: $_customMediaStartDate');
+    debugPrint('🔍 Media Tab - Custom End: $_customMediaEndDate');
+    debugPrint('🔍 Media Tab - Date Range Start: ${dateRange['startDate']}');
+    debugPrint('🔍 Media Tab - Date Range End: ${dateRange['endDate']}');
 
     final mediaAsync = ref.watch(
       conversationMediaProvider(
@@ -208,6 +236,12 @@ class _FilesLinksPageState extends ConsumerState<FilesLinksPage> with SingleTick
                 textTheme,
                 _selectedMediaFilter,
                 (filter) => setState(() => _selectedMediaFilter = filter),
+                onCustomDateSelected: (startDate, endDate) {
+                  setState(() {
+                    _customMediaStartDate = startDate;
+                    _customMediaEndDate = endDate;
+                  });
+                },
               ),
               Expanded(
                 child: _buildEmptyState(
@@ -229,6 +263,12 @@ class _FilesLinksPageState extends ConsumerState<FilesLinksPage> with SingleTick
               textTheme,
               _selectedMediaFilter,
               (filter) => setState(() => _selectedMediaFilter = filter),
+              onCustomDateSelected: (startDate, endDate) {
+                setState(() {
+                  _customMediaStartDate = startDate;
+                  _customMediaEndDate = endDate;
+                });
+              },
             ),
             Expanded(
               child: GridView.builder(
@@ -304,7 +344,11 @@ class _FilesLinksPageState extends ConsumerState<FilesLinksPage> with SingleTick
   // Files Tab Builder
   Widget _buildFilesTab(ColorScheme colors, TextTheme textTheme, bool isDark) {
     const types = ['FILE'];
-    final dateRange = _getDateRange(_selectedFilesFilter);
+    final dateRange = _getDateRange(
+      _selectedFilesFilter,
+      customStart: _customFilesStartDate,
+      customEnd: _customFilesEndDate,
+    );
 
     final filesAsync = ref.watch(
       conversationMediaProvider(
@@ -329,6 +373,12 @@ class _FilesLinksPageState extends ConsumerState<FilesLinksPage> with SingleTick
                 textTheme,
                 _selectedFilesFilter,
                 (filter) => setState(() => _selectedFilesFilter = filter),
+                onCustomDateSelected: (startDate, endDate) {
+                  setState(() {
+                    _customFilesStartDate = startDate;
+                    _customFilesEndDate = endDate;
+                  });
+                },
               ),
               Expanded(
                 child: _buildEmptyState(
@@ -350,6 +400,12 @@ class _FilesLinksPageState extends ConsumerState<FilesLinksPage> with SingleTick
               textTheme,
               _selectedFilesFilter,
               (filter) => setState(() => _selectedFilesFilter = filter),
+              onCustomDateSelected: (startDate, endDate) {
+                setState(() {
+                  _customFilesStartDate = startDate;
+                  _customFilesEndDate = endDate;
+                });
+              },
             ),
             Expanded(
               child: ListView.separated(
@@ -430,7 +486,11 @@ class _FilesLinksPageState extends ConsumerState<FilesLinksPage> with SingleTick
   // Links Tab Builder
   Widget _buildLinksTab(ColorScheme colors, TextTheme textTheme, bool isDark) {
     const types = ['LINK'];
-    final dateRange = _getDateRange(_selectedLinksFilter);
+    final dateRange = _getDateRange(
+      _selectedLinksFilter,
+      customStart: _customLinksStartDate,
+      customEnd: _customLinksEndDate,
+    );
 
     final linksAsync = ref.watch(
       conversationMediaProvider(
@@ -455,6 +515,12 @@ class _FilesLinksPageState extends ConsumerState<FilesLinksPage> with SingleTick
                 textTheme,
                 _selectedLinksFilter,
                 (filter) => setState(() => _selectedLinksFilter = filter),
+                onCustomDateSelected: (startDate, endDate) {
+                  setState(() {
+                    _customLinksStartDate = startDate;
+                    _customLinksEndDate = endDate;
+                  });
+                },
               ),
               Expanded(
                 child: _buildEmptyState(
@@ -476,6 +542,12 @@ class _FilesLinksPageState extends ConsumerState<FilesLinksPage> with SingleTick
               textTheme,
               _selectedLinksFilter,
               (filter) => setState(() => _selectedLinksFilter = filter),
+              onCustomDateSelected: (startDate, endDate) {
+                setState(() {
+                  _customLinksStartDate = startDate;
+                  _customLinksEndDate = endDate;
+                });
+              },
             ),
             Expanded(
               child: ListView.separated(
@@ -559,7 +631,11 @@ class _FilesLinksPageState extends ConsumerState<FilesLinksPage> with SingleTick
   // Audio Tab Builder
   Widget _buildAudioTab(ColorScheme colors, TextTheme textTheme, bool isDark) {
     const types = ['AUDIO'];
-    final dateRange = _getDateRange(_selectedAudioFilter);
+    final dateRange = _getDateRange(
+      _selectedAudioFilter,
+      customStart: _customAudioStartDate,
+      customEnd: _customAudioEndDate,
+    );
 
     final audioAsync = ref.watch(
       conversationMediaProvider(
@@ -584,6 +660,12 @@ class _FilesLinksPageState extends ConsumerState<FilesLinksPage> with SingleTick
                 textTheme,
                 _selectedAudioFilter,
                 (filter) => setState(() => _selectedAudioFilter = filter),
+                onCustomDateSelected: (startDate, endDate) {
+                  setState(() {
+                    _customAudioStartDate = startDate;
+                    _customAudioEndDate = endDate;
+                  });
+                },
               ),
               Expanded(
                 child: _buildEmptyState(
@@ -605,6 +687,12 @@ class _FilesLinksPageState extends ConsumerState<FilesLinksPage> with SingleTick
               textTheme,
               _selectedAudioFilter,
               (filter) => setState(() => _selectedAudioFilter = filter),
+              onCustomDateSelected: (startDate, endDate) {
+                setState(() {
+                  _customAudioStartDate = startDate;
+                  _customAudioEndDate = endDate;
+                });
+              },
             ),
             Expanded(
               child: ListView.separated(
@@ -667,8 +755,9 @@ class _FilesLinksPageState extends ConsumerState<FilesLinksPage> with SingleTick
     ColorScheme colors,
     TextTheme textTheme,
     String selectedFilter,
-    Function(String) onFilterChanged,
-  ) {
+    Function(String) onFilterChanged, {
+    Function(DateTime?, DateTime?)? onCustomDateSelected,
+  }) {
     return Container(
       margin: const EdgeInsets.all(12),
       decoration: BoxDecoration(
@@ -681,9 +770,25 @@ class _FilesLinksPageState extends ConsumerState<FilesLinksPage> with SingleTick
         child: InkWell(
           borderRadius: BorderRadius.circular(24),
           onTap: () async {
+            debugPrint('🎯 Filter button tapped');
             final result = await showMediaDateFilterBottomSheet(context);
+            debugPrint('🎯 Filter result: $result');
+            
             if (result != null) {
-              onFilterChanged(result['filter'] ?? 'All');
+              final selectedFilter = result['filter'] ?? 'All';
+              debugPrint('🎯 Selected filter: $selectedFilter');
+              
+              onFilterChanged(selectedFilter);
+              
+              // If custom date range selected, notify parent
+              if (selectedFilter == 'Custom' && onCustomDateSelected != null) {
+                debugPrint('🎯 Setting custom dates: ${result['startDate']} - ${result['endDate']}');
+                onCustomDateSelected(result['startDate'], result['endDate']);
+              } else if (onCustomDateSelected != null) {
+                // Clear custom dates when selecting non-custom filter
+                debugPrint('🎯 Clearing custom dates');
+                onCustomDateSelected(null, null);
+              }
             }
           },
           child: Padding(

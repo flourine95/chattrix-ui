@@ -22,48 +22,46 @@ class InviteLinkHistoryCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
     final colors = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12), // Standard card radius
+    return Container(
+      margin: const EdgeInsets.only(bottom: 1),
+      decoration: BoxDecoration(
+        color: colors.surface,
+        border: Border(
+          bottom: BorderSide(
+            color: isDark ? Colors.grey.withValues(alpha: 0.2) : Colors.grey.withValues(alpha: 0.1),
+            width: 0.5,
+          ),
+        ),
       ),
       child: Padding(
-        padding: const EdgeInsets.all(16), // Standard card padding
+        padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Header with status badge
+            // Header with creator info and status badge
             Row(
               children: [
+                UserAvatar(
+                  avatarUrl: link.createdBy.avatarUrl,
+                  displayName: link.createdBy.fullName,
+                  radius: 20,
+                ),
+                const SizedBox(width: 12),
                 Expanded(
-                  child: Row(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      UserAvatar(
-                        avatarUrl: link.createdBy.avatarUrl,
-                        displayName: link.createdBy.fullName,
-                        radius: 16,
+                      Text(
+                        link.createdBy.fullName,
+                        style: textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w600),
+                        overflow: TextOverflow.ellipsis,
                       ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              link.createdBy.fullName,
-                              style: textTheme.bodyMedium?.copyWith(
-                                fontWeight: FontWeight.w600,
-                              ),
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                            Text(
-                              '@${link.createdBy.username}',
-                              style: textTheme.bodySmall?.copyWith(
-                                color: colors.onSurface.withValues(alpha: 0.6),
-                              ),
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ],
+                      Text(
+                        _formatDate(link.createdAt),
+                        style: textTheme.bodySmall?.copyWith(
+                          color: colors.onSurface.withValues(alpha: 0.6),
                         ),
                       ),
                     ],
@@ -79,7 +77,7 @@ class InviteLinkHistoryCard extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: colors.surfaceContainerHighest.withValues(alpha: 0.5),
+                color: isDark ? Colors.grey.withValues(alpha: 0.1) : Colors.grey.withValues(alpha: 0.05),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Column(
@@ -98,6 +96,7 @@ class InviteLinkHistoryCard extends StatelessWidget {
                           link.inviteUrl,
                           style: textTheme.bodySmall?.copyWith(
                             fontFamily: 'monospace',
+                            color: colors.onSurface.withValues(alpha: 0.8),
                           ),
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -105,20 +104,23 @@ class InviteLinkHistoryCard extends StatelessWidget {
                     ],
                   ),
                   const SizedBox(height: 8),
-                  _buildInfoRow(
-                    context,
-                    Icons.calendar_today,
-                    'Created',
-                    _formatDate(link.createdAt),
-                  ),
-                  const SizedBox(height: 4),
-                  _buildInfoRow(
-                    context,
-                    Icons.people,
-                    'Uses',
-                    link.maxUses == 0
-                        ? '${link.currentUses} (unlimited)'
-                        : '${link.currentUses}/${link.maxUses}',
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.people_outline,
+                        size: 14,
+                        color: colors.onSurface.withValues(alpha: 0.6),
+                      ),
+                      const SizedBox(width: 6),
+                      Text(
+                        link.maxUses == 0
+                            ? '${link.currentUses} uses (unlimited)'
+                            : '${link.currentUses}/${link.maxUses} uses',
+                        style: textTheme.bodySmall?.copyWith(
+                          color: colors.onSurface.withValues(alpha: 0.8),
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
@@ -133,10 +135,8 @@ class InviteLinkHistoryCard extends StatelessWidget {
                     child: OutlinedButton.icon(
                       onPressed: () => _copyLink(context),
                       style: OutlinedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
+                        padding: const EdgeInsets.symmetric(vertical: 10),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                       ),
                       icon: const Icon(Icons.copy, size: 18),
                       label: const Text('Copy'),
@@ -147,10 +147,8 @@ class InviteLinkHistoryCard extends StatelessWidget {
                     child: OutlinedButton.icon(
                       onPressed: () => _shareLink(context),
                       style: OutlinedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
+                        padding: const EdgeInsets.symmetric(vertical: 10),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                       ),
                       icon: const Icon(Icons.share, size: 18),
                       label: const Text('Share'),
@@ -161,10 +159,8 @@ class InviteLinkHistoryCard extends StatelessWidget {
                     child: OutlinedButton.icon(
                       onPressed: () => _showQRCode(context),
                       style: OutlinedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
+                        padding: const EdgeInsets.symmetric(vertical: 10),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                       ),
                       icon: const Icon(Icons.qr_code, size: 18),
                       label: const Text('QR'),
@@ -210,7 +206,7 @@ class InviteLinkHistoryCard extends StatelessWidget {
     }
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
         color: badgeColor.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(12),
@@ -230,42 +226,6 @@ class InviteLinkHistoryCard extends StatelessWidget {
           ),
         ],
       ),
-    );
-  }
-
-  Widget _buildInfoRow(
-    BuildContext context,
-    IconData icon,
-    String label,
-    String value,
-  ) {
-    final textTheme = Theme.of(context).textTheme;
-    final colors = Theme.of(context).colorScheme;
-
-    return Row(
-      children: [
-        Icon(
-          icon,
-          size: 14,
-          color: colors.onSurface.withValues(alpha: 0.6),
-        ),
-        const SizedBox(width: 6),
-        Text(
-          '$label: ',
-          style: textTheme.bodySmall?.copyWith(
-            color: colors.onSurface.withValues(alpha: 0.6),
-          ),
-        ),
-        Expanded(
-          child: Text(
-            value,
-            style: textTheme.bodySmall?.copyWith(
-              fontWeight: FontWeight.w500,
-            ),
-            overflow: TextOverflow.ellipsis,
-          ),
-        ),
-      ],
     );
   }
 

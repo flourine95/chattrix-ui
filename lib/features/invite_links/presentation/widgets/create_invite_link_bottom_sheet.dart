@@ -1,5 +1,6 @@
 import 'package:chattrix_ui/features/invite_links/domain/entities/invite_link_entity.dart';
 import 'package:chattrix_ui/features/invite_links/presentation/providers/create_invite_link_provider.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -141,34 +142,19 @@ class CreateInviteLinkBottomSheet extends HookConsumerWidget {
   }
 
   void _selectMaxUses(BuildContext context, ValueNotifier<int?> maxUses, TextEditingController controller) {
-    showDialog(
+    showModalBottomSheet(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Maximum Uses'),
-        content: TextField(
-          controller: controller,
-          keyboardType: TextInputType.number,
-          decoration: const InputDecoration(
-            hintText: 'Enter number (leave empty for unlimited)',
-            border: OutlineInputBorder(),
-          ),
-          autofocus: true,
-        ),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
-          TextButton(
-            onPressed: () {
-              final value = int.tryParse(controller.text);
-              if (value != null && value > 0) {
-                maxUses.value = value;
-              } else {
-                maxUses.value = null;
-              }
-              Navigator.pop(context);
-            },
-            child: const Text('Confirm'),
-          ),
-        ],
+      isScrollControlled: true,
+      builder: (context) => _MaxUsesBottomSheet(
+        controller: controller,
+        onConfirm: (value) {
+          if (value != null && value > 0) {
+            maxUses.value = value;
+          } else {
+            maxUses.value = null;
+          }
+          Navigator.pop(context);
+        },
       ),
     );
   }
@@ -254,23 +240,188 @@ class _ExpiryTimePickerBottomSheet extends StatelessWidget {
   }
 
   void _selectCustomTime(BuildContext context) async {
-    final now = DateTime.now();
+    Navigator.pop(context); // Close first bottom sheet
 
-    final date = await showDatePicker(
+    // Show custom time picker bottom sheet
+    showModalBottomSheet(
       context: context,
-      initialDate: now.add(const Duration(days: 1)),
-      firstDate: now,
-      lastDate: now.add(const Duration(days: 365)),
+      isScrollControlled: true,
+      builder: (context) => _CustomTimePickerBottomSheet(
+        onSelected: (dateTime) {
+          onSelected(dateTime);
+        },
+      ),
     );
+  }
+}
 
-    if (date == null || !context.mounted) return;
+class _MaxUsesBottomSheet extends StatelessWidget {
+  const _MaxUsesBottomSheet({
+    required this.controller,
+    required this.onConfirm,
+  });
 
-    final time = await showTimePicker(context: context, initialTime: TimeOfDay.now());
+  final TextEditingController controller;
+  final void Function(int?) onConfirm;
 
-    if (time == null || !context.mounted) return;
+  @override
+  Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+    final colors = Theme.of(context).colorScheme;
 
-    final selectedDateTime = DateTime(date.year, date.month, date.day, time.hour, time.minute);
+    return Container(
+      padding: EdgeInsets.only(
+        left: 24,
+        right: 24,
+        top: 24,
+        bottom: MediaQuery.of(context).viewInsets.bottom + 24,
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text('Maximum Uses', style: textTheme.titleMedium),
+          const SizedBox(height: 16),
+          TextField(
+            controller: controller,
+            keyboardType: TextInputType.number,
+            decoration: InputDecoration(
+              hintText: 'Enter number (leave empty for unlimited)',
+              border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+              prefixIcon: Icon(Icons.people_outline, color: colors.primary),
+            ),
+            autofocus: true,
+            onSubmitted: (_) {
+              final value = int.tryParse(controller.text);
+              onConfirm(value);
+            },
+          ),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              Expanded(
+                child: OutlinedButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('Cancel'),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: FilledButton(
+                  onPressed: () {
+                    final value = int.tryParse(controller.text);
+                    onConfirm(value);
+                  },
+                  child: const Text('Confirm'),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
 
-    onSelected(selectedDateTime);
+class _CustomTimePickerBottomSheet extends StatefulWidget {
+  const _CustomTimePickerBottomSheet({required this.onSelected});
+
+  final void Function(DateTime) onSelected;
+
+  @override
+  State<_CustomTimePickerBottomSheet> createState() => _CustomTimePickerBottomSheetState();
+}
+
+class _CustomTimePickerBottomSheetState extends State<_CustomTimePickerBottomSheet> {
+  late DateTime selectedDateTime;
+
+  @override
+  void initState() {
+    super.initState();
+    selectedDateTime = DateTime.now().add(const Duration(hours: 1));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+    final colors = Theme.of(context).colorScheme;
+
+    return Container(
+      padding: const EdgeInsets.only(left: 24, right: 24, top: 24, bottom: 24),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text('Select Custom Time', style: textTheme.titleMedium),
+          const SizedBox(height: 16),
+          
+          // iOS-style date time picker
+          Container(
+            height: 250,
+            decoration: BoxDecoration(
+              color: colors.surfaceContainerHighest,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: CupertinoTheme(
+              data: CupertinoThemeData(
+                brightness: Theme.of(context).brightness,
+                primaryColor: colors.primary,
+                textTheme: CupertinoTextThemeData(
+                  dateTimePickerTextStyle: TextStyle(
+                    color: colors.onSurface,
+                    fontSize: 20,
+                  ),
+                ),
+              ),
+              child: CupertinoDatePicker(
+                mode: CupertinoDatePickerMode.dateAndTime,
+                initialDateTime: selectedDateTime,
+                minimumDate: DateTime.now(),
+                maximumDate: DateTime.now().add(const Duration(days: 365)),
+                use24hFormat: true,
+                onDateTimeChanged: (DateTime newDateTime) {
+                  setState(() => selectedDateTime = newDateTime);
+                },
+              ),
+            ),
+          ),
+          
+          const SizedBox(height: 16),
+          
+          // Selected date time display
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: colors.primaryContainer,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.schedule, color: colors.onPrimaryContainer, size: 20),
+                const SizedBox(width: 8),
+                Text(
+                  DateFormat('dd/MM/yyyy HH:mm').format(selectedDateTime),
+                  style: textTheme.bodyLarge?.copyWith(
+                    color: colors.onPrimaryContainer,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          
+          const SizedBox(height: 16),
+          
+          FilledButton(
+            onPressed: () {
+              widget.onSelected(selectedDateTime);
+              Navigator.pop(context);
+            },
+            child: const Text('Confirm'),
+          ),
+        ],
+      ),
+    );
   }
 }

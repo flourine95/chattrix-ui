@@ -35,12 +35,19 @@ class SystemMessageBubble extends StatelessWidget {
       try {
         // Try to parse as JSON first
         final jsonData = jsonDecode(message.content);
-        systemMessageType = jsonData['type'] as String?;
         
-        // If no type in JSON, check if content itself is the type
-        if (systemMessageType == null && jsonData is Map) {
-          // Content might be the metadata itself - cast properly
-          metadata = Map<String, dynamic>.from(jsonData as Map);
+        if (jsonData is Map) {
+          // Cast to proper type
+          final dataMap = Map<String, dynamic>.from(jsonData);
+          systemMessageType = dataMap['type'] as String?;
+          
+          // If no type in JSON, the content itself is the metadata
+          if (systemMessageType == null) {
+            metadata = dataMap;
+          } else {
+            // Store the entire data as metadata for formatter
+            metadata = dataMap;
+          }
         }
       } catch (e) {
         // If not JSON, content might be plain text or the type itself

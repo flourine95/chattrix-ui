@@ -1,3 +1,5 @@
+import 'package:chattrix_ui/core/widgets/bottom_sheets.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 /// iOS-style date range picker for media filter
@@ -159,34 +161,26 @@ class _MediaDateFilterBottomSheetState extends State<MediaDateFilterBottomSheet>
   void _showCustomDatePicker(BuildContext context, ColorScheme colors, TextTheme textTheme) async {
     final now = DateTime.now();
 
-    // Show start date picker
-    final startDate = await showDatePicker(
+    // Show start date picker with iOS style
+    final startDate = await showDatePickerBottomSheet(
       context: context,
       initialDate: _customStartDate ?? now.subtract(const Duration(days: 30)),
-      firstDate: DateTime(2020),
-      lastDate: now,
-      builder: (context, child) {
-        return Theme(
-          data: Theme.of(context).copyWith(colorScheme: colors),
-          child: child!,
-        );
-      },
+      minimumDate: DateTime(2020),
+      maximumDate: now,
+      title: 'Select Start Date',
+      mode: CupertinoDatePickerMode.date,
     );
 
     if (startDate == null || !mounted) return;
 
-    // Show end date picker
-    final endDate = await showDatePicker(
+    // Show end date picker with iOS style
+    final endDate = await showDatePickerBottomSheet(
       context: context,
       initialDate: _customEndDate ?? now,
-      firstDate: startDate,
-      lastDate: now,
-      builder: (context, child) {
-        return Theme(
-          data: Theme.of(context).copyWith(colorScheme: colors),
-          child: child!,
-        );
-      },
+      minimumDate: startDate,
+      maximumDate: now,
+      title: 'Select End Date',
+      mode: CupertinoDatePickerMode.date,
     );
 
     if (endDate == null || !mounted) return;

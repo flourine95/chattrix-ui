@@ -40,13 +40,15 @@ class InviteLinksRepositoryImpl extends BaseRepository implements InviteLinksRep
     required int conversationId,
     String? cursor,
     int limit = 20,
+    String? status,
   }) async {
-    debugPrint('🔵 [InviteLinksRepo] Getting history for conversation $conversationId, cursor: $cursor, limit: $limit');
+    debugPrint('🔵 [InviteLinksRepo] Getting history for conversation $conversationId, cursor: $cursor, limit: $limit, status: $status');
     return executeApiCall(() async {
       final response = await _apiService.getInviteLinksHistory(
         conversationId: conversationId,
         cursor: cursor,
         limit: limit,
+        status: status,
       );
 
       debugPrint('🟢 [InviteLinksRepo] API response success: ${response.success}, data: ${response.data != null}');

@@ -440,7 +440,7 @@ class QrScannerPage extends HookConsumerWidget {
       builder: (context) => const Center(child: CircularProgressIndicator()),
     );
 
-    final useCase = ref.read(joinViaInviteLinkUseCaseProvider);
+    final useCase = ref.read(joinGroupViaLinkUseCaseProvider);
     final result = await useCase(token: token);
 
     if (!context.mounted) return;

@@ -40,6 +40,11 @@ class InviteLinksApiService {
   /// 
   /// **Endpoint**: `GET /v1/conversations/{conversationId}/invite-links`
   /// 
+  /// **Query Parameters:**
+  /// - cursor: Pagination cursor
+  /// - limit: Items per page (default: 20)
+  /// - status: Filter by status (active, inactive, revoked, expired, max_uses_reached)
+  /// 
   /// **Errors:**
   /// - 401: Unauthorized
   /// - 403: Not a member
@@ -48,12 +53,14 @@ class InviteLinksApiService {
     required int conversationId,
     String? cursor,
     int limit = 20,
+    String? status,
   }) async {
     final response = await _dio.get(
       ApiConstants.getInviteLinksHistory(conversationId),
       queryParameters: {
         if (cursor != null) 'cursor': cursor,
         'limit': limit,
+        if (status != null) 'status': status,
       },
     );
 

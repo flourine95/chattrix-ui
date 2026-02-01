@@ -48,13 +48,18 @@ GetInviteLinkInfoUseCase getInviteLinkInfoUseCase(Ref ref) {
 }
 
 @riverpod
-JoinGroupViaLinkUseCase joinViaInviteLinkUseCase(Ref ref) {
+JoinGroupViaLinkUseCase joinGroupViaLinkUseCase(Ref ref) {
   final repository = ref.watch(inviteLinksRepositoryProvider);
   return JoinGroupViaLinkUseCase(repository);
 }
 
-@riverpod
-JoinGroupViaLinkUseCase joinGroupViaLinkUseCase(Ref ref) {
-  final repository = ref.watch(inviteLinksRepositoryProvider);
-  return JoinGroupViaLinkUseCase(repository);
+/// State provider for current filter selection
+@Riverpod(keepAlive: true)
+class InviteLinksFilter extends _$InviteLinksFilter {
+  @override
+  String? build() => null;
+
+  void setFilter(String? filter) {
+    state = filter;
+  }
 }
