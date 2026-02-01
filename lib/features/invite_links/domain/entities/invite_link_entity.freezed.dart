@@ -14,7 +14,9 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$InviteLinkEntity {
 
- int get id; String get token; int get conversationId; int get createdBy; String get createdByUsername; DateTime get createdAt; DateTime? get expiresAt; int? get maxUses; int get currentUses; bool get revoked; DateTime? get revokedAt; int? get revokedBy; bool get valid;
+ int get id; String get token; String? get link;// Full URL from backend
+ int get conversationId; int get createdBy; String? get createdByUsername;// Made nullable to match backend response
+ DateTime get createdAt; DateTime? get expiresAt; int? get maxUses; int get currentUses; bool get revoked; DateTime? get revokedAt; int? get revokedBy; bool get valid;
 /// Create a copy of InviteLinkEntity
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -25,16 +27,16 @@ $InviteLinkEntityCopyWith<InviteLinkEntity> get copyWith => _$InviteLinkEntityCo
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is InviteLinkEntity&&(identical(other.id, id) || other.id == id)&&(identical(other.token, token) || other.token == token)&&(identical(other.conversationId, conversationId) || other.conversationId == conversationId)&&(identical(other.createdBy, createdBy) || other.createdBy == createdBy)&&(identical(other.createdByUsername, createdByUsername) || other.createdByUsername == createdByUsername)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.expiresAt, expiresAt) || other.expiresAt == expiresAt)&&(identical(other.maxUses, maxUses) || other.maxUses == maxUses)&&(identical(other.currentUses, currentUses) || other.currentUses == currentUses)&&(identical(other.revoked, revoked) || other.revoked == revoked)&&(identical(other.revokedAt, revokedAt) || other.revokedAt == revokedAt)&&(identical(other.revokedBy, revokedBy) || other.revokedBy == revokedBy)&&(identical(other.valid, valid) || other.valid == valid));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is InviteLinkEntity&&(identical(other.id, id) || other.id == id)&&(identical(other.token, token) || other.token == token)&&(identical(other.link, link) || other.link == link)&&(identical(other.conversationId, conversationId) || other.conversationId == conversationId)&&(identical(other.createdBy, createdBy) || other.createdBy == createdBy)&&(identical(other.createdByUsername, createdByUsername) || other.createdByUsername == createdByUsername)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.expiresAt, expiresAt) || other.expiresAt == expiresAt)&&(identical(other.maxUses, maxUses) || other.maxUses == maxUses)&&(identical(other.currentUses, currentUses) || other.currentUses == currentUses)&&(identical(other.revoked, revoked) || other.revoked == revoked)&&(identical(other.revokedAt, revokedAt) || other.revokedAt == revokedAt)&&(identical(other.revokedBy, revokedBy) || other.revokedBy == revokedBy)&&(identical(other.valid, valid) || other.valid == valid));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,id,token,conversationId,createdBy,createdByUsername,createdAt,expiresAt,maxUses,currentUses,revoked,revokedAt,revokedBy,valid);
+int get hashCode => Object.hash(runtimeType,id,token,link,conversationId,createdBy,createdByUsername,createdAt,expiresAt,maxUses,currentUses,revoked,revokedAt,revokedBy,valid);
 
 @override
 String toString() {
-  return 'InviteLinkEntity(id: $id, token: $token, conversationId: $conversationId, createdBy: $createdBy, createdByUsername: $createdByUsername, createdAt: $createdAt, expiresAt: $expiresAt, maxUses: $maxUses, currentUses: $currentUses, revoked: $revoked, revokedAt: $revokedAt, revokedBy: $revokedBy, valid: $valid)';
+  return 'InviteLinkEntity(id: $id, token: $token, link: $link, conversationId: $conversationId, createdBy: $createdBy, createdByUsername: $createdByUsername, createdAt: $createdAt, expiresAt: $expiresAt, maxUses: $maxUses, currentUses: $currentUses, revoked: $revoked, revokedAt: $revokedAt, revokedBy: $revokedBy, valid: $valid)';
 }
 
 
@@ -45,7 +47,7 @@ abstract mixin class $InviteLinkEntityCopyWith<$Res>  {
   factory $InviteLinkEntityCopyWith(InviteLinkEntity value, $Res Function(InviteLinkEntity) _then) = _$InviteLinkEntityCopyWithImpl;
 @useResult
 $Res call({
- int id, String token, int conversationId, int createdBy, String createdByUsername, DateTime createdAt, DateTime? expiresAt, int? maxUses, int currentUses, bool revoked, DateTime? revokedAt, int? revokedBy, bool valid
+ int id, String token, String? link, int conversationId, int createdBy, String? createdByUsername, DateTime createdAt, DateTime? expiresAt, int? maxUses, int currentUses, bool revoked, DateTime? revokedAt, int? revokedBy, bool valid
 });
 
 
@@ -62,14 +64,15 @@ class _$InviteLinkEntityCopyWithImpl<$Res>
 
 /// Create a copy of InviteLinkEntity
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? token = null,Object? conversationId = null,Object? createdBy = null,Object? createdByUsername = null,Object? createdAt = null,Object? expiresAt = freezed,Object? maxUses = freezed,Object? currentUses = null,Object? revoked = null,Object? revokedAt = freezed,Object? revokedBy = freezed,Object? valid = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? token = null,Object? link = freezed,Object? conversationId = null,Object? createdBy = null,Object? createdByUsername = freezed,Object? createdAt = null,Object? expiresAt = freezed,Object? maxUses = freezed,Object? currentUses = null,Object? revoked = null,Object? revokedAt = freezed,Object? revokedBy = freezed,Object? valid = null,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as int,token: null == token ? _self.token : token // ignore: cast_nullable_to_non_nullable
-as String,conversationId: null == conversationId ? _self.conversationId : conversationId // ignore: cast_nullable_to_non_nullable
+as String,link: freezed == link ? _self.link : link // ignore: cast_nullable_to_non_nullable
+as String?,conversationId: null == conversationId ? _self.conversationId : conversationId // ignore: cast_nullable_to_non_nullable
 as int,createdBy: null == createdBy ? _self.createdBy : createdBy // ignore: cast_nullable_to_non_nullable
-as int,createdByUsername: null == createdByUsername ? _self.createdByUsername : createdByUsername // ignore: cast_nullable_to_non_nullable
-as String,createdAt: null == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
+as int,createdByUsername: freezed == createdByUsername ? _self.createdByUsername : createdByUsername // ignore: cast_nullable_to_non_nullable
+as String?,createdAt: null == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
 as DateTime,expiresAt: freezed == expiresAt ? _self.expiresAt : expiresAt // ignore: cast_nullable_to_non_nullable
 as DateTime?,maxUses: freezed == maxUses ? _self.maxUses : maxUses // ignore: cast_nullable_to_non_nullable
 as int?,currentUses: null == currentUses ? _self.currentUses : currentUses // ignore: cast_nullable_to_non_nullable
@@ -162,10 +165,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int id,  String token,  int conversationId,  int createdBy,  String createdByUsername,  DateTime createdAt,  DateTime? expiresAt,  int? maxUses,  int currentUses,  bool revoked,  DateTime? revokedAt,  int? revokedBy,  bool valid)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int id,  String token,  String? link,  int conversationId,  int createdBy,  String? createdByUsername,  DateTime createdAt,  DateTime? expiresAt,  int? maxUses,  int currentUses,  bool revoked,  DateTime? revokedAt,  int? revokedBy,  bool valid)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _InviteLinkEntity() when $default != null:
-return $default(_that.id,_that.token,_that.conversationId,_that.createdBy,_that.createdByUsername,_that.createdAt,_that.expiresAt,_that.maxUses,_that.currentUses,_that.revoked,_that.revokedAt,_that.revokedBy,_that.valid);case _:
+return $default(_that.id,_that.token,_that.link,_that.conversationId,_that.createdBy,_that.createdByUsername,_that.createdAt,_that.expiresAt,_that.maxUses,_that.currentUses,_that.revoked,_that.revokedAt,_that.revokedBy,_that.valid);case _:
   return orElse();
 
 }
@@ -183,10 +186,10 @@ return $default(_that.id,_that.token,_that.conversationId,_that.createdBy,_that.
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int id,  String token,  int conversationId,  int createdBy,  String createdByUsername,  DateTime createdAt,  DateTime? expiresAt,  int? maxUses,  int currentUses,  bool revoked,  DateTime? revokedAt,  int? revokedBy,  bool valid)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int id,  String token,  String? link,  int conversationId,  int createdBy,  String? createdByUsername,  DateTime createdAt,  DateTime? expiresAt,  int? maxUses,  int currentUses,  bool revoked,  DateTime? revokedAt,  int? revokedBy,  bool valid)  $default,) {final _that = this;
 switch (_that) {
 case _InviteLinkEntity():
-return $default(_that.id,_that.token,_that.conversationId,_that.createdBy,_that.createdByUsername,_that.createdAt,_that.expiresAt,_that.maxUses,_that.currentUses,_that.revoked,_that.revokedAt,_that.revokedBy,_that.valid);case _:
+return $default(_that.id,_that.token,_that.link,_that.conversationId,_that.createdBy,_that.createdByUsername,_that.createdAt,_that.expiresAt,_that.maxUses,_that.currentUses,_that.revoked,_that.revokedAt,_that.revokedBy,_that.valid);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -203,10 +206,10 @@ return $default(_that.id,_that.token,_that.conversationId,_that.createdBy,_that.
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int id,  String token,  int conversationId,  int createdBy,  String createdByUsername,  DateTime createdAt,  DateTime? expiresAt,  int? maxUses,  int currentUses,  bool revoked,  DateTime? revokedAt,  int? revokedBy,  bool valid)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int id,  String token,  String? link,  int conversationId,  int createdBy,  String? createdByUsername,  DateTime createdAt,  DateTime? expiresAt,  int? maxUses,  int currentUses,  bool revoked,  DateTime? revokedAt,  int? revokedBy,  bool valid)?  $default,) {final _that = this;
 switch (_that) {
 case _InviteLinkEntity() when $default != null:
-return $default(_that.id,_that.token,_that.conversationId,_that.createdBy,_that.createdByUsername,_that.createdAt,_that.expiresAt,_that.maxUses,_that.currentUses,_that.revoked,_that.revokedAt,_that.revokedBy,_that.valid);case _:
+return $default(_that.id,_that.token,_that.link,_that.conversationId,_that.createdBy,_that.createdByUsername,_that.createdAt,_that.expiresAt,_that.maxUses,_that.currentUses,_that.revoked,_that.revokedAt,_that.revokedBy,_that.valid);case _:
   return null;
 
 }
@@ -218,14 +221,17 @@ return $default(_that.id,_that.token,_that.conversationId,_that.createdBy,_that.
 
 
 class _InviteLinkEntity extends InviteLinkEntity {
-  const _InviteLinkEntity({required this.id, required this.token, required this.conversationId, required this.createdBy, required this.createdByUsername, required this.createdAt, this.expiresAt, this.maxUses, required this.currentUses, required this.revoked, this.revokedAt, this.revokedBy, required this.valid}): super._();
+  const _InviteLinkEntity({required this.id, required this.token, this.link, required this.conversationId, required this.createdBy, this.createdByUsername, required this.createdAt, this.expiresAt, this.maxUses, required this.currentUses, required this.revoked, this.revokedAt, this.revokedBy, required this.valid}): super._();
   
 
 @override final  int id;
 @override final  String token;
+@override final  String? link;
+// Full URL from backend
 @override final  int conversationId;
 @override final  int createdBy;
-@override final  String createdByUsername;
+@override final  String? createdByUsername;
+// Made nullable to match backend response
 @override final  DateTime createdAt;
 @override final  DateTime? expiresAt;
 @override final  int? maxUses;
@@ -245,16 +251,16 @@ _$InviteLinkEntityCopyWith<_InviteLinkEntity> get copyWith => __$InviteLinkEntit
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _InviteLinkEntity&&(identical(other.id, id) || other.id == id)&&(identical(other.token, token) || other.token == token)&&(identical(other.conversationId, conversationId) || other.conversationId == conversationId)&&(identical(other.createdBy, createdBy) || other.createdBy == createdBy)&&(identical(other.createdByUsername, createdByUsername) || other.createdByUsername == createdByUsername)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.expiresAt, expiresAt) || other.expiresAt == expiresAt)&&(identical(other.maxUses, maxUses) || other.maxUses == maxUses)&&(identical(other.currentUses, currentUses) || other.currentUses == currentUses)&&(identical(other.revoked, revoked) || other.revoked == revoked)&&(identical(other.revokedAt, revokedAt) || other.revokedAt == revokedAt)&&(identical(other.revokedBy, revokedBy) || other.revokedBy == revokedBy)&&(identical(other.valid, valid) || other.valid == valid));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _InviteLinkEntity&&(identical(other.id, id) || other.id == id)&&(identical(other.token, token) || other.token == token)&&(identical(other.link, link) || other.link == link)&&(identical(other.conversationId, conversationId) || other.conversationId == conversationId)&&(identical(other.createdBy, createdBy) || other.createdBy == createdBy)&&(identical(other.createdByUsername, createdByUsername) || other.createdByUsername == createdByUsername)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.expiresAt, expiresAt) || other.expiresAt == expiresAt)&&(identical(other.maxUses, maxUses) || other.maxUses == maxUses)&&(identical(other.currentUses, currentUses) || other.currentUses == currentUses)&&(identical(other.revoked, revoked) || other.revoked == revoked)&&(identical(other.revokedAt, revokedAt) || other.revokedAt == revokedAt)&&(identical(other.revokedBy, revokedBy) || other.revokedBy == revokedBy)&&(identical(other.valid, valid) || other.valid == valid));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,id,token,conversationId,createdBy,createdByUsername,createdAt,expiresAt,maxUses,currentUses,revoked,revokedAt,revokedBy,valid);
+int get hashCode => Object.hash(runtimeType,id,token,link,conversationId,createdBy,createdByUsername,createdAt,expiresAt,maxUses,currentUses,revoked,revokedAt,revokedBy,valid);
 
 @override
 String toString() {
-  return 'InviteLinkEntity(id: $id, token: $token, conversationId: $conversationId, createdBy: $createdBy, createdByUsername: $createdByUsername, createdAt: $createdAt, expiresAt: $expiresAt, maxUses: $maxUses, currentUses: $currentUses, revoked: $revoked, revokedAt: $revokedAt, revokedBy: $revokedBy, valid: $valid)';
+  return 'InviteLinkEntity(id: $id, token: $token, link: $link, conversationId: $conversationId, createdBy: $createdBy, createdByUsername: $createdByUsername, createdAt: $createdAt, expiresAt: $expiresAt, maxUses: $maxUses, currentUses: $currentUses, revoked: $revoked, revokedAt: $revokedAt, revokedBy: $revokedBy, valid: $valid)';
 }
 
 
@@ -265,7 +271,7 @@ abstract mixin class _$InviteLinkEntityCopyWith<$Res> implements $InviteLinkEnti
   factory _$InviteLinkEntityCopyWith(_InviteLinkEntity value, $Res Function(_InviteLinkEntity) _then) = __$InviteLinkEntityCopyWithImpl;
 @override @useResult
 $Res call({
- int id, String token, int conversationId, int createdBy, String createdByUsername, DateTime createdAt, DateTime? expiresAt, int? maxUses, int currentUses, bool revoked, DateTime? revokedAt, int? revokedBy, bool valid
+ int id, String token, String? link, int conversationId, int createdBy, String? createdByUsername, DateTime createdAt, DateTime? expiresAt, int? maxUses, int currentUses, bool revoked, DateTime? revokedAt, int? revokedBy, bool valid
 });
 
 
@@ -282,14 +288,15 @@ class __$InviteLinkEntityCopyWithImpl<$Res>
 
 /// Create a copy of InviteLinkEntity
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? token = null,Object? conversationId = null,Object? createdBy = null,Object? createdByUsername = null,Object? createdAt = null,Object? expiresAt = freezed,Object? maxUses = freezed,Object? currentUses = null,Object? revoked = null,Object? revokedAt = freezed,Object? revokedBy = freezed,Object? valid = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? token = null,Object? link = freezed,Object? conversationId = null,Object? createdBy = null,Object? createdByUsername = freezed,Object? createdAt = null,Object? expiresAt = freezed,Object? maxUses = freezed,Object? currentUses = null,Object? revoked = null,Object? revokedAt = freezed,Object? revokedBy = freezed,Object? valid = null,}) {
   return _then(_InviteLinkEntity(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as int,token: null == token ? _self.token : token // ignore: cast_nullable_to_non_nullable
-as String,conversationId: null == conversationId ? _self.conversationId : conversationId // ignore: cast_nullable_to_non_nullable
+as String,link: freezed == link ? _self.link : link // ignore: cast_nullable_to_non_nullable
+as String?,conversationId: null == conversationId ? _self.conversationId : conversationId // ignore: cast_nullable_to_non_nullable
 as int,createdBy: null == createdBy ? _self.createdBy : createdBy // ignore: cast_nullable_to_non_nullable
-as int,createdByUsername: null == createdByUsername ? _self.createdByUsername : createdByUsername // ignore: cast_nullable_to_non_nullable
-as String,createdAt: null == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
+as int,createdByUsername: freezed == createdByUsername ? _self.createdByUsername : createdByUsername // ignore: cast_nullable_to_non_nullable
+as String?,createdAt: null == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
 as DateTime,expiresAt: freezed == expiresAt ? _self.expiresAt : expiresAt // ignore: cast_nullable_to_non_nullable
 as DateTime?,maxUses: freezed == maxUses ? _self.maxUses : maxUses // ignore: cast_nullable_to_non_nullable
 as int?,currentUses: null == currentUses ? _self.currentUses : currentUses // ignore: cast_nullable_to_non_nullable
@@ -1135,7 +1142,8 @@ as DateTime?,
 /// @nodoc
 mixin _$InviteLinkHistoryItemEntity {
 
- String get token; InviteLinkUserEntity get createdBy; DateTime get createdAt; int get maxUses; int get currentUses; bool get isActive; bool get isRevoked; bool get isExpired; String get status;
+ String get token; String? get link;// Full URL from backend
+ InviteLinkUserEntity get createdBy; DateTime get createdAt; int get maxUses; int get currentUses; bool get isActive; bool get isRevoked; bool get isExpired; String get status;
 /// Create a copy of InviteLinkHistoryItemEntity
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -1146,16 +1154,16 @@ $InviteLinkHistoryItemEntityCopyWith<InviteLinkHistoryItemEntity> get copyWith =
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is InviteLinkHistoryItemEntity&&(identical(other.token, token) || other.token == token)&&(identical(other.createdBy, createdBy) || other.createdBy == createdBy)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.maxUses, maxUses) || other.maxUses == maxUses)&&(identical(other.currentUses, currentUses) || other.currentUses == currentUses)&&(identical(other.isActive, isActive) || other.isActive == isActive)&&(identical(other.isRevoked, isRevoked) || other.isRevoked == isRevoked)&&(identical(other.isExpired, isExpired) || other.isExpired == isExpired)&&(identical(other.status, status) || other.status == status));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is InviteLinkHistoryItemEntity&&(identical(other.token, token) || other.token == token)&&(identical(other.link, link) || other.link == link)&&(identical(other.createdBy, createdBy) || other.createdBy == createdBy)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.maxUses, maxUses) || other.maxUses == maxUses)&&(identical(other.currentUses, currentUses) || other.currentUses == currentUses)&&(identical(other.isActive, isActive) || other.isActive == isActive)&&(identical(other.isRevoked, isRevoked) || other.isRevoked == isRevoked)&&(identical(other.isExpired, isExpired) || other.isExpired == isExpired)&&(identical(other.status, status) || other.status == status));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,token,createdBy,createdAt,maxUses,currentUses,isActive,isRevoked,isExpired,status);
+int get hashCode => Object.hash(runtimeType,token,link,createdBy,createdAt,maxUses,currentUses,isActive,isRevoked,isExpired,status);
 
 @override
 String toString() {
-  return 'InviteLinkHistoryItemEntity(token: $token, createdBy: $createdBy, createdAt: $createdAt, maxUses: $maxUses, currentUses: $currentUses, isActive: $isActive, isRevoked: $isRevoked, isExpired: $isExpired, status: $status)';
+  return 'InviteLinkHistoryItemEntity(token: $token, link: $link, createdBy: $createdBy, createdAt: $createdAt, maxUses: $maxUses, currentUses: $currentUses, isActive: $isActive, isRevoked: $isRevoked, isExpired: $isExpired, status: $status)';
 }
 
 
@@ -1166,7 +1174,7 @@ abstract mixin class $InviteLinkHistoryItemEntityCopyWith<$Res>  {
   factory $InviteLinkHistoryItemEntityCopyWith(InviteLinkHistoryItemEntity value, $Res Function(InviteLinkHistoryItemEntity) _then) = _$InviteLinkHistoryItemEntityCopyWithImpl;
 @useResult
 $Res call({
- String token, InviteLinkUserEntity createdBy, DateTime createdAt, int maxUses, int currentUses, bool isActive, bool isRevoked, bool isExpired, String status
+ String token, String? link, InviteLinkUserEntity createdBy, DateTime createdAt, int maxUses, int currentUses, bool isActive, bool isRevoked, bool isExpired, String status
 });
 
 
@@ -1183,10 +1191,11 @@ class _$InviteLinkHistoryItemEntityCopyWithImpl<$Res>
 
 /// Create a copy of InviteLinkHistoryItemEntity
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? token = null,Object? createdBy = null,Object? createdAt = null,Object? maxUses = null,Object? currentUses = null,Object? isActive = null,Object? isRevoked = null,Object? isExpired = null,Object? status = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? token = null,Object? link = freezed,Object? createdBy = null,Object? createdAt = null,Object? maxUses = null,Object? currentUses = null,Object? isActive = null,Object? isRevoked = null,Object? isExpired = null,Object? status = null,}) {
   return _then(_self.copyWith(
 token: null == token ? _self.token : token // ignore: cast_nullable_to_non_nullable
-as String,createdBy: null == createdBy ? _self.createdBy : createdBy // ignore: cast_nullable_to_non_nullable
+as String,link: freezed == link ? _self.link : link // ignore: cast_nullable_to_non_nullable
+as String?,createdBy: null == createdBy ? _self.createdBy : createdBy // ignore: cast_nullable_to_non_nullable
 as InviteLinkUserEntity,createdAt: null == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
 as DateTime,maxUses: null == maxUses ? _self.maxUses : maxUses // ignore: cast_nullable_to_non_nullable
 as int,currentUses: null == currentUses ? _self.currentUses : currentUses // ignore: cast_nullable_to_non_nullable
@@ -1288,10 +1297,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String token,  InviteLinkUserEntity createdBy,  DateTime createdAt,  int maxUses,  int currentUses,  bool isActive,  bool isRevoked,  bool isExpired,  String status)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String token,  String? link,  InviteLinkUserEntity createdBy,  DateTime createdAt,  int maxUses,  int currentUses,  bool isActive,  bool isRevoked,  bool isExpired,  String status)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _InviteLinkHistoryItemEntity() when $default != null:
-return $default(_that.token,_that.createdBy,_that.createdAt,_that.maxUses,_that.currentUses,_that.isActive,_that.isRevoked,_that.isExpired,_that.status);case _:
+return $default(_that.token,_that.link,_that.createdBy,_that.createdAt,_that.maxUses,_that.currentUses,_that.isActive,_that.isRevoked,_that.isExpired,_that.status);case _:
   return orElse();
 
 }
@@ -1309,10 +1318,10 @@ return $default(_that.token,_that.createdBy,_that.createdAt,_that.maxUses,_that.
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String token,  InviteLinkUserEntity createdBy,  DateTime createdAt,  int maxUses,  int currentUses,  bool isActive,  bool isRevoked,  bool isExpired,  String status)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String token,  String? link,  InviteLinkUserEntity createdBy,  DateTime createdAt,  int maxUses,  int currentUses,  bool isActive,  bool isRevoked,  bool isExpired,  String status)  $default,) {final _that = this;
 switch (_that) {
 case _InviteLinkHistoryItemEntity():
-return $default(_that.token,_that.createdBy,_that.createdAt,_that.maxUses,_that.currentUses,_that.isActive,_that.isRevoked,_that.isExpired,_that.status);case _:
+return $default(_that.token,_that.link,_that.createdBy,_that.createdAt,_that.maxUses,_that.currentUses,_that.isActive,_that.isRevoked,_that.isExpired,_that.status);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -1329,10 +1338,10 @@ return $default(_that.token,_that.createdBy,_that.createdAt,_that.maxUses,_that.
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String token,  InviteLinkUserEntity createdBy,  DateTime createdAt,  int maxUses,  int currentUses,  bool isActive,  bool isRevoked,  bool isExpired,  String status)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String token,  String? link,  InviteLinkUserEntity createdBy,  DateTime createdAt,  int maxUses,  int currentUses,  bool isActive,  bool isRevoked,  bool isExpired,  String status)?  $default,) {final _that = this;
 switch (_that) {
 case _InviteLinkHistoryItemEntity() when $default != null:
-return $default(_that.token,_that.createdBy,_that.createdAt,_that.maxUses,_that.currentUses,_that.isActive,_that.isRevoked,_that.isExpired,_that.status);case _:
+return $default(_that.token,_that.link,_that.createdBy,_that.createdAt,_that.maxUses,_that.currentUses,_that.isActive,_that.isRevoked,_that.isExpired,_that.status);case _:
   return null;
 
 }
@@ -1344,10 +1353,12 @@ return $default(_that.token,_that.createdBy,_that.createdAt,_that.maxUses,_that.
 
 
 class _InviteLinkHistoryItemEntity extends InviteLinkHistoryItemEntity {
-  const _InviteLinkHistoryItemEntity({required this.token, required this.createdBy, required this.createdAt, required this.maxUses, required this.currentUses, required this.isActive, required this.isRevoked, required this.isExpired, required this.status}): super._();
+  const _InviteLinkHistoryItemEntity({required this.token, this.link, required this.createdBy, required this.createdAt, required this.maxUses, required this.currentUses, required this.isActive, required this.isRevoked, required this.isExpired, required this.status}): super._();
   
 
 @override final  String token;
+@override final  String? link;
+// Full URL from backend
 @override final  InviteLinkUserEntity createdBy;
 @override final  DateTime createdAt;
 @override final  int maxUses;
@@ -1367,16 +1378,16 @@ _$InviteLinkHistoryItemEntityCopyWith<_InviteLinkHistoryItemEntity> get copyWith
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _InviteLinkHistoryItemEntity&&(identical(other.token, token) || other.token == token)&&(identical(other.createdBy, createdBy) || other.createdBy == createdBy)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.maxUses, maxUses) || other.maxUses == maxUses)&&(identical(other.currentUses, currentUses) || other.currentUses == currentUses)&&(identical(other.isActive, isActive) || other.isActive == isActive)&&(identical(other.isRevoked, isRevoked) || other.isRevoked == isRevoked)&&(identical(other.isExpired, isExpired) || other.isExpired == isExpired)&&(identical(other.status, status) || other.status == status));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _InviteLinkHistoryItemEntity&&(identical(other.token, token) || other.token == token)&&(identical(other.link, link) || other.link == link)&&(identical(other.createdBy, createdBy) || other.createdBy == createdBy)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.maxUses, maxUses) || other.maxUses == maxUses)&&(identical(other.currentUses, currentUses) || other.currentUses == currentUses)&&(identical(other.isActive, isActive) || other.isActive == isActive)&&(identical(other.isRevoked, isRevoked) || other.isRevoked == isRevoked)&&(identical(other.isExpired, isExpired) || other.isExpired == isExpired)&&(identical(other.status, status) || other.status == status));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,token,createdBy,createdAt,maxUses,currentUses,isActive,isRevoked,isExpired,status);
+int get hashCode => Object.hash(runtimeType,token,link,createdBy,createdAt,maxUses,currentUses,isActive,isRevoked,isExpired,status);
 
 @override
 String toString() {
-  return 'InviteLinkHistoryItemEntity(token: $token, createdBy: $createdBy, createdAt: $createdAt, maxUses: $maxUses, currentUses: $currentUses, isActive: $isActive, isRevoked: $isRevoked, isExpired: $isExpired, status: $status)';
+  return 'InviteLinkHistoryItemEntity(token: $token, link: $link, createdBy: $createdBy, createdAt: $createdAt, maxUses: $maxUses, currentUses: $currentUses, isActive: $isActive, isRevoked: $isRevoked, isExpired: $isExpired, status: $status)';
 }
 
 
@@ -1387,7 +1398,7 @@ abstract mixin class _$InviteLinkHistoryItemEntityCopyWith<$Res> implements $Inv
   factory _$InviteLinkHistoryItemEntityCopyWith(_InviteLinkHistoryItemEntity value, $Res Function(_InviteLinkHistoryItemEntity) _then) = __$InviteLinkHistoryItemEntityCopyWithImpl;
 @override @useResult
 $Res call({
- String token, InviteLinkUserEntity createdBy, DateTime createdAt, int maxUses, int currentUses, bool isActive, bool isRevoked, bool isExpired, String status
+ String token, String? link, InviteLinkUserEntity createdBy, DateTime createdAt, int maxUses, int currentUses, bool isActive, bool isRevoked, bool isExpired, String status
 });
 
 
@@ -1404,10 +1415,11 @@ class __$InviteLinkHistoryItemEntityCopyWithImpl<$Res>
 
 /// Create a copy of InviteLinkHistoryItemEntity
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? token = null,Object? createdBy = null,Object? createdAt = null,Object? maxUses = null,Object? currentUses = null,Object? isActive = null,Object? isRevoked = null,Object? isExpired = null,Object? status = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? token = null,Object? link = freezed,Object? createdBy = null,Object? createdAt = null,Object? maxUses = null,Object? currentUses = null,Object? isActive = null,Object? isRevoked = null,Object? isExpired = null,Object? status = null,}) {
   return _then(_InviteLinkHistoryItemEntity(
 token: null == token ? _self.token : token // ignore: cast_nullable_to_non_nullable
-as String,createdBy: null == createdBy ? _self.createdBy : createdBy // ignore: cast_nullable_to_non_nullable
+as String,link: freezed == link ? _self.link : link // ignore: cast_nullable_to_non_nullable
+as String?,createdBy: null == createdBy ? _self.createdBy : createdBy // ignore: cast_nullable_to_non_nullable
 as InviteLinkUserEntity,createdAt: null == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
 as DateTime,maxUses: null == maxUses ? _self.maxUses : maxUses // ignore: cast_nullable_to_non_nullable
 as int,currentUses: null == currentUses ? _self.currentUses : currentUses // ignore: cast_nullable_to_non_nullable

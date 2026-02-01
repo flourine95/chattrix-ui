@@ -7,9 +7,10 @@ abstract class InviteLinkEntity with _$InviteLinkEntity {
   const factory InviteLinkEntity({
     required int id,
     required String token,
+    String? link,  // Full URL from backend
     required int conversationId,
     required int createdBy,
-    required String createdByUsername,
+    String? createdByUsername,  // Made nullable to match backend response
     required DateTime createdAt,
     DateTime? expiresAt,
     int? maxUses,
@@ -32,7 +33,8 @@ abstract class InviteLinkEntity with _$InviteLinkEntity {
     return currentUses >= maxUses!;
   }
 
-  String get inviteUrl => 'https://chattrix.app/invite/$token';
+  // Use backend URL if available, otherwise fallback to localhost
+  String get inviteUrl => link ?? 'http://localhost:8080/api/v1/invite/$token';
 
   String get deepLinkUrl => 'chattrix://invite/$token';
 }
@@ -101,6 +103,7 @@ abstract class InviteLinkUserEntity with _$InviteLinkUserEntity {
 abstract class InviteLinkHistoryItemEntity with _$InviteLinkHistoryItemEntity {
   const factory InviteLinkHistoryItemEntity({
     required String token,
+    String? link,  // Full URL from backend
     required InviteLinkUserEntity createdBy,
     required DateTime createdAt,
     required int maxUses,
@@ -113,7 +116,8 @@ abstract class InviteLinkHistoryItemEntity with _$InviteLinkHistoryItemEntity {
 
   const InviteLinkHistoryItemEntity._();
 
-  String get inviteUrl => 'https://chattrix.app/invite/$token';
+  // Use backend URL if available, otherwise fallback to localhost
+  String get inviteUrl => link ?? 'http://localhost:8080/api/v1/invite/$token';
 
   String get deepLinkUrl => 'chattrix://invite/$token';
 

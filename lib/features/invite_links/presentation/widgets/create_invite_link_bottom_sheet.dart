@@ -160,12 +160,19 @@ class CreateInviteLinkBottomSheet extends HookConsumerWidget {
   }
 
   Future<void> _createLink(BuildContext context, WidgetRef ref, DateTime? expiryTime, int? maxUses) async {
+    debugPrint('🔗 Creating invite link...');
+    debugPrint('🔗 Expiry time: $expiryTime');
+    debugPrint('🔗 Max uses: $maxUses');
+    
     int? expiresIn;
     if (expiryTime != null) {
       final now = DateTime.now();
       expiresIn = expiryTime.difference(now).inSeconds;
+      
+      debugPrint('🔗 Expires in seconds: $expiresIn');
 
       if (expiresIn <= 0) {
+        debugPrint('❌ Expiration time is in the past');
         ScaffoldMessenger.of(
           context,
         ).showSnackBar(const SnackBar(content: Text('Expiration time must be in the future')));
@@ -173,23 +180,34 @@ class CreateInviteLinkBottomSheet extends HookConsumerWidget {
       }
     }
 
+    debugPrint('🔗 Calling API with conversationId: $conversationId, expiresIn: $expiresIn, maxUses: $maxUses');
+    
     final notifier = ref.read(createInviteLinkProvider.notifier);
 
     await notifier.create(conversationId: conversationId, expiresIn: expiresIn, maxUses: maxUses);
 
     final state = ref.read(createInviteLinkProvider);
+    
+    debugPrint('🔗 State after create: ${state.runtimeType}');
 
     if (!context.mounted) return;
 
     state.when(
       data: (link) {
+        debugPrint('✅ Link created successfully: $link');
         if (link != null) {
           onCreated?.call(link);
           Navigator.pop(context);
+        } else {
+          debugPrint('❌ Link is null');
         }
       },
-      loading: () {},
+      loading: () {
+        debugPrint('⏳ Still loading...');
+      },
       error: (error, stack) {
+        debugPrint('❌ Error creating link: $error');
+        debugPrint('❌ Stack trace: $stack');
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $error')));
       },
     );

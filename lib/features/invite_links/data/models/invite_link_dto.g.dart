@@ -28,9 +28,10 @@ _InviteLinkDto _$InviteLinkDtoFromJson(Map<String, dynamic> json) =>
     _InviteLinkDto(
       id: (json['id'] as num).toInt(),
       token: json['token'] as String,
+      link: json['link'] as String?,
       conversationId: (json['conversationId'] as num).toInt(),
       createdBy: (json['createdBy'] as num).toInt(),
-      createdByUsername: json['createdByUsername'] as String,
+      createdByUsername: json['createdByUsername'] as String?,
       createdAt: json['createdAt'] as String,
       expiresAt: json['expiresAt'] as String?,
       maxUses: (json['maxUses'] as num?)?.toInt(),
@@ -45,6 +46,7 @@ Map<String, dynamic> _$InviteLinkDtoToJson(_InviteLinkDto instance) =>
     <String, dynamic>{
       'id': instance.id,
       'token': instance.token,
+      'link': instance.link,
       'conversationId': instance.conversationId,
       'createdBy': instance.createdBy,
       'createdByUsername': instance.createdByUsername,
@@ -132,6 +134,7 @@ _InviteLinkHistoryItemDto _$InviteLinkHistoryItemDtoFromJson(
   Map<String, dynamic> json,
 ) => _InviteLinkHistoryItemDto(
   token: json['token'] as String,
+  link: json['link'] as String?,
   createdBy: InviteLinkUserDto.fromJson(
     json['createdBy'] as Map<String, dynamic>,
   ),
@@ -148,6 +151,7 @@ Map<String, dynamic> _$InviteLinkHistoryItemDtoToJson(
   _InviteLinkHistoryItemDto instance,
 ) => <String, dynamic>{
   'token': instance.token,
+  'link': instance.link,
   'createdBy': instance.createdBy,
   'createdAt': instance.createdAt,
   'maxUses': instance.maxUses,

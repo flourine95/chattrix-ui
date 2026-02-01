@@ -513,22 +513,21 @@ class ConversationsNotifier extends _$ConversationsNotifier {
     try {
       final conversationId = data['conversationId'] as int?;
       final permissions = data['permissions'] as Map<String, dynamic>?;
-      final updatedBy = data['updatedBy'] as int?;
       final updatedByUsername = data['updatedByUsername'] as String?;
 
       if (conversationId == null || permissions == null) {
-        print('⚠️ [Permissions] Invalid permissions update event');
+        debugPrint('⚠️ [Permissions] Invalid permissions update event');
         return;
       }
 
-      print('🔧 [Permissions] Conversation $conversationId permissions updated by $updatedByUsername');
-      print('🔧 [Permissions] New permissions: $permissions');
+      debugPrint('🔧 [Permissions] Conversation $conversationId permissions updated by $updatedByUsername');
+      debugPrint('🔧 [Permissions] New permissions: $permissions');
 
       // Notify permissions notifier if it's watching this conversation
       // The permissions notifier will handle the update via its own listener
       // We don't need to do anything here since permissions are not part of Conversation entity
     } catch (e) {
-      print('❌ [Permissions] Error handling permissions update: $e');
+      debugPrint('❌ [Permissions] Error handling permissions update: $e');
     }
   }
 
@@ -752,8 +751,6 @@ class ConversationsNotifier extends _$ConversationsNotifier {
     final userId = int.tryParse(statusUpdate.userId);
     if (userId == null) return;
 
-    bool hasChanges = false;
-
     final updatedList = currentState.map((conversation) {
       final participantIndex = conversation.participants.indexWhere((p) => p.userId == userId);
       if (participantIndex == -1) return conversation;
@@ -763,7 +760,6 @@ class ConversationsNotifier extends _$ConversationsNotifier {
         lastSeen: statusUpdate.lastSeen != null ? DateTime.tryParse(statusUpdate.lastSeen!) : null,
       );
 
-      hasChanges = true;
       return conversation.copyWith(participants: updatedParticipants);
     }).toList();
 

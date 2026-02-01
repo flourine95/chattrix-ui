@@ -233,7 +233,7 @@ final class ConversationMediaStatisticsProvider
 }
 
 String _$conversationMediaStatisticsHash() =>
-    r'4da0f034d9a757c98a21f9f51f90c14691d7852f';
+    r'735046c33c6547413c355c94702712227c178b04';
 
 /// Provider to fetch media statistics only
 

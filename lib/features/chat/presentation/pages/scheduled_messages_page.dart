@@ -4,7 +4,6 @@ import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl/intl.dart';
 
-import 'package:chattrix_ui/features/auth/presentation/providers/auth_notifier.dart';
 import 'package:chattrix_ui/features/chat/domain/entities/scheduled_message.dart';
 import 'package:chattrix_ui/features/chat/presentation/state/scheduled_messages_notifier.dart';
 
@@ -74,7 +73,6 @@ class _ScheduledMessagesList extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final scheduledMessagesAsync = ref.watch(scheduledMessagesProvider(conversationId: conversationId, status: status));
-    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return scheduledMessagesAsync.when(
       data: (messages) {
@@ -166,7 +164,6 @@ class _MessageBubble extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final currentUser = ref.read(currentUserProvider);
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final now = DateTime.now();
     final scheduledTime = message.scheduledTime;

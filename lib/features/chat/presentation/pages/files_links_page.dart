@@ -101,42 +101,6 @@ class _FilesLinksPageState extends ConsumerState<FilesLinksPage> with SingleTick
     return 'Just now';
   }
 
-  // Helper: Calculate date range based on filter
-  Map<String, DateTime?> _getDateRange(String filter, {DateTime? customStart, DateTime? customEnd}) {
-    DateTime? startDate;
-    DateTime? endDate;
-    final now = DateTime.now();
-
-    switch (filter) {
-      case 'Today':
-        startDate = DateTime(now.year, now.month, now.day);
-        endDate = DateTime(now.year, now.month, now.day, 23, 59, 59);
-        break;
-      case 'This Week':
-        startDate = now.subtract(const Duration(days: 7));
-        endDate = now;
-        break;
-      case 'This Month':
-        startDate = now.subtract(const Duration(days: 30));
-        endDate = now;
-        break;
-      case 'This Year':
-        startDate = DateTime(now.year, 1, 1);
-        endDate = now;
-        break;
-      case 'Custom':
-        startDate = customStart;
-        endDate = customEnd;
-        break;
-      case 'All':
-      default:
-        startDate = null;
-        endDate = null;
-    }
-
-    return {'startDate': startDate, 'endDate': endDate};
-  }
-
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
@@ -201,25 +165,22 @@ class _FilesLinksPageState extends ConsumerState<FilesLinksPage> with SingleTick
   // Media Tab Builder
   Widget _buildMediaTab(ColorScheme colors, TextTheme textTheme, bool isDark) {
     const types = ['IMAGE', 'VIDEO'];
-    final dateRange = _getDateRange(
-      _selectedMediaFilter,
-      customStart: _customMediaStartDate,
-      customEnd: _customMediaEndDate,
-    );
+    
+    // Use dates directly from state instead of recalculating
+    final startDate = _customMediaStartDate;
+    final endDate = _customMediaEndDate;
 
     debugPrint('🔍 Media Tab - Filter: $_selectedMediaFilter');
-    debugPrint('🔍 Media Tab - Custom Start: $_customMediaStartDate');
-    debugPrint('🔍 Media Tab - Custom End: $_customMediaEndDate');
-    debugPrint('🔍 Media Tab - Date Range Start: ${dateRange['startDate']}');
-    debugPrint('🔍 Media Tab - Date Range End: ${dateRange['endDate']}');
+    debugPrint('🔍 Media Tab - Start Date: $startDate');
+    debugPrint('🔍 Media Tab - End Date: $endDate');
 
     final mediaAsync = ref.watch(
       conversationMediaProvider(
         widget.conversationId,
         limit: 100,
         types: types,
-        startDate: dateRange['startDate'],
-        endDate: dateRange['endDate'],
+        startDate: startDate,
+        endDate: endDate,
       ),
     );
 
@@ -344,19 +305,18 @@ class _FilesLinksPageState extends ConsumerState<FilesLinksPage> with SingleTick
   // Files Tab Builder
   Widget _buildFilesTab(ColorScheme colors, TextTheme textTheme, bool isDark) {
     const types = ['FILE'];
-    final dateRange = _getDateRange(
-      _selectedFilesFilter,
-      customStart: _customFilesStartDate,
-      customEnd: _customFilesEndDate,
-    );
+    
+    // Use dates directly from state
+    final startDate = _customFilesStartDate;
+    final endDate = _customFilesEndDate;
 
     final filesAsync = ref.watch(
       conversationMediaProvider(
         widget.conversationId,
         limit: 100,
         types: types,
-        startDate: dateRange['startDate'],
-        endDate: dateRange['endDate'],
+        startDate: startDate,
+        endDate: endDate,
       ),
     );
 
@@ -486,19 +446,18 @@ class _FilesLinksPageState extends ConsumerState<FilesLinksPage> with SingleTick
   // Links Tab Builder
   Widget _buildLinksTab(ColorScheme colors, TextTheme textTheme, bool isDark) {
     const types = ['LINK'];
-    final dateRange = _getDateRange(
-      _selectedLinksFilter,
-      customStart: _customLinksStartDate,
-      customEnd: _customLinksEndDate,
-    );
+    
+    // Use dates directly from state
+    final startDate = _customLinksStartDate;
+    final endDate = _customLinksEndDate;
 
     final linksAsync = ref.watch(
       conversationMediaProvider(
         widget.conversationId,
         limit: 100,
         types: types,
-        startDate: dateRange['startDate'],
-        endDate: dateRange['endDate'],
+        startDate: startDate,
+        endDate: endDate,
       ),
     );
 
@@ -631,19 +590,18 @@ class _FilesLinksPageState extends ConsumerState<FilesLinksPage> with SingleTick
   // Audio Tab Builder
   Widget _buildAudioTab(ColorScheme colors, TextTheme textTheme, bool isDark) {
     const types = ['AUDIO'];
-    final dateRange = _getDateRange(
-      _selectedAudioFilter,
-      customStart: _customAudioStartDate,
-      customEnd: _customAudioEndDate,
-    );
+    
+    // Use dates directly from state
+    final startDate = _customAudioStartDate;
+    final endDate = _customAudioEndDate;
 
     final audioAsync = ref.watch(
       conversationMediaProvider(
         widget.conversationId,
         limit: 100,
         types: types,
-        startDate: dateRange['startDate'],
-        endDate: dateRange['endDate'],
+        startDate: startDate,
+        endDate: endDate,
       ),
     );
 
@@ -778,16 +736,45 @@ class _FilesLinksPageState extends ConsumerState<FilesLinksPage> with SingleTick
               final selectedFilter = result['filter'] ?? 'All';
               debugPrint('🎯 Selected filter: $selectedFilter');
               
+              // Calculate date range immediately when filter is selected
+              final now = DateTime.now();
+              DateTime? calculatedStart;
+              DateTime? calculatedEnd;
+              
+              switch (selectedFilter) {
+                case 'Today':
+                  calculatedStart = DateTime(now.year, now.month, now.day);
+                  calculatedEnd = DateTime(now.year, now.month, now.day, 23, 59, 59);
+                  break;
+                case 'This Week':
+                  calculatedStart = now.subtract(const Duration(days: 7));
+                  calculatedEnd = now;
+                  break;
+                case 'This Month':
+                  calculatedStart = now.subtract(const Duration(days: 30));
+                  calculatedEnd = now;
+                  break;
+                case 'This Year':
+                  calculatedStart = DateTime(now.year, 1, 1);
+                  calculatedEnd = now;
+                  break;
+                case 'Custom':
+                  calculatedStart = result['startDate'];
+                  calculatedEnd = result['endDate'];
+                  break;
+                case 'All':
+                default:
+                  calculatedStart = null;
+                  calculatedEnd = null;
+              }
+              
+              debugPrint('🎯 Calculated dates: $calculatedStart - $calculatedEnd');
+              
               onFilterChanged(selectedFilter);
               
-              // If custom date range selected, notify parent
-              if (selectedFilter == 'Custom' && onCustomDateSelected != null) {
-                debugPrint('🎯 Setting custom dates: ${result['startDate']} - ${result['endDate']}');
-                onCustomDateSelected(result['startDate'], result['endDate']);
-              } else if (onCustomDateSelected != null) {
-                // Clear custom dates when selecting non-custom filter
-                debugPrint('🎯 Clearing custom dates');
-                onCustomDateSelected(null, null);
+              if (onCustomDateSelected != null) {
+                debugPrint('🎯 Setting dates to state');
+                onCustomDateSelected(calculatedStart, calculatedEnd);
               }
             }
           },

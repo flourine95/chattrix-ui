@@ -54,7 +54,7 @@ class InviteLinkCard extends ConsumerWidget {
 
             const SizedBox(height: 12),
 
-            _buildInfoRow(context, Icons.person_outline, 'Created by', link.createdByUsername),
+            _buildInfoRow(context, Icons.person_outline, 'Created by', link.createdByUsername ?? 'Unknown'),
             _buildInfoRow(context, Icons.access_time, 'Created at', _formatDateTime(link.createdAt)),
             if (link.expiresAt != null)
               _buildInfoRow(

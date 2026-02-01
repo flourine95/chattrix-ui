@@ -7,6 +7,7 @@ import 'package:chattrix_ui/features/call/presentation/widgets/active_call_banne
 import 'package:chattrix_ui/features/chat/domain/entities/message.dart';
 import 'package:chattrix_ui/features/chat/domain/entities/typing_indicator.dart';
 import 'package:chattrix_ui/features/chat/presentation/hooks/chat_actions_controller.dart';
+import 'package:chattrix_ui/features/chat/presentation/hooks/use_member_events_listener.dart';
 import 'package:chattrix_ui/features/chat/presentation/hooks/use_websocket_error_listener.dart';
 import 'package:chattrix_ui/features/chat/presentation/providers/chat_providers.dart';
 import 'package:chattrix_ui/features/chat/presentation/providers/pinned_messages_provider.dart';
@@ -66,8 +67,6 @@ class ChatViewPage extends HookConsumerWidget {
 
     // --- Data ---
     final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
-    final primaryColor = theme.colorScheme.primary;
     final backgroundColor = theme.scaffoldBackgroundColor;
 
     final me = ref.watch(currentUserProvider);
@@ -99,6 +98,7 @@ class ChatViewPage extends HookConsumerWidget {
     useVoiceRecordingEffect(isRecording, recordingDuration, ref, chatActions);
     useHidePickersOnKeyboardEffect(focusNode, showEmojiPicker, showStickerPicker, showAttachmentPicker);
     useWebSocketErrorListener(context, ref); // Listen for WebSocket errors
+    useMemberEventsListener(ref, chatId); // Listen for member join/leave events
 
     // --- UI ---
     return PopScope(

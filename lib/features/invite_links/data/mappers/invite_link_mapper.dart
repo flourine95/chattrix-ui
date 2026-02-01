@@ -6,6 +6,7 @@ extension InviteLinkDtoMapper on InviteLinkDto {
     return InviteLinkEntity(
       id: id,
       token: token,
+      link: link,  // Pass backend URL
       conversationId: conversationId,
       createdBy: createdBy,
       createdByUsername: createdByUsername,
@@ -68,6 +69,7 @@ extension InviteLinkHistoryItemDtoMapper on InviteLinkHistoryItemDto {
   InviteLinkHistoryItemEntity toEntity() {
     return InviteLinkHistoryItemEntity(
       token: token,
+      link: link,  // Pass backend URL
       createdBy: createdBy.toEntity(),
       createdAt: DateTime.parse(createdAt),
       maxUses: maxUses,

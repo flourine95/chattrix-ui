@@ -1,3 +1,4 @@
+import 'package:chattrix_ui/features/chat/presentation/providers/chat_providers.dart';
 import 'package:chattrix_ui/features/invite_links/domain/entities/invite_link_entity.dart';
 import 'package:chattrix_ui/features/invite_links/presentation/providers/invite_links_providers.dart';
 import 'package:flutter/material.dart';
@@ -266,38 +267,47 @@ class QrScannerPage extends HookConsumerWidget {
     // 1. {inviteBaseUrl}/join/{token} (user-friendly URL)
     // 2. {inviteBaseUrl}/api/v1/invite-links/{token} (API endpoint with /api prefix)
     // 3. {inviteBaseUrl}/v1/invite-links/{token} (API endpoint without /api prefix)
+    // 4. Any domain with /api/v1/invite/{token} (for development)
     final uri = Uri.tryParse(url);
     if (uri == null) {
       return null;
     }
 
-    final expectedUri = Uri.tryParse(inviteBaseUrl);
-    if (expectedUri == null) {
-      return null;
-    }
-
-    if (uri.host != expectedUri.host) {
-      return null;
-    }
-
+    // Check path patterns without host validation
     if (uri.pathSegments.length >= 2 && uri.pathSegments[0] == 'join') {
       final token = uri.pathSegments[1];
+      debugPrint('✅ Matched /join/{token} pattern');
       return token;
     }
 
+    // Pattern: /api/v1/invite/{token}
+    if (uri.pathSegments.length >= 4 &&
+        uri.pathSegments[0] == 'api' &&
+        uri.pathSegments[1] == 'v1' &&
+        uri.pathSegments[2] == 'invite') {
+      final token = uri.pathSegments[3];
+      debugPrint('✅ Matched /api/v1/invite/{token} pattern');
+      return token;
+    }
+
+    // Pattern: /api/v1/invite-links/{token}
     if (uri.pathSegments.length >= 4 &&
         uri.pathSegments[0] == 'api' &&
         uri.pathSegments[1] == 'v1' &&
         uri.pathSegments[2] == 'invite-links') {
       final token = uri.pathSegments[3];
+      debugPrint('✅ Matched /api/v1/invite-links/{token} pattern');
       return token;
     }
 
+    // Pattern: /v1/invite-links/{token}
     if (uri.pathSegments.length >= 3 && uri.pathSegments[0] == 'v1' && uri.pathSegments[1] == 'invite-links') {
       final token = uri.pathSegments[2];
+      debugPrint('✅ Matched /v1/invite-links/{token} pattern');
       return token;
     }
 
+    debugPrint('❌ No matching pattern found for path: ${uri.path}');
     return null;
   }
 
@@ -453,6 +463,10 @@ class QrScannerPage extends HookConsumerWidget {
       },
       (joinResult) async {
         debugPrint('✅ Join successful - conversationId: ${joinResult.conversationId}');
+
+        // ✅ Invalidate conversation provider to refresh AppBar after join
+        debugPrint('🔄 [QRScanner] Invalidating conversations provider after successful join');
+        ref.invalidate(conversationsProvider);
 
         final router = GoRouter.of(context);
 

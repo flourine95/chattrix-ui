@@ -20,6 +20,8 @@ class InviteLinksRepositoryImpl extends BaseRepository implements InviteLinksRep
     int? expiresIn,
     int? maxUses,
   }) async {
+    debugPrint('🔗 [InviteLinksRepo] Creating link for conversation $conversationId, expiresIn: $expiresIn, maxUses: $maxUses');
+    
     return executeApiCall(() async {
       final response = await _apiService.createInviteLink(
         conversationId: conversationId,
@@ -27,9 +29,18 @@ class InviteLinksRepositoryImpl extends BaseRepository implements InviteLinksRep
         maxUses: maxUses,
       );
 
+      debugPrint('🔗 [InviteLinksRepo] API response - success: ${response.success}, data: ${response.data != null}, message: ${response.message}');
+      
+      if (response.data != null) {
+        debugPrint('🔗 [InviteLinksRepo] Response data: ${response.data}');
+      }
+
       if (response.success && response.data != null) {
-        return response.data!.toEntity();
+        final entity = response.data!.toEntity();
+        debugPrint('✅ [InviteLinksRepo] Link created successfully: $entity');
+        return entity;
       } else {
+        debugPrint('❌ [InviteLinksRepo] Failed - success: ${response.success}, data null: ${response.data == null}');
         throw ApiException(message: response.message, code: 'CREATE_LINK_ERROR', statusCode: 500);
       }
     });

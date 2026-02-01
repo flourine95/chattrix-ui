@@ -127,7 +127,7 @@ class PollsList extends _$PollsList {
       }).toList();
 
       return polls;
-    } catch (e, stackTrace) {
+    } catch (e) {
       throw Exception('Failed to fetch polls: $e');
     }
   }

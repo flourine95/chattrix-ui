@@ -15,9 +15,10 @@ abstract class InviteLinkDto with _$InviteLinkDto {
   const factory InviteLinkDto({
     required int id,
     required String token,
+    String? link,  // Full URL from backend (e.g., ngrok URL)
     required int conversationId,
     required int createdBy,
-    required String createdByUsername,
+    String? createdByUsername,  // Made nullable - backend may not return this
     required String createdAt,
     String? expiresAt,
     int? maxUses,
@@ -83,6 +84,7 @@ abstract class InviteLinkUserDto with _$InviteLinkUserDto {
 abstract class InviteLinkHistoryItemDto with _$InviteLinkHistoryItemDto {
   const factory InviteLinkHistoryItemDto({
     required String token,
+    String? link,  // Full URL from backend
     required InviteLinkUserDto createdBy,
     required String createdAt,
     required int maxUses,

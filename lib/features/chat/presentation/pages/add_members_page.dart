@@ -84,7 +84,7 @@ class AddMembersPage extends HookConsumerWidget {
         debugPrint('✅ Add members response: ${response.data}');
 
         // Refresh conversations immediately to update participants list
-        ref.refresh(conversationsProvider.future);
+        await ref.refresh(conversationsProvider.future);
 
         if (context.mounted) {
           // Close loading dialog

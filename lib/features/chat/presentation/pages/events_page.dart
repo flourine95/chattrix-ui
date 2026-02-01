@@ -18,7 +18,6 @@ class EventsPage extends HookConsumerWidget {
     final eventsAsync = ref.watch(eventsListProvider(conversationId));
     final eventsNotifier = ref.watch(eventsListProvider(conversationId).notifier);
     final colors = Theme.of(context).colorScheme;
-    final textTheme = Theme.of(context).textTheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     // Filter state

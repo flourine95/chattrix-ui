@@ -1,5 +1,4 @@
 import 'package:chattrix_ui/features/chat/domain/entities/message.dart';
-import 'package:chattrix_ui/features/chat/presentation/state/messages_notifier.dart';
 import 'package:chattrix_ui/features/poll/presentation/providers/poll_actions_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -47,7 +46,7 @@ class PollMessageBubble extends HookConsumerWidget {
             currentUserId: currentUserId,
             onVote: (optionIds) async {
               debugPrint('🗳️ [PollVote] Starting vote for poll ${poll.id}, options: $optionIds');
-              
+
               final notifier = ref.read(pollActionsProvider.notifier);
               final result = await notifier.vote(
                 conversationId: message.conversationId,
@@ -56,14 +55,14 @@ class PollMessageBubble extends HookConsumerWidget {
               );
 
               debugPrint('🗳️ [PollVote] Vote result: ${result != null ? 'SUCCESS' : 'FAILED'}');
-              
+
               if (result != null) {
                 debugPrint('✅ [PollVote] API call successful - UI will be updated by WebSocket event');
-                
+
                 // ✅ DO NOT update UI from API response
                 // WebSocket event will update UI with complete personalized data
                 // API response lacks currentUserVotedOptionIds and other user-specific data
-                
+
                 if (context.mounted) {
                   ScaffoldMessenger.of(
                     context,

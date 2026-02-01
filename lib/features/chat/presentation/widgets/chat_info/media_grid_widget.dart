@@ -1,9 +1,6 @@
 import 'package:chattrix_ui/features/chat/presentation/pages/files_links_page.dart';
 import 'package:chattrix_ui/features/chat/presentation/providers/media_providers.dart';
-import 'package:chattrix_ui/features/chat/presentation/widgets/chat_info/media_grid_item.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 class MediaGridWidget extends HookConsumerWidget {
@@ -19,15 +16,9 @@ class MediaGridWidget extends HookConsumerWidget {
 
     // Fetch media statistics
     final statsAsync = ref.watch(conversationMediaStatisticsProvider(conversationId));
-    
+
     // Fetch media preview (only images and videos, limit 6)
-    final mediaAsync = ref.watch(
-      conversationMediaProvider(
-        conversationId,
-        limit: 6,
-        types: const ['IMAGE', 'VIDEO'],
-      ),
-    );
+    final mediaAsync = ref.watch(conversationMediaProvider(conversationId, limit: 6, types: const ['IMAGE', 'VIDEO']));
 
     return Column(
       children: [
@@ -37,49 +28,39 @@ class MediaGridWidget extends HookConsumerWidget {
             if (stats.totalMedia == 0) {
               return const SizedBox.shrink();
             }
-            
+
             return Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               decoration: BoxDecoration(
                 color: colors.surface,
-                border: Border(bottom: BorderSide(color: isDark ? Colors.grey.withValues(alpha: 0.2) : Colors.grey.withValues(alpha: 0.1))),
+                border: Border(
+                  bottom: BorderSide(
+                    color: isDark ? Colors.grey.withValues(alpha: 0.2) : Colors.grey.withValues(alpha: 0.1),
+                  ),
+                ),
               ),
               child: Row(
                 children: [
-                  _StatChip(
-                    icon: Icons.image,
-                    count: stats.totalImages,
-                    label: 'Photos',
-                    colors: colors,
-                  ),
+                  _StatChip(icon: Icons.image, count: stats.totalImages, label: 'Photos', colors: colors),
                   const SizedBox(width: 12),
-                  _StatChip(
-                    icon: Icons.videocam,
-                    count: stats.totalVideos,
-                    label: 'Videos',
-                    colors: colors,
-                  ),
+                  _StatChip(icon: Icons.videocam, count: stats.totalVideos, label: 'Videos', colors: colors),
                   const SizedBox(width: 12),
-                  _StatChip(
-                    icon: Icons.insert_drive_file,
-                    count: stats.totalFiles,
-                    label: 'Files',
-                    colors: colors,
-                  ),
+                  _StatChip(icon: Icons.insert_drive_file, count: stats.totalFiles, label: 'Files', colors: colors),
                   const Spacer(),
                   TextButton(
                     onPressed: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(
-                          builder: (context) => FilesLinksPage(conversationId: conversationId),
-                        ),
+                        MaterialPageRoute(builder: (context) => FilesLinksPage(conversationId: conversationId)),
                       );
                     },
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Text('View All', style: TextStyle(color: colors.primary, fontWeight: FontWeight.w600)),
+                        Text(
+                          'View All',
+                          style: TextStyle(color: colors.primary, fontWeight: FontWeight.w600),
+                        ),
                         const SizedBox(width: 4),
                         Icon(Icons.arrow_forward_ios, size: 14, color: colors.primary),
                       ],
@@ -192,12 +173,7 @@ class MediaGridWidget extends HookConsumerWidget {
 }
 
 class _StatChip extends StatelessWidget {
-  const _StatChip({
-    required this.icon,
-    required this.count,
-    required this.label,
-    required this.colors,
-  });
+  const _StatChip({required this.icon, required this.count, required this.label, required this.colors});
 
   final IconData icon;
   final int count;
@@ -213,11 +189,7 @@ class _StatChip extends StatelessWidget {
         const SizedBox(width: 4),
         Text(
           '$count',
-          style: TextStyle(
-            fontSize: 13,
-            fontWeight: FontWeight.w600,
-            color: colors.onSurface,
-          ),
+          style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: colors.onSurface),
         ),
       ],
     );

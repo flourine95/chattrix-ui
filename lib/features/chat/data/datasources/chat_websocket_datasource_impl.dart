@@ -307,36 +307,40 @@ class ChatWebSocketDataSourceImpl implements ChatWebSocketDataSource {
   @override
   Stream<ConversationUpdate> get conversationUpdateStream => _conversationUpdateController.stream;
 
+  @override
   Stream<Map<String, dynamic>> get conversationCreatedStream => _conversationCreatedController.stream;
 
   @override
   Stream<Map<String, dynamic>> get conversationPermissionsUpdatedStream => _conversationPermissionsUpdatedController.stream;
 
-  @override
   Stream<ScheduledMessageSentDto> get scheduledMessageSentStream => _scheduledMessageSentController.stream;
 
-  @override
   Stream<ScheduledMessageFailedDto> get scheduledMessageFailedStream => _scheduledMessageFailedController.stream;
 
   @override
   Stream<Map<String, dynamic>> get pollEventStream => _pollEventController.stream;
 
-  @override
   Stream<Map<String, dynamic>> get eventEventStream => _eventEventController.stream;
 
   @override
   Stream<Map<String, dynamic>> get messageIdUpdateStream => _messageIdUpdateController.stream;
 
+  @override
   Stream<Map<String, dynamic>> get messageDeletedStream => _messageDeletedController.stream;
 
+  @override
   Stream<Map<String, dynamic>> get messageUpdatedStream => _messageUpdatedController.stream;
 
+  @override
   Stream<Map<String, dynamic>> get messagePinStream => _messagePinController.stream;
 
+  @override
   Stream<Map<String, dynamic>> get messageReactionStream => _messageReactionController.stream;
 
+  @override
   Stream<Map<String, dynamic>> get conversationMemberLeftStream => _conversationMemberLeftController.stream;
 
+  @override
   Stream<Map<String, dynamic>> get conversationMemberAddedStream => _conversationMemberAddedController.stream;
 
   @override

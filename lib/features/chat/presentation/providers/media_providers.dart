@@ -84,7 +84,7 @@ Future<MediaStatistics> conversationMediaStatistics(
     }
 
     return MediaStatistics.empty();
-  } catch (e, stackTrace) {
+  } catch (e) {
     // Silently handle 404 errors (conversation may not have media statistics yet)
     if (e is DioException && e.response?.statusCode == 404) {
       return MediaStatistics.empty();

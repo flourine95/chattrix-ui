@@ -37,7 +37,7 @@ final class JoinGroupProvider
   JoinGroup create() => JoinGroup();
 }
 
-String _$joinGroupHash() => r'd4608afab99148f80bde87fdc18151c26d874dc7';
+String _$joinGroupHash() => r'29e33ef1685f063fab98eff215e7d1f9f5ec5d12';
 
 abstract class _$JoinGroup extends $AsyncNotifier<JoinGroupResultEntity?> {
   FutureOr<JoinGroupResultEntity?> build();

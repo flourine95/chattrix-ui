@@ -84,7 +84,7 @@ class ConversationSettingsNotifier extends _$ConversationSettingsNotifier {
       debugPrint('🔧 [togglePin] Refreshing conversationsProvider');
       await ref.refresh(conversationsProvider.future);
       debugPrint('🔧 [togglePin] DONE');
-    } catch (e, st) {
+    } catch (e) {
       debugPrint('🔧 [togglePin] Exception caught: $e');
       
       // Check if it's an "already pinned/unpinned" error
@@ -145,7 +145,7 @@ class ConversationSettingsNotifier extends _$ConversationSettingsNotifier {
       
       // Always refresh conversations list
       await ref.refresh(conversationsProvider.future);
-    } catch (e, st) {
+    } catch (e) {
       // Check if it's an UnimplementedError
       final errorMessage = e.toString().toLowerCase();
       if (errorMessage.contains('not available') || errorMessage.contains('unimplemented')) {

@@ -1,5 +1,7 @@
 import 'package:chattrix_ui/core/errors/failures.dart';
+import 'package:chattrix_ui/features/chat/presentation/providers/chat_providers.dart';
 import 'package:chattrix_ui/features/invite_links/domain/entities/invite_link_entity.dart';
+import 'package:flutter/material.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import 'invite_links_providers.dart';
@@ -23,7 +25,12 @@ class JoinGroup extends _$JoinGroup {
     if (ref.mounted) {
       state = result.fold((failure) {
         return AsyncValue.error(Exception(failure.userMessage), StackTrace.current);
-      }, (result) => AsyncValue.data(result));
+      }, (result) {
+        // ✅ Invalidate conversation provider to refresh AppBar after join
+        debugPrint('🔄 [JoinGroup] Invalidating conversations provider after successful join');
+        ref.invalidate(conversationsProvider);
+        return AsyncValue.data(result);
+      });
     }
   }
 

@@ -366,7 +366,7 @@ final class PollsListProvider
   }
 }
 
-String _$pollsListHash() => r'470b5686410d452d35eb5990adcbdb2eb4a6820e';
+String _$pollsListHash() => r'cec083aa4277e58a5994787855b557bc3208edec';
 
 final class PollsListFamily extends $Family
     with

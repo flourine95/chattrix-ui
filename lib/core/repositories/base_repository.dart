@@ -1,24 +1,35 @@
 import 'package:chattrix_ui/core/errors/exceptions.dart';
 import 'package:chattrix_ui/core/errors/failures.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:fpdart/fpdart.dart';
 
 abstract class BaseRepository {
   Future<Either<Failure, T>> executeApiCall<T>(Future<T> Function() apiCall) async {
     try {
+      debugPrint('🔄 [BaseRepo] Executing API call...');
       final result = await apiCall();
+      debugPrint('✅ [BaseRepo] API call successful');
       return right(result);
     } on DioException catch (e) {
+      debugPrint('❌ [BaseRepo] DioException caught: ${e.type}, message: ${e.message}');
+      debugPrint('❌ [BaseRepo] Response: ${e.response?.data}');
+      debugPrint('❌ [BaseRepo] Status code: ${e.response?.statusCode}');
+      
       // Check if the error is an ApiException wrapped in DioException
       if (e.error is ApiException) {
         final apiException = e.error as ApiException;
+        debugPrint('❌ [BaseRepo] ApiException wrapped in DioException: ${apiException.message}');
         return left(_handleApiException(apiException));
       }
 
       return left(_handleDioException(e));
     } on ApiException catch (e) {
+      debugPrint('❌ [BaseRepo] ApiException caught: ${e.message}, code: ${e.code}');
       return left(_handleApiException(e));
-    } catch (e) {
+    } catch (e, stackTrace) {
+      debugPrint('❌ [BaseRepo] Unexpected error: $e');
+      debugPrint('❌ [BaseRepo] Stack trace: $stackTrace');
       return left(Failure.server(message: 'Unexpected error: $e', code: 'UNEXPECTED_ERROR'));
     }
   }

@@ -561,4 +561,25 @@ class MessagesNotifier extends _$MessagesNotifier {
       );
     });
   }
+
+  /// Add a system message to the messages list (for real-time member events)
+  void addSystemMessage(Message systemMessage) {
+    state.whenData((messages) {
+      // Check if message already exists (avoid duplicates)
+      final exists = messages.any((m) => 
+        m.type == 'SYSTEM' && 
+        m.content == systemMessage.content &&
+        m.createdAt.difference(systemMessage.createdAt).inSeconds.abs() < 2
+      );
+      
+      if (!exists) {
+        final updatedMessages = [systemMessage, ...messages]
+          ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
+        state = AsyncValue.data(updatedMessages);
+        debugPrint('✅ [MessagesNotifier] Added system message: ${systemMessage.content}');
+      } else {
+        debugPrint('⚠️ [MessagesNotifier] System message already exists, skipping');
+      }
+    });
+  }
 }

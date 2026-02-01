@@ -33,7 +33,6 @@ class ConversationSettingsDatasourceImpl implements ConversationSettingsDatasour
 
       if (response.statusCode == 200) {
         // New API returns conversation object, extract settings
-        final data = response.data['data'] as Map<String, dynamic>;
         return ConversationSettingsModel(
           conversationId: conversationId,
           muted: true,
@@ -52,7 +51,6 @@ class ConversationSettingsDatasourceImpl implements ConversationSettingsDatasour
       final response = await dio.post(ApiConstants.unmuteConversation(conversationId));
 
       if (response.statusCode == 200) {
-        final data = response.data['data'] as Map<String, dynamic>;
         return ConversationSettingsModel(
           conversationId: conversationId,
           muted: false,
@@ -71,7 +69,6 @@ class ConversationSettingsDatasourceImpl implements ConversationSettingsDatasour
       final response = await dio.post(ApiConstants.pinConversation(conversationId));
 
       if (response.statusCode == 200) {
-        final data = response.data['data'] as Map<String, dynamic>;
         return ConversationSettingsModel(
           conversationId: conversationId,
           pinned: true,
@@ -90,7 +87,6 @@ class ConversationSettingsDatasourceImpl implements ConversationSettingsDatasour
       final response = await dio.post(ApiConstants.unpinConversation(conversationId));
 
       if (response.statusCode == 200) {
-        final data = response.data['data'] as Map<String, dynamic>;
         return ConversationSettingsModel(
           conversationId: conversationId,
           pinned: false,
@@ -122,7 +118,6 @@ class ConversationSettingsDatasourceImpl implements ConversationSettingsDatasour
       final response = await dio.post(ApiConstants.archiveConversation(conversationId));
 
       if (response.statusCode == 200) {
-        final data = response.data['data'] as Map<String, dynamic>;
         return ConversationSettingsModel(
           conversationId: conversationId,
           archived: true,
@@ -141,7 +136,6 @@ class ConversationSettingsDatasourceImpl implements ConversationSettingsDatasour
       final response = await dio.post(ApiConstants.unarchiveConversation(conversationId));
 
       if (response.statusCode == 200) {
-        final data = response.data['data'] as Map<String, dynamic>;
         return ConversationSettingsModel(
           conversationId: conversationId,
           archived: false,

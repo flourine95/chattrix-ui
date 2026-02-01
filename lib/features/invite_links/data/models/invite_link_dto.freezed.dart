@@ -281,7 +281,9 @@ as int?,
 /// @nodoc
 mixin _$InviteLinkDto {
 
- int get id; String get token; int get conversationId; int get createdBy; String get createdByUsername; String get createdAt; String? get expiresAt; int? get maxUses; int get currentUses; bool get revoked; String? get revokedAt; int? get revokedBy; bool get valid;
+ int get id; String get token; String? get link;// Full URL from backend (e.g., ngrok URL)
+ int get conversationId; int get createdBy; String? get createdByUsername;// Made nullable - backend may not return this
+ String get createdAt; String? get expiresAt; int? get maxUses; int get currentUses; bool get revoked; String? get revokedAt; int? get revokedBy; bool get valid;
 /// Create a copy of InviteLinkDto
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -294,16 +296,16 @@ $InviteLinkDtoCopyWith<InviteLinkDto> get copyWith => _$InviteLinkDtoCopyWithImp
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is InviteLinkDto&&(identical(other.id, id) || other.id == id)&&(identical(other.token, token) || other.token == token)&&(identical(other.conversationId, conversationId) || other.conversationId == conversationId)&&(identical(other.createdBy, createdBy) || other.createdBy == createdBy)&&(identical(other.createdByUsername, createdByUsername) || other.createdByUsername == createdByUsername)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.expiresAt, expiresAt) || other.expiresAt == expiresAt)&&(identical(other.maxUses, maxUses) || other.maxUses == maxUses)&&(identical(other.currentUses, currentUses) || other.currentUses == currentUses)&&(identical(other.revoked, revoked) || other.revoked == revoked)&&(identical(other.revokedAt, revokedAt) || other.revokedAt == revokedAt)&&(identical(other.revokedBy, revokedBy) || other.revokedBy == revokedBy)&&(identical(other.valid, valid) || other.valid == valid));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is InviteLinkDto&&(identical(other.id, id) || other.id == id)&&(identical(other.token, token) || other.token == token)&&(identical(other.link, link) || other.link == link)&&(identical(other.conversationId, conversationId) || other.conversationId == conversationId)&&(identical(other.createdBy, createdBy) || other.createdBy == createdBy)&&(identical(other.createdByUsername, createdByUsername) || other.createdByUsername == createdByUsername)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.expiresAt, expiresAt) || other.expiresAt == expiresAt)&&(identical(other.maxUses, maxUses) || other.maxUses == maxUses)&&(identical(other.currentUses, currentUses) || other.currentUses == currentUses)&&(identical(other.revoked, revoked) || other.revoked == revoked)&&(identical(other.revokedAt, revokedAt) || other.revokedAt == revokedAt)&&(identical(other.revokedBy, revokedBy) || other.revokedBy == revokedBy)&&(identical(other.valid, valid) || other.valid == valid));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,token,conversationId,createdBy,createdByUsername,createdAt,expiresAt,maxUses,currentUses,revoked,revokedAt,revokedBy,valid);
+int get hashCode => Object.hash(runtimeType,id,token,link,conversationId,createdBy,createdByUsername,createdAt,expiresAt,maxUses,currentUses,revoked,revokedAt,revokedBy,valid);
 
 @override
 String toString() {
-  return 'InviteLinkDto(id: $id, token: $token, conversationId: $conversationId, createdBy: $createdBy, createdByUsername: $createdByUsername, createdAt: $createdAt, expiresAt: $expiresAt, maxUses: $maxUses, currentUses: $currentUses, revoked: $revoked, revokedAt: $revokedAt, revokedBy: $revokedBy, valid: $valid)';
+  return 'InviteLinkDto(id: $id, token: $token, link: $link, conversationId: $conversationId, createdBy: $createdBy, createdByUsername: $createdByUsername, createdAt: $createdAt, expiresAt: $expiresAt, maxUses: $maxUses, currentUses: $currentUses, revoked: $revoked, revokedAt: $revokedAt, revokedBy: $revokedBy, valid: $valid)';
 }
 
 
@@ -314,7 +316,7 @@ abstract mixin class $InviteLinkDtoCopyWith<$Res>  {
   factory $InviteLinkDtoCopyWith(InviteLinkDto value, $Res Function(InviteLinkDto) _then) = _$InviteLinkDtoCopyWithImpl;
 @useResult
 $Res call({
- int id, String token, int conversationId, int createdBy, String createdByUsername, String createdAt, String? expiresAt, int? maxUses, int currentUses, bool revoked, String? revokedAt, int? revokedBy, bool valid
+ int id, String token, String? link, int conversationId, int createdBy, String? createdByUsername, String createdAt, String? expiresAt, int? maxUses, int currentUses, bool revoked, String? revokedAt, int? revokedBy, bool valid
 });
 
 
@@ -331,14 +333,15 @@ class _$InviteLinkDtoCopyWithImpl<$Res>
 
 /// Create a copy of InviteLinkDto
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? token = null,Object? conversationId = null,Object? createdBy = null,Object? createdByUsername = null,Object? createdAt = null,Object? expiresAt = freezed,Object? maxUses = freezed,Object? currentUses = null,Object? revoked = null,Object? revokedAt = freezed,Object? revokedBy = freezed,Object? valid = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? token = null,Object? link = freezed,Object? conversationId = null,Object? createdBy = null,Object? createdByUsername = freezed,Object? createdAt = null,Object? expiresAt = freezed,Object? maxUses = freezed,Object? currentUses = null,Object? revoked = null,Object? revokedAt = freezed,Object? revokedBy = freezed,Object? valid = null,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as int,token: null == token ? _self.token : token // ignore: cast_nullable_to_non_nullable
-as String,conversationId: null == conversationId ? _self.conversationId : conversationId // ignore: cast_nullable_to_non_nullable
+as String,link: freezed == link ? _self.link : link // ignore: cast_nullable_to_non_nullable
+as String?,conversationId: null == conversationId ? _self.conversationId : conversationId // ignore: cast_nullable_to_non_nullable
 as int,createdBy: null == createdBy ? _self.createdBy : createdBy // ignore: cast_nullable_to_non_nullable
-as int,createdByUsername: null == createdByUsername ? _self.createdByUsername : createdByUsername // ignore: cast_nullable_to_non_nullable
-as String,createdAt: null == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
+as int,createdByUsername: freezed == createdByUsername ? _self.createdByUsername : createdByUsername // ignore: cast_nullable_to_non_nullable
+as String?,createdAt: null == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
 as String,expiresAt: freezed == expiresAt ? _self.expiresAt : expiresAt // ignore: cast_nullable_to_non_nullable
 as String?,maxUses: freezed == maxUses ? _self.maxUses : maxUses // ignore: cast_nullable_to_non_nullable
 as int?,currentUses: null == currentUses ? _self.currentUses : currentUses // ignore: cast_nullable_to_non_nullable
@@ -431,10 +434,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int id,  String token,  int conversationId,  int createdBy,  String createdByUsername,  String createdAt,  String? expiresAt,  int? maxUses,  int currentUses,  bool revoked,  String? revokedAt,  int? revokedBy,  bool valid)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int id,  String token,  String? link,  int conversationId,  int createdBy,  String? createdByUsername,  String createdAt,  String? expiresAt,  int? maxUses,  int currentUses,  bool revoked,  String? revokedAt,  int? revokedBy,  bool valid)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _InviteLinkDto() when $default != null:
-return $default(_that.id,_that.token,_that.conversationId,_that.createdBy,_that.createdByUsername,_that.createdAt,_that.expiresAt,_that.maxUses,_that.currentUses,_that.revoked,_that.revokedAt,_that.revokedBy,_that.valid);case _:
+return $default(_that.id,_that.token,_that.link,_that.conversationId,_that.createdBy,_that.createdByUsername,_that.createdAt,_that.expiresAt,_that.maxUses,_that.currentUses,_that.revoked,_that.revokedAt,_that.revokedBy,_that.valid);case _:
   return orElse();
 
 }
@@ -452,10 +455,10 @@ return $default(_that.id,_that.token,_that.conversationId,_that.createdBy,_that.
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int id,  String token,  int conversationId,  int createdBy,  String createdByUsername,  String createdAt,  String? expiresAt,  int? maxUses,  int currentUses,  bool revoked,  String? revokedAt,  int? revokedBy,  bool valid)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int id,  String token,  String? link,  int conversationId,  int createdBy,  String? createdByUsername,  String createdAt,  String? expiresAt,  int? maxUses,  int currentUses,  bool revoked,  String? revokedAt,  int? revokedBy,  bool valid)  $default,) {final _that = this;
 switch (_that) {
 case _InviteLinkDto():
-return $default(_that.id,_that.token,_that.conversationId,_that.createdBy,_that.createdByUsername,_that.createdAt,_that.expiresAt,_that.maxUses,_that.currentUses,_that.revoked,_that.revokedAt,_that.revokedBy,_that.valid);case _:
+return $default(_that.id,_that.token,_that.link,_that.conversationId,_that.createdBy,_that.createdByUsername,_that.createdAt,_that.expiresAt,_that.maxUses,_that.currentUses,_that.revoked,_that.revokedAt,_that.revokedBy,_that.valid);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -472,10 +475,10 @@ return $default(_that.id,_that.token,_that.conversationId,_that.createdBy,_that.
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int id,  String token,  int conversationId,  int createdBy,  String createdByUsername,  String createdAt,  String? expiresAt,  int? maxUses,  int currentUses,  bool revoked,  String? revokedAt,  int? revokedBy,  bool valid)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int id,  String token,  String? link,  int conversationId,  int createdBy,  String? createdByUsername,  String createdAt,  String? expiresAt,  int? maxUses,  int currentUses,  bool revoked,  String? revokedAt,  int? revokedBy,  bool valid)?  $default,) {final _that = this;
 switch (_that) {
 case _InviteLinkDto() when $default != null:
-return $default(_that.id,_that.token,_that.conversationId,_that.createdBy,_that.createdByUsername,_that.createdAt,_that.expiresAt,_that.maxUses,_that.currentUses,_that.revoked,_that.revokedAt,_that.revokedBy,_that.valid);case _:
+return $default(_that.id,_that.token,_that.link,_that.conversationId,_that.createdBy,_that.createdByUsername,_that.createdAt,_that.expiresAt,_that.maxUses,_that.currentUses,_that.revoked,_that.revokedAt,_that.revokedBy,_that.valid);case _:
   return null;
 
 }
@@ -487,14 +490,17 @@ return $default(_that.id,_that.token,_that.conversationId,_that.createdBy,_that.
 @JsonSerializable()
 
 class _InviteLinkDto implements InviteLinkDto {
-  const _InviteLinkDto({required this.id, required this.token, required this.conversationId, required this.createdBy, required this.createdByUsername, required this.createdAt, this.expiresAt, this.maxUses, required this.currentUses, required this.revoked, this.revokedAt, this.revokedBy, required this.valid});
+  const _InviteLinkDto({required this.id, required this.token, this.link, required this.conversationId, required this.createdBy, this.createdByUsername, required this.createdAt, this.expiresAt, this.maxUses, required this.currentUses, required this.revoked, this.revokedAt, this.revokedBy, required this.valid});
   factory _InviteLinkDto.fromJson(Map<String, dynamic> json) => _$InviteLinkDtoFromJson(json);
 
 @override final  int id;
 @override final  String token;
+@override final  String? link;
+// Full URL from backend (e.g., ngrok URL)
 @override final  int conversationId;
 @override final  int createdBy;
-@override final  String createdByUsername;
+@override final  String? createdByUsername;
+// Made nullable - backend may not return this
 @override final  String createdAt;
 @override final  String? expiresAt;
 @override final  int? maxUses;
@@ -517,16 +523,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _InviteLinkDto&&(identical(other.id, id) || other.id == id)&&(identical(other.token, token) || other.token == token)&&(identical(other.conversationId, conversationId) || other.conversationId == conversationId)&&(identical(other.createdBy, createdBy) || other.createdBy == createdBy)&&(identical(other.createdByUsername, createdByUsername) || other.createdByUsername == createdByUsername)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.expiresAt, expiresAt) || other.expiresAt == expiresAt)&&(identical(other.maxUses, maxUses) || other.maxUses == maxUses)&&(identical(other.currentUses, currentUses) || other.currentUses == currentUses)&&(identical(other.revoked, revoked) || other.revoked == revoked)&&(identical(other.revokedAt, revokedAt) || other.revokedAt == revokedAt)&&(identical(other.revokedBy, revokedBy) || other.revokedBy == revokedBy)&&(identical(other.valid, valid) || other.valid == valid));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _InviteLinkDto&&(identical(other.id, id) || other.id == id)&&(identical(other.token, token) || other.token == token)&&(identical(other.link, link) || other.link == link)&&(identical(other.conversationId, conversationId) || other.conversationId == conversationId)&&(identical(other.createdBy, createdBy) || other.createdBy == createdBy)&&(identical(other.createdByUsername, createdByUsername) || other.createdByUsername == createdByUsername)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.expiresAt, expiresAt) || other.expiresAt == expiresAt)&&(identical(other.maxUses, maxUses) || other.maxUses == maxUses)&&(identical(other.currentUses, currentUses) || other.currentUses == currentUses)&&(identical(other.revoked, revoked) || other.revoked == revoked)&&(identical(other.revokedAt, revokedAt) || other.revokedAt == revokedAt)&&(identical(other.revokedBy, revokedBy) || other.revokedBy == revokedBy)&&(identical(other.valid, valid) || other.valid == valid));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,token,conversationId,createdBy,createdByUsername,createdAt,expiresAt,maxUses,currentUses,revoked,revokedAt,revokedBy,valid);
+int get hashCode => Object.hash(runtimeType,id,token,link,conversationId,createdBy,createdByUsername,createdAt,expiresAt,maxUses,currentUses,revoked,revokedAt,revokedBy,valid);
 
 @override
 String toString() {
-  return 'InviteLinkDto(id: $id, token: $token, conversationId: $conversationId, createdBy: $createdBy, createdByUsername: $createdByUsername, createdAt: $createdAt, expiresAt: $expiresAt, maxUses: $maxUses, currentUses: $currentUses, revoked: $revoked, revokedAt: $revokedAt, revokedBy: $revokedBy, valid: $valid)';
+  return 'InviteLinkDto(id: $id, token: $token, link: $link, conversationId: $conversationId, createdBy: $createdBy, createdByUsername: $createdByUsername, createdAt: $createdAt, expiresAt: $expiresAt, maxUses: $maxUses, currentUses: $currentUses, revoked: $revoked, revokedAt: $revokedAt, revokedBy: $revokedBy, valid: $valid)';
 }
 
 
@@ -537,7 +543,7 @@ abstract mixin class _$InviteLinkDtoCopyWith<$Res> implements $InviteLinkDtoCopy
   factory _$InviteLinkDtoCopyWith(_InviteLinkDto value, $Res Function(_InviteLinkDto) _then) = __$InviteLinkDtoCopyWithImpl;
 @override @useResult
 $Res call({
- int id, String token, int conversationId, int createdBy, String createdByUsername, String createdAt, String? expiresAt, int? maxUses, int currentUses, bool revoked, String? revokedAt, int? revokedBy, bool valid
+ int id, String token, String? link, int conversationId, int createdBy, String? createdByUsername, String createdAt, String? expiresAt, int? maxUses, int currentUses, bool revoked, String? revokedAt, int? revokedBy, bool valid
 });
 
 
@@ -554,14 +560,15 @@ class __$InviteLinkDtoCopyWithImpl<$Res>
 
 /// Create a copy of InviteLinkDto
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? token = null,Object? conversationId = null,Object? createdBy = null,Object? createdByUsername = null,Object? createdAt = null,Object? expiresAt = freezed,Object? maxUses = freezed,Object? currentUses = null,Object? revoked = null,Object? revokedAt = freezed,Object? revokedBy = freezed,Object? valid = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? token = null,Object? link = freezed,Object? conversationId = null,Object? createdBy = null,Object? createdByUsername = freezed,Object? createdAt = null,Object? expiresAt = freezed,Object? maxUses = freezed,Object? currentUses = null,Object? revoked = null,Object? revokedAt = freezed,Object? revokedBy = freezed,Object? valid = null,}) {
   return _then(_InviteLinkDto(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as int,token: null == token ? _self.token : token // ignore: cast_nullable_to_non_nullable
-as String,conversationId: null == conversationId ? _self.conversationId : conversationId // ignore: cast_nullable_to_non_nullable
+as String,link: freezed == link ? _self.link : link // ignore: cast_nullable_to_non_nullable
+as String?,conversationId: null == conversationId ? _self.conversationId : conversationId // ignore: cast_nullable_to_non_nullable
 as int,createdBy: null == createdBy ? _self.createdBy : createdBy // ignore: cast_nullable_to_non_nullable
-as int,createdByUsername: null == createdByUsername ? _self.createdByUsername : createdByUsername // ignore: cast_nullable_to_non_nullable
-as String,createdAt: null == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
+as int,createdByUsername: freezed == createdByUsername ? _self.createdByUsername : createdByUsername // ignore: cast_nullable_to_non_nullable
+as String?,createdAt: null == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
 as String,expiresAt: freezed == expiresAt ? _self.expiresAt : expiresAt // ignore: cast_nullable_to_non_nullable
 as String?,maxUses: freezed == maxUses ? _self.maxUses : maxUses // ignore: cast_nullable_to_non_nullable
 as int?,currentUses: null == currentUses ? _self.currentUses : currentUses // ignore: cast_nullable_to_non_nullable
@@ -1426,7 +1433,8 @@ as String?,
 /// @nodoc
 mixin _$InviteLinkHistoryItemDto {
 
- String get token; InviteLinkUserDto get createdBy; String get createdAt; int get maxUses; int get currentUses; bool get isActive; bool get isRevoked; bool get isExpired; String get status;
+ String get token; String? get link;// Full URL from backend
+ InviteLinkUserDto get createdBy; String get createdAt; int get maxUses; int get currentUses; bool get isActive; bool get isRevoked; bool get isExpired; String get status;
 /// Create a copy of InviteLinkHistoryItemDto
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -1439,16 +1447,16 @@ $InviteLinkHistoryItemDtoCopyWith<InviteLinkHistoryItemDto> get copyWith => _$In
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is InviteLinkHistoryItemDto&&(identical(other.token, token) || other.token == token)&&(identical(other.createdBy, createdBy) || other.createdBy == createdBy)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.maxUses, maxUses) || other.maxUses == maxUses)&&(identical(other.currentUses, currentUses) || other.currentUses == currentUses)&&(identical(other.isActive, isActive) || other.isActive == isActive)&&(identical(other.isRevoked, isRevoked) || other.isRevoked == isRevoked)&&(identical(other.isExpired, isExpired) || other.isExpired == isExpired)&&(identical(other.status, status) || other.status == status));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is InviteLinkHistoryItemDto&&(identical(other.token, token) || other.token == token)&&(identical(other.link, link) || other.link == link)&&(identical(other.createdBy, createdBy) || other.createdBy == createdBy)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.maxUses, maxUses) || other.maxUses == maxUses)&&(identical(other.currentUses, currentUses) || other.currentUses == currentUses)&&(identical(other.isActive, isActive) || other.isActive == isActive)&&(identical(other.isRevoked, isRevoked) || other.isRevoked == isRevoked)&&(identical(other.isExpired, isExpired) || other.isExpired == isExpired)&&(identical(other.status, status) || other.status == status));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,token,createdBy,createdAt,maxUses,currentUses,isActive,isRevoked,isExpired,status);
+int get hashCode => Object.hash(runtimeType,token,link,createdBy,createdAt,maxUses,currentUses,isActive,isRevoked,isExpired,status);
 
 @override
 String toString() {
-  return 'InviteLinkHistoryItemDto(token: $token, createdBy: $createdBy, createdAt: $createdAt, maxUses: $maxUses, currentUses: $currentUses, isActive: $isActive, isRevoked: $isRevoked, isExpired: $isExpired, status: $status)';
+  return 'InviteLinkHistoryItemDto(token: $token, link: $link, createdBy: $createdBy, createdAt: $createdAt, maxUses: $maxUses, currentUses: $currentUses, isActive: $isActive, isRevoked: $isRevoked, isExpired: $isExpired, status: $status)';
 }
 
 
@@ -1459,7 +1467,7 @@ abstract mixin class $InviteLinkHistoryItemDtoCopyWith<$Res>  {
   factory $InviteLinkHistoryItemDtoCopyWith(InviteLinkHistoryItemDto value, $Res Function(InviteLinkHistoryItemDto) _then) = _$InviteLinkHistoryItemDtoCopyWithImpl;
 @useResult
 $Res call({
- String token, InviteLinkUserDto createdBy, String createdAt, int maxUses, int currentUses, bool isActive, bool isRevoked, bool isExpired, String status
+ String token, String? link, InviteLinkUserDto createdBy, String createdAt, int maxUses, int currentUses, bool isActive, bool isRevoked, bool isExpired, String status
 });
 
 
@@ -1476,10 +1484,11 @@ class _$InviteLinkHistoryItemDtoCopyWithImpl<$Res>
 
 /// Create a copy of InviteLinkHistoryItemDto
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? token = null,Object? createdBy = null,Object? createdAt = null,Object? maxUses = null,Object? currentUses = null,Object? isActive = null,Object? isRevoked = null,Object? isExpired = null,Object? status = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? token = null,Object? link = freezed,Object? createdBy = null,Object? createdAt = null,Object? maxUses = null,Object? currentUses = null,Object? isActive = null,Object? isRevoked = null,Object? isExpired = null,Object? status = null,}) {
   return _then(_self.copyWith(
 token: null == token ? _self.token : token // ignore: cast_nullable_to_non_nullable
-as String,createdBy: null == createdBy ? _self.createdBy : createdBy // ignore: cast_nullable_to_non_nullable
+as String,link: freezed == link ? _self.link : link // ignore: cast_nullable_to_non_nullable
+as String?,createdBy: null == createdBy ? _self.createdBy : createdBy // ignore: cast_nullable_to_non_nullable
 as InviteLinkUserDto,createdAt: null == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
 as String,maxUses: null == maxUses ? _self.maxUses : maxUses // ignore: cast_nullable_to_non_nullable
 as int,currentUses: null == currentUses ? _self.currentUses : currentUses // ignore: cast_nullable_to_non_nullable
@@ -1581,10 +1590,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String token,  InviteLinkUserDto createdBy,  String createdAt,  int maxUses,  int currentUses,  bool isActive,  bool isRevoked,  bool isExpired,  String status)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String token,  String? link,  InviteLinkUserDto createdBy,  String createdAt,  int maxUses,  int currentUses,  bool isActive,  bool isRevoked,  bool isExpired,  String status)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _InviteLinkHistoryItemDto() when $default != null:
-return $default(_that.token,_that.createdBy,_that.createdAt,_that.maxUses,_that.currentUses,_that.isActive,_that.isRevoked,_that.isExpired,_that.status);case _:
+return $default(_that.token,_that.link,_that.createdBy,_that.createdAt,_that.maxUses,_that.currentUses,_that.isActive,_that.isRevoked,_that.isExpired,_that.status);case _:
   return orElse();
 
 }
@@ -1602,10 +1611,10 @@ return $default(_that.token,_that.createdBy,_that.createdAt,_that.maxUses,_that.
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String token,  InviteLinkUserDto createdBy,  String createdAt,  int maxUses,  int currentUses,  bool isActive,  bool isRevoked,  bool isExpired,  String status)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String token,  String? link,  InviteLinkUserDto createdBy,  String createdAt,  int maxUses,  int currentUses,  bool isActive,  bool isRevoked,  bool isExpired,  String status)  $default,) {final _that = this;
 switch (_that) {
 case _InviteLinkHistoryItemDto():
-return $default(_that.token,_that.createdBy,_that.createdAt,_that.maxUses,_that.currentUses,_that.isActive,_that.isRevoked,_that.isExpired,_that.status);case _:
+return $default(_that.token,_that.link,_that.createdBy,_that.createdAt,_that.maxUses,_that.currentUses,_that.isActive,_that.isRevoked,_that.isExpired,_that.status);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -1622,10 +1631,10 @@ return $default(_that.token,_that.createdBy,_that.createdAt,_that.maxUses,_that.
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String token,  InviteLinkUserDto createdBy,  String createdAt,  int maxUses,  int currentUses,  bool isActive,  bool isRevoked,  bool isExpired,  String status)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String token,  String? link,  InviteLinkUserDto createdBy,  String createdAt,  int maxUses,  int currentUses,  bool isActive,  bool isRevoked,  bool isExpired,  String status)?  $default,) {final _that = this;
 switch (_that) {
 case _InviteLinkHistoryItemDto() when $default != null:
-return $default(_that.token,_that.createdBy,_that.createdAt,_that.maxUses,_that.currentUses,_that.isActive,_that.isRevoked,_that.isExpired,_that.status);case _:
+return $default(_that.token,_that.link,_that.createdBy,_that.createdAt,_that.maxUses,_that.currentUses,_that.isActive,_that.isRevoked,_that.isExpired,_that.status);case _:
   return null;
 
 }
@@ -1637,10 +1646,12 @@ return $default(_that.token,_that.createdBy,_that.createdAt,_that.maxUses,_that.
 @JsonSerializable()
 
 class _InviteLinkHistoryItemDto implements InviteLinkHistoryItemDto {
-  const _InviteLinkHistoryItemDto({required this.token, required this.createdBy, required this.createdAt, required this.maxUses, required this.currentUses, required this.isActive, required this.isRevoked, required this.isExpired, required this.status});
+  const _InviteLinkHistoryItemDto({required this.token, this.link, required this.createdBy, required this.createdAt, required this.maxUses, required this.currentUses, required this.isActive, required this.isRevoked, required this.isExpired, required this.status});
   factory _InviteLinkHistoryItemDto.fromJson(Map<String, dynamic> json) => _$InviteLinkHistoryItemDtoFromJson(json);
 
 @override final  String token;
+@override final  String? link;
+// Full URL from backend
 @override final  InviteLinkUserDto createdBy;
 @override final  String createdAt;
 @override final  int maxUses;
@@ -1663,16 +1674,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _InviteLinkHistoryItemDto&&(identical(other.token, token) || other.token == token)&&(identical(other.createdBy, createdBy) || other.createdBy == createdBy)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.maxUses, maxUses) || other.maxUses == maxUses)&&(identical(other.currentUses, currentUses) || other.currentUses == currentUses)&&(identical(other.isActive, isActive) || other.isActive == isActive)&&(identical(other.isRevoked, isRevoked) || other.isRevoked == isRevoked)&&(identical(other.isExpired, isExpired) || other.isExpired == isExpired)&&(identical(other.status, status) || other.status == status));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _InviteLinkHistoryItemDto&&(identical(other.token, token) || other.token == token)&&(identical(other.link, link) || other.link == link)&&(identical(other.createdBy, createdBy) || other.createdBy == createdBy)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.maxUses, maxUses) || other.maxUses == maxUses)&&(identical(other.currentUses, currentUses) || other.currentUses == currentUses)&&(identical(other.isActive, isActive) || other.isActive == isActive)&&(identical(other.isRevoked, isRevoked) || other.isRevoked == isRevoked)&&(identical(other.isExpired, isExpired) || other.isExpired == isExpired)&&(identical(other.status, status) || other.status == status));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,token,createdBy,createdAt,maxUses,currentUses,isActive,isRevoked,isExpired,status);
+int get hashCode => Object.hash(runtimeType,token,link,createdBy,createdAt,maxUses,currentUses,isActive,isRevoked,isExpired,status);
 
 @override
 String toString() {
-  return 'InviteLinkHistoryItemDto(token: $token, createdBy: $createdBy, createdAt: $createdAt, maxUses: $maxUses, currentUses: $currentUses, isActive: $isActive, isRevoked: $isRevoked, isExpired: $isExpired, status: $status)';
+  return 'InviteLinkHistoryItemDto(token: $token, link: $link, createdBy: $createdBy, createdAt: $createdAt, maxUses: $maxUses, currentUses: $currentUses, isActive: $isActive, isRevoked: $isRevoked, isExpired: $isExpired, status: $status)';
 }
 
 
@@ -1683,7 +1694,7 @@ abstract mixin class _$InviteLinkHistoryItemDtoCopyWith<$Res> implements $Invite
   factory _$InviteLinkHistoryItemDtoCopyWith(_InviteLinkHistoryItemDto value, $Res Function(_InviteLinkHistoryItemDto) _then) = __$InviteLinkHistoryItemDtoCopyWithImpl;
 @override @useResult
 $Res call({
- String token, InviteLinkUserDto createdBy, String createdAt, int maxUses, int currentUses, bool isActive, bool isRevoked, bool isExpired, String status
+ String token, String? link, InviteLinkUserDto createdBy, String createdAt, int maxUses, int currentUses, bool isActive, bool isRevoked, bool isExpired, String status
 });
 
 
@@ -1700,10 +1711,11 @@ class __$InviteLinkHistoryItemDtoCopyWithImpl<$Res>
 
 /// Create a copy of InviteLinkHistoryItemDto
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? token = null,Object? createdBy = null,Object? createdAt = null,Object? maxUses = null,Object? currentUses = null,Object? isActive = null,Object? isRevoked = null,Object? isExpired = null,Object? status = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? token = null,Object? link = freezed,Object? createdBy = null,Object? createdAt = null,Object? maxUses = null,Object? currentUses = null,Object? isActive = null,Object? isRevoked = null,Object? isExpired = null,Object? status = null,}) {
   return _then(_InviteLinkHistoryItemDto(
 token: null == token ? _self.token : token // ignore: cast_nullable_to_non_nullable
-as String,createdBy: null == createdBy ? _self.createdBy : createdBy // ignore: cast_nullable_to_non_nullable
+as String,link: freezed == link ? _self.link : link // ignore: cast_nullable_to_non_nullable
+as String?,createdBy: null == createdBy ? _self.createdBy : createdBy // ignore: cast_nullable_to_non_nullable
 as InviteLinkUserDto,createdAt: null == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
 as String,maxUses: null == maxUses ? _self.maxUses : maxUses // ignore: cast_nullable_to_non_nullable
 as int,currentUses: null == currentUses ? _self.currentUses : currentUses // ignore: cast_nullable_to_non_nullable
