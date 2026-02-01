@@ -408,8 +408,15 @@ class ChatInfoPage extends HookConsumerWidget {
 
   /// Build Pin Conversation tile
   Widget _buildPinConversationTile(BuildContext context, WidgetRef ref, ColorScheme colors, TextTheme textTheme) {
-    final settingsAsync = ref.watch(conversationSettingsProvider(conversation.id));
-    final isPinned = settingsAsync.value?.pinned ?? false;
+    // Get settings from conversation object (not from separate provider)
+    final conversationsAsync = ref.watch(conversationsProvider);
+    final currentConversation = conversationsAsync.whenOrNull(
+      data: (conversations) => conversations.firstWhere((c) => c.id == conversation.id, orElse: () => conversation),
+    ) ?? conversation;
+    
+    final isPinned = currentConversation.settings?.pinned ?? false;
+    
+    debugPrint('🔍 [PinTile] Building with isPinned=$isPinned, conversationId=${conversation.id}');
 
     return _buildActionTile(
       icon: Icons.push_pin,
@@ -420,7 +427,122 @@ class ChatInfoPage extends HookConsumerWidget {
       trailing: Switch(
         value: isPinned,
         onChanged: (value) async {
-          await ref.read(conversationSettingsProvider(conversation.id).notifier).togglePin();
+          debugPrint('🔘 [PinTile] Switch toggled to: $value');
+          
+          try {
+            // Show loading indicator
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Row(
+                  children: [
+                    const SizedBox(
+                      width: 16,
+                      height: 16,
+                      child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                    ),
+                    const SizedBox(width: 12),
+                    Text(
+                      value ? 'Pinning...' : 'Unpinning...',
+                      style: const TextStyle(color: Colors.white),
+                    ),
+                  ],
+                ),
+                backgroundColor: Colors.grey.shade900,
+                behavior: SnackBarBehavior.floating,
+                margin: const EdgeInsets.all(16),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                duration: const Duration(seconds: 1),
+              ),
+            );
+
+            // Call API directly
+            debugPrint('🔘 [PinTile] Calling API: ${value ? 'pin' : 'unpin'}');
+            final dio = ref.read(dioProvider);
+            final endpoint = value 
+                ? ApiConstants.pinConversation(conversation.id)
+                : ApiConstants.unpinConversation(conversation.id);
+            
+            await dio.post(endpoint);
+            debugPrint('🔘 [PinTile] API call completed');
+            
+            // Refresh conversations list to get updated data
+            debugPrint('🔘 [PinTile] Refreshing conversations...');
+            await ref.refresh(conversationsProvider.future);
+            debugPrint('🔘 [PinTile] Refresh completed');
+            
+            if (context.mounted) {
+              // Clear loading snackbar
+              ScaffoldMessenger.of(context).clearSnackBars();
+              
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Row(
+                    children: [
+                      Icon(
+                        value ? Icons.push_pin : Icons.push_pin_outlined,
+                        color: Colors.white,
+                        size: 20,
+                      ),
+                      const SizedBox(width: 12),
+                      Text(
+                        value ? 'Conversation pinned' : 'Conversation unpinned',
+                        style: const TextStyle(color: Colors.white),
+                      ),
+                    ],
+                  ),
+                  backgroundColor: Colors.grey.shade900,
+                  behavior: SnackBarBehavior.floating,
+                  margin: const EdgeInsets.all(16),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  duration: const Duration(seconds: 2),
+                ),
+              );
+            }
+          } catch (e) {
+            debugPrint('❌ [PinTile] Error toggling pin: $e');
+            
+            // Check if it's "already pinned/unpinned" error - still refresh to sync state
+            final errorMessage = e.toString().toLowerCase();
+            final isAlreadyPinnedError = errorMessage.contains('already pinned') || 
+                                          errorMessage.contains('already unpinned');
+            
+            if (isAlreadyPinnedError) {
+              debugPrint('ℹ️ [PinTile] State mismatch, refreshing...');
+              await ref.refresh(conversationsProvider.future);
+            }
+            
+            if (context.mounted) {
+              ScaffoldMessenger.of(context).clearSnackBars();
+              
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Row(
+                    children: [
+                      Icon(
+                        isAlreadyPinnedError ? Icons.info_outline : Icons.error_outline, 
+                        color: Colors.white, 
+                        size: 20,
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          isAlreadyPinnedError 
+                              ? 'Conversation ${value ? 'already pinned' : 'already unpinned'}'
+                              : 'Failed to ${value ? 'pin' : 'unpin'} conversation',
+                          style: const TextStyle(color: Colors.white),
+                        ),
+                      ),
+                    ],
+                  ),
+                  backgroundColor: Colors.grey.shade900,
+                  behavior: SnackBarBehavior.floating,
+                  margin: const EdgeInsets.all(16),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  duration: const Duration(seconds: 2),
+                ),
+              );
+            }
+          }
         },
       ),
     );
@@ -428,8 +550,13 @@ class ChatInfoPage extends HookConsumerWidget {
 
   /// Build Hide Conversation tile
   Widget _buildHideConversationTile(BuildContext context, WidgetRef ref, ColorScheme colors, TextTheme textTheme) {
-    final settingsAsync = ref.watch(conversationSettingsProvider(conversation.id));
-    final isHidden = settingsAsync.value?.hidden ?? false;
+    // Get settings from conversation object (not from separate provider)
+    final conversationsAsync = ref.watch(conversationsProvider);
+    final currentConversation = conversationsAsync.whenOrNull(
+      data: (conversations) => conversations.firstWhere((c) => c.id == conversation.id, orElse: () => conversation),
+    ) ?? conversation;
+    
+    final isHidden = currentConversation.settings?.hidden ?? false;
 
     return _buildActionTile(
       icon: Icons.visibility_off,
@@ -440,7 +567,26 @@ class ChatInfoPage extends HookConsumerWidget {
       trailing: Switch(
         value: isHidden,
         onChanged: (value) async {
-          await ref.read(conversationSettingsProvider(conversation.id).notifier).toggleHide();
+          // Show "coming soon" message since hide is not implemented
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Row(
+                children: [
+                  const Icon(Icons.info_outline, color: Colors.white, size: 20),
+                  const SizedBox(width: 12),
+                  const Text(
+                    'Hide conversation feature coming soon',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ],
+              ),
+              backgroundColor: Colors.grey.shade900,
+              behavior: SnackBarBehavior.floating,
+              margin: const EdgeInsets.all(16),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              duration: const Duration(seconds: 2),
+            ),
+          );
         },
       ),
     );

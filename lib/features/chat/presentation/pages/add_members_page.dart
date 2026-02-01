@@ -1,13 +1,13 @@
+import 'dart:async';
+
 import 'package:chattrix_ui/core/constants/api_constants.dart';
-import 'package:chattrix_ui/core/toast/toastification_helper.dart';
 import 'package:chattrix_ui/core/widgets/user_avatar.dart';
 import 'package:chattrix_ui/features/auth/presentation/providers/auth_repository_provider.dart';
-import 'package:chattrix_ui/features/chat/presentation/providers/chat_state_provider.dart';
+import 'package:chattrix_ui/features/chat/presentation/providers/chat_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'dart:async';
 
 /// Page to add members to a group conversation
 ///
@@ -83,6 +83,9 @@ class AddMembersPage extends HookConsumerWidget {
 
         debugPrint('✅ Add members response: ${response.data}');
 
+        // Refresh conversations immediately to update participants list
+        ref.refresh(conversationsProvider.future);
+
         if (context.mounted) {
           // Close loading dialog
           Navigator.of(context, rootNavigator: true).pop();
@@ -113,7 +116,7 @@ class AddMembersPage extends HookConsumerWidget {
         }
       } catch (e) {
         debugPrint('❌ Error adding members: $e');
-        
+
         // Extract error message
         String errorMessage = 'Failed to add members';
         if (e.toString().contains('Only admins can perform this action')) {
@@ -125,7 +128,7 @@ class AddMembersPage extends HookConsumerWidget {
         } else if (e.toString().contains('ALREADY_MEMBER')) {
           errorMessage = 'Some users are already members';
         }
-        
+
         if (context.mounted) {
           // Close loading dialog
           Navigator.of(context, rootNavigator: true).pop();
@@ -160,10 +163,7 @@ class AddMembersPage extends HookConsumerWidget {
         elevation: 0,
         scrolledUnderElevation: 0,
         surfaceTintColor: Colors.transparent,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => context.pop(),
-        ),
+        leading: IconButton(icon: const Icon(Icons.arrow_back), onPressed: () => context.pop()),
         title: const Text('Add Members', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600)),
         actions: [
           if (selectedUsers.value.isNotEmpty)
@@ -253,10 +253,7 @@ class AddMembersPage extends HookConsumerWidget {
             padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
             child: Container(
               height: 40,
-              decoration: BoxDecoration(
-                color: bgColor,
-                borderRadius: BorderRadius.circular(20),
-              ),
+              decoration: BoxDecoration(color: bgColor, borderRadius: BorderRadius.circular(20)),
               child: TextField(
                 controller: searchController,
                 focusNode: searchFocusNode,
@@ -267,10 +264,7 @@ class AddMembersPage extends HookConsumerWidget {
                   focusedBorder: InputBorder.none,
                   prefixIcon: Icon(Icons.search, size: 20, color: isDark ? Colors.grey[400] : Colors.grey[600]),
                   suffixIcon: searchController.text.isNotEmpty
-                      ? IconButton(
-                          icon: const Icon(Icons.clear, size: 20),
-                          onPressed: () => searchController.clear(),
-                        )
+                      ? IconButton(icon: const Icon(Icons.clear, size: 20), onPressed: () => searchController.clear())
                       : null,
                   contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                 ),
@@ -281,20 +275,13 @@ class AddMembersPage extends HookConsumerWidget {
 
           // Results
           Expanded(
-            child: _buildSearchResults(
-              context,
-              ref,
-              searchQuery.value,
-              selectedUsers.value,
-              isDark,
-              (user) {
-                if (selectedUsers.value.contains(user)) {
-                  selectedUsers.value = List.from(selectedUsers.value)..remove(user);
-                } else {
-                  selectedUsers.value = [...selectedUsers.value, user];
-                }
-              },
-            ),
+            child: _buildSearchResults(context, ref, searchQuery.value, selectedUsers.value, isDark, (user) {
+              if (selectedUsers.value.contains(user)) {
+                selectedUsers.value = List.from(selectedUsers.value)..remove(user);
+              } else {
+                selectedUsers.value = [...selectedUsers.value, user];
+              }
+            }),
           ),
         ],
       ),
@@ -317,7 +304,10 @@ class AddMembersPage extends HookConsumerWidget {
           children: [
             Icon(Icons.person_add, size: 64, color: Colors.grey[400]),
             const SizedBox(height: 16),
-            Text('Add members to group', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.grey[600])),
+            Text(
+              'Add members to group',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.grey[600]),
+            ),
             const SizedBox(height: 8),
             Text('Search for users to add', style: TextStyle(fontSize: 14, color: Colors.grey[500])),
           ],
@@ -338,7 +328,10 @@ class AddMembersPage extends HookConsumerWidget {
               children: [
                 Icon(Icons.person_search, size: 64, color: Colors.grey[400]),
                 const SizedBox(height: 16),
-                Text('No users found', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.grey[600])),
+                Text(
+                  'No users found',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.grey[600]),
+                ),
                 const SizedBox(height: 8),
                 Text('Try a different search term', style: TextStyle(fontSize: 14, color: Colors.grey[500])),
               ],
@@ -369,9 +362,16 @@ class AddMembersPage extends HookConsumerWidget {
           children: [
             Icon(Icons.error_outline, size: 64, color: Colors.red[300]),
             const SizedBox(height: 16),
-            Text('Search failed', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: Colors.red[700])),
+            Text(
+              'Search failed',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: Colors.red[700]),
+            ),
             const SizedBox(height: 8),
-            Text(error.toString(), style: TextStyle(fontSize: 14, color: Colors.grey[600]), textAlign: TextAlign.center),
+            Text(
+              error.toString(),
+              style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+              textAlign: TextAlign.center,
+            ),
           ],
         ),
       ),
@@ -395,12 +395,7 @@ class AddMembersPage extends HookConsumerWidget {
       leading: Stack(
         clipBehavior: Clip.none,
         children: [
-          UserAvatar(
-            displayName: userName,
-            avatarUrl: user.avatarUrl,
-            radius: 24,
-            backgroundColor: avatarColor,
-          ),
+          UserAvatar(displayName: userName, avatarUrl: user.avatarUrl, radius: 24, backgroundColor: avatarColor),
           if (user.isOnline)
             Positioned(
               right: 0,
@@ -420,10 +415,7 @@ class AddMembersPage extends HookConsumerWidget {
       title: Row(
         children: [
           Expanded(
-            child: Text(
-              userName,
-              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-            ),
+            child: Text(userName, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
           ),
           if (user.isContact)
             Container(
@@ -449,10 +441,7 @@ class AddMembersPage extends HookConsumerWidget {
         height: 24,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          border: Border.all(
-            color: isSelected ? Theme.of(context).colorScheme.primary : Colors.grey[400]!,
-            width: 2,
-          ),
+          border: Border.all(color: isSelected ? Theme.of(context).colorScheme.primary : Colors.grey[400]!, width: 2),
           color: isSelected ? Theme.of(context).colorScheme.primary : Colors.transparent,
         ),
         child: isSelected ? const Icon(Icons.check, size: 16, color: Colors.white) : null,

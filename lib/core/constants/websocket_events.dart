@@ -12,6 +12,9 @@ class WebSocketEvents {
   static const String conversationUpdate = 'conversation.update';
   static const String conversationUpdated = 'conversation.updated'; // When conversation metadata changes (name, avatar, etc.)
   static const String conversationPermissionsUpdated = 'conversation.permissions_updated'; // When group permissions change
+  static const String conversationMemberLeft = 'conversation.member_left'; // When a member leaves a group voluntarily
+  static const String conversationMemberAdded = 'conversation.member_added'; // When a member is added to a group
+  static const String conversationMemberRemoved = 'conversation.member_removed'; // When a member is removed by admin
   static const String typingIndicator = 'typing.indicator';
   static const String typingStart = 'typing.start';
   static const String typingStop = 'typing.stop';

@@ -111,7 +111,7 @@ final class ConversationMediaProvider
   }
 }
 
-String _$conversationMediaHash() => r'd9eb052ba120b982d19eea666c2951a8a2136252';
+String _$conversationMediaHash() => r'3d10772fe90a450b3dfb0cd03e47fae937cfebfb';
 
 /// Provider to fetch media from a conversation using the new Media Search API
 ///
@@ -233,7 +233,7 @@ final class ConversationMediaStatisticsProvider
 }
 
 String _$conversationMediaStatisticsHash() =>
-    r'240a72273f07508abe255f1a3d7ef7994fcac8da';
+    r'4da0f034d9a757c98a21f9f51f90c14691d7852f';
 
 /// Provider to fetch media statistics only
 

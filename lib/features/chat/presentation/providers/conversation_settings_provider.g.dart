@@ -162,7 +162,7 @@ final class ConversationSettingsNotifierProvider
 }
 
 String _$conversationSettingsNotifierHash() =>
-    r'dbe2e9ed3e1ea78c4d136c1f89c661d21697e67d';
+    r'ba4d665160f74e4bc172d83446adb3b27f95980d';
 
 final class ConversationSettingsNotifierFamily extends $Family
     with

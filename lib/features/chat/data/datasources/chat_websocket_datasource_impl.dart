@@ -37,6 +37,8 @@ class ChatWebSocketDataSourceImpl implements ChatWebSocketDataSource {
   final _messageUpdatedController = StreamController<Map<String, dynamic>>.broadcast();
   final _messagePinController = StreamController<Map<String, dynamic>>.broadcast();
   final _messageReactionController = StreamController<Map<String, dynamic>>.broadcast();
+  final _conversationMemberLeftController = StreamController<Map<String, dynamic>>.broadcast();
+  final _conversationMemberAddedController = StreamController<Map<String, dynamic>>.broadcast();
 
   ChatWebSocketDataSourceImpl({required WebSocketService webSocketService}) : _webSocketService = webSocketService {
     _startListening();
@@ -55,6 +57,9 @@ class ChatWebSocketDataSourceImpl implements ChatWebSocketDataSource {
       WebSocketEvents.conversationUpdate,
       WebSocketEvents.conversationUpdated,
       WebSocketEvents.conversationPermissionsUpdated,
+      WebSocketEvents.conversationMemberLeft,
+      WebSocketEvents.conversationMemberAdded,
+      WebSocketEvents.conversationMemberRemoved,
       WebSocketEvents.scheduledMessageSent,
       WebSocketEvents.scheduledMessageFailed,
       WebSocketEvents.messageReaction,
@@ -181,6 +186,24 @@ class ChatWebSocketDataSourceImpl implements ChatWebSocketDataSource {
           // Handle group permissions updates
           _conversationPermissionsUpdatedController.add(payload as Map<String, dynamic>);
           debugPrint('🔧 [WS] Permissions updated event received');
+          break;
+
+        case WebSocketEvents.conversationMemberLeft:
+          // Handle member leaving group
+          _conversationMemberLeftController.add(payload as Map<String, dynamic>);
+          debugPrint('👋 [WS] Member left event received');
+          break;
+
+        case WebSocketEvents.conversationMemberAdded:
+          // Handle member added to group
+          _conversationMemberAddedController.add(payload as Map<String, dynamic>);
+          debugPrint('👤 [WS] Member added event received');
+          break;
+
+        case WebSocketEvents.conversationMemberRemoved:
+          // Handle member removed by admin (same as member_left, just different reason)
+          _conversationMemberLeftController.add(payload as Map<String, dynamic>);
+          debugPrint('🚫 [WS] Member removed event received');
           break;
 
         case WebSocketEvents.scheduledMessageSent:
@@ -312,6 +335,10 @@ class ChatWebSocketDataSourceImpl implements ChatWebSocketDataSource {
 
   Stream<Map<String, dynamic>> get messageReactionStream => _messageReactionController.stream;
 
+  Stream<Map<String, dynamic>> get conversationMemberLeftStream => _conversationMemberLeftController.stream;
+
+  Stream<Map<String, dynamic>> get conversationMemberAddedStream => _conversationMemberAddedController.stream;
+
   @override
   Stream<void> get heartbeatAckStream => _heartbeatAckController.stream;
 
@@ -333,6 +360,8 @@ class ChatWebSocketDataSourceImpl implements ChatWebSocketDataSource {
     _messageUpdatedController.close();
     _messagePinController.close();
     _messageReactionController.close();
+    _conversationMemberLeftController.close();
+    _conversationMemberAddedController.close();
     _typingController.close();
     _userStatusController.close();
     _conversationCreatedController.close();

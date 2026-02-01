@@ -15,6 +15,7 @@ import 'package:chattrix_ui/features/chat/domain/entities/user_status_update.dar
 import 'package:chattrix_ui/features/chat/presentation/providers/chat_usecase_provider.dart';
 import 'package:chattrix_ui/features/chat/presentation/providers/chat_websocket_provider_new.dart';
 import 'package:chattrix_ui/features/chat/presentation/state/filter_notifier.dart';
+import 'package:flutter/foundation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'conversations_notifier.g.dart';
@@ -29,6 +30,8 @@ class ConversationsNotifier extends _$ConversationsNotifier {
   StreamSubscription<Map<String, dynamic>>? _conversationCreatedSubscription;
   StreamSubscription<ConversationUpdate>? _conversationUpdateSubscription;
   StreamSubscription<Map<String, dynamic>>? _permissionsUpdateSubscription;
+  StreamSubscription<Map<String, dynamic>>? _memberLeftSubscription;
+  StreamSubscription<Map<String, dynamic>>? _memberAddedSubscription;
   StreamSubscription<UserStatusUpdate>? _userStatusSubscription;
   StreamSubscription<TypingIndicator>? _typingSubscription;
 
@@ -67,6 +70,16 @@ class ConversationsNotifier extends _$ConversationsNotifier {
     // Listen to WebSocket permissions updates
     _permissionsUpdateSubscription = wsDataSource.conversationPermissionsUpdatedStream.listen((data) {
       _handlePermissionsUpdatedEvent(data);
+    });
+
+    // Listen to WebSocket member left events
+    _memberLeftSubscription = wsDataSource.conversationMemberLeftStream.listen((data) {
+      _handleMemberLeftEvent(data);
+    });
+
+    // Listen to WebSocket member added events
+    _memberAddedSubscription = wsDataSource.conversationMemberAddedStream.listen((data) {
+      _handleMemberAddedEvent(data);
     });
 
     // Listen to WebSocket user status events
@@ -109,6 +122,8 @@ class ConversationsNotifier extends _$ConversationsNotifier {
       _conversationCreatedSubscription?.cancel();
       _conversationUpdateSubscription?.cancel();
       _permissionsUpdateSubscription?.cancel();
+      _memberLeftSubscription?.cancel();
+      _memberAddedSubscription?.cancel();
       _userStatusSubscription?.cancel();
       _typingSubscription?.cancel();
       _connectionSubscription?.cancel();
@@ -514,6 +529,219 @@ class ConversationsNotifier extends _$ConversationsNotifier {
       // We don't need to do anything here since permissions are not part of Conversation entity
     } catch (e) {
       print('❌ [Permissions] Error handling permissions update: $e');
+    }
+  }
+
+  /// Handle member left events from WebSocket
+  void _handleMemberLeftEvent(Map<String, dynamic> data) {
+    try {
+      final conversationId = data['conversationId'] as int?;
+      final members = data['members'] as List?;
+
+      if (conversationId == null || members == null) {
+        debugPrint('⚠️ [MemberLeft] Invalid member left event');
+        return;
+      }
+
+      debugPrint('👋 [MemberLeft] Members left conversation $conversationId');
+
+      final currentState = state.value;
+      if (currentState == null) return;
+
+      // Check if current user is in the removed members list
+      final currentUser = ref.read(currentUserProvider);
+      if (currentUser != null) {
+        final removedUserIds = members
+            .whereType<Map<String, dynamic>>()
+            .map((m) => m['userId'] as int?)
+            .whereType<int>()
+            .toList();
+
+        if (removedUserIds.contains(currentUser.id)) {
+          debugPrint('🚫 [MemberLeft] Current user was removed from conversation $conversationId');
+          
+          // Remove this conversation from the list entirely
+          final updatedList = currentState.where((c) => c.id != conversationId).toList();
+          final filtered = _filterAndSortConversations(updatedList);
+          state = AsyncValue.data(filtered);
+          
+          debugPrint('✅ [MemberLeft] Removed conversation $conversationId from list');
+          return;
+        }
+      }
+
+      // Find the conversation
+      final conversationIndex = currentState.indexWhere((c) => c.id == conversationId);
+      if (conversationIndex == -1) {
+        // Conversation not in list, might have been deleted
+        refresh();
+        return;
+      }
+
+      final conversation = currentState[conversationIndex];
+
+      // Extract user IDs of members who left
+      final leftUserIds = <int>[];
+      for (final member in members) {
+        if (member is Map<String, dynamic>) {
+          final userId = member['userId'] as int?;
+          if (userId != null) {
+            leftUserIds.add(userId);
+          }
+        }
+      }
+
+      if (leftUserIds.isEmpty) {
+        debugPrint('⚠️ [MemberLeft] No valid user IDs found');
+        return;
+      }
+
+      debugPrint('👋 [MemberLeft] User IDs who left: $leftUserIds');
+
+      // Remove the members from participants list
+      final updatedParticipants = conversation.participants.where((p) => !leftUserIds.contains(p.userId)).toList();
+
+      // Update conversation with new participants list
+      final updatedConversation = conversation.copyWith(
+        participants: updatedParticipants,
+        updatedAt: DateTime.now(),
+      );
+
+      // Update list with new conversation
+      final updatedList = currentState.map((c) {
+        if (c.id == conversationId) {
+          return updatedConversation;
+        }
+        return c;
+      }).toList();
+
+      // Apply sorting
+      final filtered = _filterAndSortConversations(updatedList);
+      state = AsyncValue.data(filtered);
+
+      debugPrint('✅ [MemberLeft] Updated conversation $conversationId, now has ${updatedParticipants.length} participants');
+    } catch (e) {
+      debugPrint('❌ [MemberLeft] Error handling member left: $e');
+      // Fallback: refresh entire list
+      refresh();
+    }
+  }
+
+  /// Handle member added events from WebSocket
+  void _handleMemberAddedEvent(Map<String, dynamic> data) {
+    try {
+      final conversationId = data['conversationId'] as int?;
+      final members = data['members'] as List?;
+
+      if (conversationId == null || members == null) {
+        debugPrint('⚠️ [MemberAdded] Invalid member added event');
+        return;
+      }
+
+      debugPrint('👤 [MemberAdded] Members added to conversation $conversationId');
+
+      final currentState = state.value;
+      final currentUser = ref.read(currentUserProvider);
+      
+      if (currentUser == null) {
+        debugPrint('⚠️ [MemberAdded] No current user');
+        return;
+      }
+
+      // Check if current user is in the added members list
+      final addedUserIds = members
+          .whereType<Map<String, dynamic>>()
+          .map((m) => m['userId'] as int?)
+          .whereType<int>()
+          .toList();
+
+      if (addedUserIds.contains(currentUser.id)) {
+        debugPrint('🎉 [MemberAdded] Current user was added to conversation $conversationId');
+        // Current user was added to a new group - refresh entire list to fetch the new conversation
+        refresh();
+        return;
+      }
+
+      // Not current user - update existing conversation's participants
+      if (currentState == null) {
+        // No state yet, refresh to get full data
+        refresh();
+        return;
+      }
+
+      // Find the conversation
+      final conversationIndex = currentState.indexWhere((c) => c.id == conversationId);
+      if (conversationIndex == -1) {
+        // Conversation not in list, but current user wasn't added, so ignore
+        debugPrint('ℹ️ [MemberAdded] Conversation $conversationId not in list');
+        return;
+      }
+
+      final conversation = currentState[conversationIndex];
+
+      // Parse new members
+      final newParticipants = <Participant>[];
+      for (final member in members) {
+        if (member is Map<String, dynamic>) {
+          try {
+            final participant = Participant(
+              userId: member['userId'] as int? ?? 0,
+              username: member['username'] as String? ?? '',
+              fullName: member['fullName'] as String? ?? '',
+              role: member['role'] as String? ?? 'MEMBER',
+              email: member['email'] as String?,
+              nickname: member['nickname'] as String?,
+              avatarUrl: member['avatarUrl'] as String?,
+              lastSeen: member['lastSeen'] != null ? DateTime.tryParse(member['lastSeen'] as String) : null,
+            );
+            newParticipants.add(participant);
+          } catch (e) {
+            debugPrint('⚠️ [MemberAdded] Error parsing participant: $e');
+          }
+        }
+      }
+
+      if (newParticipants.isEmpty) {
+        debugPrint('⚠️ [MemberAdded] No valid participants found');
+        return;
+      }
+
+      debugPrint('👤 [MemberAdded] Adding ${newParticipants.length} new participants');
+
+      // Merge with existing participants (avoid duplicates)
+      final existingUserIds = conversation.participants.map((p) => p.userId).toSet();
+      final participantsToAdd = newParticipants.where((p) => !existingUserIds.contains(p.userId)).toList();
+
+      if (participantsToAdd.isEmpty) {
+        debugPrint('ℹ️ [MemberAdded] All members already in conversation');
+        return;
+      }
+
+      final updatedParticipants = [...conversation.participants, ...participantsToAdd];
+
+      // Update conversation with new participants list
+      final updatedConversation = conversation.copyWith(
+        participants: updatedParticipants,
+        updatedAt: DateTime.now(),
+      );
+
+      // Update list with new conversation
+      final updatedList = currentState.map((c) {
+        if (c.id == conversationId) {
+          return updatedConversation;
+        }
+        return c;
+      }).toList();
+
+      // Apply sorting
+      final filtered = _filterAndSortConversations(updatedList);
+      state = AsyncValue.data(filtered);
+
+      debugPrint('✅ [MemberAdded] Updated conversation $conversationId, now has ${updatedParticipants.length} participants');
+    } catch (e) {
+      debugPrint('❌ [MemberAdded] Error handling member added: $e');
+      // Fallback: refresh entire list
+      refresh();
     }
   }
 
